@@ -16,6 +16,27 @@ const objectFields = ['area','propertyType','price','params','headline','descrip
 const fields = ['layoutName', ...profileFields, ...objectFields, 'qrLink','qrCaption','splitMode','colorMode','pageMargin','pageGap','flyerPadding','radius','headlineScale','phoneScale','layoutDensity','photoFit'];
 const blockVisibility = ['showHeadline','showPrice','showDescription','showMeta','showBenefits','showCustomBlock','showPhoto','showQr','showContact'];
 const checks = ['tearOffs','showCutLines','safePrintMargins','printCheckMode','showBrand', ...blockVisibility];
+const DEFAULT_BLOCK_ORDER = ['headline','price','photo','description','meta','benefits','customBlock','contact'];
+const blockOrderLabels = {
+  headline: 'Заголовок',
+  price: 'Цена / бюджет',
+  photo: 'Фото',
+  description: 'Описание',
+  meta: 'Параметры',
+  benefits: 'Преимущества',
+  customBlock: 'Доп. блок',
+  contact: 'Контакты / телефон'
+};
+const blockVisibilityMap = {
+  headline: 'showHeadline',
+  price: 'showPrice',
+  photo: 'showPhoto',
+  description: 'showDescription',
+  meta: 'showMeta',
+  benefits: 'showBenefits',
+  customBlock: 'showCustomBlock',
+  contact: 'showContact'
+};
 
 async function init(){
   bindStaticUi();
@@ -25,6 +46,7 @@ async function init(){
   renderPresetChips();
   renderLayoutModes();
   renderSavedLayouts();
+  renderBlockOrderControls();
   templates = await loadTemplates();
   const saved = loadAutoSave();
   if(saved){ state = {...state, ...saved, version: state.version}; }
@@ -44,6 +66,8 @@ function bindStaticUi(){
   checks.forEach(id => $(id).addEventListener('change', readFormAndRender));
   $('templateSearch').addEventListener('input', renderTemplates);
   $('templateDensityFilter').addEventListener('change', renderTemplates);
+  $('blockOrderList').addEventListener('click', handleBlockOrderClick);
+  $('resetBlockOrderBtn').onclick = resetBlockOrder;
   $('photoOne').addEventListener('change', async e => { state.photoOne = await readFileAsDataURL(e.target.files[0]); if(state.photoMode==='none') state.photoMode='one'; state.showPhoto = true; state.layoutMode='manual'; syncFormFromState(); renderAll(); });
   $('photoTwo').addEventListener('change', async e => { state.photoTwo = await readFileAsDataURL(e.target.files[0]); if(state.photoMode!=='two') state.photoMode='two'; state.showPhoto = true; state.layoutMode='manual'; syncFormFromState(); renderAll(); });
   $('qualityBtn').onclick = () => runQuality(true);
@@ -99,6 +123,47 @@ function renderSavedLayouts(selectedId = ''){
   select.innerHTML = '<option value="">Сохранённые макеты</option>' + layouts.map(item => `<option value="${esc(item.id)}">${esc(item.name)} — ${new Date(item.updatedAt).toLocaleDateString('ru-RU')}</option>`).join('');
   if(selectedId) select.value = selectedId;
 }
+function renderBlockOrderControls(){
+  state.blockOrder = normalizeBlockOrder(state.blockOrder);
+  $('blockOrderList').innerHTML = state.blockOrder.map((id, index) => {
+    const visibilityKey = blockVisibilityMap[id];
+    const isVisible = visibilityKey ? state[visibilityKey] !== false : true;
+    return `<div class="block-order-item ${isVisible ? '' : 'muted-block'}" data-block-id="${id}">
+      <span class="block-order-name">${index + 1}. ${esc(blockOrderLabels[id] || id)}${isVisible ? '' : ' — скрыт'}</span>
+      <span class="block-order-actions">
+        <button type="button" data-block-move="up" data-block-id="${id}" ${index === 0 ? 'disabled' : ''}>↑</button>
+        <button type="button" data-block-move="down" data-block-id="${id}" ${index === state.blockOrder.length - 1 ? 'disabled' : ''}>↓</button>
+      </span>
+    </div>`;
+  }).join('');
+}
+function handleBlockOrderClick(event){
+  const btn = event.target.closest('[data-block-move]');
+  if(!btn) return;
+  moveBlock(btn.dataset.blockId, btn.dataset.blockMove);
+}
+function moveBlock(blockId, direction){
+  const order = normalizeBlockOrder(state.blockOrder);
+  const index = order.indexOf(blockId);
+  if(index < 0) return;
+  const target = direction === 'up' ? index - 1 : index + 1;
+  if(target < 0 || target >= order.length) return;
+  [order[index], order[target]] = [order[target], order[index]];
+  state.blockOrder = order;
+  state.layoutMode = 'manual';
+  renderAll();
+  setStatus(`Порядок блока «${blockOrderLabels[blockId] || blockId}» изменён.`);
+}
+function resetBlockOrder(){
+  state.blockOrder = [...DEFAULT_BLOCK_ORDER];
+  state.layoutMode = 'manual';
+  renderAll();
+  setStatus('Порядок блоков сброшен.');
+}
+function normalizeBlockOrder(order){
+  const safe = Array.isArray(order) ? order.filter(id => DEFAULT_BLOCK_ORDER.includes(id)) : [];
+  return [...new Set([...safe, ...DEFAULT_BLOCK_ORDER])];
+}
 function saveCurrentNamedLayout(){
   const name = (state.layoutName || state.headline || state.goal || 'Макет без названия').trim();
   if(!name){ setStatus('Укажите название макета.'); $('layoutName').focus(); return; }
@@ -113,7 +178,7 @@ function loadSelectedLayout(){
   if(!id){ setStatus('Сначала выберите сохранённый макет.'); return; }
   const item = loadLayout(id);
   if(!item){ setStatus('Сохранённый макет не найден.'); renderSavedLayouts(); return; }
-  state = {...state, ...item.state, version:state.version};
+  state = {...state, ...item.state, version:state.version, blockOrder: normalizeBlockOrder(item.state.blockOrder)};
   syncFormFromState();
   renderAll();
   renderSavedLayouts(id);
@@ -128,6 +193,7 @@ function deleteSelectedLayout(){
 }
 function applyMode(mode){
   state = applyLayoutMode(state, mode);
+  state.blockOrder = normalizeBlockOrder(state.blockOrder);
   syncFormFromState();
   renderAll();
   setStatus(mode === 'auto' ? 'Макет подстроен автоматически.' : `Применён режим: ${layoutModes.find(m=>m.id===mode)?.title || mode}.`);
@@ -148,7 +214,8 @@ function applyTemplate(t){
   if(!t) return;
   const keepProfile = pickProfile(state);
   const keepVisibility = pickVisibility(state);
-  state = {...state, ...t.data, ...keepProfile, ...keepVisibility, goal:t.goal, templateId:t.id, layoutMode:'manual'};
+  const keepOrder = normalizeBlockOrder(state.blockOrder);
+  state = {...state, ...t.data, ...keepProfile, ...keepVisibility, blockOrder: keepOrder, goal:t.goal, templateId:t.id, layoutMode:'manual'};
   state.photoMode = t.photo || state.photoMode || 'none';
   if(t.printCount) state.printCount = t.printCount;
   if(t.density) state.layoutDensity = t.density;
@@ -175,11 +242,13 @@ function readFormAndRender(){
   fields.forEach(id => { state[id] = $(id).type === 'number' || $(id).type === 'range' ? Number($(id).value) : $(id).value; });
   checks.forEach(id => { state[id] = $(id).checked; });
   if(!state.showPhoto) state.photoMode = 'none';
+  state.blockOrder = normalizeBlockOrder(state.blockOrder);
   state.layoutMode = 'manual';
   renderAll();
 }
 function renderAll(){
   syncFormFromState();
+  renderBlockOrderControls();
   renderLayoutHints();
   applyCss(state);
   renderTemplates();
@@ -231,6 +300,7 @@ function applyFix(action){
   if(action === 'showSafeMargins') state.safePrintMargins = true;
   if(action === 'cleanBrand') { state.colorMode='private'; state.showBrand=false; state.headline=state.headline.replace(/этажи/ig,'').trim(); state.description=state.description.replace(/этажи/ig,'').trim(); }
   if(action === 'autoFix') state = applyLayoutMode(state, 'auto');
+  state.blockOrder = normalizeBlockOrder(state.blockOrder);
   state.layoutMode = action === 'autoFix' ? 'auto' : 'manual';
   renderAll();
 }
@@ -265,6 +335,7 @@ function clearObjectData(){
   state.photoMode='none';
   state.showPhoto=false;
   state.showCustomBlock=false;
+  state.blockOrder = [...DEFAULT_BLOCK_ORDER];
   state.layoutMode='manual';
   syncFormFromState(); renderAll();
   setStatus('Данные объекта очищены. Имя и телефон СПН сохранены.');
@@ -289,7 +360,7 @@ function loadFromFile(e){
   if(!file) return;
   const reader = new FileReader();
   reader.onload = () => {
-    try { state = {...state, ...JSON.parse(reader.result), version:state.version}; syncFormFromState(); renderAll(); setStatus('Файл макета открыт.'); }
+    try { state = {...state, ...JSON.parse(reader.result), version:state.version}; state.blockOrder = normalizeBlockOrder(state.blockOrder); syncFormFromState(); renderAll(); setStatus('Файл макета открыт.'); }
     catch(err){ setStatus('Не удалось открыть файл.'); }
   };
   reader.readAsText(file);

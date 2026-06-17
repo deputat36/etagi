@@ -36,11 +36,12 @@ export const propertyPresets = [
 ];
 
 export const defaultState = {
-  version: '1.7.0',
+  version: '1.8.0',
   goal: 'seller',
   templateId: '',
   layoutName: '',
   layoutMode: 'manual',
+  blockOrder: ['headline','price','photo','description','meta','benefits','customBlock','contact'],
   agentName: '',
   agentPhone: '',
   area: '',

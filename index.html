@@ -64,6 +64,10 @@
         <label>Заголовок<textarea id="headline" rows="2"></textarea></label>
         <label>Описание<textarea id="description" rows="4"></textarea></label>
         <label>Преимущества<textarea id="benefits" rows="3" placeholder="Каждое преимущество с новой строки"></textarea></label>
+        <div class="custom-block-fields">
+          <label>Название дополнительного блока<input id="customBlockTitle" type="text" placeholder="Например: Условия, Важно, Бонус"></label>
+          <label>Текст дополнительного блока<textarea id="customBlockText" rows="3" placeholder="Например: подходит под семейную ипотеку, возможен торг, помощь с одобрением"></textarea></label>
+        </div>
 
         <div class="block-manager" aria-label="Состав макета">
           <div class="mini-title">Быстрые режимы</div>
@@ -78,11 +82,12 @@
             <label class="block-toggle"><input id="showDescription" type="checkbox"> Описание</label>
             <label class="block-toggle"><input id="showMeta" type="checkbox"> Параметры</label>
             <label class="block-toggle"><input id="showBenefits" type="checkbox"> Преимущества</label>
+            <label class="block-toggle"><input id="showCustomBlock" type="checkbox"> Доп. блок</label>
             <label class="block-toggle"><input id="showPhoto" type="checkbox"> Фото</label>
             <label class="block-toggle"><input id="showQr" type="checkbox"> QR</label>
             <label class="block-toggle"><input id="showContact" type="checkbox"> Контакты</label>
           </div>
-          <p class="hint-text">Блоки можно включать и отключать. Макет будет перестраиваться сам: если убрать фото или описание, остальные элементы займут свободное место.</p>
+          <p class="hint-text">Блоки можно включать и отключать. Дополнительный блок нужен для условий, срочности, бонусов, ипотеки, торга или важного уточнения.</p>
         </div>
 
         <div class="quick-actions">

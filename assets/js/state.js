@@ -36,7 +36,7 @@ export const propertyPresets = [
 ];
 
 export const defaultState = {
-  version: '1.6.0',
+  version: '1.7.0',
   goal: 'seller',
   templateId: '',
   layoutName: '',
@@ -50,6 +50,8 @@ export const defaultState = {
   headline: '',
   description: '',
   benefits: '',
+  customBlockTitle: '',
+  customBlockText: '',
   photoMode: 'none',
   photoOne: '',
   photoTwo: '',
@@ -76,6 +78,7 @@ export const defaultState = {
   showDescription: true,
   showMeta: true,
   showBenefits: true,
+  showCustomBlock: false,
   showPhoto: true,
   showQr: true,
   showContact: true

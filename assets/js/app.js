@@ -1,4 +1,4 @@
-import { goals, photoModes, printPresets, areaPresets, propertyPresets, cloneDefaultState } from './state.js';
+import { goals, photoModes, printPresets, propertyPresets, cloneDefaultState } from './state.js';
 import { $, esc, readFileAsDataURL, downloadText, debounce } from './utils.js';
 import { loadTemplates, filterTemplates } from './templates.js';
 import { applyCss, renderSheet, getGrid } from './render.js';
@@ -13,7 +13,7 @@ const debouncedSave = debounce(()=>autoSave(state), 500);
 const profileFields = ['agentName','agentPhone'];
 const objectFields = ['area','propertyType','price','params','headline','description','benefits'];
 const fields = [...profileFields, ...objectFields, 'qrLink','qrCaption','splitMode','colorMode','pageMargin','pageGap','flyerPadding','radius','headlineScale','phoneScale','layoutDensity','photoFit'];
-const checks = ['tearOffs','showBrand','showBenefits','showMeta'];
+const checks = ['tearOffs','showBrand','showHeadline','showPrice','showDescription','showMeta','showBenefits','showPhoto','showQr','showContact'];
 
 async function init(){
   bindStaticUi();
@@ -23,7 +23,7 @@ async function init(){
   renderPresetChips();
   templates = await loadTemplates();
   const saved = loadAutoSave();
-  if(saved && saved.version === state.version){ state = {...state, ...saved}; }
+  if(saved){ state = {...state, ...saved, version: state.version}; }
   if(!state.templateId){
     const first = templates.find(t=>t.goal === state.goal) || templates[0];
     applyTemplate(first);
@@ -40,8 +40,8 @@ function bindStaticUi(){
   checks.forEach(id => $(id).addEventListener('change', readFormAndRender));
   $('templateSearch').addEventListener('input', renderTemplates);
   $('templateDensityFilter').addEventListener('change', renderTemplates);
-  $('photoOne').addEventListener('change', async e => { state.photoOne = await readFileAsDataURL(e.target.files[0]); if(state.photoMode==='none') state.photoMode='one'; syncFormFromState(); renderAll(); });
-  $('photoTwo').addEventListener('change', async e => { state.photoTwo = await readFileAsDataURL(e.target.files[0]); if(state.photoMode!=='two') state.photoMode='two'; syncFormFromState(); renderAll(); });
+  $('photoOne').addEventListener('change', async e => { state.photoOne = await readFileAsDataURL(e.target.files[0]); if(state.photoMode==='none') state.photoMode='one'; state.showPhoto = true; syncFormFromState(); renderAll(); });
+  $('photoTwo').addEventListener('change', async e => { state.photoTwo = await readFileAsDataURL(e.target.files[0]); if(state.photoMode!=='two') state.photoMode='two'; state.showPhoto = true; syncFormFromState(); renderAll(); });
   $('qualityBtn').onclick = () => runQuality(true);
   $('printBtn').onclick = printFlow;
   $('cancelPrintBtn').onclick = () => $('printDialog').close();
@@ -54,7 +54,7 @@ function bindStaticUi(){
   $('loadProfileBtn').onclick = loadSavedProfile;
   $('clearObjectBtn').onclick = clearObjectData;
   $('saveLocalBtn').onclick = () => { saveNamed(state); setStatus('Макет сохранён в этом браузере.'); };
-  $('loadLocalBtn').onclick = () => { const s = loadNamed(); if(s){ state={...state,...s}; syncFormFromState(); renderAll(); setStatus('Макет загружен.'); } else setStatus('Сохранённый макет не найден.'); };
+  $('loadLocalBtn').onclick = () => { const s = loadNamed(); if(s){ state={...state,...s, version:state.version}; syncFormFromState(); renderAll(); setStatus('Макет загружен.'); } else setStatus('Сохранённый макет не найден.'); };
   $('downloadBtn').onclick = () => downloadText(`etagi-raskleyka-${new Date().toISOString().slice(0,10)}.json`, JSON.stringify(state,null,2));
   $('uploadBtn').onclick = () => $('uploadFile').click();
   $('uploadFile').onchange = loadFromFile;
@@ -71,17 +71,15 @@ function renderGoals(){
 }
 function renderPhotoModes(){
   $('photoModeRow').innerHTML = photoModes.map(m=>`<button type="button" data-photo="${m.id}">${esc(m.title)}</button>`).join('');
-  $('photoModeRow').querySelectorAll('[data-photo]').forEach(btn=>btn.onclick=()=>{ state.photoMode=btn.dataset.photo; if(state.photoMode==='none'){state.photoOne='';state.photoTwo='';} renderAll(); });
+  $('photoModeRow').querySelectorAll('[data-photo]').forEach(btn=>btn.onclick=()=>{ state.photoMode=btn.dataset.photo; state.showPhoto = state.photoMode !== 'none'; if(state.photoMode==='none'){state.photoOne='';state.photoTwo='';} renderAll(); });
 }
 function renderPrintPresets(){
   $('printPresetRow').innerHTML = printPresets.map(p=>`<button type="button" data-count="${p.count}">${esc(p.title)}</button>`).join('');
   $('printPresetRow').querySelectorAll('[data-count]').forEach(btn=>btn.onclick=()=>{ state.printCount=Number(btn.dataset.count); renderAll(); });
 }
 function renderPresetChips(){
-  $('areaPresets').innerHTML = areaPresets.map(x=>`<button type="button" class="chip-btn" data-area="${esc(x)}">${esc(x)}</button>`).join('');
   $('propertyPresets').innerHTML = propertyPresets.map(x=>`<button type="button" class="chip-btn" data-property="${esc(x)}">${esc(x)}</button>`).join('');
-  $('areaPresets').querySelectorAll('[data-area]').forEach(btn=>btn.onclick=()=>{ state.area = btn.dataset.area; syncFormFromState(); renderAll(); });
-  $('propertyPresets').querySelectorAll('[data-property]').forEach(btn=>btn.onclick=()=>{ state.propertyType = btn.dataset.property; syncFormFromState(); renderAll(); });
+  $('propertyPresets').querySelectorAll('[data-property]').forEach(btn=>btn.onclick=()=>{ state.propertyType = btn.dataset.property; state.showMeta = true; syncFormFromState(); renderAll(); });
 }
 function renderTemplates(){
   const list = filterTemplates(templates, state.goal, $('templateSearch').value, $('templateDensityFilter').value);
@@ -98,14 +96,20 @@ function templateCard(t){
 function applyTemplate(t){
   if(!t) return;
   const keepProfile = pickProfile(state);
-  state = {...state, ...t.data, ...keepProfile, goal:t.goal, templateId:t.id};
+  const keepVisibility = pickVisibility(state);
+  state = {...state, ...t.data, ...keepProfile, ...keepVisibility, goal:t.goal, templateId:t.id};
   state.photoMode = t.photo || state.photoMode || 'none';
   if(t.printCount) state.printCount = t.printCount;
   if(t.density) state.layoutDensity = t.density;
+  if(state.photoMode === 'none') state.showPhoto = false;
   syncFormFromState();
 }
 function pickProfile(source){
   return Object.fromEntries(profileFields.map(id=>[id, source[id] || '']));
+}
+function pickVisibility(source){
+  const ids = ['showHeadline','showPrice','showDescription','showMeta','showBenefits','showPhoto','showQr','showContact'];
+  return Object.fromEntries(ids.map(id=>[id, source[id] !== false]));
 }
 function syncFormFromState(){
   fields.forEach(id => { if($(id)) $(id).value = state[id] ?? ''; });
@@ -113,12 +117,12 @@ function syncFormFromState(){
   document.querySelectorAll('[data-goal]').forEach(b=>b.classList.toggle('active', b.dataset.goal===state.goal));
   document.querySelectorAll('[data-photo]').forEach(b=>b.classList.toggle('active', b.dataset.photo===state.photoMode));
   document.querySelectorAll('[data-count]').forEach(b=>b.classList.toggle('active', Number(b.dataset.count)===Number(state.printCount)));
-  document.querySelectorAll('[data-area]').forEach(b=>b.classList.toggle('active', b.dataset.area===state.area));
   document.querySelectorAll('[data-property]').forEach(b=>b.classList.toggle('active', b.dataset.property===state.propertyType));
 }
 function readFormAndRender(){
   fields.forEach(id => { state[id] = $(id).type === 'number' || $(id).type === 'range' ? Number($(id).value) : $(id).value; });
   checks.forEach(id => { state[id] = $(id).checked; });
+  if(!state.showPhoto) state.photoMode = 'none';
   renderAll();
 }
 function renderAll(){
@@ -132,10 +136,11 @@ function renderAll(){
   applyZoom();
 }
 function updatePreviewStatus(grid = getGrid(state.printCount, state.splitMode)){
-  const photo = state.photoMode === 'none' ? 'без фото' : state.photoMode === 'two' ? '2 фото' : 'с фото';
+  const photo = state.showPhoto && state.photoMode !== 'none' ? (state.photoMode === 'two' ? '2 фото' : 'с фото') : 'без фото';
   const color = state.colorMode === 'private' ? 'частное' : state.colorMode === 'bw' ? 'ч/б' : 'цвет';
+  const blocks = ['showHeadline','showPrice','showDescription','showMeta','showBenefits','showPhoto','showQr','showContact'].filter(id=>state[id]).length;
   const score = lastQuality?.score;
-  $('previewStatus').innerHTML = `<span class="stat">${state.printCount} на А4</span><span class="stat">${grid.label}</span><span class="stat">${photo}</span><span class="stat">${color}</span>${state.area ? `<span class="stat">${esc(state.area)}</span>` : ''}${score ? `<span class="stat ${score>=80?'good':score<60?'warn':''}">качество ${score}/100</span>` : ''}`;
+  $('previewStatus').innerHTML = `<span class="stat">${state.printCount} на А4</span><span class="stat">${grid.label}</span><span class="stat">${photo}</span><span class="stat">${color}</span><span class="stat">блоков ${blocks}/8</span>${state.area ? `<span class="stat">${esc(state.area)}</span>` : ''}${score ? `<span class="stat ${score>=80?'good':score<60?'warn':''}">качество ${score}/100</span>` : ''}`;
 }
 function runQuality(show){
   lastQuality = checkQuality(state, $('printSheet'));
@@ -148,7 +153,7 @@ function runQuality(show){
   return lastQuality;
 }
 function issueHtml(i){
-  const labels = {phone:'Ввести телефон', bigPhone:'Увеличить телефон', shortHeadline:'Сократить заголовок', shortDesc:'Сократить описание', noPhoto:'Убрать фото', onePhoto:'Оставить 1 фото', twoOnPage:'Сделать 2 на А4', cleanBrand:'Убрать фирменность', autoFix:'Исправить автоматически'};
+  const labels = {phone:'Ввести телефон', bigPhone:'Увеличить телефон', shortHeadline:'Сократить заголовок', shortDesc:'Сократить описание', noPhoto:'Убрать фото', onePhoto:'Оставить 1 фото', twoOnPage:'Сделать 2 на А4', cleanBrand:'Убрать фирменность', showContact:'Вернуть контакты', showHeadline:'Вернуть заголовок', autoFix:'Исправить автоматически'};
   return `<div class="qitem ${i.level}"><b>${esc(i.title)}</b>${esc(i.text)}${labels[i.action]?`<br><button type="button" data-fix="${i.action}">${labels[i.action]}</button>`:''}</div>`;
 }
 function applyFix(action){
@@ -156,22 +161,26 @@ function applyFix(action){
   if(action === 'bigPhone') state.phoneScale = 1.45;
   if(action === 'shortHeadline') state.headline = shorten(state.headline, 44);
   if(action === 'shortDesc') state.description = shorten(state.description, 190);
-  if(action === 'noPhoto') state.photoMode = 'none';
-  if(action === 'onePhoto') state.photoMode = 'one';
+  if(action === 'noPhoto') { state.photoMode = 'none'; state.showPhoto = false; }
+  if(action === 'onePhoto') { state.photoMode = 'one'; state.showPhoto = true; }
   if(action === 'twoOnPage') state.printCount = 2;
+  if(action === 'showContact') state.showContact = true;
+  if(action === 'showHeadline') state.showHeadline = true;
   if(action === 'cleanBrand') { state.colorMode='private'; state.showBrand=false; state.headline=state.headline.replace(/этажи/ig,'').trim(); state.description=state.description.replace(/этажи/ig,'').trim(); }
   if(action === 'autoFix') autoFix();
   renderAll();
 }
 function autoFix(){
   if(Number(state.printCount) >= 4 && state.description.length > 220) state.description = shorten(state.description, 190);
-  if(Number(state.printCount) >= 6 && state.photoMode !== 'none') state.printCount = 2;
+  if(Number(state.printCount) >= 6 && state.showPhoto && state.photoMode !== 'none') state.printCount = 2;
   if(state.phoneScale < 1.3) state.phoneScale = 1.35;
 }
 function strengthenText(){
   if(!state.description) return;
   if(!/позвон|напишите|подскажу/i.test(state.description)) state.description += ' Позвоните — подскажу детали и помогу разобраться.';
   if(!state.benefits) state.benefits = 'Безопасное сопровождение\nПомощь с документами\nКонсультация по цене';
+  state.showDescription = true;
+  state.showBenefits = true;
   syncFormFromState(); renderAll();
 }
 function saveCurrentProfile(){
@@ -194,6 +203,7 @@ function clearObjectData(){
   state.qrLink='';
   state.qrCaption='';
   state.photoMode='none';
+  state.showPhoto=false;
   syncFormFromState(); renderAll();
   setStatus('Данные объекта очищены. Имя и телефон СПН сохранены.');
 }
@@ -216,7 +226,7 @@ function loadFromFile(e){
   if(!file) return;
   const reader = new FileReader();
   reader.onload = () => {
-    try { state = {...state, ...JSON.parse(reader.result)}; syncFormFromState(); renderAll(); setStatus('Файл макета открыт.'); }
+    try { state = {...state, ...JSON.parse(reader.result), version:state.version}; syncFormFromState(); renderAll(); setStatus('Файл макета открыт.'); }
     catch(err){ setStatus('Не удалось открыть файл.'); }
   };
   reader.readAsText(file);

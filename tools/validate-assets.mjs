@@ -5,7 +5,7 @@ const rootDir = process.cwd();
 const errors = [];
 const checked = new Set();
 
-checkIndexReferences();
+checkHtmlReferences();
 checkTemplateDataReferences();
 checkModuleImports(path.join(rootDir, 'assets/js/app.js'));
 
@@ -19,22 +19,30 @@ if (errors.length) {
 
 console.log('Проверка связей файлов пройдена.');
 
-function checkIndexReferences() {
-  const indexPath = path.join(rootDir, 'index.html');
-  if (!fs.existsSync(indexPath)) {
-    errors.push('index.html не найден');
+function checkHtmlReferences() {
+  const htmlFiles = collectFiles(rootDir)
+    .filter(file => file.endsWith('.html'))
+    .filter(file => !isIgnoredPath(file));
+
+  if (!htmlFiles.length) {
+    errors.push('HTML-файлы не найдены');
     return;
   }
 
-  const html = fs.readFileSync(indexPath, 'utf8');
-  const refs = [
-    ...matchAll(html, /<link[^>]+href="([^"]+)"/gi),
-    ...matchAll(html, /<script[^>]+src="([^"]+)"/gi)
-  ];
+  for (const htmlPath of htmlFiles) {
+    const relativeHtmlPath = toProjectPath(htmlPath);
+    const html = fs.readFileSync(htmlPath, 'utf8');
+    const refs = [
+      ...matchAll(html, /<link[^>]+href=["']([^"']+)["']/gi),
+      ...matchAll(html, /<script[^>]+src=["']([^"']+)["']/gi),
+      ...matchAll(html, /<a[^>]+href=["']([^"']+)["']/gi),
+      ...matchAll(html, /<img[^>]+src=["']([^"']+)["']/gi)
+    ];
 
-  refs
-    .filter(ref => !isExternal(ref) && !ref.startsWith('#'))
-    .forEach(ref => checkFile(ref, 'index.html'));
+    refs
+      .filter(ref => shouldCheckReference(ref))
+      .forEach(ref => checkFile(resolveReference(htmlPath, ref), relativeHtmlPath));
+  }
 }
 
 function checkTemplateDataReferences() {
@@ -46,12 +54,12 @@ function checkTemplateDataReferences() {
 
   const source = fs.readFileSync(templatesJsPath, 'utf8');
   const refs = matchAll(source, /['"](data\/templates[^'"]+\.json)['"]/g);
-  refs.forEach(ref => checkFile(ref, 'assets/js/templates.js'));
+  refs.forEach(ref => checkFile(path.join(rootDir, ref), 'assets/js/templates.js'));
 }
 
 function checkModuleImports(entryPath) {
   const fullPath = path.resolve(entryPath);
-  const relativePath = path.relative(rootDir, fullPath);
+  const relativePath = toProjectPath(fullPath);
 
   if (!fs.existsSync(fullPath)) {
     errors.push(`${relativePath} не найден`);
@@ -71,8 +79,7 @@ function checkModuleImports(entryPath) {
     if (!importPath.startsWith('.')) continue;
 
     const resolved = resolveImport(fullPath, importPath);
-    const resolvedRelative = path.relative(rootDir, resolved);
-    checkFile(resolvedRelative, relativePath);
+    checkFile(resolved, relativePath);
 
     if (/\.(js|mjs)$/i.test(resolved)) checkModuleImports(resolved);
   }
@@ -84,17 +91,56 @@ function resolveImport(fromFile, importPath) {
   return `${base}.js`;
 }
 
-function checkFile(relativePath, from) {
-  const cleanPath = relativePath.split('?')[0].split('#')[0];
-  const fullPath = path.join(rootDir, cleanPath);
-  checked.add(cleanPath);
-  if (!fs.existsSync(fullPath)) errors.push(`${from}: файл не найден — ${cleanPath}`);
+function resolveReference(fromFile, ref) {
+  const cleanRef = ref.split('?')[0].split('#')[0];
+  if (cleanRef.startsWith('/')) return path.join(rootDir, cleanRef.slice(1));
+  return path.resolve(path.dirname(fromFile), cleanRef);
+}
+
+function checkFile(fullPath, from) {
+  const normalized = path.normalize(fullPath);
+  const relativePath = toProjectPath(normalized);
+  checked.add(relativePath);
+
+  if (!normalized.startsWith(rootDir)) {
+    errors.push(`${from}: ссылка выходит за пределы проекта — ${relativePath}`);
+    return;
+  }
+
+  if (!fs.existsSync(normalized)) errors.push(`${from}: файл не найден — ${relativePath}`);
+}
+
+function collectFiles(dir) {
+  const result = [];
+  for (const item of fs.readdirSync(dir, { withFileTypes: true })) {
+    const fullPath = path.join(dir, item.name);
+    if (isIgnoredPath(fullPath)) continue;
+    if (item.isDirectory()) result.push(...collectFiles(fullPath));
+    else result.push(fullPath);
+  }
+  return result;
 }
 
 function matchAll(text, regex) {
   return [...text.matchAll(regex)].map(match => match[1]);
 }
 
+function shouldCheckReference(ref) {
+  if (!ref || ref.startsWith('#')) return false;
+  if (isExternal(ref)) return false;
+  if (/^(javascript:|data:)/i.test(ref)) return false;
+  return true;
+}
+
 function isExternal(ref) {
   return /^https?:\/\//i.test(ref) || ref.startsWith('//') || ref.startsWith('mailto:') || ref.startsWith('tel:');
+}
+
+function isIgnoredPath(filePath) {
+  const normalized = filePath.replaceAll('\\', '/');
+  return normalized.includes('/.git/') || normalized.includes('/node_modules/') || normalized.includes('/.github/');
+}
+
+function toProjectPath(fullPath) {
+  return path.relative(rootDir, fullPath).replaceAll('\\', '/');
 }

@@ -11,20 +11,67 @@
 5. Проверить качество.
 6. Напечатать или сохранить в PDF.
 
+## Что уже умеет генератор
+
+- шаблоны по задачам и сценариям;
+- избранные шаблоны;
+- счётчики шаблонов по сценариям;
+- локальные шаблоны под Борисоглебск;
+- отдельный пакет подъездных шаблонов;
+- сохранение профиля СПН;
+- сохранение именованных макетов;
+- управление составом и порядком блоков;
+- настоящий QR без внешнего сервера;
+- подсказки по качеству макета;
+- проверка шаблонов, JS и связей файлов через `npm run validate`.
+
 ## Структура
 
 ```text
-assets/css/app.css       основной интерфейс
-assets/css/print.css     стили печати А4
-assets/js/app.js         управление приложением
-assets/js/state.js       состояние и справочники
-assets/js/templates.js   загрузка и фильтрация шаблонов
-assets/js/render.js      рендер макетов
-assets/js/quality.js     контроль качества
-assets/js/storage.js     сохранение и загрузка
-assets/js/utils.js       утилиты
-data/templates.json      библиотека шаблонов
-data/cities/*.json       городские профили
+index.html                         главная страница генератора
+assets/css/app.css                 основной интерфейс
+assets/css/ui-improvements.css     дополнительные стили интерфейса
+assets/css/print.css               стили печати А4
+assets/js/app.js                   управление приложением
+assets/js/state.js                 состояние и справочники
+assets/js/templates.js             загрузка и фильтрация шаблонов
+assets/js/render.js                рендер макетов
+assets/js/quality.js               контроль качества
+assets/js/storage.js               сохранение и загрузка
+assets/js/qr.js                    генерация QR
+assets/js/layoutRules.js           быстрые режимы и автоподстройка
+data/templates.json                базовая библиотека шаблонов
+data/templates_extra.json          расширенная библиотека шаблонов
+data/templates_borisoglebsk.json   локальный пакет Борисоглебска
+data/templates_entrance.json       подъездные шаблоны
+tools/validate-templates.mjs       проверка шаблонов
+tools/validate-js.mjs              проверка JS
+tools/validate-assets.mjs          проверка связей файлов
+```
+
+## Проверка проекта
+
+Перед публикацией изменений желательно запускать:
+
+```bash
+npm run validate
+```
+
+Отдельные проверки:
+
+```bash
+npm run validate:templates
+npm run validate:js
+npm run validate:assets
+```
+
+## Документация
+
+```text
+docs/template-authoring-guide.md   как добавлять шаблоны
+docs/maintenance-guide.md          как сопровождать проект
+docs/changelog.md                  история изменений
+docs/audit-and-improvement-plan.md аудит и план развития
 ```
 
 ## GitHub Pages

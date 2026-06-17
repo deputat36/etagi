@@ -68,6 +68,8 @@ npm run validate:assets
 ## Документация
 
 ```text
+docs/spn-quick-start.md            быстрый старт для СПН
+docs/field-test-checklist.md       чек-лист полевого теста расклеек
 docs/template-authoring-guide.md   как добавлять шаблоны
 docs/maintenance-guide.md          как сопровождать проект
 docs/changelog.md                  история изменений

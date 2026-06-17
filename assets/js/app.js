@@ -1,16 +1,18 @@
-import { goals, photoModes, printPresets, cloneDefaultState } from './state.js';
+import { goals, photoModes, printPresets, areaPresets, propertyPresets, cloneDefaultState } from './state.js';
 import { $, esc, readFileAsDataURL, downloadText, debounce } from './utils.js';
 import { loadTemplates, filterTemplates } from './templates.js';
 import { applyCss, renderSheet, getGrid } from './render.js';
 import { checkQuality } from './quality.js';
-import { autoSave, saveNamed, loadNamed, loadAutoSave } from './storage.js';
+import { autoSave, saveNamed, loadNamed, loadAutoSave, saveProfile, loadProfile } from './storage.js';
 
 let state = cloneDefaultState();
 let templates = [];
 let lastQuality = null;
 const debouncedSave = debounce(()=>autoSave(state), 500);
 
-const fields = ['agentName','agentPhone','area','propertyType','price','params','headline','description','benefits','qrLink','qrCaption','splitMode','colorMode','pageMargin','pageGap','flyerPadding','radius','headlineScale','phoneScale','layoutDensity','photoFit'];
+const profileFields = ['agentName','agentPhone'];
+const objectFields = ['area','propertyType','price','params','headline','description','benefits'];
+const fields = [...profileFields, ...objectFields, 'qrLink','qrCaption','splitMode','colorMode','pageMargin','pageGap','flyerPadding','radius','headlineScale','phoneScale','layoutDensity','photoFit'];
 const checks = ['tearOffs','showBrand','showBenefits','showMeta'];
 
 async function init(){
@@ -18,6 +20,7 @@ async function init(){
   renderGoals();
   renderPhotoModes();
   renderPrintPresets();
+  renderPresetChips();
   templates = await loadTemplates();
   const saved = loadAutoSave();
   if(saved && saved.version === state.version){ state = {...state, ...saved}; }
@@ -47,6 +50,9 @@ function bindStaticUi(){
   $('zoom').oninput = applyZoom;
   $('makeShortBtn').onclick = () => { state.description = shorten(state.description, 190); syncFormFromState(); renderAll(); };
   $('makeStrongerBtn').onclick = strengthenText;
+  $('saveProfileBtn').onclick = saveCurrentProfile;
+  $('loadProfileBtn').onclick = loadSavedProfile;
+  $('clearObjectBtn').onclick = clearObjectData;
   $('saveLocalBtn').onclick = () => { saveNamed(state); setStatus('Макет сохранён в этом браузере.'); };
   $('loadLocalBtn').onclick = () => { const s = loadNamed(); if(s){ state={...state,...s}; syncFormFromState(); renderAll(); setStatus('Макет загружен.'); } else setStatus('Сохранённый макет не найден.'); };
   $('downloadBtn').onclick = () => downloadText(`etagi-raskleyka-${new Date().toISOString().slice(0,10)}.json`, JSON.stringify(state,null,2));
@@ -71,6 +77,12 @@ function renderPrintPresets(){
   $('printPresetRow').innerHTML = printPresets.map(p=>`<button type="button" data-count="${p.count}">${esc(p.title)}</button>`).join('');
   $('printPresetRow').querySelectorAll('[data-count]').forEach(btn=>btn.onclick=()=>{ state.printCount=Number(btn.dataset.count); renderAll(); });
 }
+function renderPresetChips(){
+  $('areaPresets').innerHTML = areaPresets.map(x=>`<button type="button" class="chip-btn" data-area="${esc(x)}">${esc(x)}</button>`).join('');
+  $('propertyPresets').innerHTML = propertyPresets.map(x=>`<button type="button" class="chip-btn" data-property="${esc(x)}">${esc(x)}</button>`).join('');
+  $('areaPresets').querySelectorAll('[data-area]').forEach(btn=>btn.onclick=()=>{ state.area = btn.dataset.area; syncFormFromState(); renderAll(); });
+  $('propertyPresets').querySelectorAll('[data-property]').forEach(btn=>btn.onclick=()=>{ state.propertyType = btn.dataset.property; syncFormFromState(); renderAll(); });
+}
 function renderTemplates(){
   const list = filterTemplates(templates, state.goal, $('templateSearch').value, $('templateDensityFilter').value);
   $('templateList').innerHTML = list.length ? list.map(t=>templateCard(t)).join('') : '<div class="empty">Под эту задачу ничего не найдено</div>';
@@ -85,11 +97,15 @@ function templateCard(t){
 }
 function applyTemplate(t){
   if(!t) return;
-  state = {...state, ...t.data, goal:t.goal, templateId:t.id};
+  const keepProfile = pickProfile(state);
+  state = {...state, ...t.data, ...keepProfile, goal:t.goal, templateId:t.id};
   state.photoMode = t.photo || state.photoMode || 'none';
   if(t.printCount) state.printCount = t.printCount;
   if(t.density) state.layoutDensity = t.density;
   syncFormFromState();
+}
+function pickProfile(source){
+  return Object.fromEntries(profileFields.map(id=>[id, source[id] || '']));
 }
 function syncFormFromState(){
   fields.forEach(id => { if($(id)) $(id).value = state[id] ?? ''; });
@@ -97,6 +113,8 @@ function syncFormFromState(){
   document.querySelectorAll('[data-goal]').forEach(b=>b.classList.toggle('active', b.dataset.goal===state.goal));
   document.querySelectorAll('[data-photo]').forEach(b=>b.classList.toggle('active', b.dataset.photo===state.photoMode));
   document.querySelectorAll('[data-count]').forEach(b=>b.classList.toggle('active', Number(b.dataset.count)===Number(state.printCount)));
+  document.querySelectorAll('[data-area]').forEach(b=>b.classList.toggle('active', b.dataset.area===state.area));
+  document.querySelectorAll('[data-property]').forEach(b=>b.classList.toggle('active', b.dataset.property===state.propertyType));
 }
 function readFormAndRender(){
   fields.forEach(id => { state[id] = $(id).type === 'number' || $(id).type === 'range' ? Number($(id).value) : $(id).value; });
@@ -117,7 +135,7 @@ function updatePreviewStatus(grid = getGrid(state.printCount, state.splitMode)){
   const photo = state.photoMode === 'none' ? 'без фото' : state.photoMode === 'two' ? '2 фото' : 'с фото';
   const color = state.colorMode === 'private' ? 'частное' : state.colorMode === 'bw' ? 'ч/б' : 'цвет';
   const score = lastQuality?.score;
-  $('previewStatus').innerHTML = `<span class="stat">${state.printCount} на А4</span><span class="stat">${grid.label}</span><span class="stat">${photo}</span><span class="stat">${color}</span>${score ? `<span class="stat ${score>=80?'good':score<60?'warn':''}">качество ${score}/100</span>` : ''}`;
+  $('previewStatus').innerHTML = `<span class="stat">${state.printCount} на А4</span><span class="stat">${grid.label}</span><span class="stat">${photo}</span><span class="stat">${color}</span>${state.area ? `<span class="stat">${esc(state.area)}</span>` : ''}${score ? `<span class="stat ${score>=80?'good':score<60?'warn':''}">качество ${score}/100</span>` : ''}`;
 }
 function runQuality(show){
   lastQuality = checkQuality(state, $('printSheet'));
@@ -155,6 +173,29 @@ function strengthenText(){
   if(!/позвон|напишите|подскажу/i.test(state.description)) state.description += ' Позвоните — подскажу детали и помогу разобраться.';
   if(!state.benefits) state.benefits = 'Безопасное сопровождение\nПомощь с документами\nКонсультация по цене';
   syncFormFromState(); renderAll();
+}
+function saveCurrentProfile(){
+  const profile = pickProfile(state);
+  if(!profile.agentName && !profile.agentPhone){ setStatus('Сначала заполните имя и телефон СПН.'); return; }
+  saveProfile(profile);
+  setStatus('Профиль СПН сохранён. Теперь можно менять шаблоны без потери имени и телефона.');
+}
+function loadSavedProfile(){
+  const profile = loadProfile();
+  if(!profile){ setStatus('Сохранённый профиль СПН не найден.'); return; }
+  state = {...state, ...profile};
+  syncFormFromState(); renderAll();
+  setStatus('Профиль СПН загружен.');
+}
+function clearObjectData(){
+  objectFields.forEach(id=>state[id]='');
+  state.photoOne='';
+  state.photoTwo='';
+  state.qrLink='';
+  state.qrCaption='';
+  state.photoMode='none';
+  syncFormFromState(); renderAll();
+  setStatus('Данные объекта очищены. Имя и телефон СПН сохранены.');
 }
 function shorten(text, max){
   const s = String(text || '').trim();

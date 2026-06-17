@@ -1,4 +1,5 @@
 import { esc, nl } from './utils.js';
+import { createQrSvg } from './qr.js';
 
 export function applyCss(state){
   const root = document.documentElement;
@@ -83,7 +84,12 @@ function renderMeta(state){
 }
 function renderQr(state){
   if(!state.qrLink) return '';
-  return `<div class="qr-row"><div class="qr-box">QR</div><span>${esc(state.qrCaption || 'Открыть ссылку')}</span></div>`;
+  const qr = createQrSvg(state.qrLink);
+  const caption = esc(state.qrCaption || 'Открыть ссылку');
+  if(!qr.ok){
+    return `<div class="qr-row"><div class="qr-box qr-error">QR</div><span>${caption}<br>ссылка слишком длинная</span></div>`;
+  }
+  return `<div class="qr-row"><div class="qr-box real-qr">${qr.svg}</div><span>${caption}</span></div>`;
 }
 function renderTears(state){
   const phone = esc(state.agentPhone || 'телефон');

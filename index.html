@@ -124,6 +124,12 @@
           </label>
         </div>
         <label class="check"><input id="tearOffs" type="checkbox"> Отрывные телефоны</label>
+        <div class="print-options">
+          <label class="check"><input id="showCutLines" type="checkbox"> Линии реза</label>
+          <label class="check"><input id="safePrintMargins" type="checkbox"> Безопасные поля</label>
+          <label class="check"><input id="printCheckMode" type="checkbox"> Режим проверки печати</label>
+        </div>
+        <p class="hint-text">Линии реза помогают ровно разрезать лист. Безопасные поля показывают зону, куда лучше не ставить важный текст.</p>
         <div class="main-actions">
           <button class="primary" id="qualityBtn" type="button">Проверить</button>
           <button class="primary dark" id="printBtn" type="button">Печать / PDF</button>
@@ -203,6 +209,12 @@
   <dialog id="printDialog" class="print-dialog">
     <h3>Перед печатью</h3>
     <p>В настройках печати выберите: бумага А4, масштаб 100%, поля — минимальные или нет, фоновые изображения — включить.</p>
+    <ol class="print-check-list">
+      <li>Масштаб: 100%.</li>
+      <li>Фоновые изображения: включены.</li>
+      <li>Формат бумаги: A4.</li>
+      <li>После печати проверьте один QR телефоном, если он есть в макете.</li>
+    </ol>
     <div class="main-actions">
       <button id="cancelPrintBtn" type="button">Вернуться</button>
       <button class="primary dark" id="confirmPrintBtn" type="button">Печатать</button>

@@ -30,6 +30,10 @@ export function getGrid(count, splitMode){
 
 export function renderSheet(sheet, state){
   const grid = getGrid(state.printCount, state.splitMode);
+  sheet.className = 'sheet';
+  sheet.classList.toggle('show-cut-lines', Boolean(state.showCutLines));
+  sheet.classList.toggle('safe-print-margins', Boolean(state.safePrintMargins));
+  sheet.classList.toggle('print-check-mode', Boolean(state.printCheckMode));
   sheet.style.gridTemplateColumns = `repeat(${grid.cols}, 1fr)`;
   sheet.style.gridTemplateRows = `repeat(${grid.rows}, 1fr)`;
   sheet.innerHTML = '';

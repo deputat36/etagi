@@ -60,6 +60,7 @@ function renderFlyer(state){
     ${state.showDescription && state.description ? `<div class="desc">${esc(state.description)}</div>` : ''}
     ${state.showMeta ? renderMeta(state) : ''}
     ${state.showBenefits && benefits.length ? `<div class="benefits">${benefits.map(x=>`<div class="benefit">${esc(x)}</div>`).join('')}</div>` : ''}
+    ${state.showCustomBlock ? renderCustomBlock(state) : ''}
     ${state.showContact ? `<div class="contact">
       <div class="phone">${esc(state.agentPhone || 'ВАШ ТЕЛЕФОН')}</div>
       <div class="person">${esc(state.agentName || 'Специалист по недвижимости')}</div>
@@ -85,6 +86,12 @@ function renderMeta(state){
   if(state.params) items.push(['Параметры', state.params]);
   if(!items.length) return '';
   return `<div class="meta">${items.slice(0,4).map(([k,v])=>`<div>${esc(k)}<br>${esc(v)}</div>`).join('')}</div>`;
+}
+function renderCustomBlock(state){
+  const title = String(state.customBlockTitle || '').trim();
+  const text = String(state.customBlockText || '').trim();
+  if(!title && !text) return '';
+  return `<div class="custom-block">${title ? `<b>${esc(title)}</b>` : ''}${text ? `<span>${esc(text)}</span>` : ''}</div>`;
 }
 function renderQr(state){
   if(!state.qrLink) return '';

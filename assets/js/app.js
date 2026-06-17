@@ -132,20 +132,42 @@ function renderTemplateFavoriteToolbar(){
 function renderScenarioFilters(){
   const toolbar = $('templateSearch').closest('.toolbar-row');
   if(!toolbar || $('scenarioFilterRow')) return;
-  toolbar.insertAdjacentHTML('afterend', '<div class="chip-row scenario-filter-row" id="scenarioFilterRow"></div>');
+  toolbar.insertAdjacentHTML('afterend', '<div class="chip-row scenario-filter-row" id="scenarioFilterRow"></div><div class="template-count-line" id="templateCountLine"></div>');
   $('scenarioFilterRow').addEventListener('click', event => {
     const btn = event.target.closest('[data-scenario]');
-    if(!btn) return;
+    if(!btn || btn.disabled) return;
     selectedScenario = btn.dataset.scenario;
-    renderScenarioFilters();
     renderTemplates();
   });
   updateScenarioFilters();
 }
-function updateScenarioFilters(){
+function getBaseTemplateList(){
+  let list = filterTemplates(templates, state.goal, $('templateSearch').value, $('templateDensityFilter').value);
+  const favoritesOnly = $('showFavoriteTemplatesOnly')?.checked;
+  if(favoritesOnly) list = list.filter(t => favoriteTemplateIds.has(t.id));
+  return list;
+}
+function updateScenarioFilters(baseList = getBaseTemplateList()){
   const row = $('scenarioFilterRow');
   if(!row) return;
-  row.innerHTML = scenarioPresets.map(item => `<button type="button" class="chip-btn scenario-chip ${selectedScenario === item.id ? 'active' : ''}" data-scenario="${item.id}">${esc(item.title)}</button>`).join('');
+  const counts = Object.fromEntries(scenarioPresets.map(item => [item.id, countScenario(baseList, item.id)]));
+  row.innerHTML = scenarioPresets.map(item => {
+    const count = counts[item.id] || 0;
+    const active = selectedScenario === item.id;
+    const disabled = item.id !== 'all' && count === 0;
+    return `<button type="button" class="chip-btn scenario-chip ${active ? 'active' : ''}" data-scenario="${item.id}" ${disabled ? 'disabled' : ''}>${esc(item.title)} <span class="chip-count">${count}</span></button>`;
+  }).join('');
+}
+function countScenario(list, scenario){
+  if(!scenario || scenario === 'all') return list.length;
+  return list.filter(t => matchScenario(t, scenario)).length;
+}
+function updateTemplateCountLine(visibleCount, baseCount){
+  const el = $('templateCountLine');
+  if(!el) return;
+  const scenarioTitle = scenarioPresets.find(item => item.id === selectedScenario)?.title || 'Все';
+  const favoriteText = $('showFavoriteTemplatesOnly')?.checked ? ' · только избранные' : '';
+  el.textContent = `Найдено шаблонов: ${visibleCount} из ${baseCount}. Сценарий: ${scenarioTitle}${favoriteText}.`;
 }
 function renderSavedLayouts(selectedId = ''){
   const select = $('savedLayouts');
@@ -229,11 +251,11 @@ function applyMode(mode){
   setStatus(mode === 'auto' ? 'Макет подстроен автоматически.' : `Применён режим: ${layoutModes.find(m=>m.id===mode)?.title || mode}.`);
 }
 function renderTemplates(){
-  let list = filterTemplates(templates, state.goal, $('templateSearch').value, $('templateDensityFilter').value);
-  updateScenarioFilters();
-  list = list.filter(t => matchScenario(t, selectedScenario));
+  const baseList = getBaseTemplateList();
+  updateScenarioFilters(baseList);
+  const list = baseList.filter(t => matchScenario(t, selectedScenario));
+  updateTemplateCountLine(list.length, baseList.length);
   const favoritesOnly = $('showFavoriteTemplatesOnly')?.checked;
-  if(favoritesOnly) list = list.filter(t => favoriteTemplateIds.has(t.id));
   const emptyText = favoritesOnly ? 'В этой задаче пока нет избранных шаблонов' : selectedScenario !== 'all' ? 'В этом сценарии пока нет шаблонов' : 'Под эту задачу ничего не найдено';
   $('templateList').innerHTML = list.length ? list.map(t=>templateCard(t)).join('') : `<div class="empty">${emptyText}</div>`;
   $('templateList').querySelectorAll('[data-favorite-template]').forEach(btn=>btn.onclick=(event)=>{

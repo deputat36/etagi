@@ -36,7 +36,7 @@ export const propertyPresets = [
 ];
 
 export const defaultState = {
-  version: '1.3.0',
+  version: '1.5.0',
   goal: 'seller',
   templateId: '',
   layoutMode: 'manual',
@@ -58,6 +58,9 @@ export const defaultState = {
   splitMode: 'auto',
   colorMode: 'brand',
   tearOffs: true,
+  showCutLines: true,
+  safePrintMargins: true,
+  printCheckMode: false,
   pageMargin: 7,
   pageGap: 4,
   flyerPadding: 5,

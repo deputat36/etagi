@@ -1,0 +1,31 @@
+name: Validate templates
+
+on:
+  push:
+    paths:
+      - 'data/**'
+      - 'tools/**'
+      - 'package.json'
+      - '.github/workflows/validate.yml'
+  pull_request:
+    paths:
+      - 'data/**'
+      - 'tools/**'
+      - 'package.json'
+      - '.github/workflows/validate.yml'
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Validate templates
+        run: npm run validate

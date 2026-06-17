@@ -52,8 +52,7 @@
         </div>
         <p class="hint-text">Профиль СПН хранит имя и телефон отдельно. Можно менять шаблоны и очищать объект, не теряя контакты.</p>
 
-        <label>Район / адрес / ЖК<input id="area" type="text" placeholder="Например: район Аэродромная, ЖК ..., ул. ..."></label>
-        <div class="chip-row" id="areaPresets" aria-label="Быстрый выбор района"></div>
+        <label>Район / адрес / ЖК<input id="area" type="text" placeholder="Например: Аэродромная, Северный, ул. Бланская, ЖК ..."></label>
 
         <div class="field-grid two">
           <label>Тип объекта<input id="propertyType" type="text" placeholder="квартира, дом, участок"></label>
@@ -65,6 +64,22 @@
         <label>Заголовок<textarea id="headline" rows="2"></textarea></label>
         <label>Описание<textarea id="description" rows="4"></textarea></label>
         <label>Преимущества<textarea id="benefits" rows="3" placeholder="Каждое преимущество с новой строки"></textarea></label>
+
+        <div class="block-manager" aria-label="Состав макета">
+          <div class="mini-title">Состав макета</div>
+          <div class="block-grid">
+            <label class="block-toggle"><input id="showHeadline" type="checkbox"> Заголовок</label>
+            <label class="block-toggle"><input id="showPrice" type="checkbox"> Цена / бюджет</label>
+            <label class="block-toggle"><input id="showDescription" type="checkbox"> Описание</label>
+            <label class="block-toggle"><input id="showMeta" type="checkbox"> Параметры</label>
+            <label class="block-toggle"><input id="showBenefits" type="checkbox"> Преимущества</label>
+            <label class="block-toggle"><input id="showPhoto" type="checkbox"> Фото</label>
+            <label class="block-toggle"><input id="showQr" type="checkbox"> QR</label>
+            <label class="block-toggle"><input id="showContact" type="checkbox"> Контакты</label>
+          </div>
+          <p class="hint-text">Блоки можно включать и отключать. Макет будет перестраиваться сам: если убрать фото или описание, остальные элементы займут свободное место.</p>
+        </div>
+
         <div class="quick-actions">
           <button id="makeShortBtn" type="button">Сделать короче</button>
           <button id="makeStrongerBtn" type="button">Усилить текст</button>
@@ -137,8 +152,6 @@
           </label>
         </div>
         <label class="check"><input id="showBrand" type="checkbox"> Показывать логотип</label>
-        <label class="check"><input id="showBenefits" type="checkbox"> Показывать преимущества</label>
-        <label class="check"><input id="showMeta" type="checkbox"> Показывать параметры</label>
       </details>
 
       <section class="card quality-card">

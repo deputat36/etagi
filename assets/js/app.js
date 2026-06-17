@@ -3,12 +3,13 @@ import { $, esc, readFileAsDataURL, downloadText, debounce } from './utils.js';
 import { loadTemplates, filterTemplates } from './templates.js';
 import { applyCss, renderSheet, getGrid } from './render.js';
 import { checkQuality } from './quality.js';
-import { autoSave, saveNamed, loadNamed, loadAutoSave, saveProfile, loadProfile, listSavedLayouts, saveLayout, loadLayout, deleteLayout } from './storage.js';
+import { autoSave, saveNamed, loadNamed, loadAutoSave, saveProfile, loadProfile, listSavedLayouts, saveLayout, loadLayout, deleteLayout, listFavoriteTemplates, toggleFavoriteTemplate } from './storage.js';
 import { applyLayoutMode, getLayoutHints } from './layoutRules.js';
 
 let state = cloneDefaultState();
 let templates = [];
 let lastQuality = null;
+let favoriteTemplateIds = new Set();
 const debouncedSave = debounce(()=>autoSave(state), 500);
 
 const profileFields = ['agentName','agentPhone'];
@@ -47,6 +48,8 @@ async function init(){
   renderLayoutModes();
   renderSavedLayouts();
   renderBlockOrderControls();
+  renderTemplateFavoriteToolbar();
+  favoriteTemplateIds = new Set(listFavoriteTemplates());
   templates = await loadTemplates();
   const saved = loadAutoSave();
   if(saved){ state = {...state, ...saved, version: state.version}; }
@@ -116,6 +119,12 @@ function renderPresetChips(){
 function renderLayoutModes(){
   $('layoutModeGrid').innerHTML = layoutModes.map(m=>`<button type="button" class="layout-mode-btn" data-layout-mode="${m.id}"><b>${esc(m.title)}</b><span>${esc(m.hint)}</span></button>`).join('');
   $('layoutModeGrid').querySelectorAll('[data-layout-mode]').forEach(btn=>btn.onclick=()=>applyMode(btn.dataset.layoutMode));
+}
+function renderTemplateFavoriteToolbar(){
+  const toolbar = $('templateSearch').closest('.toolbar-row');
+  if(!toolbar || $('showFavoriteTemplatesOnly')) return;
+  toolbar.insertAdjacentHTML('beforeend', '<label class="favorite-filter"><input id="showFavoriteTemplatesOnly" type="checkbox"> Избранные</label>');
+  $('showFavoriteTemplatesOnly').addEventListener('change', renderTemplates);
 }
 function renderSavedLayouts(selectedId = ''){
   const select = $('savedLayouts');
@@ -199,13 +208,25 @@ function applyMode(mode){
   setStatus(mode === 'auto' ? 'Макет подстроен автоматически.' : `Применён режим: ${layoutModes.find(m=>m.id===mode)?.title || mode}.`);
 }
 function renderTemplates(){
-  const list = filterTemplates(templates, state.goal, $('templateSearch').value, $('templateDensityFilter').value);
-  $('templateList').innerHTML = list.length ? list.map(t=>templateCard(t)).join('') : '<div class="empty">Под эту задачу ничего не найдено</div>';
+  let list = filterTemplates(templates, state.goal, $('templateSearch').value, $('templateDensityFilter').value);
+  const favoritesOnly = $('showFavoriteTemplatesOnly')?.checked;
+  if(favoritesOnly) list = list.filter(t => favoriteTemplateIds.has(t.id));
+  const emptyText = favoritesOnly ? 'В этой задаче пока нет избранных шаблонов' : 'Под эту задачу ничего не найдено';
+  $('templateList').innerHTML = list.length ? list.map(t=>templateCard(t)).join('') : `<div class="empty">${emptyText}</div>`;
+  $('templateList').querySelectorAll('[data-favorite-template]').forEach(btn=>btn.onclick=(event)=>{
+    event.stopPropagation();
+    const favorites = toggleFavoriteTemplate(btn.dataset.favoriteTemplate);
+    favoriteTemplateIds = new Set(favorites);
+    renderTemplates();
+    setStatus(favoriteTemplateIds.has(btn.dataset.favoriteTemplate) ? 'Шаблон добавлен в избранное.' : 'Шаблон убран из избранного.');
+  });
   $('templateList').querySelectorAll('[data-template]').forEach(el=>el.onclick=()=>{ const t=templates.find(x=>x.id===el.dataset.template); applyTemplate(t); renderAll(); });
 }
 function templateCard(t){
   const miniClass = t.photo === 'two' ? 'two-photo' : (t.photo && t.photo !== 'none' ? 'has-photo' : '');
+  const isFavorite = favoriteTemplateIds.has(t.id);
   return `<div class="tpl-card ${state.templateId===t.id?'active':''}" data-template="${t.id}">
+    <button type="button" class="favorite-template-btn ${isFavorite ? 'active' : ''}" data-favorite-template="${t.id}" title="${isFavorite ? 'Убрать из избранного' : 'Добавить в избранное'}">${isFavorite ? '★' : '☆'}</button>
     <div class="tpl-mini ${miniClass}"><div class="mh"></div><div class="ml"></div><div class="ml"></div><div class="mp"></div></div>
     <div><b>${esc(t.title)}</b><p>${esc(t.note || '')}</p><div class="badges">${(t.tags||[]).slice(0,5).map(x=>`<span class="badge">${esc(x)}</span>`).join('')}</div></div>
   </div>`;

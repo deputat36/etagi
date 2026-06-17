@@ -14,7 +14,7 @@ const debouncedSave = debounce(()=>autoSave(state), 500);
 const profileFields = ['agentName','agentPhone'];
 const objectFields = ['area','propertyType','price','params','headline','description','benefits'];
 const fields = [...profileFields, ...objectFields, 'qrLink','qrCaption','splitMode','colorMode','pageMargin','pageGap','flyerPadding','radius','headlineScale','phoneScale','layoutDensity','photoFit'];
-const checks = ['tearOffs','showBrand','showHeadline','showPrice','showDescription','showMeta','showBenefits','showPhoto','showQr','showContact'];
+const checks = ['tearOffs','showCutLines','safePrintMargins','printCheckMode','showBrand','showHeadline','showPrice','showDescription','showMeta','showBenefits','showPhoto','showQr','showContact'];
 
 async function init(){
   bindStaticUi();
@@ -160,8 +160,9 @@ function updatePreviewStatus(grid = getGrid(state.printCount, state.splitMode)){
   const color = state.colorMode === 'private' ? 'частное' : state.colorMode === 'bw' ? 'ч/б' : 'цвет';
   const blocks = ['showHeadline','showPrice','showDescription','showMeta','showBenefits','showPhoto','showQr','showContact'].filter(id=>state[id]).length;
   const modeTitle = state.layoutMode && state.layoutMode !== 'manual' ? layoutModes.find(m=>m.id===state.layoutMode)?.title || 'авто' : 'ручной';
+  const printHelpers = [state.showCutLines ? 'рез' : '', state.safePrintMargins ? 'поля' : '', state.printCheckMode ? 'проверка' : ''].filter(Boolean).join(' / ');
   const score = lastQuality?.score;
-  $('previewStatus').innerHTML = `<span class="stat">${state.printCount} на А4</span><span class="stat">${grid.label}</span><span class="stat">${photo}</span><span class="stat">${color}</span><span class="stat">режим: ${esc(modeTitle)}</span><span class="stat">блоков ${blocks}/8</span>${state.area ? `<span class="stat">${esc(state.area)}</span>` : ''}${score ? `<span class="stat ${score>=80?'good':score<60?'warn':''}">качество ${score}/100</span>` : ''}`;
+  $('previewStatus').innerHTML = `<span class="stat">${state.printCount} на А4</span><span class="stat">${grid.label}</span><span class="stat">${photo}</span><span class="stat">${color}</span><span class="stat">режим: ${esc(modeTitle)}</span><span class="stat">блоков ${blocks}/8</span>${printHelpers ? `<span class="stat">печать: ${esc(printHelpers)}</span>` : ''}${state.area ? `<span class="stat">${esc(state.area)}</span>` : ''}${score ? `<span class="stat ${score>=80?'good':score<60?'warn':''}">качество ${score}/100</span>` : ''}`;
 }
 function runQuality(show){
   lastQuality = checkQuality(state, $('printSheet'));
@@ -174,7 +175,7 @@ function runQuality(show){
   return lastQuality;
 }
 function issueHtml(i){
-  const labels = {phone:'Ввести телефон', bigPhone:'Увеличить телефон', shortHeadline:'Сократить заголовок', shortDesc:'Сократить описание', noPhoto:'Убрать фото', onePhoto:'Оставить 1 фото', twoOnPage:'Сделать 2 на А4', cleanBrand:'Убрать фирменность', showContact:'Вернуть контакты', showHeadline:'Вернуть заголовок', autoFix:'Исправить автоматически'};
+  const labels = {phone:'Ввести телефон', bigPhone:'Увеличить телефон', shortHeadline:'Сократить заголовок', shortDesc:'Сократить описание', noPhoto:'Убрать фото', onePhoto:'Оставить 1 фото', twoOnPage:'Сделать 2 на А4', cleanBrand:'Убрать фирменность', showContact:'Вернуть контакты', showHeadline:'Вернуть заголовок', showCutLines:'Включить линии реза', showSafeMargins:'Включить безопасные поля', autoFix:'Исправить автоматически'};
   return `<div class="qitem ${i.level}"><b>${esc(i.title)}</b>${esc(i.text)}${labels[i.action]?`<br><button type="button" data-fix="${i.action}">${labels[i.action]}</button>`:''}</div>`;
 }
 function applyFix(action){
@@ -187,6 +188,8 @@ function applyFix(action){
   if(action === 'twoOnPage') state.printCount = 2;
   if(action === 'showContact') state.showContact = true;
   if(action === 'showHeadline') state.showHeadline = true;
+  if(action === 'showCutLines') state.showCutLines = true;
+  if(action === 'showSafeMargins') state.safePrintMargins = true;
   if(action === 'cleanBrand') { state.colorMode='private'; state.showBrand=false; state.headline=state.headline.replace(/этажи/ig,'').trim(); state.description=state.description.replace(/этажи/ig,'').trim(); }
   if(action === 'autoFix') state = applyLayoutMode(state, 'auto');
   state.layoutMode = action === 'autoFix' ? 'auto' : 'manual';
@@ -234,6 +237,7 @@ function shorten(text, max){
 function printFlow(){
   const q = runQuality(true);
   if(q.issues.some(i=>i.level==='error')){ setStatus('Есть критичные ошибки. Исправьте перед печатью.'); return; }
+  if(state.printCheckMode) setStatus('Режим проверки: перед печатью проверьте масштаб 100%, фоновые изображения и QR.');
   $('printDialog').showModal();
 }
 function applyZoom(){

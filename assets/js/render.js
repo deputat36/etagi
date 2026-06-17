@@ -1,6 +1,8 @@
 import { esc, nl } from './utils.js';
 import { createQrSvg } from './qr.js';
 
+const DEFAULT_BLOCK_ORDER = ['headline','price','photo','description','meta','benefits','customBlock','contact'];
+
 export function applyCss(state){
   const root = document.documentElement;
   root.style.setProperty('--sheet-margin', `${state.pageMargin}mm`);
@@ -51,24 +53,33 @@ function renderFlyer(state){
   if(state.colorMode === 'private') classes.push('private');
   if(state.layoutDensity === 'dense' || Number(state.printCount) >= 4) classes.push('compact');
   if(!state.showContact) classes.push('no-contact');
-  const benefits = nl(state.benefits).slice(0, Number(state.printCount)>=4 ? 3 : 5);
+  const blocks = normalizeBlockOrder(state.blockOrder)
+    .map(blockId => renderBlock(blockId, state))
+    .filter(Boolean)
+    .join('');
+
   return `<article class="${classes.join(' ')}">
     ${state.showBrand && state.colorMode !== 'private' ? `<div class="brand-row"><div class="brand"><span class="brand-mark">Э</span><span>Этажи</span></div><div class="site">etagi.com</div></div>` : ''}
-    ${state.showHeadline ? `<div class="headline">${esc(state.headline)}</div>` : ''}
-    ${state.showPrice && state.price ? `<div class="subline">${esc(state.price)}</div>` : ''}
-    ${state.showPhoto ? renderPhotos(state) : ''}
-    ${state.showDescription && state.description ? `<div class="desc">${esc(state.description)}</div>` : ''}
-    ${state.showMeta ? renderMeta(state) : ''}
-    ${state.showBenefits && benefits.length ? `<div class="benefits">${benefits.map(x=>`<div class="benefit">${esc(x)}</div>`).join('')}</div>` : ''}
-    ${state.showCustomBlock ? renderCustomBlock(state) : ''}
-    ${state.showContact ? `<div class="contact">
-      <div class="phone">${esc(state.agentPhone || 'ВАШ ТЕЛЕФОН')}</div>
-      <div class="person">${esc(state.agentName || 'Специалист по недвижимости')}</div>
-      <div class="cta">Позвоните — подскажу по объекту и условиям</div>
-      ${state.showQr ? renderQr(state) : ''}
-    </div>` : ''}
-    ${state.tearOffs && state.showContact ? renderTears(state) : ''}
+    ${blocks}
   </article>`;
+}
+
+function renderBlock(blockId, state){
+  if(blockId === 'headline') return state.showHeadline ? `<div class="headline">${esc(state.headline)}</div>` : '';
+  if(blockId === 'price') return state.showPrice && state.price ? `<div class="subline">${esc(state.price)}</div>` : '';
+  if(blockId === 'photo') return state.showPhoto ? renderPhotos(state) : '';
+  if(blockId === 'description') return state.showDescription && state.description ? `<div class="desc">${esc(state.description)}</div>` : '';
+  if(blockId === 'meta') return state.showMeta ? renderMeta(state) : '';
+  if(blockId === 'benefits') return state.showBenefits ? renderBenefits(state) : '';
+  if(blockId === 'customBlock') return state.showCustomBlock ? renderCustomBlock(state) : '';
+  if(blockId === 'contact') return state.showContact ? renderContact(state) : '';
+  return '';
+}
+
+function renderBenefits(state){
+  const benefits = nl(state.benefits).slice(0, Number(state.printCount)>=4 ? 3 : 5);
+  if(!benefits.length) return '';
+  return `<div class="benefits">${benefits.map(x=>`<div class="benefit">${esc(x)}</div>`).join('')}</div>`;
 }
 
 function renderPhotos(state){
@@ -93,6 +104,14 @@ function renderCustomBlock(state){
   if(!title && !text) return '';
   return `<div class="custom-block">${title ? `<b>${esc(title)}</b>` : ''}${text ? `<span>${esc(text)}</span>` : ''}</div>`;
 }
+function renderContact(state){
+  return `<div class="contact">
+    <div class="phone">${esc(state.agentPhone || 'ВАШ ТЕЛЕФОН')}</div>
+    <div class="person">${esc(state.agentName || 'Специалист по недвижимости')}</div>
+    <div class="cta">Позвоните — подскажу по объекту и условиям</div>
+    ${state.showQr ? renderQr(state) : ''}
+  </div>${state.tearOffs ? renderTears(state) : ''}`;
+}
 function renderQr(state){
   if(!state.qrLink) return '';
   const qr = createQrSvg(state.qrLink);
@@ -105,6 +124,10 @@ function renderQr(state){
 function renderTears(state){
   const phone = esc(state.agentPhone || 'телефон');
   return `<div class="tears">${Array.from({length:5},()=>`<div class="tear">${phone}</div>`).join('')}</div>`;
+}
+function normalizeBlockOrder(order){
+  const safe = Array.isArray(order) ? order.filter(id => DEFAULT_BLOCK_ORDER.includes(id)) : [];
+  return [...new Set([...safe, ...DEFAULT_BLOCK_ORDER])];
 }
 function markOverflow(sheet){
   sheet.querySelectorAll('.flyer').forEach(f=>{

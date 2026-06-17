@@ -45,22 +45,23 @@ function renderFlyer(state){
   if(state.colorMode === 'bw') classes.push('bw');
   if(state.colorMode === 'private') classes.push('private');
   if(state.layoutDensity === 'dense' || Number(state.printCount) >= 4) classes.push('compact');
+  if(!state.showContact) classes.push('no-contact');
   const benefits = nl(state.benefits).slice(0, Number(state.printCount)>=4 ? 3 : 5);
   return `<article class="${classes.join(' ')}">
     ${state.showBrand && state.colorMode !== 'private' ? `<div class="brand-row"><div class="brand"><span class="brand-mark">Э</span><span>Этажи</span></div><div class="site">etagi.com</div></div>` : ''}
-    <div class="headline">${esc(state.headline)}</div>
-    ${state.price ? `<div class="subline">${esc(state.price)}</div>` : ''}
-    ${renderPhotos(state)}
-    <div class="desc">${esc(state.description)}</div>
+    ${state.showHeadline ? `<div class="headline">${esc(state.headline)}</div>` : ''}
+    ${state.showPrice && state.price ? `<div class="subline">${esc(state.price)}</div>` : ''}
+    ${state.showPhoto ? renderPhotos(state) : ''}
+    ${state.showDescription && state.description ? `<div class="desc">${esc(state.description)}</div>` : ''}
     ${state.showMeta ? renderMeta(state) : ''}
     ${state.showBenefits && benefits.length ? `<div class="benefits">${benefits.map(x=>`<div class="benefit">${esc(x)}</div>`).join('')}</div>` : ''}
-    <div class="contact">
+    ${state.showContact ? `<div class="contact">
       <div class="phone">${esc(state.agentPhone || 'ВАШ ТЕЛЕФОН')}</div>
       <div class="person">${esc(state.agentName || 'Специалист по недвижимости')}</div>
       <div class="cta">Позвоните — подскажу по объекту и условиям</div>
-      ${renderQr(state)}
-    </div>
-    ${state.tearOffs ? renderTears(state) : ''}
+      ${state.showQr ? renderQr(state) : ''}
+    </div>` : ''}
+    ${state.tearOffs && state.showContact ? renderTears(state) : ''}
   </article>`;
 }
 

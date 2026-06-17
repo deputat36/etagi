@@ -6,6 +6,7 @@
   <title>Генератор расклеек СПН — Этажи</title>
   <meta name="description" content="Удобный генератор печатных макетов для специалистов по недвижимости: куплю, продам, услуги, новостройки, аренда, личный бренд.">
   <link rel="stylesheet" href="assets/css/app.css">
+  <link rel="stylesheet" href="assets/css/ui-improvements.css">
   <link rel="stylesheet" href="assets/css/print.css" media="print">
 </head>
 <body>
@@ -44,11 +45,22 @@
           <label>Имя СПН<input id="agentName" type="text" placeholder="Например: Алексей"></label>
           <label>Телефон<input id="agentPhone" type="tel" placeholder="+7 ..."></label>
         </div>
+        <div class="profile-actions">
+          <button id="saveProfileBtn" type="button">Сохранить профиль СПН</button>
+          <button id="loadProfileBtn" type="button">Подставить профиль</button>
+          <button id="clearObjectBtn" type="button">Очистить объект</button>
+        </div>
+        <p class="hint-text">Профиль СПН хранит имя и телефон отдельно. Можно менять шаблоны и очищать объект, не теряя контакты.</p>
+
         <label>Район / адрес / ЖК<input id="area" type="text" placeholder="Например: район Аэродромная, ЖК ..., ул. ..."></label>
+        <div class="chip-row" id="areaPresets" aria-label="Быстрый выбор района"></div>
+
         <div class="field-grid two">
           <label>Тип объекта<input id="propertyType" type="text" placeholder="квартира, дом, участок"></label>
           <label>Цена / бюджет<input id="price" type="text" placeholder="до 4 млн / 3 200 000 ₽"></label>
         </div>
+        <div class="chip-row" id="propertyPresets" aria-label="Быстрый выбор типа объекта"></div>
+
         <label>Параметры<input id="params" type="text" placeholder="2-комн., 48 м², 3/5 эт."></label>
         <label>Заголовок<textarea id="headline" rows="2"></textarea></label>
         <label>Описание<textarea id="description" rows="4"></textarea></label>

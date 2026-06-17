@@ -31,12 +31,24 @@ export const layoutModes = [
   { id:'private', title:'Частное', hint:'без бренда' }
 ];
 
+export const scenarioPresets = [
+  { id:'all', title:'Все' },
+  { id:'entrance', title:'Подъезд' },
+  { id:'owner', title:'Собственники' },
+  { id:'buyer', title:'Покупатели' },
+  { id:'object', title:'Объекты' },
+  { id:'newbuild', title:'Новостройки' },
+  { id:'private', title:'Частное' },
+  { id:'photo', title:'С фото' },
+  { id:'economy', title:'Экономно' }
+];
+
 export const propertyPresets = [
   'квартира', '1-комнатная', '2-комнатная', '3-комнатная', 'дом', 'участок', 'коммерция', 'новостройка'
 ];
 
 export const defaultState = {
-  version: '1.9.0',
+  version: '2.0.0',
   goal: 'seller',
   templateId: '',
   layoutName: '',

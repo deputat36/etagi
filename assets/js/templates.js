@@ -2,7 +2,8 @@ const TEMPLATE_FILES = [
   'data/templates.json',
   'data/templates_extra.json',
   'data/templates_borisoglebsk.json',
-  'data/templates_entrance.json'
+  'data/templates_entrance.json',
+  'data/templates_ab_tests.json'
 ];
 
 export async function loadTemplates(){

@@ -66,7 +66,12 @@
         <label>Преимущества<textarea id="benefits" rows="3" placeholder="Каждое преимущество с новой строки"></textarea></label>
 
         <div class="block-manager" aria-label="Состав макета">
-          <div class="mini-title">Состав макета</div>
+          <div class="mini-title">Быстрые режимы</div>
+          <div class="layout-mode-grid" id="layoutModeGrid"></div>
+          <button class="auto-layout-btn" id="autoLayoutBtn" type="button">Подстроить автоматически</button>
+          <div class="layout-hints" id="layoutHints"></div>
+
+          <div class="mini-title block-title">Состав макета</div>
           <div class="block-grid">
             <label class="block-toggle"><input id="showHeadline" type="checkbox"> Заголовок</label>
             <label class="block-toggle"><input id="showPrice" type="checkbox"> Цена / бюджет</label>

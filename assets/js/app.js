@@ -1,9 +1,10 @@
-import { goals, photoModes, printPresets, propertyPresets, cloneDefaultState } from './state.js';
+import { goals, photoModes, printPresets, propertyPresets, layoutModes, cloneDefaultState } from './state.js';
 import { $, esc, readFileAsDataURL, downloadText, debounce } from './utils.js';
 import { loadTemplates, filterTemplates } from './templates.js';
 import { applyCss, renderSheet, getGrid } from './render.js';
 import { checkQuality } from './quality.js';
 import { autoSave, saveNamed, loadNamed, loadAutoSave, saveProfile, loadProfile } from './storage.js';
+import { applyLayoutMode, getLayoutHints } from './layoutRules.js';
 
 let state = cloneDefaultState();
 let templates = [];
@@ -21,6 +22,7 @@ async function init(){
   renderPhotoModes();
   renderPrintPresets();
   renderPresetChips();
+  renderLayoutModes();
   templates = await loadTemplates();
   const saved = loadAutoSave();
   if(saved){ state = {...state, ...saved, version: state.version}; }
@@ -40,19 +42,20 @@ function bindStaticUi(){
   checks.forEach(id => $(id).addEventListener('change', readFormAndRender));
   $('templateSearch').addEventListener('input', renderTemplates);
   $('templateDensityFilter').addEventListener('change', renderTemplates);
-  $('photoOne').addEventListener('change', async e => { state.photoOne = await readFileAsDataURL(e.target.files[0]); if(state.photoMode==='none') state.photoMode='one'; state.showPhoto = true; syncFormFromState(); renderAll(); });
-  $('photoTwo').addEventListener('change', async e => { state.photoTwo = await readFileAsDataURL(e.target.files[0]); if(state.photoMode!=='two') state.photoMode='two'; state.showPhoto = true; syncFormFromState(); renderAll(); });
+  $('photoOne').addEventListener('change', async e => { state.photoOne = await readFileAsDataURL(e.target.files[0]); if(state.photoMode==='none') state.photoMode='one'; state.showPhoto = true; state.layoutMode='manual'; syncFormFromState(); renderAll(); });
+  $('photoTwo').addEventListener('change', async e => { state.photoTwo = await readFileAsDataURL(e.target.files[0]); if(state.photoMode!=='two') state.photoMode='two'; state.showPhoto = true; state.layoutMode='manual'; syncFormFromState(); renderAll(); });
   $('qualityBtn').onclick = () => runQuality(true);
   $('printBtn').onclick = printFlow;
   $('cancelPrintBtn').onclick = () => $('printDialog').close();
   $('confirmPrintBtn').onclick = () => { $('printDialog').close(); setTimeout(()=>window.print(), 80); };
   $('fitPreviewBtn').onclick = () => { $('zoom').value = 64; applyZoom(); };
   $('zoom').oninput = applyZoom;
-  $('makeShortBtn').onclick = () => { state.description = shorten(state.description, 190); syncFormFromState(); renderAll(); };
+  $('makeShortBtn').onclick = () => { state.description = shorten(state.description, 190); state.showDescription = true; state.layoutMode='manual'; syncFormFromState(); renderAll(); };
   $('makeStrongerBtn').onclick = strengthenText;
   $('saveProfileBtn').onclick = saveCurrentProfile;
   $('loadProfileBtn').onclick = loadSavedProfile;
   $('clearObjectBtn').onclick = clearObjectData;
+  $('autoLayoutBtn').onclick = () => applyMode('auto');
   $('saveLocalBtn').onclick = () => { saveNamed(state); setStatus('Макет сохранён в этом браузере.'); };
   $('loadLocalBtn').onclick = () => { const s = loadNamed(); if(s){ state={...state,...s, version:state.version}; syncFormFromState(); renderAll(); setStatus('Макет загружен.'); } else setStatus('Сохранённый макет не найден.'); };
   $('downloadBtn').onclick = () => downloadText(`etagi-raskleyka-${new Date().toISOString().slice(0,10)}.json`, JSON.stringify(state,null,2));
@@ -71,15 +74,25 @@ function renderGoals(){
 }
 function renderPhotoModes(){
   $('photoModeRow').innerHTML = photoModes.map(m=>`<button type="button" data-photo="${m.id}">${esc(m.title)}</button>`).join('');
-  $('photoModeRow').querySelectorAll('[data-photo]').forEach(btn=>btn.onclick=()=>{ state.photoMode=btn.dataset.photo; state.showPhoto = state.photoMode !== 'none'; if(state.photoMode==='none'){state.photoOne='';state.photoTwo='';} renderAll(); });
+  $('photoModeRow').querySelectorAll('[data-photo]').forEach(btn=>btn.onclick=()=>{ state.photoMode=btn.dataset.photo; state.showPhoto = state.photoMode !== 'none'; state.layoutMode='manual'; if(state.photoMode==='none'){state.photoOne='';state.photoTwo='';} renderAll(); });
 }
 function renderPrintPresets(){
   $('printPresetRow').innerHTML = printPresets.map(p=>`<button type="button" data-count="${p.count}">${esc(p.title)}</button>`).join('');
-  $('printPresetRow').querySelectorAll('[data-count]').forEach(btn=>btn.onclick=()=>{ state.printCount=Number(btn.dataset.count); renderAll(); });
+  $('printPresetRow').querySelectorAll('[data-count]').forEach(btn=>btn.onclick=()=>{ state.printCount=Number(btn.dataset.count); state.layoutMode='manual'; renderAll(); });
 }
 function renderPresetChips(){
   $('propertyPresets').innerHTML = propertyPresets.map(x=>`<button type="button" class="chip-btn" data-property="${esc(x)}">${esc(x)}</button>`).join('');
-  $('propertyPresets').querySelectorAll('[data-property]').forEach(btn=>btn.onclick=()=>{ state.propertyType = btn.dataset.property; state.showMeta = true; syncFormFromState(); renderAll(); });
+  $('propertyPresets').querySelectorAll('[data-property]').forEach(btn=>btn.onclick=()=>{ state.propertyType = btn.dataset.property; state.showMeta = true; state.layoutMode='manual'; syncFormFromState(); renderAll(); });
+}
+function renderLayoutModes(){
+  $('layoutModeGrid').innerHTML = layoutModes.map(m=>`<button type="button" class="layout-mode-btn" data-layout-mode="${m.id}"><b>${esc(m.title)}</b><span>${esc(m.hint)}</span></button>`).join('');
+  $('layoutModeGrid').querySelectorAll('[data-layout-mode]').forEach(btn=>btn.onclick=()=>applyMode(btn.dataset.layoutMode));
+}
+function applyMode(mode){
+  state = applyLayoutMode(state, mode);
+  syncFormFromState();
+  renderAll();
+  setStatus(mode === 'auto' ? 'Макет подстроен автоматически.' : `Применён режим: ${layoutModes.find(m=>m.id===mode)?.title || mode}.`);
 }
 function renderTemplates(){
   const list = filterTemplates(templates, state.goal, $('templateSearch').value, $('templateDensityFilter').value);
@@ -97,7 +110,7 @@ function applyTemplate(t){
   if(!t) return;
   const keepProfile = pickProfile(state);
   const keepVisibility = pickVisibility(state);
-  state = {...state, ...t.data, ...keepProfile, ...keepVisibility, goal:t.goal, templateId:t.id};
+  state = {...state, ...t.data, ...keepProfile, ...keepVisibility, goal:t.goal, templateId:t.id, layoutMode:'manual'};
   state.photoMode = t.photo || state.photoMode || 'none';
   if(t.printCount) state.printCount = t.printCount;
   if(t.density) state.layoutDensity = t.density;
@@ -118,15 +131,18 @@ function syncFormFromState(){
   document.querySelectorAll('[data-photo]').forEach(b=>b.classList.toggle('active', b.dataset.photo===state.photoMode));
   document.querySelectorAll('[data-count]').forEach(b=>b.classList.toggle('active', Number(b.dataset.count)===Number(state.printCount)));
   document.querySelectorAll('[data-property]').forEach(b=>b.classList.toggle('active', b.dataset.property===state.propertyType));
+  document.querySelectorAll('[data-layout-mode]').forEach(b=>b.classList.toggle('active', b.dataset.layoutMode===state.layoutMode));
 }
 function readFormAndRender(){
   fields.forEach(id => { state[id] = $(id).type === 'number' || $(id).type === 'range' ? Number($(id).value) : $(id).value; });
   checks.forEach(id => { state[id] = $(id).checked; });
   if(!state.showPhoto) state.photoMode = 'none';
+  state.layoutMode = 'manual';
   renderAll();
 }
 function renderAll(){
   syncFormFromState();
+  renderLayoutHints();
   applyCss(state);
   renderTemplates();
   const grid = renderSheet($('printSheet'), state);
@@ -135,12 +151,17 @@ function renderAll(){
   setTimeout(()=>runQuality(false), 80);
   applyZoom();
 }
+function renderLayoutHints(){
+  const hints = getLayoutHints(state);
+  $('layoutHints').innerHTML = hints.length ? hints.map(h=>`<div class="layout-hint">${esc(h)}</div>`).join('') : '<div class="layout-hint good">Состав макета выглядит логично.</div>';
+}
 function updatePreviewStatus(grid = getGrid(state.printCount, state.splitMode)){
   const photo = state.showPhoto && state.photoMode !== 'none' ? (state.photoMode === 'two' ? '2 фото' : 'с фото') : 'без фото';
   const color = state.colorMode === 'private' ? 'частное' : state.colorMode === 'bw' ? 'ч/б' : 'цвет';
   const blocks = ['showHeadline','showPrice','showDescription','showMeta','showBenefits','showPhoto','showQr','showContact'].filter(id=>state[id]).length;
+  const modeTitle = state.layoutMode && state.layoutMode !== 'manual' ? layoutModes.find(m=>m.id===state.layoutMode)?.title || 'авто' : 'ручной';
   const score = lastQuality?.score;
-  $('previewStatus').innerHTML = `<span class="stat">${state.printCount} на А4</span><span class="stat">${grid.label}</span><span class="stat">${photo}</span><span class="stat">${color}</span><span class="stat">блоков ${blocks}/8</span>${state.area ? `<span class="stat">${esc(state.area)}</span>` : ''}${score ? `<span class="stat ${score>=80?'good':score<60?'warn':''}">качество ${score}/100</span>` : ''}`;
+  $('previewStatus').innerHTML = `<span class="stat">${state.printCount} на А4</span><span class="stat">${grid.label}</span><span class="stat">${photo}</span><span class="stat">${color}</span><span class="stat">режим: ${esc(modeTitle)}</span><span class="stat">блоков ${blocks}/8</span>${state.area ? `<span class="stat">${esc(state.area)}</span>` : ''}${score ? `<span class="stat ${score>=80?'good':score<60?'warn':''}">качество ${score}/100</span>` : ''}`;
 }
 function runQuality(show){
   lastQuality = checkQuality(state, $('printSheet'));
@@ -167,13 +188,9 @@ function applyFix(action){
   if(action === 'showContact') state.showContact = true;
   if(action === 'showHeadline') state.showHeadline = true;
   if(action === 'cleanBrand') { state.colorMode='private'; state.showBrand=false; state.headline=state.headline.replace(/этажи/ig,'').trim(); state.description=state.description.replace(/этажи/ig,'').trim(); }
-  if(action === 'autoFix') autoFix();
+  if(action === 'autoFix') state = applyLayoutMode(state, 'auto');
+  state.layoutMode = action === 'autoFix' ? 'auto' : 'manual';
   renderAll();
-}
-function autoFix(){
-  if(Number(state.printCount) >= 4 && state.description.length > 220) state.description = shorten(state.description, 190);
-  if(Number(state.printCount) >= 6 && state.showPhoto && state.photoMode !== 'none') state.printCount = 2;
-  if(state.phoneScale < 1.3) state.phoneScale = 1.35;
 }
 function strengthenText(){
   if(!state.description) return;
@@ -181,6 +198,7 @@ function strengthenText(){
   if(!state.benefits) state.benefits = 'Безопасное сопровождение\nПомощь с документами\nКонсультация по цене';
   state.showDescription = true;
   state.showBenefits = true;
+  state.layoutMode='manual';
   syncFormFromState(); renderAll();
 }
 function saveCurrentProfile(){
@@ -204,6 +222,7 @@ function clearObjectData(){
   state.qrCaption='';
   state.photoMode='none';
   state.showPhoto=false;
+  state.layoutMode='manual';
   syncFormFromState(); renderAll();
   setStatus('Данные объекта очищены. Имя и телефон СПН сохранены.');
 }

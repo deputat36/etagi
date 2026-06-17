@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Лист учёта откликов — генератор расклеек</title>
+  <style>
+    :root{--accent:#e30613;--dark:#111827;--text:#1f2937;--muted:#64748b;--bg:#f3f4f6;--card:#fff}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif;line-height:1.5}
+    .page{max-width:1100px;margin:0 auto;padding:24px 16px 48px}
+    .hero{background:linear-gradient(135deg,var(--dark),#2a0d12);color:#fff;border-radius:24px;padding:28px;margin-bottom:18px;box-shadow:0 18px 45px rgba(15,23,42,.16)}
+    .hero b{display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:12px;background:var(--accent);font-size:28px;margin-bottom:14px}
+    h1{margin:0 0 8px;font-size:32px;line-height:1.08;font-weight:900}
+    .hero p{margin:0;color:#e5e7eb;font-size:16px}
+    .card{background:var(--card);border:1px solid #e5e7eb;border-radius:20px;padding:22px;margin:14px 0;box-shadow:0 8px 24px rgba(15,23,42,.06)}
+    h2{margin:0 0 14px;font-size:22px;line-height:1.15;color:var(--dark)}
+    .back{display:inline-flex;margin-bottom:14px;color:var(--accent);font-weight:900;text-decoration:none}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}
+    button{border:0;border-radius:12px;background:var(--accent);color:#fff;font-weight:900;padding:12px 16px;cursor:pointer}
+    .muted{color:var(--muted);font-size:14px}
+    .meta-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px}
+    .field{border:1px solid #cbd5e1;border-radius:12px;padding:10px;min-height:48px;background:#fff}
+    .field span{display:block;color:#64748b;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.04em}
+    table{width:100%;border-collapse:collapse;background:#fff;border:1px solid #cbd5e1}
+    th,td{border:1px solid #cbd5e1;padding:9px 8px;text-align:left;vertical-align:top;font-size:13px}
+    th{background:#f8fafc;color:#111827;font-weight:900}
+    .summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+    .summary .field{min-height:70px}
+    @media(max-width:760px){.meta-grid,.summary{grid-template-columns:1fr}.page{padding:14px 10px 36px}h1{font-size:27px}.hero{padding:22px}table{font-size:12px;display:block;overflow:auto}}
+    @media print{body{background:#fff}.page{max-width:none;padding:0}.back,.actions{display:none}.hero{box-shadow:none;border-radius:0;margin:0 0 10px;padding:12px 0;background:#fff;color:#111827}.hero b{display:none}.hero p{color:#334155}.card{box-shadow:none;border:0;border-radius:0;padding:8px 0;margin:0 0 10px}th,td{font-size:11px;padding:6px}.muted{font-size:11px}}
+  </style>
+</head>
+<body>
+  <main class="page">
+    <a class="back" href="../index.html">← Вернуться в генератор</a>
+
+    <section class="hero">
+      <b>Э</b>
+      <h1>Лист учёта откликов</h1>
+      <p>Распечатайте или сохраните в PDF, чтобы фиксировать результат тестовой расклейки.</p>
+    </section>
+
+    <div class="actions">
+      <button type="button" onclick="window.print()">Печать / PDF</button>
+    </div>
+
+    <section class="card">
+      <h2>Данные теста</h2>
+      <div class="meta-grid">
+        <div class="field"><span>Дата</span></div>
+        <div class="field"><span>СПН</span></div>
+        <div class="field"><span>Телефон</span></div>
+        <div class="field"><span>Район / адреса</span></div>
+        <div class="field"><span>Сценарий макета</span></div>
+        <div class="field"><span>Количество объявлений</span></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Отклики</h2>
+      <table>
+        <thead>
+          <tr>
+            <th style="width:90px">Дата</th>
+            <th style="width:90px">Время</th>
+            <th style="width:130px">Источник</th>
+            <th>Кто обратился</th>
+            <th>Что хочет</th>
+            <th style="width:120px">Качество лида</th>
+            <th>Следующее действие</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+        </tbody>
+      </table>
+      <p class="muted">Источник: звонок, сообщение, QR, рекомендация, повторное обращение.</p>
+    </section>
+
+    <section class="card">
+      <h2>Итог теста</h2>
+      <div class="summary">
+        <div class="field"><span>Всего обращений</span></div>
+        <div class="field"><span>Целевых лидов</span></div>
+        <div class="field"><span>Что сработало</span></div>
+        <div class="field"><span>Что изменить</span></div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

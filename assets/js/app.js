@@ -3,7 +3,7 @@ import { $, esc, readFileAsDataURL, downloadText, debounce } from './utils.js';
 import { loadTemplates, filterTemplates } from './templates.js';
 import { applyCss, renderSheet, getGrid } from './render.js';
 import { checkQuality } from './quality.js';
-import { autoSave, saveNamed, loadNamed, loadAutoSave, saveProfile, loadProfile } from './storage.js';
+import { autoSave, saveNamed, loadNamed, loadAutoSave, saveProfile, loadProfile, listSavedLayouts, saveLayout, loadLayout, deleteLayout } from './storage.js';
 import { applyLayoutMode, getLayoutHints } from './layoutRules.js';
 
 let state = cloneDefaultState();
@@ -13,7 +13,7 @@ const debouncedSave = debounce(()=>autoSave(state), 500);
 
 const profileFields = ['agentName','agentPhone'];
 const objectFields = ['area','propertyType','price','params','headline','description','benefits'];
-const fields = [...profileFields, ...objectFields, 'qrLink','qrCaption','splitMode','colorMode','pageMargin','pageGap','flyerPadding','radius','headlineScale','phoneScale','layoutDensity','photoFit'];
+const fields = ['layoutName', ...profileFields, ...objectFields, 'qrLink','qrCaption','splitMode','colorMode','pageMargin','pageGap','flyerPadding','radius','headlineScale','phoneScale','layoutDensity','photoFit'];
 const checks = ['tearOffs','showCutLines','safePrintMargins','printCheckMode','showBrand','showHeadline','showPrice','showDescription','showMeta','showBenefits','showPhoto','showQr','showContact'];
 
 async function init(){
@@ -23,6 +23,7 @@ async function init(){
   renderPrintPresets();
   renderPresetChips();
   renderLayoutModes();
+  renderSavedLayouts();
   templates = await loadTemplates();
   const saved = loadAutoSave();
   if(saved){ state = {...state, ...saved, version: state.version}; }
@@ -56,8 +57,11 @@ function bindStaticUi(){
   $('loadProfileBtn').onclick = loadSavedProfile;
   $('clearObjectBtn').onclick = clearObjectData;
   $('autoLayoutBtn').onclick = () => applyMode('auto');
-  $('saveLocalBtn').onclick = () => { saveNamed(state); setStatus('Макет сохранён в этом браузере.'); };
-  $('loadLocalBtn').onclick = () => { const s = loadNamed(); if(s){ state={...state,...s, version:state.version}; syncFormFromState(); renderAll(); setStatus('Макет загружен.'); } else setStatus('Сохранённый макет не найден.'); };
+  $('saveNamedLayoutBtn').onclick = saveCurrentNamedLayout;
+  $('loadNamedLayoutBtn').onclick = loadSelectedLayout;
+  $('deleteNamedLayoutBtn').onclick = deleteSelectedLayout;
+  $('saveLocalBtn').onclick = () => { saveNamed(state); setStatus('Последний макет сохранён в этом браузере.'); };
+  $('loadLocalBtn').onclick = () => { const s = loadNamed(); if(s){ state={...state,...s, version:state.version}; syncFormFromState(); renderAll(); setStatus('Последний макет загружен.'); } else setStatus('Последний сохранённый макет не найден.'); };
   $('downloadBtn').onclick = () => downloadText(`etagi-raskleyka-${new Date().toISOString().slice(0,10)}.json`, JSON.stringify(state,null,2));
   $('uploadBtn').onclick = () => $('uploadFile').click();
   $('uploadFile').onchange = loadFromFile;
@@ -88,6 +92,39 @@ function renderLayoutModes(){
   $('layoutModeGrid').innerHTML = layoutModes.map(m=>`<button type="button" class="layout-mode-btn" data-layout-mode="${m.id}"><b>${esc(m.title)}</b><span>${esc(m.hint)}</span></button>`).join('');
   $('layoutModeGrid').querySelectorAll('[data-layout-mode]').forEach(btn=>btn.onclick=()=>applyMode(btn.dataset.layoutMode));
 }
+function renderSavedLayouts(selectedId = ''){
+  const select = $('savedLayouts');
+  const layouts = listSavedLayouts();
+  select.innerHTML = '<option value="">Сохранённые макеты</option>' + layouts.map(item => `<option value="${esc(item.id)}">${esc(item.name)} — ${new Date(item.updatedAt).toLocaleDateString('ru-RU')}</option>`).join('');
+  if(selectedId) select.value = selectedId;
+}
+function saveCurrentNamedLayout(){
+  const name = (state.layoutName || state.headline || state.goal || 'Макет без названия').trim();
+  if(!name){ setStatus('Укажите название макета.'); $('layoutName').focus(); return; }
+  state.layoutName = name;
+  const item = saveLayout(name, state);
+  renderSavedLayouts(item.id);
+  syncFormFromState();
+  setStatus(`Макет «${name}» сохранён.`);
+}
+function loadSelectedLayout(){
+  const id = $('savedLayouts').value;
+  if(!id){ setStatus('Сначала выберите сохранённый макет.'); return; }
+  const item = loadLayout(id);
+  if(!item){ setStatus('Сохранённый макет не найден.'); renderSavedLayouts(); return; }
+  state = {...state, ...item.state, version:state.version};
+  syncFormFromState();
+  renderAll();
+  renderSavedLayouts(id);
+  setStatus(`Макет «${item.name}» загружен.`);
+}
+function deleteSelectedLayout(){
+  const id = $('savedLayouts').value;
+  if(!id){ setStatus('Сначала выберите макет для удаления.'); return; }
+  deleteLayout(id);
+  renderSavedLayouts();
+  setStatus('Сохранённый макет удалён.');
+}
 function applyMode(mode){
   state = applyLayoutMode(state, mode);
   syncFormFromState();
@@ -114,6 +151,7 @@ function applyTemplate(t){
   state.photoMode = t.photo || state.photoMode || 'none';
   if(t.printCount) state.printCount = t.printCount;
   if(t.density) state.layoutDensity = t.density;
+  if(!state.layoutName) state.layoutName = t.title || '';
   if(state.photoMode === 'none') state.showPhoto = false;
   syncFormFromState();
 }
@@ -162,7 +200,7 @@ function updatePreviewStatus(grid = getGrid(state.printCount, state.splitMode)){
   const modeTitle = state.layoutMode && state.layoutMode !== 'manual' ? layoutModes.find(m=>m.id===state.layoutMode)?.title || 'авто' : 'ручной';
   const printHelpers = [state.showCutLines ? 'рез' : '', state.safePrintMargins ? 'поля' : '', state.printCheckMode ? 'проверка' : ''].filter(Boolean).join(' / ');
   const score = lastQuality?.score;
-  $('previewStatus').innerHTML = `<span class="stat">${state.printCount} на А4</span><span class="stat">${grid.label}</span><span class="stat">${photo}</span><span class="stat">${color}</span><span class="stat">режим: ${esc(modeTitle)}</span><span class="stat">блоков ${blocks}/8</span>${printHelpers ? `<span class="stat">печать: ${esc(printHelpers)}</span>` : ''}${state.area ? `<span class="stat">${esc(state.area)}</span>` : ''}${score ? `<span class="stat ${score>=80?'good':score<60?'warn':''}">качество ${score}/100</span>` : ''}`;
+  $('previewStatus').innerHTML = `<span class="stat">${state.printCount} на А4</span><span class="stat">${grid.label}</span><span class="stat">${photo}</span><span class="stat">${color}</span><span class="stat">режим: ${esc(modeTitle)}</span><span class="stat">блоков ${blocks}/8</span>${printHelpers ? `<span class="stat">печать: ${esc(printHelpers)}</span>` : ''}${state.layoutName ? `<span class="stat">${esc(state.layoutName)}</span>` : ''}${state.area ? `<span class="stat">${esc(state.area)}</span>` : ''}${score ? `<span class="stat ${score>=80?'good':score<60?'warn':''}">качество ${score}/100</span>` : ''}`;
 }
 function runQuality(show){
   lastQuality = checkQuality(state, $('printSheet'));

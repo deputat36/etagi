@@ -1,3 +1,5 @@
+import { getQrInfo } from './qr.js';
+
 export function checkQuality(state, sheet){
   const issues = [];
   const count = Number(state.printCount) || 2;
@@ -14,7 +16,13 @@ export function checkQuality(state, sheet){
   if(state.showPhoto && state.photoMode !== 'none' && !state.photoOne) issues.push({level:'warn', title:'Фото включено, но не загружено', text:'Загрузите фото или выключите блок фото.', action:'noPhoto'});
   if(state.showPhoto && state.photoMode === 'two' && !state.photoTwo) issues.push({level:'warn', title:'Второе фото не загружено', text:'Для шаблона с двумя фото загрузите второе изображение.', action:'onePhoto'});
   if(state.showPhoto && state.photoMode !== 'none' && count >= 6) issues.push({level:'warn', title:'Фото при плотной печати', text:'На 6+ макетах фото ухудшает читаемость.', action:'twoOnPage'});
-  if(state.showQr && state.qrLink && count >= 6) issues.push({level:'tip', title:'QR может быть мелким', text:'Для QR лучше 1, 2 или 4 макета на листе.', action:'twoOnPage'});
+
+  if(state.showQr && state.qrLink){
+    const qr = getQrInfo(state.qrLink);
+    if(!qr.ok) issues.push({level:'warn', title:'Ссылка для QR слишком длинная', text:`Встроенный QR поддерживает до ${qr.maxBytes} байт. Лучше использовать короткую ссылку.`, action:'shortQr'});
+    if(count >= 4) issues.push({level:'tip', title:'QR может быть мелким', text:'Для QR лучше 1, 2 или 4 макета на листе, а перед печатью нужно проверить сканирование.', action:'twoOnPage'});
+  }
+
   if(state.colorMode === 'private' && /этажи|etagi/i.test(`${state.headline} ${state.description}`)) issues.push({level:'warn', title:'Частное объявление с фирменностью', text:'В частном режиме лучше убрать упоминание компании.', action:'cleanBrand'});
 
   const overflow = [...sheet.querySelectorAll('.flyer')].some(f=>f.classList.contains('overflow'));

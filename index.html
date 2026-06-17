@@ -175,14 +175,21 @@
 
       <section class="card save-card">
         <div class="step-title"><span>↓</span>Сохранение</div>
+        <label>Название макета<input id="layoutName" type="text" placeholder="Например: Куплю 2-комнатную у школы"></label>
+        <div class="saved-layout-controls">
+          <select id="savedLayouts" aria-label="Сохранённые макеты"><option value="">Сохранённые макеты</option></select>
+          <button id="saveNamedLayoutBtn" type="button">Сохранить как макет</button>
+          <button id="loadNamedLayoutBtn" type="button">Загрузить выбранный</button>
+          <button id="deleteNamedLayoutBtn" type="button">Удалить выбранный</button>
+        </div>
         <div class="quick-actions">
-          <button id="saveLocalBtn" type="button">Сохранить</button>
-          <button id="loadLocalBtn" type="button">Загрузить</button>
+          <button id="saveLocalBtn" type="button">Сохранить последний</button>
+          <button id="loadLocalBtn" type="button">Загрузить последний</button>
           <button id="downloadBtn" type="button">Скачать файл</button>
           <button id="uploadBtn" type="button">Открыть файл</button>
         </div>
         <input id="uploadFile" type="file" accept="application/json" hidden>
-        <p class="muted">Сохранение в браузере удобно для этого компьютера. Файл JSON — для переноса на другой компьютер.</p>
+        <p class="muted">Именованные макеты хранятся в этом браузере. Фото не сохраняются, чтобы не переполнять память браузера.</p>
       </section>
     </aside>
 

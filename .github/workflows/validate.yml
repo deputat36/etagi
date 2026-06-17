@@ -1,14 +1,18 @@
-name: Validate templates
+name: Validate project
 
 on:
   push:
     paths:
+      - 'index.html'
+      - 'assets/**'
       - 'data/**'
       - 'tools/**'
       - 'package.json'
       - '.github/workflows/validate.yml'
   pull_request:
     paths:
+      - 'index.html'
+      - 'assets/**'
       - 'data/**'
       - 'tools/**'
       - 'package.json'
@@ -27,5 +31,5 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Validate templates
+      - name: Validate project
         run: npm run validate

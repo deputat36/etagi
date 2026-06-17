@@ -87,7 +87,12 @@
             <label class="block-toggle"><input id="showQr" type="checkbox"> QR</label>
             <label class="block-toggle"><input id="showContact" type="checkbox"> Контакты</label>
           </div>
-          <p class="hint-text">Блоки можно включать и отключать. Дополнительный блок нужен для условий, срочности, бонусов, ипотеки, торга или важного уточнения.</p>
+          <div class="block-order-head">
+            <div class="mini-title block-title">Порядок блоков</div>
+            <button id="resetBlockOrderBtn" type="button">Сбросить порядок</button>
+          </div>
+          <div class="block-order-list" id="blockOrderList"></div>
+          <p class="hint-text">Кнопками ↑ и ↓ можно менять порядок. Например, поднять контакты выше, поставить фото ниже или вывести доп. блок сразу после заголовка.</p>
         </div>
 
         <div class="quick-actions">

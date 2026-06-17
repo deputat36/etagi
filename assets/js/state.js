@@ -22,8 +22,16 @@ export const printPresets = [
   { count:4, title:'4 экономно' }
 ];
 
+export const areaPresets = [
+  'Центр', 'Северный', 'Юго-Восточный', 'Аэродромная', 'Район вокзала', 'Кирпичный', 'Чкаловский', 'частный сектор'
+];
+
+export const propertyPresets = [
+  'квартира', '1-комнатная', '2-комнатная', '3-комнатная', 'дом', 'участок', 'коммерция', 'новостройка'
+];
+
 export const defaultState = {
-  version: '1.0.0',
+  version: '1.1.0',
   goal: 'seller',
   templateId: '',
   agentName: '',

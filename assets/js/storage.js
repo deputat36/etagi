@@ -2,6 +2,7 @@ const KEY = 'etagi-raskleyka-state-v1';
 const SAVED_KEY = 'etagi-raskleyka-saved-v1';
 const PROFILE_KEY = 'etagi-raskleyka-profile-v1';
 const LAYOUTS_KEY = 'etagi-raskleyka-layouts-v1';
+const FAVORITE_TEMPLATES_KEY = 'etagi-raskleyka-favorite-templates-v1';
 
 export function autoSave(state){
   try { localStorage.setItem(KEY, JSON.stringify(stripHeavyFields(state))); }
@@ -51,11 +52,29 @@ export function deleteLayout(id){
   localStorage.setItem(LAYOUTS_KEY, JSON.stringify(next));
   return next;
 }
+export function listFavoriteTemplates(){
+  try { return JSON.parse(localStorage.getItem(FAVORITE_TEMPLATES_KEY) || '[]'); }
+  catch(e) { return []; }
+}
+export function isFavoriteTemplate(templateId){
+  return listFavoriteTemplates().includes(templateId);
+}
+export function toggleFavoriteTemplate(templateId){
+  const id = String(templateId || '').trim();
+  if(!id) return listFavoriteTemplates();
+  const favorites = new Set(listFavoriteTemplates());
+  if(favorites.has(id)) favorites.delete(id);
+  else favorites.add(id);
+  const next = [...favorites];
+  localStorage.setItem(FAVORITE_TEMPLATES_KEY, JSON.stringify(next));
+  return next;
+}
 export function clearAll(){
   localStorage.removeItem(KEY);
   localStorage.removeItem(SAVED_KEY);
   localStorage.removeItem(PROFILE_KEY);
   localStorage.removeItem(LAYOUTS_KEY);
+  localStorage.removeItem(FAVORITE_TEMPLATES_KEY);
 }
 function stripHeavyFields(state){
   return {...state, photoOne:'', photoTwo:''};

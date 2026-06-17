@@ -1,4 +1,4 @@
-import { goals, photoModes, printPresets, propertyPresets, layoutModes, cloneDefaultState } from './state.js';
+import { goals, photoModes, printPresets, propertyPresets, layoutModes, scenarioPresets, cloneDefaultState } from './state.js';
 import { $, esc, readFileAsDataURL, downloadText, debounce } from './utils.js';
 import { loadTemplates, filterTemplates } from './templates.js';
 import { applyCss, renderSheet, getGrid } from './render.js';
@@ -10,6 +10,7 @@ let state = cloneDefaultState();
 let templates = [];
 let lastQuality = null;
 let favoriteTemplateIds = new Set();
+let selectedScenario = 'all';
 const debouncedSave = debounce(()=>autoSave(state), 500);
 
 const profileFields = ['agentName','agentPhone'];
@@ -49,6 +50,7 @@ async function init(){
   renderSavedLayouts();
   renderBlockOrderControls();
   renderTemplateFavoriteToolbar();
+  renderScenarioFilters();
   favoriteTemplateIds = new Set(listFavoriteTemplates());
   templates = await loadTemplates();
   const saved = loadAutoSave();
@@ -99,6 +101,7 @@ function renderGoals(){
   $('goalGrid').innerHTML = goals.map(g=>`<button type="button" class="goal-btn" data-goal="${g.id}"><b>${esc(g.title)}</b><span>${esc(g.hint)}</span></button>`).join('');
   $('goalGrid').querySelectorAll('[data-goal]').forEach(btn=>btn.onclick=()=>{
     state.goal = btn.dataset.goal;
+    selectedScenario = 'all';
     const first = filterTemplates(templates, state.goal)[0];
     if(first) applyTemplate(first);
     renderAll();
@@ -125,6 +128,24 @@ function renderTemplateFavoriteToolbar(){
   if(!toolbar || $('showFavoriteTemplatesOnly')) return;
   toolbar.insertAdjacentHTML('beforeend', '<label class="favorite-filter"><input id="showFavoriteTemplatesOnly" type="checkbox"> Избранные</label>');
   $('showFavoriteTemplatesOnly').addEventListener('change', renderTemplates);
+}
+function renderScenarioFilters(){
+  const toolbar = $('templateSearch').closest('.toolbar-row');
+  if(!toolbar || $('scenarioFilterRow')) return;
+  toolbar.insertAdjacentHTML('afterend', '<div class="chip-row scenario-filter-row" id="scenarioFilterRow"></div>');
+  $('scenarioFilterRow').addEventListener('click', event => {
+    const btn = event.target.closest('[data-scenario]');
+    if(!btn) return;
+    selectedScenario = btn.dataset.scenario;
+    renderScenarioFilters();
+    renderTemplates();
+  });
+  updateScenarioFilters();
+}
+function updateScenarioFilters(){
+  const row = $('scenarioFilterRow');
+  if(!row) return;
+  row.innerHTML = scenarioPresets.map(item => `<button type="button" class="chip-btn scenario-chip ${selectedScenario === item.id ? 'active' : ''}" data-scenario="${item.id}">${esc(item.title)}</button>`).join('');
 }
 function renderSavedLayouts(selectedId = ''){
   const select = $('savedLayouts');
@@ -209,9 +230,11 @@ function applyMode(mode){
 }
 function renderTemplates(){
   let list = filterTemplates(templates, state.goal, $('templateSearch').value, $('templateDensityFilter').value);
+  updateScenarioFilters();
+  list = list.filter(t => matchScenario(t, selectedScenario));
   const favoritesOnly = $('showFavoriteTemplatesOnly')?.checked;
   if(favoritesOnly) list = list.filter(t => favoriteTemplateIds.has(t.id));
-  const emptyText = favoritesOnly ? 'В этой задаче пока нет избранных шаблонов' : 'Под эту задачу ничего не найдено';
+  const emptyText = favoritesOnly ? 'В этой задаче пока нет избранных шаблонов' : selectedScenario !== 'all' ? 'В этом сценарии пока нет шаблонов' : 'Под эту задачу ничего не найдено';
   $('templateList').innerHTML = list.length ? list.map(t=>templateCard(t)).join('') : `<div class="empty">${emptyText}</div>`;
   $('templateList').querySelectorAll('[data-favorite-template]').forEach(btn=>btn.onclick=(event)=>{
     event.stopPropagation();
@@ -221,6 +244,20 @@ function renderTemplates(){
     setStatus(favoriteTemplateIds.has(btn.dataset.favoriteTemplate) ? 'Шаблон добавлен в избранное.' : 'Шаблон убран из избранного.');
   });
   $('templateList').querySelectorAll('[data-template]').forEach(el=>el.onclick=()=>{ const t=templates.find(x=>x.id===el.dataset.template); applyTemplate(t); renderAll(); });
+}
+function matchScenario(t, scenario){
+  if(!scenario || scenario === 'all') return true;
+  const tags = (t.tags || []).map(x => String(x).toLowerCase());
+  const text = `${t.title || ''} ${t.note || ''} ${tags.join(' ')}`.toLowerCase();
+  if(scenario === 'entrance') return Number(t.printCount) >= 4 || tags.includes('подъезд') || text.includes('подъезд') || text.includes('куплю');
+  if(scenario === 'owner') return t.goal === 'seller' || text.includes('собствен') || text.includes('продав');
+  if(scenario === 'buyer') return t.goal === 'buyer' || text.includes('покупател');
+  if(scenario === 'object') return t.goal === 'object' || text.includes('объект') || text.includes('продам');
+  if(scenario === 'newbuild') return t.goal === 'newbuild' || text.includes('новострой');
+  if(scenario === 'private') return t.goal === 'private' || t.data?.colorMode === 'private' || text.includes('частное');
+  if(scenario === 'photo') return t.photo && t.photo !== 'none';
+  if(scenario === 'economy') return Number(t.printCount) >= 4 || t.density === 'dense' || text.includes('эконом');
+  return true;
 }
 function templateCard(t){
   const miniClass = t.photo === 'two' ? 'two-photo' : (t.photo && t.photo !== 'none' ? 'has-photo' : '');
@@ -288,9 +325,10 @@ function updatePreviewStatus(grid = getGrid(state.printCount, state.splitMode)){
   const color = state.colorMode === 'private' ? 'частное' : state.colorMode === 'bw' ? 'ч/б' : 'цвет';
   const blocks = blockVisibility.filter(id=>state[id]).length;
   const modeTitle = state.layoutMode && state.layoutMode !== 'manual' ? layoutModes.find(m=>m.id===state.layoutMode)?.title || 'авто' : 'ручной';
+  const scenarioTitle = scenarioPresets.find(item => item.id === selectedScenario)?.title || 'Все';
   const printHelpers = [state.showCutLines ? 'рез' : '', state.safePrintMargins ? 'поля' : '', state.printCheckMode ? 'проверка' : ''].filter(Boolean).join(' / ');
   const score = lastQuality?.score;
-  $('previewStatus').innerHTML = `<span class="stat">${state.printCount} на А4</span><span class="stat">${grid.label}</span><span class="stat">${photo}</span><span class="stat">${color}</span><span class="stat">режим: ${esc(modeTitle)}</span><span class="stat">блоков ${blocks}/${blockVisibility.length}</span>${printHelpers ? `<span class="stat">печать: ${esc(printHelpers)}</span>` : ''}${state.layoutName ? `<span class="stat">${esc(state.layoutName)}</span>` : ''}${state.area ? `<span class="stat">${esc(state.area)}</span>` : ''}${score ? `<span class="stat ${score>=80?'good':score<60?'warn':''}">качество ${score}/100</span>` : ''}`;
+  $('previewStatus').innerHTML = `<span class="stat">${state.printCount} на А4</span><span class="stat">${grid.label}</span><span class="stat">${photo}</span><span class="stat">${color}</span><span class="stat">сценарий: ${esc(scenarioTitle)}</span><span class="stat">режим: ${esc(modeTitle)}</span><span class="stat">блоков ${blocks}/${blockVisibility.length}</span>${printHelpers ? `<span class="stat">печать: ${esc(printHelpers)}</span>` : ''}${state.layoutName ? `<span class="stat">${esc(state.layoutName)}</span>` : ''}${state.area ? `<span class="stat">${esc(state.area)}</span>` : ''}${score ? `<span class="stat ${score>=80?'good':score<60?'warn':''}">качество ${score}/100</span>` : ''}`;
 }
 function runQuality(show){
   lastQuality = checkQuality(state, $('printSheet'));

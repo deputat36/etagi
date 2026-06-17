@@ -22,14 +22,24 @@ export const printPresets = [
   { count:4, title:'4 экономно' }
 ];
 
+export const layoutModes = [
+  { id:'readable', title:'Читаемо', hint:'крупный телефон, мало лишнего' },
+  { id:'economy', title:'Экономно', hint:'4 на А4 без фото' },
+  { id:'photo', title:'С фото', hint:'для объекта или витрины' },
+  { id:'showcase', title:'Витрина', hint:'1 крупный макет' },
+  { id:'entrance', title:'Подъезд', hint:'отрывные телефоны' },
+  { id:'private', title:'Частное', hint:'без бренда' }
+];
+
 export const propertyPresets = [
   'квартира', '1-комнатная', '2-комнатная', '3-комнатная', 'дом', 'участок', 'коммерция', 'новостройка'
 ];
 
 export const defaultState = {
-  version: '1.2.0',
+  version: '1.3.0',
   goal: 'seller',
   templateId: '',
+  layoutMode: 'manual',
   agentName: '',
   agentPhone: '',
   area: '',

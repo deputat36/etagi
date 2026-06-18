@@ -48,7 +48,7 @@ export const propertyPresets = [
 ];
 
 export const defaultState = {
-  version: '3.9.0',
+  version: '3.10.0',
   goal: 'seller',
   templateId: '',
   layoutName: '',

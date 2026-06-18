@@ -1,0 +1,9 @@
+.spn-checklist{background:linear-gradient(180deg,#fff,#f8fafc);border-color:#dbeafe}
+.spn-checklist-list{display:grid;gap:6px}
+.spn-check-item{border:1px solid #e2e8f0;border-radius:12px;padding:8px 9px;background:#fff}
+.spn-check-item b{display:block;font-size:12px;line-height:1.2;color:#111827;margin-bottom:3px}
+.spn-check-item span{display:block;font-size:11px;line-height:1.25;color:#64748b;font-weight:700}
+.spn-check-item.done{border-color:#bbf7d0;background:#f0fdf4}
+.spn-check-item.done b{color:#047857}
+.spn-check-item.todo{border-color:#fed7aa;background:#fff7ed}
+.spn-check-item.todo b{color:#c2410c}

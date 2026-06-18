@@ -8,6 +8,7 @@ export function checkQuality(state, sheet){
   const descLen = state.description.length;
   const customTextLen = String(state.customBlockText || '').length;
   const benefitsCount = String(state.benefits || '').split('\n').filter(Boolean).length;
+  const sellingText = normalizeText(`${state.headline} ${state.description} ${state.benefits} ${state.customBlockTitle} ${state.customBlockText} ${state.price} ${state.area} ${state.propertyType}`);
 
   if(!state.showContact && !state.tearOffs) issues.push({level:'warn', title:'Нет контактного блока', text:'Макет можно напечатать без контактов, но для расклейки это почти всегда ошибка.', action:'showContact'});
   if(state.showContact && !phone) issues.push({level:'error', title:'Нет телефона', text:'Без телефона объявление нельзя печатать.', action:'phone'});
@@ -22,6 +23,9 @@ export function checkQuality(state, sheet){
   if(state.showCustomBlock && customTextLen > 120 && count >= 4) issues.push({level:'warn', title:'Длинный дополнительный блок', text:'Для 4 макетов на А4 дополнительный блок лучше сократить до одной строки.', action:'showCustomBlock'});
   if(state.showCustomBlock && customTextLen > 70 && count >= 6) issues.push({level:'warn', title:'Дополнительный блок перегружает мини-макет', text:'Для 6–8 макетов на листе доп. блок лучше сделать очень коротким или выключить.', action:'showCustomBlock'});
   if(state.showBenefits && benefitsCount > 3 && count >= 6) issues.push({level:'tip', title:'Много преимуществ для мини-макета', text:'Для 6–8 на А4 лучше оставить 2–3 самых сильных преимущества.', action:null});
+
+  addSellingChecks(issues, state, sellingText, benefitsCount);
+
   if(state.showPhoto && state.photoMode !== 'none' && !state.photoOne) issues.push({level:'warn', title:'Фото включено, но не загружено', text:'Загрузите фото или выключите блок фото.', action:'noPhoto'});
   if(state.showPhoto && state.photoMode === 'two' && !state.photoTwo) issues.push({level:'warn', title:'Второе фото не загружено', text:'Для шаблона с двумя фото загрузите второе изображение.', action:'onePhoto'});
   if(state.showPhoto && state.photoMode !== 'none' && count >= 6) issues.push({level:'warn', title:'Фото при плотной печати', text:'На 6+ макетах фото ухудшает читаемость.', action:'twoOnPage'});
@@ -45,4 +49,29 @@ export function checkQuality(state, sheet){
   let score = 100;
   for(const issue of issues) score -= issue.level === 'error' ? 25 : issue.level === 'warn' ? 12 : 5;
   return { score: Math.max(0, score), issues };
+}
+
+function addSellingChecks(issues, state, text, benefitsCount){
+  if(isStarterPlaceholder(state.headline)) issues.push({level:'warn', title:'Заголовок не продаёт', text:'Замените технический заголовок на конкретный смысл: что человеку получить или узнать.', action:'showHeadline'});
+  if(state.showHeadline && state.headline && !hasClientHook(text)) issues.push({level:'tip', title:'Слабый крючок в заголовке', text:'Добавьте понятный повод: цена, покупатель, объект, район, безопасность, консультация или выгода.', action:null});
+  if(state.showDescription && state.description && !hasCallToAction(text)) issues.push({level:'tip', title:'Нет явного призыва', text:'Для продающей расклейки лучше прямо написать: позвоните, напишите, узнайте цену, обсудим вариант.', action:null});
+  if(state.showBenefits && benefitsCount < 2) issues.push({level:'tip', title:'Мало причин позвонить', text:'Добавьте 2–3 короткие выгоды: без давления, по делу, проверка документов, помощь с ипотекой, оценка цены.', action:null});
+  if(!state.area && !state.propertyType && ['seller','buyer','object','rent'].includes(state.goal)) issues.push({level:'tip', title:'Не указан контекст', text:'Район, дом, тип объекта или ситуация помогают человеку понять, что объявление относится к нему.', action:null});
+  if(!hasTrustSignal(text)) issues.push({level:'tip', title:'Нет снятия опасения', text:'Добавьте мягкую формулировку: без давления, без обязательств, по делу, объясню простым языком.', action:null});
+}
+
+function hasCallToAction(text){
+  return /позвон|напиш|звон|обсуд|узна|уточн|получ|остав|свяж|спрос|покаж|подска/.test(text);
+}
+function hasClientHook(text){
+  return /цен|покупател|собствен|прода|купл|ищ|район|дом|квартир|недвиж|ипотек|документ|безопас|сделк|консультац|выгод|спрос|объект/.test(text);
+}
+function hasTrustSignal(text){
+  return /без давлен|без обязательств|по делу|безопас|провер|документ|риск|простым язык|честн|спокойн|не обязывает/.test(text);
+}
+function isStarterPlaceholder(value){
+  return /ваш заголовок|проверьте свой заголовок/i.test(String(value || ''));
+}
+function normalizeText(value){
+  return String(value || '').toLowerCase().replace(/ё/g,'е').replace(/\s+/g,' ').trim();
 }

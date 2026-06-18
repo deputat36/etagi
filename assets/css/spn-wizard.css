@@ -8,4 +8,8 @@
 .spn-wizard-grid button.active{border-color:var(--accent);background:var(--accent);color:#fff}
 .spn-wizard-grid span{display:block;font-size:12px;font-weight:900;line-height:1.12}
 .spn-wizard-grid small{display:block;margin-top:4px;font-size:10.5px;line-height:1.18;font-weight:700;opacity:.72}
+.spn-recommendation{display:grid;gap:5px;margin-top:9px;padding:10px;border-radius:13px;background:#111827;color:#fff}
+.spn-recommendation b{font-size:12px;line-height:1.2;font-weight:900;color:#fff}
+.spn-recommendation span{display:block;font-size:11px;line-height:1.28;color:#dbeafe;font-weight:700}
+.spn-recommendation strong{color:#fff;font-weight:900}
 @media(max-width:520px){.spn-wizard-grid{grid-template-columns:1fr}.spn-wizard-grid button{min-height:auto}}

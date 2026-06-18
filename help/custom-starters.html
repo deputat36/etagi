@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Нестандартный макет с нуля — генератор расклеек</title>
+  <style>
+    :root{--accent:#e30613;--dark:#111827;--text:#1f2937;--muted:#64748b;--bg:#f3f4f6;--card:#fff}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif;line-height:1.55}
+    .page{max-width:980px;margin:0 auto;padding:24px 16px 48px}
+    .hero{background:linear-gradient(135deg,var(--dark),#2a0d12);color:#fff;border-radius:24px;padding:28px;margin-bottom:18px}
+    .hero b{display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:12px;background:var(--accent);font-size:28px;margin-bottom:14px}
+    h1{margin:0 0 8px;font-size:32px;line-height:1.08;font-weight:900}
+    .hero p{margin:0;color:#e5e7eb;font-size:16px}
+    .back{display:inline-flex;margin-bottom:14px;color:var(--accent);font-weight:900;text-decoration:none}
+    .card{background:var(--card);border:1px solid #e5e7eb;border-radius:20px;padding:20px;margin:14px 0;box-shadow:0 8px 24px rgba(15,23,42,.06)}
+    h2{margin:0 0 12px;font-size:22px;line-height:1.15;color:var(--dark)}
+    h3{margin:18px 0 6px;font-size:17px;color:var(--dark)}
+    p{margin:6px 0;color:#374151}
+    ol,ul{padding-left:22px;margin:8px 0}
+    li+li{margin-top:5px}
+    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+    .box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:12px;font-weight:700;white-space:pre-line}
+    .tip{border-left:5px solid var(--accent);background:#fff5f5;padding:13px 14px;border-radius:14px;font-weight:700}
+    @media(max-width:760px){.grid{grid-template-columns:1fr}.page{padding:14px 10px 36px}h1{font-size:27px}.hero{padding:22px}}
+    @media print{body{background:#fff}.page{padding:0;max-width:none}.back{display:none}.hero{background:#fff;color:#111827;padding:0;margin-bottom:10px}.hero b{display:none}.hero p{color:#374151}.card{box-shadow:none;border:1px solid #e5e7eb}}
+  </style>
+</head>
+<body>
+  <main class="page">
+    <a class="back" href="index.html">← В центр помощи</a>
+
+    <section class="hero">
+      <b>Э</b>
+      <h1>Нестандартный макет с нуля</h1>
+      <p>Как использовать пустые стартовые шаблоны, чтобы быстро собрать объявление под редкую задачу.</p>
+    </section>
+
+    <section class="card">
+      <h2>Когда использовать пустые шаблоны</h2>
+      <div class="tip">Пустой шаблон нужен, когда готовый текст не подходит, но собирать макет полностью вручную долго. Вы берёте основу, меняете смысл и оставляете уже настроенную структуру.</div>
+    </section>
+
+    <section class="card">
+      <h2>Как быстро найти основу</h2>
+      <ol>
+        <li>Выберите подходящую задачу: собственник, объект, услуга или частное.</li>
+        <li>В поиске шаблонов введите: пустой, нестандартный или с нуля.</li>
+        <li>Выберите ближайшую основу: читаемый макет, подъезд, объект с фото, частная записка, консультация или A/B-тест.</li>
+        <li>Замените заголовок, описание, преимущества и дополнительный блок.</li>
+        <li>Нажмите «Проверить» и исправьте замечания перед печатью.</li>
+      </ol>
+    </section>
+
+    <section class="card">
+      <h2>Какую основу выбрать</h2>
+      <div class="grid">
+        <div class="box">Пустой: читаемый макет
+Для универсального объявления, где главное — крупный смысл и телефон.</div>
+        <div class="box">Пустой: подъездный формат
+Для конкретного дома, соседей, точечного поиска собственника.</div>
+        <div class="box">Пустой: объект с фото
+Для квартиры, дома, участка или коммерции, где фото продаёт внимание.</div>
+        <div class="box">Пустой: частная записка
+Для мягкого обращения без явной фирменности и давления.</div>
+        <div class="box">Пустой: консультация
+Для оценки, документов, ипотеки, продажи, покупки и других услуг.</div>
+        <div class="box">Пустой: короткий A/B-тест
+Для проверки разных заголовков, призывов и формулировок.</div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Правило сильного нестандартного макета</h2>
+      <ul>
+        <li>Один макет — одна задача.</li>
+        <li>Один заголовок — один главный смысл.</li>
+        <li>Описание — не больше 1–2 коротких предложений.</li>
+        <li>Преимущества — только то, что помогает человеку позвонить.</li>
+        <li>Дополнительный блок — для важного уточнения, а не для второго объявления внутри объявления.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Шаблон текста</h2>
+      <div class="box">Заголовок:
+[Что нужно человеку понять за 2 секунды]
+
+Описание:
+[Кому и зачем это объявление. Одно короткое предложение.]
+
+Преимущества:
+[Почему можно позвонить]
+[Что человек получит]
+[Почему это безопасно или удобно]
+
+Доп. блок:
+[Важное уточнение: район, срок, формат, условие]</div>
+    </section>
+  </main>
+</body>
+</html>

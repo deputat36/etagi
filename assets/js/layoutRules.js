@@ -1,3 +1,12 @@
+const BLOCK_ORDERS = {
+  readable: ['headline','description','benefits','price','meta','customBlock','contact','photo'],
+  economy: ['headline','price','description','benefits','customBlock','contact','meta','photo'],
+  photo: ['headline','price','photo','description','benefits','meta','customBlock','contact'],
+  showcase: ['headline','photo','price','description','benefits','meta','customBlock','contact'],
+  entrance: ['headline','description','customBlock','benefits','contact','price','meta','photo'],
+  private: ['headline','description','price','customBlock','benefits','contact','meta','photo']
+};
+
 export function applyLayoutMode(state, mode = 'auto'){
   const next = {...state, layoutMode: mode};
   const effectiveMode = mode === 'auto' ? pickAutoMode(next) : mode;
@@ -9,6 +18,7 @@ export function applyLayoutMode(state, mode = 'auto'){
   if(effectiveMode === 'entrance') applyEntrance(next);
   if(effectiveMode === 'private') applyPrivate(next);
 
+  applyBlockOrder(next, effectiveMode);
   normalizeBlocks(next);
   return next;
 }
@@ -167,6 +177,14 @@ function applyPrivate(state){
   if(Number(state.printCount) > 4) state.printCount = 4;
   state.headlineScale = Number(state.printCount) >= 4 ? 0.95 : 1.05;
   state.phoneScale = Number(state.printCount) >= 4 ? 1.25 : 1.4;
+}
+
+function applyBlockOrder(state, mode){
+  const order = BLOCK_ORDERS[mode];
+  if(!order) return;
+  const current = Array.isArray(state.blockOrder) ? state.blockOrder : [];
+  const customBlocks = current.filter(id => !order.includes(id));
+  state.blockOrder = [...order, ...customBlocks];
 }
 
 function normalizeBlocks(state){

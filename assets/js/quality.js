@@ -7,26 +7,34 @@ export function checkQuality(state, sheet){
   const headlineLen = state.headline.replace(/\s/g,'').length;
   const descLen = state.description.length;
   const customTextLen = String(state.customBlockText || '').length;
+  const benefitsCount = String(state.benefits || '').split('\n').filter(Boolean).length;
 
   if(!state.showContact && !state.tearOffs) issues.push({level:'warn', title:'Нет контактного блока', text:'Макет можно напечатать без контактов, но для расклейки это почти всегда ошибка.', action:'showContact'});
   if(state.showContact && !phone) issues.push({level:'error', title:'Нет телефона', text:'Без телефона объявление нельзя печатать.', action:'phone'});
   if(state.showContact && phone && Number(state.phoneScale) < 1.1) issues.push({level:'warn', title:'Телефон мелковат', text:'Для расклейки номер должен читаться издалека.', action:'bigPhone'});
+  if(count >= 6 && state.showContact && phone && Number(state.phoneScale) < 1.3) issues.push({level:'warn', title:'Телефон мелкий для плотной печати', text:'Для 6–8 макетов на А4 телефон лучше сделать крупнее, иначе его сложнее прочитать после печати.', action:'bigPhone'});
   if(!state.showHeadline) issues.push({level:'tip', title:'Заголовок скрыт', text:'Без заголовка макет может хуже цеплять внимание.', action:'showHeadline'});
   if(state.showHeadline && headlineLen > 48) issues.push({level:'warn', title:'Длинный заголовок', text:'Лучше 1–3 короткие строки.', action:'shortHeadline'});
+  if(state.showHeadline && headlineLen > 38 && count >= 6) issues.push({level:'warn', title:'Заголовок длинный для мини-макета', text:'Для 6–8 макетов на А4 заголовок лучше сделать максимально коротким.', action:'shortHeadline'});
   if(state.showDescription && descLen > 260 && count >= 4) issues.push({level:'warn', title:'Много текста', text:'Для 4 макетов на А4 лучше сократить описание.', action:'shortDesc'});
+  if(state.showDescription && descLen > 150 && count >= 6) issues.push({level:'warn', title:'Слишком много текста для 6–8 на А4', text:'В мини-формате оставьте одно короткое предложение и главный призыв.', action:'shortDesc'});
   if(state.showCustomBlock && !String(state.customBlockTitle || state.customBlockText || '').trim()) issues.push({level:'tip', title:'Дополнительный блок пустой', text:'Заполните дополнительный блок или выключите его в составе макета.', action:null});
   if(state.showCustomBlock && customTextLen > 120 && count >= 4) issues.push({level:'warn', title:'Длинный дополнительный блок', text:'Для 4 макетов на А4 дополнительный блок лучше сократить до одной строки.', action:'showCustomBlock'});
+  if(state.showCustomBlock && customTextLen > 70 && count >= 6) issues.push({level:'warn', title:'Дополнительный блок перегружает мини-макет', text:'Для 6–8 макетов на листе доп. блок лучше сделать очень коротким или выключить.', action:'showCustomBlock'});
+  if(state.showBenefits && benefitsCount > 3 && count >= 6) issues.push({level:'tip', title:'Много преимуществ для мини-макета', text:'Для 6–8 на А4 лучше оставить 2–3 самых сильных преимущества.', action:null});
   if(state.showPhoto && state.photoMode !== 'none' && !state.photoOne) issues.push({level:'warn', title:'Фото включено, но не загружено', text:'Загрузите фото или выключите блок фото.', action:'noPhoto'});
   if(state.showPhoto && state.photoMode === 'two' && !state.photoTwo) issues.push({level:'warn', title:'Второе фото не загружено', text:'Для шаблона с двумя фото загрузите второе изображение.', action:'onePhoto'});
   if(state.showPhoto && state.photoMode !== 'none' && count >= 6) issues.push({level:'warn', title:'Фото при плотной печати', text:'На 6+ макетах фото ухудшает читаемость.', action:'twoOnPage'});
 
   if(!state.showCutLines && count > 1) issues.push({level:'tip', title:'Линии реза выключены', text:'При нескольких макетах на А4 линии реза помогут ровно разрезать лист.', action:'showCutLines'});
   if(!state.safePrintMargins && Number(state.pageMargin) < 7) issues.push({level:'tip', title:'Безопасные поля выключены', text:'Включите безопасные поля, чтобы важный текст не оказался близко к краю печати.', action:'showSafeMargins'});
+  if(count >= 6 && !state.safePrintMargins) issues.push({level:'tip', title:'Плотная печать без безопасных полей', text:'Для 6–8 макетов на листе безопасные поля помогают не обрезать важный текст.', action:'showSafeMargins'});
 
   if(state.showQr && state.qrLink){
     const qr = getQrInfo(state.qrLink);
     if(!qr.ok) issues.push({level:'warn', title:'Ссылка для QR слишком длинная', text:`Встроенный QR поддерживает до ${qr.maxBytes} байт. Лучше использовать короткую ссылку.`, action:'shortQr'});
     if(count >= 4) issues.push({level:'tip', title:'QR может быть мелким', text:'Для QR лучше 1, 2 или 4 макета на листе, а перед печатью нужно проверить сканирование.', action:'twoOnPage'});
+    if(count >= 6) issues.push({level:'warn', title:'QR слишком мал для мини-макета', text:'Для 6–8 макетов на А4 QR лучше убрать или печатать меньше объявлений на листе.', action:'twoOnPage'});
   }
 
   if(state.colorMode === 'private' && /этажи|etagi/i.test(`${state.headline} ${state.description} ${state.customBlockText}`)) issues.push({level:'warn', title:'Частное объявление с фирменностью', text:'В частном режиме лучше убрать упоминание компании.', action:'cleanBrand'});

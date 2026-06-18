@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Центр помощи</title>
+  <style>
+    :root{--accent:#e30613;--dark:#111827;--text:#1f2937;--muted:#64748b;--bg:#f3f4f6;--card:#fff}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif;line-height:1.55}
+    .page{max-width:980px;margin:0 auto;padding:24px 16px 48px}
+    .hero{background:linear-gradient(135deg,var(--dark),#2a0d12);color:#fff;border-radius:24px;padding:28px;margin-bottom:18px}
+    .hero b{display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:12px;background:var(--accent);font-size:28px;margin-bottom:14px}
+    h1{margin:0 0 8px;font-size:34px;line-height:1.08;font-weight:900}
+    .hero p{margin:0;color:#e5e7eb;font-size:16px}
+    .back{display:inline-flex;margin-bottom:14px;color:var(--accent);font-weight:900;text-decoration:none}
+    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+    .card{display:block;background:var(--card);border:1px solid #e5e7eb;border-radius:20px;padding:20px;text-decoration:none;color:var(--text);box-shadow:0 8px 24px rgba(15,23,42,.06)}
+    .card b{display:block;font-size:20px;line-height:1.15;color:var(--dark);margin-bottom:8px}
+    .card span{color:var(--muted);font-size:14px}
+    .tip{margin-top:16px;border-left:5px solid var(--accent);background:#fff5f5;padding:13px 14px;border-radius:14px;font-weight:700}
+    @media(max-width:760px){.grid{grid-template-columns:1fr}.page{padding:14px 10px 36px}h1{font-size:28px}.hero{padding:22px}}
+  </style>
+</head>
+<body>
+  <main class="page">
+    <a class="back" href="../index.html">← Вернуться в генератор</a>
+    <section class="hero">
+      <b>Э</b>
+      <h1>Центр помощи</h1>
+      <p>Инструкции для работы с генератором расклеек.</p>
+    </section>
+    <section class="grid">
+      <a class="card" href="quick-start.html"><b>Быстрый старт СПН</b><span>Как быстро выбрать шаблон, заполнить данные и подготовить макет к печати.</span></a>
+      <a class="card" href="field-test.html"><b>Чек-лист теста расклеек</b><span>Что проверить на экране, после печати и во время тестовой расклейки.</span></a>
+      <a class="card" href="ab-tests.html"><b>A/B-тесты</b><span>Как сравнивать разные заходы и оценивать качество обращений.</span></a>
+      <a class="card" href="trust.html"><b>Доверие и возражения</b><span>Когда использовать мягкие формулировки и консультационный подход.</span></a>
+      <a class="card" href="response-log.html"><b>Лист учёта откликов</b><span>Печатная форма для фиксации звонков, сообщений и итогов теста.</span></a>
+    </section>
+    <div class="tip">Связка для работы: макет → тестовая расклейка → учёт откликов → улучшение текста.</div>
+  </main>
+</body>
+</html>

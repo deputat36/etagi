@@ -31,12 +31,40 @@ async function loadTemplateFile(path){
 }
 
 export function filterTemplates(templates, goal, query='', density='all'){
-  const q = query.trim().toLowerCase();
+  const q = normalizeSearch(query);
   return templates.filter(t => {
     const goalOk = t.goal === goal || t.goal === 'all';
     const densityOk = density === 'all' || t.density === density;
-    const text = `${t.title} ${t.note} ${t.tags?.join(' ') || ''}`.toLowerCase();
-    const queryOk = !q || text.includes(q);
+    const queryOk = !q || getTemplateSearchText(t).includes(q);
     return goalOk && densityOk && queryOk;
   });
+}
+
+function getTemplateSearchText(template){
+  const data = template?.data || {};
+  return normalizeSearch([
+    template?.id,
+    template?.goal,
+    template?.title,
+    template?.note,
+    ...(template?.tags || []),
+    data.area,
+    data.propertyType,
+    data.price,
+    data.params,
+    data.headline,
+    data.description,
+    data.benefits,
+    data.customBlockTitle,
+    data.customBlockText,
+    data.qrCaption
+  ].filter(Boolean).join(' '));
+}
+
+function normalizeSearch(value){
+  return String(value || '')
+    .toLowerCase()
+    .replace(/ё/g, 'е')
+    .replace(/\s+/g, ' ')
+    .trim();
 }

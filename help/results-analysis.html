@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Анализ результатов расклейки — генератор расклеек</title>
+  <style>
+    :root{--accent:#e30613;--dark:#111827;--text:#1f2937;--muted:#64748b;--bg:#f3f4f6;--card:#fff}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif;line-height:1.55}
+    .page{max-width:980px;margin:0 auto;padding:24px 16px 48px}
+    .hero{background:linear-gradient(135deg,var(--dark),#2a0d12);color:#fff;border-radius:24px;padding:28px;margin-bottom:18px}
+    .hero b{display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:12px;background:var(--accent);font-size:28px;margin-bottom:14px}
+    h1{margin:0 0 8px;font-size:32px;line-height:1.08;font-weight:900}
+    .hero p{margin:0;color:#e5e7eb;font-size:16px}
+    .back{display:inline-flex;margin-bottom:14px;color:var(--accent);font-weight:900;text-decoration:none}
+    .card{background:var(--card);border:1px solid #e5e7eb;border-radius:20px;padding:20px;margin:14px 0;box-shadow:0 8px 24px rgba(15,23,42,.06)}
+    h2{margin:0 0 12px;font-size:22px;line-height:1.15;color:var(--dark)}
+    h3{margin:18px 0 6px;font-size:17px;color:var(--dark)}
+    p{margin:6px 0;color:#374151}
+    ol,ul{padding-left:22px;margin:8px 0}
+    li+li{margin-top:5px}
+    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+    .box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:12px;font-weight:700;white-space:pre-line}
+    .tip{border-left:5px solid var(--accent);background:#fff5f5;padding:13px 14px;border-radius:14px;font-weight:700}
+    @media(max-width:760px){.grid{grid-template-columns:1fr}.page{padding:14px 10px 36px}h1{font-size:27px}.hero{padding:22px}}
+    @media print{body{background:#fff}.page{padding:0;max-width:none}.back{display:none}.hero{background:#fff;color:#111827;padding:0;margin-bottom:10px}.hero b{display:none}.hero p{color:#374151}.card{box-shadow:none;border:1px solid #e5e7eb}}
+  </style>
+</head>
+<body>
+  <main class="page">
+    <a class="back" href="index.html">← В центр помощи</a>
+
+    <section class="hero">
+      <b>Э</b>
+      <h1>Анализ результатов расклейки</h1>
+      <p>Как понять, какие макеты, районы и формулировки действительно дают качественные обращения.</p>
+    </section>
+
+    <section class="card">
+      <h2>Что считать результатом</h2>
+      <div class="tip">Считать нужно не только звонки. Важно смотреть на качество: кто обратился, насколько понятна задача, есть ли следующий шаг и может ли контакт привести к сделке.</div>
+    </section>
+
+    <section class="card">
+      <h2>Мини-воронка расклейки</h2>
+      <div class="grid">
+        <div class="box">1. Расклеено
+Сколько объявлений размещено и где.</div>
+        <div class="box">2. Отклики
+Сколько звонков, сообщений и уточнений пришло.</div>
+        <div class="box">3. Целевые лиды
+Сколько обращений реально подходят под задачу.</div>
+        <div class="box">4. Следующие шаги
+Сколько оценок, встреч, подборов, консультаций назначено.</div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Что сравнивать</h2>
+      <ul>
+        <li>Район против района.</li>
+        <li>Подъездный формат против обычного объявления.</li>
+        <li>Прямой призыв против мягкого доверительного текста.</li>
+        <li>Макет с фото против макета без фото.</li>
+        <li>2 объявления на А4 против 4 объявлений на А4.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Формула оценки</h2>
+      <div class="box">Отклик на 100 объявлений = количество откликов / количество расклеенных объявлений × 100
+
+Целевые лиды на 100 объявлений = количество целевых лидов / количество расклеенных объявлений × 100</div>
+      <p>Если звонков много, но все нецелевые — текст нужно уточнять. Если звонков мало, но они качественные — макет можно масштабировать.</p>
+    </section>
+
+    <section class="card">
+      <h2>Как делать вывод</h2>
+      <ol>
+        <li>Соберите данные минимум за 3–7 дней.</li>
+        <li>Посмотрите не только количество, но и качество обращений.</li>
+        <li>Определите, какой текст дал лучший разговор.</li>
+        <li>Оставьте сильный вариант и замените слабый.</li>
+        <li>Повторите тест на похожей локации.</li>
+      </ol>
+    </section>
+
+    <section class="card">
+      <h2>Итоговая таблица анализа</h2>
+      <div class="box">Макет:
+Район / адреса:
+Расклеено:
+Отклики:
+Целевые лиды:
+Назначены следующие шаги:
+Что сработало:
+Что изменить:
+Решение: масштабировать / переписать / остановить</div>
+    </section>
+  </main>
+</body>
+</html>

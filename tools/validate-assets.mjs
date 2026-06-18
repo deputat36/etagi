@@ -102,7 +102,7 @@ function checkFile(fullPath, from) {
   const relativePath = toProjectPath(normalized);
   checked.add(relativePath);
 
-  if (!normalized.startsWith(rootDir)) {
+  if (relativePath.startsWith('..') || path.isAbsolute(relativePath)) {
     errors.push(`${from}: ссылка выходит за пределы проекта — ${relativePath}`);
     return;
   }

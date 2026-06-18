@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>План повторного контакта — генератор расклеек</title>
+  <style>
+    :root{--accent:#e30613;--dark:#111827;--text:#1f2937;--muted:#64748b;--bg:#f3f4f6;--card:#fff}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif;line-height:1.55}
+    .page{max-width:980px;margin:0 auto;padding:24px 16px 48px}
+    .hero{background:linear-gradient(135deg,var(--dark),#2a0d12);color:#fff;border-radius:24px;padding:28px;margin-bottom:18px}
+    .hero b{display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:12px;background:var(--accent);font-size:28px;margin-bottom:14px}
+    h1{margin:0 0 8px;font-size:32px;line-height:1.08;font-weight:900}
+    .hero p{margin:0;color:#e5e7eb;font-size:16px}
+    .back{display:inline-flex;margin-bottom:14px;color:var(--accent);font-weight:900;text-decoration:none}
+    .card{background:var(--card);border:1px solid #e5e7eb;border-radius:20px;padding:20px;margin:14px 0;box-shadow:0 8px 24px rgba(15,23,42,.06)}
+    h2{margin:0 0 12px;font-size:22px;line-height:1.15;color:var(--dark)}
+    h3{margin:18px 0 6px;font-size:17px;color:var(--dark)}
+    p{margin:6px 0;color:#374151}
+    ol,ul{padding-left:22px;margin:8px 0}
+    li+li{margin-top:5px}
+    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+    .box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:12px;font-weight:700;white-space:pre-line}
+    .phrase{background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:12px;margin:10px 0;font-weight:700}
+    .tip{border-left:5px solid var(--accent);background:#fff5f5;padding:13px 14px;border-radius:14px;font-weight:700}
+    @media(max-width:760px){.grid{grid-template-columns:1fr}.page{padding:14px 10px 36px}h1{font-size:27px}.hero{padding:22px}}
+    @media print{body{background:#fff}.page{padding:0;max-width:none}.back{display:none}.hero{background:#fff;color:#111827;padding:0;margin-bottom:10px}.hero b{display:none}.hero p{color:#374151}.card{box-shadow:none;border:1px solid #e5e7eb}}
+  </style>
+</head>
+<body>
+  <main class="page">
+    <a class="back" href="index.html">← В центр помощи</a>
+
+    <section class="hero">
+      <b>Э</b>
+      <h1>План повторного контакта</h1>
+      <p>Что делать после первого звонка по расклейке, чтобы не потерять тёплый контакт.</p>
+    </section>
+
+    <section class="card">
+      <h2>Главный принцип</h2>
+      <div class="tip">Отклик после расклейки редко превращается в сделку за один разговор. Важно зафиксировать контакт, дать пользу и договориться о конкретном следующем шаге.</div>
+    </section>
+
+    <section class="card">
+      <h2>План на 7 дней</h2>
+      <div class="grid">
+        <div class="box">День 0
+Первый разговор. Уточнить ситуацию, записать источник, договориться о следующем действии.</div>
+        <div class="box">День 1
+Отправить обещанную информацию: диапазон цены, подборку, список шагов, документы.</div>
+        <div class="box">День 3
+Мягко уточнить, посмотрел ли человек информацию и появились ли вопросы.</div>
+        <div class="box">День 7
+Подвести к решению: оценка, встреча, подбор, ипотечная консультация или повторный контакт позже.</div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Что отправить собственнику</h2>
+      <ul>
+        <li>Короткий диапазон цены по похожим объектам.</li>
+        <li>Пояснение, что влияет на цену.</li>
+        <li>Порядок действий при продаже.</li>
+        <li>Предложение оценить объект точнее.</li>
+      </ul>
+      <div class="phrase">Я посмотрел похожие варианты. По рынку ориентир примерно такой: [диапазон]. Точнее можно сказать после уточнения состояния, документов и ситуации по срокам.</div>
+    </section>
+
+    <section class="card">
+      <h2>Что отправить покупателю</h2>
+      <ul>
+        <li>2–5 подходящих вариантов или критерии подбора.</li>
+        <li>Вопросы по бюджету и ипотеке.</li>
+        <li>Предложение посмотреть реальные варианты.</li>
+        <li>Следующий шаг: консультация, подбор, показ.</li>
+      </ul>
+      <div class="phrase">Я подобрал несколько вариантов под ваш запрос. Давайте уточним, что для вас важнее: район, состояние, этаж, площадь или цена?</div>
+    </section>
+
+    <section class="card">
+      <h2>Сообщения для повторного касания</h2>
+      <div class="phrase">Здравствуйте. Вы смотрели информацию, которую я отправлял по объектам/цене? Есть вопросы, которые стоит уточнить?</div>
+      <div class="phrase">Напомню про наш разговор. Вы говорили, что думаете о продаже/покупке. Подскажите, вопрос ещё актуален или лучше вернуться позже?</div>
+      <div class="phrase">Чтобы не беспокоить лишний раз, уточню: вам удобнее, чтобы я прислал варианты/оценку сообщением или лучше коротко созвониться?</div>
+    </section>
+
+    <section class="card">
+      <h2>Что записать после каждого касания</h2>
+      <div class="box">Дата контакта:
+Что отправил:
+Реакция клиента:
+Уровень интереса:
+Следующий шаг:
+Дата следующего контакта:</div>
+    </section>
+  </main>
+</body>
+</html>

@@ -19,7 +19,10 @@ export const photoModes = [
 export const printPresets = [
   { count:1, title:'1 крупно' },
   { count:2, title:'2 на А4' },
-  { count:4, title:'4 экономно' }
+  { count:3, title:'3 полосы' },
+  { count:4, title:'4 экономно' },
+  { count:6, title:'6 мелко' },
+  { count:8, title:'8 мини' }
 ];
 
 export const layoutModes = [
@@ -48,7 +51,7 @@ export const propertyPresets = [
 ];
 
 export const defaultState = {
-  version: '3.17.0',
+  version: '3.18.0',
   goal: 'seller',
   templateId: '',
   layoutName: '',

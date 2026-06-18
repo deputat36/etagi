@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Скрипт обработки отклика — генератор расклеек</title>
+  <style>
+    :root{--accent:#e30613;--dark:#111827;--text:#1f2937;--muted:#64748b;--bg:#f3f4f6;--card:#fff}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif;line-height:1.55}
+    .page{max-width:980px;margin:0 auto;padding:24px 16px 48px}
+    .hero{background:linear-gradient(135deg,var(--dark),#2a0d12);color:#fff;border-radius:24px;padding:28px;margin-bottom:18px}
+    .hero b{display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:12px;background:var(--accent);font-size:28px;margin-bottom:14px}
+    h1{margin:0 0 8px;font-size:32px;line-height:1.08;font-weight:900}
+    .hero p{margin:0;color:#e5e7eb;font-size:16px}
+    .back{display:inline-flex;margin-bottom:14px;color:var(--accent);font-weight:900;text-decoration:none}
+    .card{background:var(--card);border:1px solid #e5e7eb;border-radius:20px;padding:20px;margin:14px 0;box-shadow:0 8px 24px rgba(15,23,42,.06)}
+    h2{margin:0 0 12px;font-size:22px;line-height:1.15;color:var(--dark)}
+    h3{margin:18px 0 6px;font-size:17px;color:var(--dark)}
+    p{margin:6px 0;color:#374151}
+    ol,ul{padding-left:22px;margin:8px 0}
+    li+li{margin-top:5px}
+    .phrase{background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:12px;margin:10px 0;font-weight:700}
+    .tip{border-left:5px solid var(--accent);background:#fff5f5;padding:13px 14px;border-radius:14px;font-weight:700}
+    @media(max-width:760px){.page{padding:14px 10px 36px}h1{font-size:27px}.hero{padding:22px}}
+    @media print{body{background:#fff}.page{padding:0;max-width:none}.back{display:none}.hero{background:#fff;color:#111827;padding:0;margin-bottom:10px}.hero b{display:none}.hero p{color:#374151}.card{box-shadow:none;border:1px solid #e5e7eb}}
+  </style>
+</head>
+<body>
+  <main class="page">
+    <a class="back" href="index.html">← В центр помощи</a>
+
+    <section class="hero">
+      <b>Э</b>
+      <h1>Скрипт обработки отклика</h1>
+      <p>Что говорить, когда человек звонит или пишет по расклейке.</p>
+    </section>
+
+    <section class="card">
+      <h2>Цель первого разговора</h2>
+      <div class="tip">Не продать услугу сразу, а понять ситуацию, зафиксировать контакт и договориться о следующем шаге.</div>
+    </section>
+
+    <section class="card">
+      <h2>Старт разговора</h2>
+      <div class="phrase">Здравствуйте. Меня зовут [имя], компания «Этажи». Вы звоните по объявлению? Подскажите, какой вопрос у вас по недвижимости?</div>
+      <p>Если человек звонит по частному макету без бренда, можно сказать мягче:</p>
+      <div class="phrase">Здравствуйте. Да, я оставлял объявление по этому дому/району. Подскажите, вы сами рассматриваете продажу или просто уточняете?</div>
+    </section>
+
+    <section class="card">
+      <h2>Если звонит собственник</h2>
+      <ol>
+        <li>Уточните объект: квартира, дом, район, площадь, состояние.</li>
+        <li>Спросите, продаёт сейчас или только думает.</li>
+        <li>Уточните ожидания по цене.</li>
+        <li>Предложите следующий шаг: оценка, консультация, встреча, подбор покупателей.</li>
+      </ol>
+      <div class="phrase">Я понял. Давайте сделаем так: я посмотрю похожие объекты и текущий спрос, а потом скажу вам реальный диапазон цены. Это ни к чему вас не обязывает.</div>
+    </section>
+
+    <section class="card">
+      <h2>Если звонит покупатель</h2>
+      <ol>
+        <li>Уточните, что ищет: квартира, дом, район, бюджет.</li>
+        <li>Спросите про ипотеку или наличные.</li>
+        <li>Уточните сроки покупки.</li>
+        <li>Предложите подбор и консультацию.</li>
+      </ol>
+      <div class="phrase">Хорошо, я зафиксировал параметры. Давайте подберу варианты и отдельно посмотрим, какие объекты реально подходят по документам и бюджету.</div>
+    </section>
+
+    <section class="card">
+      <h2>Если человек сомневается</h2>
+      <div class="phrase">Понимаю. Можно не принимать решение сейчас. Давайте просто сориентирую вас по рынку, чтобы вы понимали порядок цены и дальнейшие шаги.</div>
+      <div class="phrase">Я не буду настаивать. Моя задача — дать вам понятную информацию, чтобы вы спокойно решили, что делать дальше.</div>
+    </section>
+
+    <section class="card">
+      <h2>Что обязательно записать</h2>
+      <ul>
+        <li>Имя и телефон.</li>
+        <li>Источник: какая расклейка, район, дом или шаблон.</li>
+        <li>Тип клиента: собственник, покупатель, сосед, просто интересуется.</li>
+        <li>Краткая суть запроса.</li>
+        <li>Следующее действие и дату контакта.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Финиш разговора</h2>
+      <div class="phrase">Договорились. Я сейчас зафиксирую информацию и вернусь к вам с ответом. Если что-то вспомните — напишите или позвоните на этот номер.</div>
+    </section>
+  </main>
+</body>
+</html>

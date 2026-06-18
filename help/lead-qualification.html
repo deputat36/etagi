@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Квалификация отклика — генератор расклеек</title>
+  <style>
+    :root{--accent:#e30613;--dark:#111827;--text:#1f2937;--muted:#64748b;--bg:#f3f4f6;--card:#fff}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif;line-height:1.55}
+    .page{max-width:980px;margin:0 auto;padding:24px 16px 48px}
+    .hero{background:linear-gradient(135deg,var(--dark),#2a0d12);color:#fff;border-radius:24px;padding:28px;margin-bottom:18px}
+    .hero b{display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:12px;background:var(--accent);font-size:28px;margin-bottom:14px}
+    h1{margin:0 0 8px;font-size:32px;line-height:1.08;font-weight:900}
+    .hero p{margin:0;color:#e5e7eb;font-size:16px}
+    .back{display:inline-flex;margin-bottom:14px;color:var(--accent);font-weight:900;text-decoration:none}
+    .card{background:var(--card);border:1px solid #e5e7eb;border-radius:20px;padding:20px;margin:14px 0;box-shadow:0 8px 24px rgba(15,23,42,.06)}
+    h2{margin:0 0 12px;font-size:22px;line-height:1.15;color:var(--dark)}
+    h3{margin:18px 0 6px;font-size:17px;color:var(--dark)}
+    p{margin:6px 0;color:#374151}
+    ol,ul{padding-left:22px;margin:8px 0}
+    li+li{margin-top:5px}
+    .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+    .box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:12px;font-weight:700}
+    .hot{border-left:5px solid #ef4444}
+    .warm{border-left:5px solid #f59e0b}
+    .cold{border-left:5px solid #64748b}
+    .tip{border-left:5px solid var(--accent);background:#fff5f5;padding:13px 14px;border-radius:14px;font-weight:700}
+    @media(max-width:760px){.grid{grid-template-columns:1fr}.page{padding:14px 10px 36px}h1{font-size:27px}.hero{padding:22px}}
+    @media print{body{background:#fff}.page{padding:0;max-width:none}.back{display:none}.hero{background:#fff;color:#111827;padding:0;margin-bottom:10px}.hero b{display:none}.hero p{color:#374151}.card{box-shadow:none;border:1px solid #e5e7eb}}
+  </style>
+</head>
+<body>
+  <main class="page">
+    <a class="back" href="index.html">← В центр помощи</a>
+
+    <section class="hero">
+      <b>Э</b>
+      <h1>Квалификация отклика</h1>
+      <p>Как понять, насколько полезен звонок или сообщение после расклейки, и что делать дальше.</p>
+    </section>
+
+    <section class="card">
+      <h2>Зачем квалифицировать отклики</h2>
+      <div class="tip">Не каждый звонок — готовый клиент. Но почти каждый отклик может стать контактом, рекомендацией, будущей сделкой или подсказкой для улучшения макета.</div>
+    </section>
+
+    <section class="card">
+      <h2>Три уровня отклика</h2>
+      <div class="grid">
+        <div class="box hot"><h3>Горячий</h3><p>Есть реальная задача, понятный срок, объект или бюджет. Можно назначать следующий шаг.</p></div>
+        <div class="box warm"><h3>Тёплый</h3><p>Человек думает, сравнивает, уточняет цену, не готов прямо сейчас. Нужен прогрев и повторный контакт.</p></div>
+        <div class="box cold"><h3>Холодный</h3><p>Интерес слабый, сроков нет, конкретики мало. Контакт фиксируем, но не тратим много времени.</p></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Вопросы для собственника</h2>
+      <ol>
+        <li>Какой объект: квартира, дом, участок, коммерция?</li>
+        <li>Где находится объект?</li>
+        <li>Вы уже продаёте или пока только думаете?</li>
+        <li>Какая цена кажется вам комфортной?</li>
+        <li>Есть ли срочность или причина продажи?</li>
+        <li>Готовы ли обсудить оценку или встречу?</li>
+      </ol>
+    </section>
+
+    <section class="card">
+      <h2>Вопросы для покупателя</h2>
+      <ol>
+        <li>Что ищете: квартиру, дом, участок?</li>
+        <li>Какие районы рассматриваете?</li>
+        <li>Какой бюджет?</li>
+        <li>Ипотека, наличные или продажа своего объекта?</li>
+        <li>Когда хотите купить?</li>
+        <li>Какие условия обязательны?</li>
+      </ol>
+    </section>
+
+    <section class="card">
+      <h2>Как определить следующий шаг</h2>
+      <ul>
+        <li><b>Горячий собственник:</b> оценка, встреча, просмотр документов, подготовка к продаже.</li>
+        <li><b>Тёплый собственник:</b> отправить диапазон цены, договориться о повторном контакте.</li>
+        <li><b>Горячий покупатель:</b> подбор объектов, ипотечная консультация, показ.</li>
+        <li><b>Тёплый покупатель:</b> уточнить критерии, сохранить в базу, отправить варианты.</li>
+        <li><b>Холодный контакт:</b> записать источник и не забыть про будущий прогрев.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Мини-карточка отклика</h2>
+      <div class="box">Имя:
+Телефон:
+Источник расклейки:
+Тип клиента:
+Ситуация:
+Уровень: горячий / тёплый / холодный
+Следующее действие:
+Дата следующего контакта:</div>
+    </section>
+  </main>
+</body>
+</html>

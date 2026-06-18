@@ -48,11 +48,14 @@ export function renderSheet(sheet, state){
 
 function renderFlyer(state){
   const classes = ['flyer'];
+  const hasPhoto = hasRenderablePhoto(state);
   if(state.colorMode === 'economy') classes.push('color-economy');
   if(state.colorMode === 'bw') classes.push('bw');
   if(state.colorMode === 'private') classes.push('private');
   if(state.layoutDensity === 'dense' || Number(state.printCount) >= 4) classes.push('compact');
   if(!state.showContact) classes.push('no-contact');
+  classes.push(hasPhoto ? 'has-photo' : 'no-photo');
+  if(state.tearOffs) classes.push('has-tears');
   const blocks = normalizeBlockOrder(state.blockOrder)
     .map(blockId => renderBlock(blockId, state))
     .filter(Boolean)
@@ -67,7 +70,7 @@ function renderFlyer(state){
 function renderBlock(blockId, state){
   if(blockId === 'headline') return state.showHeadline ? `<div class="headline">${esc(state.headline)}</div>` : '';
   if(blockId === 'price') return state.showPrice && state.price ? `<div class="subline">${esc(state.price)}</div>` : '';
-  if(blockId === 'photo') return state.showPhoto ? renderPhotos(state) : '';
+  if(blockId === 'photo') return hasRenderablePhoto(state) ? renderPhotos(state) : '';
   if(blockId === 'description') return state.showDescription && state.description ? `<div class="desc">${esc(state.description)}</div>` : '';
   if(blockId === 'meta') return state.showMeta ? renderMeta(state) : '';
   if(blockId === 'benefits') return state.showBenefits ? renderBenefits(state) : '';
@@ -82,8 +85,12 @@ function renderBenefits(state){
   return `<div class="benefits">${benefits.map(x=>`<div class="benefit">${esc(x)}</div>`).join('')}</div>`;
 }
 
+function hasRenderablePhoto(state){
+  if(!state.showPhoto || state.photoMode === 'none') return false;
+  if(state.photoMode === 'two') return Boolean(state.photoOne || state.photoTwo);
+  return Boolean(state.photoOne);
+}
 function renderPhotos(state){
-  if(state.photoMode === 'none') return '';
   const img1 = state.photoOne ? `<img src="${state.photoOne}" alt="Фото 1">` : '';
   const img2 = state.photoTwo ? `<img src="${state.photoTwo}" alt="Фото 2">` : '';
   if(state.photoMode === 'two') return `<div class="photos two"><div class="photo-box">${img1}</div><div class="photo-box">${img2}</div></div>`;
@@ -123,7 +130,7 @@ function renderQr(state){
 }
 function renderTears(state){
   const phone = esc(state.agentPhone || 'телефон');
-  return `<div class="tears">${Array.from({length:5},()=>`<div class="tear">${phone}</div>`).join('')}</div>`;
+  return `<div class="tears">${Array.from({length:8},()=>`<div class="tear"><span class="tear-topic">Недвижимость</span><span class="tear-phone">${phone}</span></div>`).join('')}</div>`;
 }
 function normalizeBlockOrder(order){
   const safe = Array.isArray(order) ? order.filter(id => DEFAULT_BLOCK_ORDER.includes(id)) : [];

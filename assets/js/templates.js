@@ -1,6 +1,7 @@
 const TEMPLATE_FILES = [
   'data/templates.json',
   'data/templates_custom.json',
+  'data/templates_sales.json',
   'data/templates_extra.json',
   'data/templates_borisoglebsk.json',
   'data/templates_entrance.json',

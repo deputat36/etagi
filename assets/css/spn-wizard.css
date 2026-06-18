@@ -1,0 +1,11 @@
+.spn-wizard{margin:9px 0 10px;padding:10px;border:1px solid #fee2e2;border-radius:16px;background:linear-gradient(180deg,#fff,#fff7f7)}
+.spn-wizard-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.spn-wizard-head b{font-size:12px;line-height:1.15;color:#111827;font-weight:900}
+.spn-wizard-head button{font-size:11px;padding:6px 8px;background:#fff;border:1px solid #fecaca;color:#b91c1c}
+.spn-wizard-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.spn-wizard-grid button{min-height:62px;padding:8px 9px;text-align:left;border:1px solid #e2e8f0;background:#fff;border-radius:13px;color:#172033;box-shadow:none}
+.spn-wizard-grid button:hover{transform:none;box-shadow:0 7px 16px rgba(15,23,42,.08)}
+.spn-wizard-grid button.active{border-color:var(--accent);background:var(--accent);color:#fff}
+.spn-wizard-grid span{display:block;font-size:12px;font-weight:900;line-height:1.12}
+.spn-wizard-grid small{display:block;margin-top:4px;font-size:10.5px;line-height:1.18;font-weight:700;opacity:.72}
+@media(max-width:520px){.spn-wizard-grid{grid-template-columns:1fr}.spn-wizard-grid button{min-height:auto}}

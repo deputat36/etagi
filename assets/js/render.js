@@ -57,6 +57,7 @@ function renderFlyer(state){
   if(!state.showContact) classes.push('no-contact');
   classes.push(hasPhoto ? 'has-photo' : 'no-photo');
   if(state.tearOffs) classes.push('has-tears');
+  if(state.showQr && state.qrLink) classes.push('has-qr');
   const blocks = normalizeBlockOrder(state.blockOrder)
     .map(blockId => renderBlock(blockId, state))
     .filter(Boolean)
@@ -65,6 +66,7 @@ function renderFlyer(state){
   return `<article class="${classes.join(' ')}">
     ${state.showBrand && state.colorMode !== 'private' ? `<div class="brand-row"><div class="brand"><span class="brand-mark">Э</span><span>Этажи</span></div><div class="site">etagi.com</div></div>` : ''}
     ${blocks}
+    ${state.showQr ? renderQr(state) : ''}
     ${state.tearOffs ? renderTears(state) : ''}
   </article>`;
 }
@@ -118,7 +120,6 @@ function renderContact(state){
     <div class="phone">${esc(state.agentPhone || 'ВАШ ТЕЛЕФОН')}</div>
     <div class="person">${esc(state.agentName || 'Специалист по недвижимости')}</div>
     <div class="cta">Позвоните — подскажу по объекту и условиям</div>
-    ${state.showQr ? renderQr(state) : ''}
   </div>`;
 }
 function renderQr(state){
@@ -126,9 +127,9 @@ function renderQr(state){
   const qr = createQrSvg(state.qrLink);
   const caption = esc(state.qrCaption || 'Открыть ссылку');
   if(!qr.ok){
-    return `<div class="qr-row"><div class="qr-box qr-error">QR</div><span>${caption}<br>ссылка слишком длинная</span></div>`;
+    return `<div class="qr-row qr-standalone"><div class="qr-box qr-error">QR</div><span>${caption}<br>ссылка слишком длинная</span></div>`;
   }
-  return `<div class="qr-row"><div class="qr-box real-qr">${qr.svg}</div><span>${caption}</span></div>`;
+  return `<div class="qr-row qr-standalone"><div class="qr-box real-qr">${qr.svg}</div><span>${caption}</span></div>`;
 }
 function renderTears(state){
   const phone = esc(state.agentPhone || 'телефон');

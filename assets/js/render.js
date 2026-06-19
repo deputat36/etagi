@@ -4,6 +4,8 @@ import { createQrSvg } from './qr.js';
 const DEFAULT_BLOCK_ORDER = ['headline','price','photo','description','meta','benefits','customBlock','contact'];
 const TEAR_LABEL_KEY = 'etagi-raskleyka-tear-label-v1';
 const CONTACT_CTA_KEY = 'etagi-raskleyka-contact-cta-v1';
+const BRAND_NAME_KEY = 'etagi-raskleyka-brand-name-v1';
+const BRAND_SIDE_KEY = 'etagi-raskleyka-brand-side-v1';
 
 export function applyCss(state){
   const root = document.documentElement;
@@ -65,11 +67,15 @@ function renderFlyer(state){
     .join('');
 
   return `<article class="${classes.join(' ')}">
-    ${state.showBrand && state.colorMode !== 'private' ? `<div class="brand-row"><div class="brand"><span class="brand-mark">Э</span><span>Этажи</span></div><div class="site">etagi.com</div></div>` : ''}
+    ${state.showBrand && state.colorMode !== 'private' ? renderBrandRow(state) : ''}
     ${blocks}
     ${state.showQr ? renderQr(state) : ''}
     ${state.tearOffs ? renderTears(state) : ''}
   </article>`;
+}
+
+function renderBrandRow(state){
+  return `<div class="brand-row"><div class="brand"><span class="brand-mark">Э</span><span>${esc(getBrandName(state))}</span></div><div class="site">${esc(getBrandSide(state))}</div></div>`;
 }
 
 function renderBlock(blockId, state){
@@ -157,6 +163,28 @@ function getContactCta(state){
     return localStorage.getItem(CONTACT_CTA_KEY) || 'Позвоните — подскажу по объекту и условиям';
   } catch(e){
     return 'Позвоните — подскажу по объекту и условиям';
+  }
+}
+function getBrandName(state){
+  const fromState = String(state.brandName || '').trim();
+  if(fromState) return fromState;
+  const fromInput = typeof document !== 'undefined' ? String(document.getElementById('brandNameText')?.value || '').trim() : '';
+  if(fromInput) return fromInput;
+  try{
+    return localStorage.getItem(BRAND_NAME_KEY) || 'Этажи';
+  } catch(e){
+    return 'Этажи';
+  }
+}
+function getBrandSide(state){
+  const fromState = String(state.brandSideText || '').trim();
+  if(fromState) return fromState;
+  const fromInput = typeof document !== 'undefined' ? String(document.getElementById('brandSideText')?.value || '').trim() : '';
+  if(fromInput) return fromInput;
+  try{
+    return localStorage.getItem(BRAND_SIDE_KEY) || 'etagi.com';
+  } catch(e){
+    return 'etagi.com';
   }
 }
 function splitTearTopic(value){

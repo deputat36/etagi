@@ -2,6 +2,7 @@ import './spnTearOffEditor.js';
 import './spnBlockControls.js';
 import './spnQrStandaloneStyle.js';
 import './spnContactEditor.js';
+import './spnBrandEditor.js';
 
 const MODE_KEY = 'etagi-raskleyka-ui-mode-v1';
 

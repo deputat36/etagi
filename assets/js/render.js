@@ -130,7 +130,7 @@ function renderQr(state){
 }
 function renderTears(state){
   const phone = esc(state.agentPhone || 'телефон');
-  return `<div class="tears">${Array.from({length:8},()=>`<div class="tear"><span class="tear-topic">Недвижимость</span><span class="tear-phone">${phone}</span></div>`).join('')}</div>`;
+  return `<div class="tears">${Array.from({length:8},()=>`<div class="tear"><span class="tear-topic"><span>Недви-</span><span>жимость</span></span><span class="tear-phone">${phone}</span></div>`).join('')}</div>`;
 }
 function normalizeBlockOrder(order){
   const safe = Array.isArray(order) ? order.filter(id => DEFAULT_BLOCK_ORDER.includes(id)) : [];

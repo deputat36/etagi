@@ -1,9 +1,12 @@
+const JOURNAL_KEY = 'etagi-raskleyka-test-journal-v1';
+
 document.addEventListener('DOMContentLoaded', () => {
   const saveCard = document.querySelector('.save-card');
   if(!saveCard || document.getElementById('spnResultEstimator')) return;
   saveCard.insertAdjacentHTML('beforebegin', renderEstimatorShell());
   bindEstimatorEvents();
   updateEstimator();
+  renderJournal();
 });
 
 function renderEstimatorShell(){
@@ -21,7 +24,18 @@ function renderEstimatorShell(){
     <div class="spn-result-box" id="spnResultBox"></div>
     <div class="spn-result-actions">
       <button type="button" id="copyResultSummaryBtn">Скопировать итог</button>
-      <button type="button" id="resetResultSummaryBtn">Очистить</button>
+      <button type="button" id="saveResultJournalBtn">Сохранить тест</button>
+      <button type="button" id="resetResultSummaryBtn">Очистить поля</button>
+    </div>
+    <div class="spn-journal">
+      <div class="spn-journal-head">
+        <b>Журнал тестов</b>
+        <div>
+          <button type="button" id="copyJournalBtn">Скопировать журнал</button>
+          <button type="button" id="clearJournalBtn">Очистить журнал</button>
+        </div>
+      </div>
+      <div class="spn-journal-list" id="spnJournalList"></div>
     </div>
     <p class="hint-text">Заполните после тестовой расклейки. Важно считать не только количество звонков, но и качество обращений.</p>
   </section>`;
@@ -35,7 +49,10 @@ function bindEstimatorEvents(){
     el.addEventListener('change', updateEstimator);
   });
   document.getElementById('copyResultSummaryBtn')?.addEventListener('click', copyResultSummary);
+  document.getElementById('saveResultJournalBtn')?.addEventListener('click', saveCurrentResult);
   document.getElementById('resetResultSummaryBtn')?.addEventListener('click', resetResultSummary);
+  document.getElementById('copyJournalBtn')?.addEventListener('click', copyJournal);
+  document.getElementById('clearJournalBtn')?.addEventListener('click', clearJournal);
 }
 
 function updateEstimator(){
@@ -129,10 +146,81 @@ function calculateResult(data){
   };
 }
 
+function saveCurrentResult(){
+  const data = readResultData();
+  const result = calculateResult(data);
+  if(!data.sheets && !data.leads){
+    setStatus('Сначала заполните результат теста.');
+    return;
+  }
+  const journal = loadJournal();
+  const entry = {
+    id: Date.now(),
+    date: new Date().toLocaleDateString('ru-RU'),
+    source: getSourceText(),
+    headline: value('headline'),
+    printCount: getPrintCount(),
+    sheets: data.sheets,
+    leads: data.leads,
+    hot: data.hot,
+    warm: data.warm,
+    ads: result.ads,
+    conversion: result.conversion,
+    quality: result.quality,
+    conclusion: result.title,
+    next: result.next
+  };
+  journal.unshift(entry);
+  localStorage.setItem(JOURNAL_KEY, JSON.stringify(journal.slice(0, 30)));
+  renderJournal();
+  setStatus('Тест сохранён в журнал.');
+}
+
+function renderJournal(){
+  const list = document.getElementById('spnJournalList');
+  if(!list) return;
+  const journal = loadJournal();
+  if(!journal.length){
+    list.innerHTML = '<div class="spn-journal-empty">Пока нет сохранённых тестов. Сохраните первый результат после расклейки.</div>';
+    return;
+  }
+  list.innerHTML = journal.slice(0, 5).map(item => `<div class="spn-journal-item">
+    <b>${escapeHtml(item.date)} — ${escapeHtml(item.source)}</b>
+    <span>${escapeHtml(item.conclusion)}. Листов: ${item.sheets}, откликов: ${item.leads}, горячих: ${item.hot}, тёплых: ${item.warm}.</span>
+    <small>Отклик: ${item.conversion}% · качество: ${item.quality}% · ${escapeHtml(item.next)}</small>
+  </div>`).join('');
+}
+
+function copyJournal(){
+  const journal = loadJournal();
+  if(!journal.length){
+    setStatus('Журнал тестов пока пуст.');
+    return;
+  }
+  const text = `Журнал тестов расклейки\n\n${journal.map(item => `${item.date}\nИсточник: ${item.source}\nЗаголовок: ${item.headline || 'не указан'}\nФормат: ${item.printCount} на А4\nЛистов: ${item.sheets}\nОткликов: ${item.leads}\nГорячих: ${item.hot}\nТёплых: ${item.warm}\nОтклик: ${item.conversion}%\nКачество: ${item.quality}%\nВывод: ${item.conclusion}\nСледующий шаг: ${item.next}`).join('\n\n---\n\n')}`;
+  navigator.clipboard?.writeText(text).then(() => setStatus('Журнал тестов скопирован.')).catch(() => setStatus('Не удалось скопировать журнал.'));
+}
+
+function clearJournal(){
+  if(!confirm('Очистить журнал тестов в этом браузере?')) return;
+  localStorage.removeItem(JOURNAL_KEY);
+  renderJournal();
+  setStatus('Журнал тестов очищен.');
+}
+
+function loadJournal(){
+  try{
+    const data = JSON.parse(localStorage.getItem(JOURNAL_KEY) || '[]');
+    return Array.isArray(data) ? data : [];
+  } catch(e){
+    return [];
+  }
+}
+
 function copyResultSummary(){
   const data = readResultData();
   const result = calculateResult(data);
-  const source = [value('area'), value('propertyType'), value('price')].filter(Boolean).join(' / ') || 'текущий макет';
+  const source = getSourceText();
   const text = `Итог теста расклейки\n\nИсточник: ${source}\nЛистов: ${data.sheets}\nПримерно объявлений: ${result.ads}\nОткликов: ${data.leads}\nГорячих: ${data.hot}\nТёплых: ${data.warm}\nОтклик: ${result.conversion}%\nКачество: ${result.quality}%\nВывод: ${result.title}\nСледующий шаг: ${result.next}`;
   navigator.clipboard?.writeText(text).then(() => setStatus('Итог теста скопирован.')).catch(() => setStatus('Не удалось скопировать итог.'));
 }
@@ -152,6 +240,9 @@ function readResultData(){
     hot: numberValue('resultHot'),
     warm: numberValue('resultWarm')
   };
+}
+function getSourceText(){
+  return [value('area'), value('propertyType'), value('price')].filter(Boolean).join(' / ') || 'текущий макет';
 }
 function getPrintCount(){
   const active = document.querySelector('[data-count].active');

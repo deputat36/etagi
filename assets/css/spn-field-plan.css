@@ -1,0 +1,11 @@
+.spn-field-plan{background:linear-gradient(180deg,#fff,#f8fafc);border-color:#e0e7ff}
+.spn-field-plan .quality-head button{padding:7px 9px;border:1px solid #c7d2fe;background:#eef2ff;color:#3730a3;border-radius:10px;font-size:11px;font-weight:900;box-shadow:none}
+.spn-field-plan .quality-head button:hover{transform:none;box-shadow:none;background:#e0e7ff}
+.spn-plan-list{display:grid;gap:7px;margin-top:8px}
+.spn-plan-item{display:grid;gap:3px;border:1px solid #e2e8f0;background:#fff;border-radius:12px;padding:8px 9px}
+.spn-plan-item b{font-size:11.5px;line-height:1.15;color:#111827;text-transform:uppercase;letter-spacing:.03em}
+.spn-plan-item span{font-size:11.5px;line-height:1.3;color:#475569;font-weight:700}
+.spn-plan-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:9px}
+.spn-plan-actions a{display:flex;align-items:center;justify-content:center;min-height:34px;padding:8px;border-radius:11px;background:#111827;color:#fff;text-decoration:none;font-size:11px;line-height:1.15;font-weight:900;text-align:center}
+.spn-plan-actions a:first-child{background:var(--accent)}
+@media(max-width:520px){.spn-plan-actions{grid-template-columns:1fr}}

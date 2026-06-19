@@ -65,6 +65,7 @@ function renderFlyer(state){
   return `<article class="${classes.join(' ')}">
     ${state.showBrand && state.colorMode !== 'private' ? `<div class="brand-row"><div class="brand"><span class="brand-mark">Э</span><span>Этажи</span></div><div class="site">etagi.com</div></div>` : ''}
     ${blocks}
+    ${state.tearOffs ? renderTears(state) : ''}
   </article>`;
 }
 
@@ -118,7 +119,7 @@ function renderContact(state){
     <div class="person">${esc(state.agentName || 'Специалист по недвижимости')}</div>
     <div class="cta">Позвоните — подскажу по объекту и условиям</div>
     ${state.showQr ? renderQr(state) : ''}
-  </div>${state.tearOffs ? renderTears(state) : ''}`;
+  </div>`;
 }
 function renderQr(state){
   if(!state.qrLink) return '';

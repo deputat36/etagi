@@ -111,6 +111,12 @@ document.addEventListener('DOMContentLoaded', () => {
   wizard.addEventListener('click', event => {
     const btn = event.target.closest('[data-spn-situation]');
     const reset = event.target.closest('[data-spn-reset]');
+    const routeAction = event.target.closest('[data-spn-route-action]');
+
+    if(routeAction){
+      applyRouteAction(routeAction.dataset.spnRouteAction);
+      return;
+    }
 
     if(reset){
       search.value = '';
@@ -119,6 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
       setStatus('Подбор очищен. Можно искать шаблон вручную.');
       wizard.querySelectorAll('[data-spn-situation]').forEach(item => item.classList.remove('active'));
       renderRecommendation(null);
+      updateRoute();
       return;
     }
 
@@ -129,6 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
     wizard.querySelectorAll('[data-spn-situation]').forEach(item => item.classList.remove('active'));
     btn.classList.add('active');
     renderRecommendation(item);
+    updateRoute();
 
     if(item.goal !== 'all'){
       const goalBtn = document.querySelector(`[data-goal="${item.goal}"]`);
@@ -141,13 +149,25 @@ document.addEventListener('DOMContentLoaded', () => {
       search.dispatchEvent(new Event('input', {bubbles:true}));
       if(density) density.dispatchEvent(new Event('change', {bubbles:true}));
       applyRecommendedSettings(item);
+      updateRoute();
       setStatus(`Подобраны шаблоны: ${item.title}. ${item.hint}`);
     }, 90);
   });
+
+  bindRouteUpdates();
+  updateRoute();
 });
 
 function renderWizard(){
   return `<div class="spn-wizard" id="spnWizard">
+    <div class="spn-route" id="spnRoute">
+      <div class="spn-route-head">
+        <b>Маршрут СПН</b>
+        <span id="spnRouteProgress">0/5</span>
+      </div>
+      <div class="spn-route-steps" id="spnRouteSteps"></div>
+      <div class="spn-route-next" id="spnRouteNext"></div>
+    </div>
     <div class="spn-wizard-head">
       <b>Быстрый подбор для СПН</b>
       <button type="button" data-spn-reset>Сбросить</button>
@@ -160,6 +180,81 @@ function renderWizard(){
       <span>Подскажу формат печати, главный смысл и что отслеживать после расклейки.</span>
     </div>
   </div>`;
+}
+
+function bindRouteUpdates(){
+  const ids = ['templateSearch','agentPhone','headline','description','benefits','area','propertyType','price','showContact','tearOffs'];
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.addEventListener('input', updateRoute);
+    el.addEventListener('change', updateRoute);
+  });
+  document.getElementById('templateList')?.addEventListener('click', () => window.setTimeout(updateRoute, 120));
+  document.getElementById('qualityBtn')?.addEventListener('click', () => window.setTimeout(updateRoute, 120));
+}
+
+function getRouteState(){
+  const text = `${value('headline')} ${value('description')} ${value('benefits')} ${value('customBlockText')}`.toLowerCase().replace(/ё/g, 'е');
+  const selectedSituation = Boolean(document.querySelector('[data-spn-situation].active')) || Boolean(value('templateSearch'));
+  const contactReady = Boolean(value('agentPhone')) && checked('showContact');
+  const contextReady = Boolean(value('area') || value('propertyType') || value('price'));
+  const contentReady = value('headline').length >= 10 && value('description').length >= 20 && value('benefits').split('\n').filter(Boolean).length >= 2;
+  const trustReady = /без давлен|без обязательств|не обязывает|по делу|безопас|провер|документ|простым язык|честн/.test(text);
+  const practicalReady = contactReady && contextReady && contentReady && trustReady;
+  return { selectedSituation, contactReady, contextReady, contentReady, trustReady, practicalReady };
+}
+
+function updateRoute(){
+  const route = document.getElementById('spnRoute');
+  const stepsBox = document.getElementById('spnRouteSteps');
+  const progressBox = document.getElementById('spnRouteProgress');
+  const nextBox = document.getElementById('spnRouteNext');
+  if(!route || !stepsBox || !progressBox || !nextBox) return;
+
+  const state = getRouteState();
+  const steps = [
+    ['Ситуация', state.selectedSituation],
+    ['Контакт', state.contactReady],
+    ['Контекст', state.contextReady],
+    ['Текст', state.contentReady],
+    ['Доверие', state.trustReady]
+  ];
+  const passed = steps.filter(([, ok]) => ok).length;
+  progressBox.textContent = `${passed}/${steps.length}`;
+  route.classList.toggle('ready', state.practicalReady);
+  stepsBox.innerHTML = steps.map(([title, ok]) => `<span class="${ok ? 'done' : 'todo'}">${ok ? '✓' : '•'} ${title}</span>`).join('');
+
+  const next = getNextAction(state);
+  nextBox.innerHTML = `<b>${next.title}</b><span>${next.text}</span><button type="button" data-spn-route-action="${next.action}">${next.button}</button>`;
+}
+
+function getNextAction(state){
+  if(!state.selectedSituation) return {title:'Начните с ситуации', text:'Выберите реальную задачу: собственник, покупатель, подъезд, объект или консультация.', action:'situation', button:'Выбрать ситуацию'};
+  if(!state.contactReady) return {title:'Заполните контакт', text:'Телефон должен быть виден на макете и на отрывных листочках.', action:'phone', button:'К телефону'};
+  if(!state.contextReady) return {title:'Добавьте контекст', text:'Район, дом, объект или цена помогают человеку понять, что объявление про него.', action:'context', button:'К контексту'};
+  if(!state.contentReady) return {title:'Доведите текст', text:'Нужны заголовок, короткое описание и 2–3 причины откликнуться.', action:'text', button:'К тексту'};
+  if(!state.trustReady) return {title:'Снимите опасение', text:'Добавьте мягкую формулировку: без давления, без обязательств, по делу.', action:'trust', button:'Добавить доверие'};
+  return {title:'Макет готов к проверке', text:'Нажмите «Проверить», затем печатайте и запускайте тест расклейки.', action:'quality', button:'Проверить макет'};
+}
+
+function applyRouteAction(action){
+  if(action === 'situation') return scrollToId('spnWizard');
+  if(action === 'phone') return focusField('agentPhone');
+  if(action === 'context') return focusField(value('area') ? value('propertyType') ? 'price' : 'propertyType' : 'area');
+  if(action === 'text') return focusField(value('headline') ? value('description') ? 'benefits' : 'description' : 'headline');
+  if(action === 'trust'){
+    const field = document.getElementById('customBlockText');
+    const showCustom = document.getElementById('showCustomBlock');
+    if(showCustom && !showCustom.checked){
+      showCustom.checked = true;
+      showCustom.dispatchEvent(new Event('change', {bubbles:true}));
+    }
+    if(!value('customBlockTitle')) setValue('customBlockTitle', 'Важно');
+    if(field && !value('customBlockText').toLowerCase().replace(/ё/g,'е').includes('без обязательств')) setValue('customBlockText', `${value('customBlockText')} Можно просто уточнить информацию — звонок ни к чему не обязывает.`.trim());
+    return focusField('customBlockText');
+  }
+  if(action === 'quality') return document.getElementById('qualityBtn')?.click();
 }
 
 function renderRecommendation(item){
@@ -186,6 +281,28 @@ function applyRecommendedSettings(item){
   }
 }
 
+function value(id){
+  return String(document.getElementById(id)?.value || '').trim();
+}
+function checked(id){
+  return Boolean(document.getElementById(id)?.checked);
+}
+function setValue(id, value){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.value = value;
+  el.dispatchEvent(new Event('input', {bubbles:true}));
+  el.dispatchEvent(new Event('change', {bubbles:true}));
+}
+function focusField(id){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.focus();
+  el.scrollIntoView({behavior:'smooth', block:'center'});
+}
+function scrollToId(id){
+  document.getElementById(id)?.scrollIntoView({behavior:'smooth', block:'start'});
+}
 function setStatus(text){
   const status = document.getElementById('statusLine');
   if(status) status.textContent = text;

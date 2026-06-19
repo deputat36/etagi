@@ -1,3 +1,5 @@
+import './spnTearOffEditor.js';
+
 const MODE_KEY = 'etagi-raskleyka-ui-mode-v1';
 
 document.addEventListener('DOMContentLoaded', () => {

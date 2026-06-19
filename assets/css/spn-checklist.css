@@ -3,6 +3,8 @@
 .spn-check-item{border:1px solid #e2e8f0;border-radius:12px;padding:8px 9px;background:#fff}
 .spn-check-item b{display:block;font-size:12px;line-height:1.2;color:#111827;margin-bottom:3px}
 .spn-check-item span{display:block;font-size:11px;line-height:1.25;color:#64748b;font-weight:700}
+.spn-check-item button{margin-top:7px;padding:6px 8px;border-radius:9px;border:1px solid #fed7aa;background:#fff;color:#c2410c;font-size:10.5px;font-weight:900;box-shadow:none}
+.spn-check-item button:hover{transform:none;box-shadow:none;background:#ffedd5}
 .spn-check-item.done{border-color:#bbf7d0;background:#f0fdf4}
 .spn-check-item.done b{color:#047857}
 .spn-check-item.todo{border-color:#fed7aa;background:#fff7ed}

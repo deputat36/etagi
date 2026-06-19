@@ -13,6 +13,13 @@ function renderPlanShell(){
       <button type="button" id="copyFieldPlanBtn">Скопировать</button>
     </div>
     <div class="spn-plan-list" id="spnPlanList"></div>
+    <div class="spn-response-script">
+      <div class="spn-response-head">
+        <b>Что говорить по отклику</b>
+        <button type="button" id="copyResponseScriptBtn">Скопировать скрипт</button>
+      </div>
+      <div class="spn-response-list" id="spnResponseList"></div>
+    </div>
     <div class="spn-plan-actions">
       <a href="help/response-log.html" target="_blank" rel="noopener">Открыть лист учёта откликов</a>
       <a href="help/results-analysis.html" target="_blank" rel="noopener">Как оценить результат</a>
@@ -33,11 +40,14 @@ function bindPlanUpdates(){
   document.getElementById('spnWizard')?.addEventListener('click', () => window.setTimeout(updatePlan, 140));
   document.getElementById('templateList')?.addEventListener('click', () => window.setTimeout(updatePlan, 140));
   document.getElementById('copyFieldPlanBtn')?.addEventListener('click', copyPlan);
+  document.getElementById('copyResponseScriptBtn')?.addEventListener('click', copyResponseScript);
 }
 
 function updatePlan(){
   const plan = buildPlan();
+  const script = buildResponseScript(plan);
   const list = document.getElementById('spnPlanList');
+  const scriptList = document.getElementById('spnResponseList');
   if(!list) return;
   list.innerHTML = [
     ['Формат', plan.format],
@@ -47,6 +57,9 @@ function updatePlan(){
     ['Когда смотреть результат', plan.review],
     ['Следующий шаг', plan.next]
   ].map(([label, text]) => `<div class="spn-plan-item"><b>${escapeHtml(label)}</b><span>${escapeHtml(text)}</span></div>`).join('');
+  if(scriptList){
+    scriptList.innerHTML = script.map(([label, text]) => `<div class="spn-response-item"><b>${escapeHtml(label)}</b><span>${escapeHtml(text)}</span></div>`).join('');
+  }
 }
 
 function buildPlan(){
@@ -58,6 +71,7 @@ function buildPlan(){
   const hasTears = checked('tearOffs');
   const hasQr = checked('showQr');
   const hasPhoto = checked('showPhoto');
+  const type = getPlanType(text);
 
   const format = `${count} ${plural(count, 'макет', 'макета', 'макетов')} на А4${hasTears ? ', с отрывными телефонами' : ''}${hasQr ? ', QR проверить телефоном' : ''}${hasPhoto ? ', фото только если оно реально усиливает смысл' : ''}.`;
 
@@ -71,11 +85,12 @@ function buildPlan(){
   if(text.includes('безопас') || text.includes('документ') || text.includes('консультац')) place = 'Клеить в местах, где люди решают бытовые и имущественные вопросы: подъезды, доски, офис, партнёрские точки.';
 
   let metric = 'Фиксировать: дата, район, шаблон, сколько листов, звонки, сообщения, качество обращения и итог.';
-  if(text.includes('цен')) metric = 'Фиксировать отдельно: звонки собственников, вопросы про цену, готовность назвать адрес и примерные ожидания.';
-  if(text.includes('покупател')) metric = 'Фиксировать отдельно: кто звонит по покупателю, какой объект предлагает, готов ли обсуждать цену.';
-  if(text.includes('объект')) metric = 'Фиксировать отдельно: звонки по объекту, просьбы отправить фото, адрес, цену и просмотры.';
+  if(type === 'price') metric = 'Фиксировать отдельно: звонки собственников, вопросы про цену, готовность назвать адрес и примерные ожидания.';
+  if(type === 'buyer') metric = 'Фиксировать отдельно: кто звонит по покупателю, какой объект предлагает, готов ли обсуждать цену.';
+  if(type === 'object') metric = 'Фиксировать отдельно: звонки по объекту, просьбы отправить фото, адрес, цену и просмотры.';
 
   return {
+    type,
     format,
     batch,
     place,
@@ -85,12 +100,75 @@ function buildPlan(){
   };
 }
 
+function buildResponseScript(plan){
+  const area = value('area') || 'вашему району';
+  const property = value('propertyType') || 'недвижимости';
+  const price = value('price');
+  const baseOpen = `Здравствуйте! Да, вы позвонили по объявлению про ${property}${area ? ` в ${area}` : ''}. Подскажите, вы звоните как собственник, покупатель или просто хотите уточнить информацию?`;
+
+  if(plan.type === 'price'){
+    return [
+      ['Начало', 'Здравствуйте! Вы по объявлению про оценку цены недвижимости? Подскажите адрес или хотя бы район и тип объекта.'],
+      ['Уточнить', 'Вам важно просто понимать ориентир цены или вы рассматриваете продажу в ближайшее время?'],
+      ['Дать пользу', 'Я могу назвать примерный диапазон и объяснить, что влияет на цену: состояние, этаж, документы, спрос и конкуренты.'],
+      ['Следующий шаг', 'Давайте я уточню пару деталей и скажу, какой ориентир по цене сейчас выглядит реалистично.']
+    ];
+  }
+
+  if(plan.type === 'buyer'){
+    return [
+      ['Начало', 'Здравствуйте! Вы по объявлению, где указано, что есть покупатель? Подскажите, какой у вас объект и где он находится.'],
+      ['Уточнить', 'Вы уже продаёте или только думаете, если будет нормальная цена и реальный покупатель?'],
+      ['Дать пользу', 'Я сначала уточню параметры и ожидания по цене, чтобы не тратить ваше время на неподходящий запрос.'],
+      ['Следующий шаг', 'Давайте сверим адрес, состояние и желаемую цену — после этого будет понятно, подходит ли объект под текущий спрос.']
+    ];
+  }
+
+  if(plan.type === 'object'){
+    return [
+      ['Начало', baseOpen],
+      ['Уточнить', 'Что для вас главное: цена, район, состояние, документы, ипотека или быстрый просмотр?'],
+      ['Дать пользу', `По этому варианту сразу расскажу плюсы, ограничения и что нужно проверить перед решением${price ? `, цена сейчас: ${price}` : ''}.`],
+      ['Следующий шаг', 'Могу отправить подробности и договориться о просмотре в удобное время.']
+    ];
+  }
+
+  if(plan.type === 'safe'){
+    return [
+      ['Начало', 'Здравствуйте! Вы по объявлению про безопасную сделку или консультацию по недвижимости?'],
+      ['Уточнить', 'У вас покупка, продажа, ипотека, документы или просто хотите понять риски?'],
+      ['Дать пользу', 'Я объясню простым языком, на что обратить внимание до решения, чтобы не попасть на лишние расходы или проблемы.'],
+      ['Следующий шаг', 'Расскажите ситуацию коротко — я подскажу, какие шаги лучше сделать в первую очередь.']
+    ];
+  }
+
+  return [
+    ['Начало', baseOpen],
+    ['Уточнить', 'Что именно вас заинтересовало в объявлении и какая у вас ситуация сейчас?'],
+    ['Дать пользу', 'Я коротко подскажу варианты, риски и следующий шаг, без давления и лишней воды.'],
+    ['Следующий шаг', 'Давайте уточним пару деталей, и я скажу, что лучше сделать дальше.']
+  ];
+}
+
 function copyPlan(){
   const plan = buildPlan();
   const text = `План расклейки\n\nФормат: ${plan.format}\nПервый тест: ${plan.batch}\nГде клеить: ${plan.place}\nЧто считать: ${plan.metric}\nКогда смотреть результат: ${plan.review}\nСледующий шаг: ${plan.next}`;
   navigator.clipboard?.writeText(text).then(() => setStatus('План расклейки скопирован.')).catch(() => setStatus('Не удалось скопировать план.'));
 }
 
+function copyResponseScript(){
+  const script = buildResponseScript(buildPlan());
+  const text = `Скрипт обработки отклика\n\n${script.map(([label, value]) => `${label}: ${value}`).join('\n')}`;
+  navigator.clipboard?.writeText(text).then(() => setStatus('Скрипт отклика скопирован.')).catch(() => setStatus('Не удалось скопировать скрипт.'));
+}
+
+function getPlanType(text){
+  if(text.includes('цен') || text.includes('оценк')) return 'price';
+  if(text.includes('покупател') || text.includes('куплю') || text.includes('спрос')) return 'buyer';
+  if(text.includes('объект') || text.includes('фото') || text.includes('продам') || text.includes('витрин')) return 'object';
+  if(text.includes('безопас') || text.includes('документ') || text.includes('консультац') || text.includes('риск')) return 'safe';
+  return 'general';
+}
 function getActiveSituation(){
   return document.querySelector('[data-spn-situation].active')?.textContent || '';
 }

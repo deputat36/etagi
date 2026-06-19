@@ -3,6 +3,7 @@ import { createQrSvg } from './qr.js';
 
 const DEFAULT_BLOCK_ORDER = ['headline','price','photo','description','meta','benefits','customBlock','contact'];
 const TEAR_LABEL_KEY = 'etagi-raskleyka-tear-label-v1';
+const CONTACT_CTA_KEY = 'etagi-raskleyka-contact-cta-v1';
 
 export function applyCss(state){
   const root = document.documentElement;
@@ -119,7 +120,7 @@ function renderContact(state){
   return `<div class="contact">
     <div class="phone">${esc(state.agentPhone || 'ВАШ ТЕЛЕФОН')}</div>
     <div class="person">${esc(state.agentName || 'Специалист по недвижимости')}</div>
-    <div class="cta">Позвоните — подскажу по объекту и условиям</div>
+    <div class="cta">${esc(getContactCta(state))}</div>
   </div>`;
 }
 function renderQr(state){
@@ -145,6 +146,17 @@ function getTearOffLabel(state){
     return localStorage.getItem(TEAR_LABEL_KEY) || 'Недвижимость';
   } catch(e){
     return 'Недвижимость';
+  }
+}
+function getContactCta(state){
+  const fromState = String(state.contactCta || '').trim();
+  if(fromState) return fromState;
+  const fromInput = typeof document !== 'undefined' ? String(document.getElementById('contactCtaText')?.value || '').trim() : '';
+  if(fromInput) return fromInput;
+  try{
+    return localStorage.getItem(CONTACT_CTA_KEY) || 'Позвоните — подскажу по объекту и условиям';
+  } catch(e){
+    return 'Позвоните — подскажу по объекту и условиям';
   }
 }
 function splitTearTopic(value){

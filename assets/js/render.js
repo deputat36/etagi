@@ -2,6 +2,7 @@ import { esc, nl } from './utils.js';
 import { createQrSvg } from './qr.js';
 
 const DEFAULT_BLOCK_ORDER = ['headline','price','photo','description','meta','benefits','customBlock','contact'];
+const TEAR_LABEL_KEY = 'etagi-raskleyka-tear-label-v1';
 
 export function applyCss(state){
   const root = document.documentElement;
@@ -130,7 +131,29 @@ function renderQr(state){
 }
 function renderTears(state){
   const phone = esc(state.agentPhone || 'телефон');
-  return `<div class="tears">${Array.from({length:8},()=>`<div class="tear"><span class="tear-topic"><span>Недви-</span><span>жимость</span></span><span class="tear-phone">${phone}</span></div>`).join('')}</div>`;
+  const topic = splitTearTopic(getTearOffLabel(state)).map(part => `<span>${esc(part)}</span>`).join('');
+  return `<div class="tears">${Array.from({length:8},()=>`<div class="tear"><span class="tear-topic">${topic}</span><span class="tear-phone">${phone}</span></div>`).join('')}</div>`;
+}
+function getTearOffLabel(state){
+  const fromState = String(state.tearOffLabel || '').trim();
+  if(fromState) return fromState;
+  const fromInput = typeof document !== 'undefined' ? String(document.getElementById('tearOffLabel')?.value || '').trim() : '';
+  if(fromInput) return fromInput;
+  try{
+    return localStorage.getItem(TEAR_LABEL_KEY) || 'Недвижимость';
+  } catch(e){
+    return 'Недвижимость';
+  }
+}
+function splitTearTopic(value){
+  const clean = String(value || 'Недвижимость').replace(/\s+/g, ' ').trim();
+  const words = clean.split(' ').filter(Boolean);
+  if(words.length >= 2) return [words.slice(0, -1).join(' '), words.at(-1)].filter(Boolean).slice(0, 2);
+  if(clean.length > 10){
+    const cut = Math.ceil(clean.length / 2);
+    return [`${clean.slice(0, cut)}-`, clean.slice(cut)].filter(Boolean);
+  }
+  return [clean];
 }
 function normalizeBlockOrder(order){
   const safe = Array.isArray(order) ? order.filter(id => DEFAULT_BLOCK_ORDER.includes(id)) : [];

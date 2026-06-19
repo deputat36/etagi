@@ -5,7 +5,7 @@ const checks = [
     hint: 'Без телефона расклейка не работает.',
     action: 'phone',
     actionText: 'Исправить',
-    ok: data => Boolean(data.phone) && data.showContact
+    ok: data => Boolean(data.phone) && (data.showContact || data.tearOffs)
   },
   {
     id: 'headline',

@@ -1,5 +1,6 @@
 import './spnTearOffEditor.js';
 import './spnBlockControls.js';
+import './spnQrStandaloneStyle.js';
 
 const MODE_KEY = 'etagi-raskleyka-ui-mode-v1';
 

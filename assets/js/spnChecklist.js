@@ -72,24 +72,26 @@ function renderChecklistShell(){
       <strong id="spnChecklistScore">—</strong>
     </div>
     <div class="spn-checklist-list" id="spnChecklistList"></div>
+    <div class="spn-print-ready" id="spnPrintReady"></div>
     <p class="hint-text">Это быстрый контроль перед печатью: макет должен быть понятным, продающим и удобным для отклика.</p>
   </section>`;
 }
 
 function bindChecklistUpdates(){
-  const ids = ['agentPhone','headline','description','benefits','customBlockTitle','customBlockText','area','propertyType','price','showContact','tearOffs'];
+  const ids = ['agentPhone','headline','description','benefits','customBlockTitle','customBlockText','area','propertyType','price','showContact','tearOffs','showQr','qrLink'];
   ids.forEach(id => {
     const el = document.getElementById(id);
     if(!el) return;
     el.addEventListener('input', updateChecklist);
     el.addEventListener('change', updateChecklist);
   });
-  const list = document.getElementById('spnChecklistList');
-  if(list){
-    list.addEventListener('click', event => {
-      const btn = event.target.closest('[data-spn-check-action]');
-      if(!btn) return;
-      applyChecklistFix(btn.dataset.spnCheckAction);
+  const checklist = document.getElementById('spnChecklist');
+  if(checklist){
+    checklist.addEventListener('click', event => {
+      const fixBtn = event.target.closest('[data-spn-check-action]');
+      const finalBtn = event.target.closest('[data-spn-final-action]');
+      if(fixBtn) applyChecklistFix(fixBtn.dataset.spnCheckAction);
+      if(finalBtn) applyFinalAction(finalBtn.dataset.spnFinalAction);
     });
   }
   const target = document.getElementById('qualityList') || document.body;
@@ -103,7 +105,8 @@ function updateChecklist(){
   const passed = results.filter(item => item.passed).length;
   const list = document.getElementById('spnChecklistList');
   const score = document.getElementById('spnChecklistScore');
-  if(!list || !score) return;
+  const finalBox = document.getElementById('spnPrintReady');
+  if(!list || !score || !finalBox) return;
 
   score.textContent = `${passed}/${results.length}`;
   score.className = passed >= 6 ? 'score-good' : passed >= 4 ? 'score-mid' : 'score-bad';
@@ -112,6 +115,39 @@ function updateChecklist(){
     <span>${escapeHtml(item.hint)}</span>
     ${item.passed ? '' : `<button type="button" data-spn-check-action="${item.action}">${escapeHtml(item.actionText)}</button>`}
   </div>`).join('');
+  finalBox.innerHTML = renderFinalPrintCheck(data, results);
+}
+
+function renderFinalPrintCheck(data, results){
+  const critical = [];
+  const warnings = [];
+  const failed = results.filter(item => !item.passed);
+  failed.forEach(item => {
+    if(['phone','headline','context','description'].includes(item.id)) critical.push(item.title);
+    else warnings.push(item.title);
+  });
+  if(data.printCount >= 4 && !data.tearOffs) warnings.push('Для подъездной и массовой расклейки лучше включить отрывные телефоны.');
+  if(data.showQr && !data.qrLink) warnings.push('QR включён, но ссылка не заполнена. Либо добавьте ссылку, либо выключите QR.');
+
+  const ready = critical.length === 0;
+  const title = ready ? 'Можно готовить к печати' : 'Перед печатью есть критичные пункты';
+  const text = ready
+    ? (warnings.length ? 'Макет в целом готов, но есть улучшения перед печатью.' : 'Макет прошёл быстрый практический контроль.')
+    : 'Сначала исправьте критичные пункты: телефон, заголовок, контекст или описание.';
+  const items = [...critical.map(x => ['critical', x]), ...warnings.map(x => ['warn', x])];
+
+  return `<div class="spn-print-ready-box ${ready ? 'ready' : 'blocked'}">
+    <div class="spn-print-ready-head">
+      <b>${escapeHtml(title)}</b>
+      <span>${ready ? 'готово' : 'нужно исправить'}</span>
+    </div>
+    <p>${escapeHtml(text)}</p>
+    ${items.length ? `<ul>${items.map(([type, item]) => `<li class="${type}">${escapeHtml(item)}</li>`).join('')}</ul>` : ''}
+    <div class="spn-print-ready-actions">
+      <button type="button" data-spn-final-action="quality">Проверить</button>
+      <button type="button" data-spn-final-action="print" ${ready ? '' : 'disabled'}>Печать / PDF</button>
+    </div>
+  </div>`;
 }
 
 function applyChecklistFix(action){
@@ -156,6 +192,16 @@ function applyChecklistFix(action){
   updateChecklist();
 }
 
+function applyFinalAction(action){
+  if(action === 'quality'){
+    document.getElementById('qualityBtn')?.click();
+    setStatus('Запущена проверка качества перед печатью.');
+  }
+  if(action === 'print'){
+    document.getElementById('printBtn')?.click();
+  }
+}
+
 function readData(){
   const headline = value('headline');
   const description = value('description');
@@ -177,10 +223,18 @@ function readData(){
     propertyType,
     showContact: checked('showContact'),
     tearOffs: checked('tearOffs'),
+    showQr: checked('showQr'),
+    qrLink: value('qrLink'),
+    printCount: getPrintCount(),
     allText: `${headline} ${description} ${benefitsText} ${customBlockTitle} ${customBlockText} ${price} ${area} ${propertyType}`.toLowerCase().replace(/ё/g, 'е')
   };
 }
 
+function getPrintCount(){
+  const active = document.querySelector('[data-count].active');
+  if(active) return Number(active.dataset.count) || 2;
+  return 2;
+}
 function value(id){
   return String(document.getElementById(id)?.value || '').trim();
 }
@@ -219,6 +273,10 @@ function focusField(id){
   if(!el) return;
   el.focus();
   el.scrollIntoView({behavior:'smooth', block:'center'});
+}
+function setStatus(text){
+  const status = document.getElementById('statusLine');
+  if(status) status.textContent = text;
 }
 function escapeHtml(value){
   return String(value || '').replace(/[&<>'"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));

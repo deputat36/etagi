@@ -3,6 +3,7 @@ import './spnBlockControls.js';
 import './spnQrStandaloneStyle.js';
 import './spnContactEditor.js';
 import './spnBrandEditor.js';
+import './spnQrEditor.js';
 
 const MODE_KEY = 'etagi-raskleyka-ui-mode-v1';
 

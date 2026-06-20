@@ -11,6 +11,7 @@ import './spnPhoneHelper.js';
 import './spnAgentHelper.js';
 import './spnPrintCampaignHelper.js';
 import './spnDistributionTaskHelper.js';
+import './spnDistributionReportHelper.js';
 
 const MODE_KEY = 'etagi-raskleyka-ui-mode-v1';
 

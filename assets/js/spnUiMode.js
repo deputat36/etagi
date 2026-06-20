@@ -6,6 +6,7 @@ import './spnBrandEditor.js';
 import './spnQrEditor.js';
 import './spnPriceHelper.js';
 import './spnParamsHelper.js';
+import './spnAreaHelper.js';
 
 const MODE_KEY = 'etagi-raskleyka-ui-mode-v1';
 

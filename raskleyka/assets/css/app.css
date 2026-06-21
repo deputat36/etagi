@@ -374,7 +374,9 @@ textarea {
 
 .editor-card {
     position: relative;
+    width: 210mm;
     min-height: 297mm;
+    margin: 0 auto;
     background: #fff;
     box-shadow: 0 16px 40px rgba(15, 23, 42, .18);
 }

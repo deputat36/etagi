@@ -114,7 +114,13 @@ function renderMeta(state){
   if(state.propertyType) items.push(['Тип', state.propertyType]);
   if(state.params) items.push(['Параметры', state.params]);
   if(!items.length) return '';
+  if(shouldUseCompactMeta(state)){
+    return `<div class="meta meta-inline">${items.slice(0,4).map(([k,v])=>`<span><b>${esc(k)}:</b> ${esc(v)}</span>`).join('')}</div>`;
+  }
   return `<div class="meta">${items.slice(0,4).map(([k,v])=>`<div>${esc(k)}<br>${esc(v)}</div>`).join('')}</div>`;
+}
+function shouldUseCompactMeta(state){
+  return Number(state.printCount) >= 4 || state.layoutDensity === 'dense';
 }
 function renderCustomBlock(state){
   const title = String(state.customBlockTitle || '').trim();

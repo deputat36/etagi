@@ -58,3 +58,5 @@ declare(strict_types=1);
 <script src="assets/js/editor.js"></script>
 </body>
 </html>
+<?php
+?>

@@ -271,7 +271,7 @@ function matchScenario(t, scenario){
   if(!scenario || scenario === 'all') return true;
   const tags = (t.tags || []).map(x => String(x).toLowerCase());
   const text = `${t.title || ''} ${t.note || ''} ${tags.join(' ')}`.toLowerCase();
-  if(scenario === 'entrance') return Number(t.printCount) >= 4 || tags.includes('подъезд') || text.includes('подъезд') || text.includes('куплю');
+  if(scenario === 'entrance') return Number(t.printCount) >= 4 || tags.includes('подъезд') || text.includes('подъезд') || text.includes('сосед');
   if(scenario === 'owner') return t.goal === 'seller' || text.includes('собствен') || text.includes('продав');
   if(scenario === 'buyer') return t.goal === 'buyer' || text.includes('покупател');
   if(scenario === 'object') return t.goal === 'object' || text.includes('объект') || text.includes('продам');
@@ -293,21 +293,29 @@ function templateCard(t){
 function applyTemplate(t){
   if(!t) return;
   const keepProfile = pickProfile(state);
-  const keepVisibility = pickVisibility(state);
-  const keepOrder = normalizeBlockOrder(state.blockOrder);
-  state = {...state, ...t.data, ...keepProfile, ...keepVisibility, blockOrder: keepOrder, goal:t.goal, templateId:t.id, layoutMode:'manual'};
+  const keepPhotos = { photoOne: state.photoOne || '', photoTwo: state.photoTwo || '' };
+  const base = cloneDefaultState();
+  state = {
+    ...base,
+    version: state.version,
+    ...t.data,
+    ...keepProfile,
+    ...keepPhotos,
+    goal: t.goal,
+    templateId: t.id,
+    layoutName: t.title || t.data?.layoutName || '',
+    layoutMode: 'manual'
+  };
+  state.blockOrder = normalizeBlockOrder(t.data?.blockOrder || base.blockOrder);
   state.photoMode = t.photo || state.photoMode || 'none';
   if(t.printCount) state.printCount = t.printCount;
   if(t.density) state.layoutDensity = t.density;
-  if(!state.layoutName) state.layoutName = t.title || '';
   if(state.photoMode === 'none') state.showPhoto = false;
+  if(state.showPhoto && state.photoMode !== 'none' && (state.photoOne || state.photoTwo)) state.showPhoto = true;
   syncFormFromState();
 }
 function pickProfile(source){
   return Object.fromEntries(profileFields.map(id=>[id, source[id] || '']));
-}
-function pickVisibility(source){
-  return Object.fromEntries(blockVisibility.map(id=>[id, source[id] !== false]));
 }
 function syncFormFromState(){
   fields.forEach(id => { if($(id)) $(id).value = state[id] ?? ''; });
@@ -363,11 +371,12 @@ function runQuality(show){
   return lastQuality;
 }
 function issueHtml(i){
-  const labels = {phone:'Ввести телефон', bigPhone:'Увеличить телефон', shortHeadline:'Сократить заголовок', shortDesc:'Сократить описание', noPhoto:'Убрать фото', onePhoto:'Оставить 1 фото', twoOnPage:'Сделать 2 на А4', cleanBrand:'Убрать фирменность', showContact:'Вернуть контакты', showHeadline:'Вернуть заголовок', showCustomBlock:'Включить доп. блок', showCutLines:'Включить линии реза', showSafeMargins:'Включить безопасные поля', autoFix:'Исправить автоматически'};
+  const labels = {phone:'Ввести телефон', bigPhone:'Увеличить телефон', shortHeadline:'Сократить заголовок', shortDesc:'Сократить описание', noPhoto:'Убрать фото', onePhoto:'Оставить 1 фото', twoOnPage:'Сделать 2 на А4', shortQr:'Проверить QR', cleanBrand:'Убрать фирменность', showContact:'Вернуть контакты', showHeadline:'Вернуть заголовок', showCustomBlock:'Включить доп. блок', showCutLines:'Включить линии реза', showSafeMargins:'Включить безопасные поля', autoFix:'Исправить автоматически'};
   return `<div class="qitem ${i.level}"><b>${esc(i.title)}</b>${esc(i.text)}${labels[i.action]?`<br><button type="button" data-fix="${i.action}">${labels[i.action]}</button>`:''}</div>`;
 }
 function applyFix(action){
   if(action === 'phone') $('agentPhone').focus();
+  if(action === 'shortQr') $('qrLink').focus();
   if(action === 'bigPhone') state.phoneScale = 1.45;
   if(action === 'shortHeadline') state.headline = shorten(state.headline, 44);
   if(action === 'shortDesc') state.description = shorten(state.description, 190);

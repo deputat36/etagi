@@ -129,3 +129,5 @@ function e(string $value): string
 <script src="assets/js/app.js"></script>
 </body>
 </html>
+<?php
+?>

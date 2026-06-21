@@ -30,6 +30,7 @@
 - управление составом и порядком блоков;
 - настоящий QR без внешнего сервера;
 - подсказки по качеству макета;
+- сводка перед печатью с телефоном, форматом листа, QR и главными предупреждениями;
 - HTML-центр помощи для СПН;
 - проверка шаблонов, JS и связей файлов через `npm run validate`.
 
@@ -39,6 +40,7 @@
 index.html                         главная страница генератора
 assets/css/app.css                 основной интерфейс
 assets/css/ui-improvements.css     дополнительные стили интерфейса
+assets/css/preprint-summary.css    сводка перед печатью
 assets/css/print.css               стили печати А4
 assets/js/app.js                   управление приложением
 assets/js/state.js                 состояние и справочники
@@ -48,6 +50,7 @@ assets/js/quality.js               контроль качества
 assets/js/storage.js               сохранение и загрузка
 assets/js/qr.js                    генерация QR
 assets/js/layoutRules.js           быстрые режимы и автоподстройка
+assets/js/preprintSummary.js       сводка перед печатью
 data/templates.json                базовая библиотека шаблонов
 data/templates_custom.json         стартовые пустые шаблоны
 data/templates_extra.json          расширенная библиотека шаблонов

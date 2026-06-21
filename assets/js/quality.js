@@ -1,17 +1,21 @@
 import { getQrInfo } from './qr.js';
 
+const CORE_BLOCKS = ['showHeadline','showPrice','showDescription','showMeta','showBenefits','showCustomBlock','showPhoto','showContact'];
+
 export function checkQuality(state, sheet){
   const issues = [];
   const count = Number(state.printCount) || 2;
-  const phone = state.agentPhone.trim();
-  const headlineLen = state.headline.replace(/\s/g,'').length;
-  const descLen = state.description.length;
+  const phone = String(state.agentPhone || '').trim();
+  const headlineLen = String(state.headline || '').replace(/\s/g,'').length;
+  const descLen = String(state.description || '').length;
   const customTextLen = String(state.customBlockText || '').length;
   const benefitsCount = String(state.benefits || '').split('\n').filter(Boolean).length;
+  const metaCount = [state.area, state.propertyType, state.params].filter(Boolean).length;
+  const visibleBlocks = getVisibleBlockCount(state);
   const sellingText = normalizeText(`${state.headline} ${state.description} ${state.benefits} ${state.customBlockTitle} ${state.customBlockText} ${state.price} ${state.area} ${state.propertyType}`);
 
-  if(!state.showContact && !state.tearOffs) issues.push({level:'warn', title:'Нет контактного блока', text:'Макет можно напечатать без контактов, но для расклейки это почти всегда ошибка.', action:'showContact'});
-  if(state.showContact && !phone) issues.push({level:'error', title:'Нет телефона', text:'Без телефона объявление нельзя печатать.', action:'phone'});
+  if(!state.showContact && !state.tearOffs && !(state.showQr && state.qrLink)) issues.push({level:'warn', title:'Нет канала отклика', text:'В макете нет контактов, отрывных телефонов и QR. Для расклейки это почти всегда ошибка.', action:'showContact'});
+  if((state.showContact || state.tearOffs) && !phone) issues.push({level:'error', title:'Нет телефона для отклика', text:'Телефон обязателен, если включены контакты или отрывные листочки. Без номера макет печатать нельзя.', action:'phone'});
   if(state.showContact && phone && Number(state.phoneScale) < 1.1) issues.push({level:'warn', title:'Телефон мелковат', text:'Для расклейки номер должен читаться издалека.', action:'bigPhone'});
   if(count >= 6 && state.showContact && phone && Number(state.phoneScale) < 1.3) issues.push({level:'warn', title:'Телефон мелкий для плотной печати', text:'Для 6–8 макетов на А4 телефон лучше сделать крупнее, иначе его сложнее прочитать после печати.', action:'bigPhone'});
   if(!state.showHeadline) issues.push({level:'tip', title:'Заголовок скрыт', text:'Без заголовка макет может хуже цеплять внимание.', action:'showHeadline'});
@@ -23,6 +27,9 @@ export function checkQuality(state, sheet){
   if(state.showCustomBlock && customTextLen > 120 && count >= 4) issues.push({level:'warn', title:'Длинный дополнительный блок', text:'Для 4 макетов на А4 дополнительный блок лучше сократить до одной строки.', action:'showCustomBlock'});
   if(state.showCustomBlock && customTextLen > 70 && count >= 6) issues.push({level:'warn', title:'Дополнительный блок перегружает мини-макет', text:'Для 6–8 макетов на листе доп. блок лучше сделать очень коротким или выключить.', action:'showCustomBlock'});
   if(state.showBenefits && benefitsCount > 3 && count >= 6) issues.push({level:'tip', title:'Много преимуществ для мини-макета', text:'Для 6–8 на А4 лучше оставить 2–3 самых сильных преимущества.', action:null});
+  if(count >= 4 && visibleBlocks > 8) issues.push({level:'warn', title:'Слишком много блоков для плотной печати', text:'Для 4+ макетов на А4 лучше оставить только заголовок, короткий смысл, контакт и 1–2 сильных причины.', action:'autoFix'});
+  if(count >= 6 && visibleBlocks > 6) issues.push({level:'warn', title:'Макет перегружен для мини-формата', text:'Для 6–8 макетов на А4 часть блоков почти наверняка станет слишком мелкой.', action:'autoFix'});
+  if(state.showMeta && metaCount >= 3 && count >= 4) issues.push({level:'tip', title:'Параметры занимают много места', text:'Для плотной расклейки район, тип и параметры лучше выводить компактной строкой или оставить только самое важное.', action:null});
 
   addSellingChecks(issues, state, sellingText, benefitsCount);
 
@@ -34,6 +41,7 @@ export function checkQuality(state, sheet){
   if(!state.safePrintMargins && Number(state.pageMargin) < 7) issues.push({level:'tip', title:'Безопасные поля выключены', text:'Включите безопасные поля, чтобы важный текст не оказался близко к краю печати.', action:'showSafeMargins'});
   if(count >= 6 && !state.safePrintMargins) issues.push({level:'tip', title:'Плотная печать без безопасных полей', text:'Для 6–8 макетов на листе безопасные поля помогают не обрезать важный текст.', action:'showSafeMargins'});
 
+  if(state.showQr && !state.qrLink) issues.push({level:'tip', title:'QR включён, но ссылки нет', text:'Добавьте ссылку для QR или выключите QR, чтобы не держать пустой блок в настройках.', action:null});
   if(state.showQr && state.qrLink){
     const qr = getQrInfo(state.qrLink);
     if(!qr.ok) issues.push({level:'warn', title:'Ссылка для QR слишком длинная', text:`Встроенный QR поддерживает до ${qr.maxBytes} байт. Лучше использовать короткую ссылку.`, action:'shortQr'});
@@ -49,6 +57,16 @@ export function checkQuality(state, sheet){
   let score = 100;
   for(const issue of issues) score -= issue.level === 'error' ? 25 : issue.level === 'warn' ? 12 : 5;
   return { score: Math.max(0, score), issues };
+}
+
+function getVisibleBlockCount(state){
+  const core = CORE_BLOCKS.filter(key => Boolean(state[key])).length;
+  const extras = [
+    state.showBrand && state.colorMode !== 'private',
+    state.tearOffs,
+    state.showQr && state.qrLink
+  ].filter(Boolean).length;
+  return core + extras;
 }
 
 function addSellingChecks(issues, state, text, benefitsCount){

@@ -20,6 +20,15 @@
     return condition ? 'Да' : 'Нет';
   }
 
+  function escapeHtml(text) {
+    return String(text || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
   function getQualityInfo() {
     const score = byId('qualityScore')?.textContent?.trim() || 'не проверено';
     const items = Array.from(document.querySelectorAll('#qualityList .qitem'));
@@ -66,7 +75,7 @@
 
   function row(label, text, status) {
     const statusClass = status ? ` print-summary__value--${status}` : '';
-    return `<div class="print-summary__row"><span>${label}</span><b class="${statusClass}">${text}</b></div>`;
+    return `<div class="print-summary__row"><span>${escapeHtml(label)}</span><b class="${statusClass}">${escapeHtml(text)}</b></div>`;
   }
 
   function renderPrintSummary() {
@@ -78,7 +87,8 @@
     const phone = value('agentPhone');
     const headline = value('headline') || value('layoutName') || 'Без заголовка';
     const area = value('area') || 'не указан';
-    const printCount = value('printCount') || document.querySelector('[data-count].active')?.textContent?.trim() || 'не выбрано';
+    const activePrintPreset = document.querySelector('[data-count].active');
+    const printCount = value('printCount') || activePrintPreset?.dataset?.count || activePrintPreset?.textContent?.trim() || 'не выбрано';
     const status = risks.length ? 'warn' : 'ok';
     const statusText = risks.length ? 'Лучше проверить перед печатью' : 'Критичных замечаний нет';
 
@@ -102,7 +112,7 @@
         <div class="print-summary__risks">
           <b>Перед печатью:</b>
           <ul>
-            ${(risks.length ? risks : ['Проверьте номер телефона глазами.', 'В печати выберите A4, масштаб 100% и фоновые изображения.']).map((item) => `<li>${item}</li>`).join('')}
+            ${(risks.length ? risks : ['Проверьте номер телефона глазами.', 'В печати выберите A4, масштаб 100% и фоновые изображения.']).map((item) => `<li>${escapeHtml(item)}</li>`).join('')}
           </ul>
         </div>
       </div>

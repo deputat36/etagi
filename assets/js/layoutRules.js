@@ -36,11 +36,11 @@ export function getLayoutHints(state){
   if(state.showQr && state.qrLink && count >= 4){
     hints.push('QR на плотной расклейке может плохо сканироваться. Для QR лучше 1–2 объявления на листе.');
   }
-  if(!state.showContact && !state.tearOffs){
-    hints.push('В макете нет контактов. Для расклейки почти всегда нужен телефон или QR.');
+  if(!state.showContact && !state.tearOffs && !(state.showQr && state.qrLink)){
+    hints.push('В макете нет контактов, отрывных телефонов и QR. Для расклейки почти всегда нужен канал отклика.');
   }
-  if(state.showContact && !String(state.agentPhone || '').trim()){
-    hints.push('Заполните телефон СПН: это главный элемент расклейки.');
+  if((state.showContact || state.tearOffs) && !String(state.agentPhone || '').trim()){
+    hints.push('Заполните телефон СПН: он нужен для контактов или отрывных листочков.');
   }
   if(!state.showHeadline){
     hints.push('Заголовок скрыт. Без него объявление хуже цепляет внимание.');
@@ -190,10 +190,6 @@ function applyBlockOrder(state, mode){
 function normalizeBlocks(state){
   if(!state.showPhoto){
     state.photoMode = 'none';
-  }
-  if(!state.showContact){
-    state.tearOffs = false;
-    state.showQr = false;
   }
   if(state.colorMode === 'private'){
     state.showBrand = false;

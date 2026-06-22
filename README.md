@@ -27,66 +27,78 @@
 - пошаговый маршрут работы для СПН;
 - усиленная проверка плотных макетов 6–8 на А4;
 - сохранение профиля СПН;
-- сохранение именованных макетов;
+- сохранение последнего макета;
+- сохранение нескольких именованных макетов;
 - сохранение расширенных настроек макета: призыв в контактах, подпись отрывных телефонов, брендовая строка;
-- корректный импорт JSON-макетов с восстановлением расширенных настроек;
+- единый модуль `layoutExtras.js` для чтения, записи, импорта и экспорта расширенных настроек;
+- корректный импорт JSON-макетов без смешивания со старым текущим макетом;
+- восстановление расширенных настроек при импорте JSON;
 - управление составом и порядком блоков;
 - редактор контактного блока;
 - настройка подписи отрывных телефонов;
 - настройка брендовой строки;
 - настоящий QR без внешнего сервера;
 - подсказки по качеству макета;
+- быстрые исправления замечаний контроля качества;
 - сводка перед печатью с телефоном, форматом листа, QR и главными предупреждениями;
 - задание на расклейку для исполнителя;
 - отчёт после расклейки и фиксация результата;
 - HTML-центр помощи для СПН;
-- проверка шаблонов, JS и связей файлов через `npm run validate`.
+- проверки шаблонов, JS, связей файлов, сохранений, версий, changelog и расширенных полей через `npm run validate`.
 
 ## Структура
 
 ```text
-index.html                         главная страница генератора
-assets/css/app.css                 основной интерфейс
-assets/css/ui-improvements.css     дополнительные стили интерфейса
-assets/css/preprint-summary.css    сводка перед печатью
-assets/css/print.css               стили печати А4
-assets/js/app.js                   управление приложением
-assets/js/state.js                 состояние и справочники
-assets/js/templates.js             загрузка и фильтрация шаблонов
-assets/js/render.js                рендер макетов
-assets/js/quality.js               контроль качества
-assets/js/storage.js               сохранение и загрузка
-assets/js/qr.js                    генерация QR
-assets/js/layoutRules.js           быстрые режимы и автоподстройка
-assets/js/preprintSummary.js       сводка перед печатью
-assets/js/layoutExtrasSync.js      синхронизация расширенных полей при импорте JSON
-assets/js/spnClarityPanel.js       пошаговый маршрут работы
-assets/js/spnContactEditor.js      редактор контактного блока
-assets/js/spnTearOffEditor.js      настройка отрывных телефонов
-assets/js/spnBrandEditor.js        настройка брендовой строки
+index.html                              главная страница генератора
+assets/css/app.css                      основной интерфейс
+assets/css/ui-improvements.css          дополнительные стили интерфейса
+assets/css/preprint-summary.css         сводка перед печатью
+assets/css/print.css                    стили печати А4
+assets/js/app.js                        управление приложением
+assets/js/state.js                      состояние и справочники
+assets/js/templates.js                  загрузка и фильтрация шаблонов
+assets/js/render.js                     рендер макетов
+assets/js/quality.js                    контроль качества
+assets/js/storage.js                    сохранение и загрузка
+assets/js/qr.js                         генерация QR
+assets/js/layoutRules.js                быстрые режимы и автоподстройка
+assets/js/layoutExtras.js               единые расширенные поля макета
+assets/js/layoutExtrasSync.js           синхронизация расширенных полей при импорте JSON
+assets/js/preprintSummary.js            сводка перед печатью
+assets/js/spnClarityPanel.js            пошаговый маршрут работы
+assets/js/spnContactEditor.js           редактор контактного блока
+assets/js/spnTearOffEditor.js           настройка отрывных телефонов
+assets/js/spnBrandEditor.js             настройка брендовой строки
+assets/js/qualityExtraActions.js        быстрые исправления контроля качества
 assets/js/spnDistributionTaskHelper.js  задание на расклейку
 assets/js/spnDistributionReportHelper.js отчёт после расклейки
-data/templates.json                базовая библиотека шаблонов
-data/templates_custom.json         стартовые пустые шаблоны
-data/templates_extra.json          расширенная библиотека шаблонов
-data/templates_borisoglebsk.json   локальный пакет Борисоглебска
-data/templates_entrance.json       подъездные шаблоны
-data/templates_ab_tests.json       A/B-тестовые шаблоны
-data/templates_trust.json          доверительные шаблоны
-help/index.html                    центр помощи
-help/quick-start.html              быстрый старт СПН
-help/field-test.html               чек-лист полевого теста
-help/ab-tests.html                 A/B-тесты
-help/trust.html                    доверие и возражения
-help/response-log.html             лист учёта откликов
-help/faq.html                      вопросы и ответы
-help/call-script.html              скрипт обработки отклика
-help/lead-qualification.html       квалификация отклика
-help/follow-up.html                план повторного контакта
-help/results-analysis.html         анализ результатов расклейки
-tools/validate-templates.mjs       проверка шаблонов
-tools/validate-js.mjs              проверка JS
-tools/validate-assets.mjs          проверка связей файлов
+data/templates.json                     базовая библиотека шаблонов
+data/templates_custom.json              стартовые пустые шаблоны
+data/templates_extra.json               расширенная библиотека шаблонов
+data/templates_borisoglebsk.json        локальный пакет Борисоглебска
+data/templates_entrance.json            подъездные шаблоны
+data/templates_ab_tests.json            A/B-тестовые шаблоны
+data/templates_trust.json               доверительные шаблоны
+help/index.html                         центр помощи
+help/quick-start.html                   быстрый старт СПН
+help/field-test.html                    чек-лист полевого теста
+help/ab-tests.html                      A/B-тесты
+help/trust.html                         доверие и возражения
+help/response-log.html                  лист учёта откликов
+help/faq.html                           вопросы и ответы
+help/call-script.html                   скрипт обработки отклика
+help/lead-qualification.html            квалификация отклика
+help/follow-up.html                     план повторного контакта
+help/results-analysis.html              анализ результатов расклейки
+tools/validate-templates.mjs            проверка шаблонов
+tools/validate-js.mjs                   проверка JS
+tools/validate-assets.mjs               проверка связей файлов
+tools/validate-quality-actions.mjs      проверка быстрых исправлений
+tools/validate-storage-safety.mjs       проверка защиты браузерных сохранений
+tools/validate-version-sync.mjs         проверка синхронизации версий
+tools/validate-package-scripts.mjs      проверка подключения validate-скриптов
+tools/validate-changelog.mjs            проверка истории изменений
+tools/validate-layout-extras.mjs        проверка расширенных полей макета
 ```
 
 ## Проверка проекта
@@ -97,12 +109,18 @@ tools/validate-assets.mjs          проверка связей файлов
 npm run validate
 ```
 
-Отдельные проверки:
+Общая проверка запускает все отдельные проверки:
 
 ```bash
 npm run validate:templates
 npm run validate:js
 npm run validate:assets
+npm run validate:quality-actions
+npm run validate:storage-safety
+npm run validate:version-sync
+npm run validate:package-scripts
+npm run validate:changelog
+npm run validate:layout-extras
 ```
 
 ## Документация

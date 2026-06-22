@@ -24,12 +24,22 @@ export function loadAutoSave(){
   catch(e) { return null; }
 }
 export function saveNamed(state){
-  localStorage.setItem(SAVED_KEY, JSON.stringify(stripHeavyFields(state)));
+  try {
+    localStorage.setItem(SAVED_KEY, JSON.stringify(stripHeavyFields(state)));
+    return true;
+  }
+  catch(e) {
+    console.warn('save last layout failed', e);
+    return false;
+  }
 }
 export function loadNamed(){
-  const state = JSON.parse(localStorage.getItem(SAVED_KEY) || 'null');
-  syncLayoutExtras(state);
-  return state;
+  try {
+    const state = JSON.parse(localStorage.getItem(SAVED_KEY) || 'null');
+    syncLayoutExtras(state);
+    return state;
+  }
+  catch(e) { return null; }
 }
 export function saveProfile(profile){
   localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));

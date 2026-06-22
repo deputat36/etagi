@@ -120,7 +120,17 @@
     input.value = clean;
     input.dispatchEvent(new Event('input', { bubbles: true }));
     input.dispatchEvent(new Event('change', { bubbles: true }));
-    input.focus();
+    revealInput(input);
+  }
+
+  function revealInput(input) {
+    const details = input.closest('details');
+    if (details && !details.open) details.open = true;
+
+    window.setTimeout(() => {
+      input.focus({ preventScroll: true });
+      input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 60);
   }
 
   function enableCheckbox(id) {

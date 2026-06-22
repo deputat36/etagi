@@ -1,3 +1,5 @@
+import './layoutExtrasSync.js';
+
 (function () {
   function byId(id) {
     return document.getElementById(id);

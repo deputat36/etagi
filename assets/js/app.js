@@ -91,7 +91,15 @@ function bindStaticUi(){
   $('loadNamedLayoutBtn').onclick = loadSelectedLayout;
   $('deleteNamedLayoutBtn').onclick = deleteSelectedLayout;
   $('saveLocalBtn').onclick = () => { saveNamed(state); setStatus('Последний макет сохранён в этом браузере.'); };
-  $('loadLocalBtn').onclick = () => { const s = loadNamed(); if(s){ state={...state,...s, version:state.version}; syncFormFromState(); renderAll(); setStatus('Последний макет загружен.'); } else setStatus('Последний сохранённый макет не найден.'); };
+  $('loadLocalBtn').onclick = () => {
+    const s = loadNamed();
+    if(s){
+      state = cleanLoadedState(s);
+      if($('savedLayouts')) $('savedLayouts').value='';
+      syncFormFromState(); renderAll();
+      setStatus('Последний макет загружен без смешивания с текущим макетом.');
+    } else setStatus('Последний сохранённый макет не найден.');
+  };
   $('downloadBtn').onclick = () => downloadText(`etagi-raskleyka-${new Date().toISOString().slice(0,10)}.json`, JSON.stringify(state,null,2));
   $('uploadBtn').onclick = () => $('uploadFile').click();
   $('uploadFile').onchange = loadFromFile;
@@ -230,11 +238,16 @@ function loadSelectedLayout(){
   if(!id){ setStatus('Сначала выберите сохранённый макет.'); return; }
   const item = loadLayout(id);
   if(!item){ setStatus('Сохранённый макет не найден.'); renderSavedLayouts(); return; }
-  state = {...state, ...item.state, version:state.version, blockOrder: normalizeBlockOrder(item.state.blockOrder)};
+  state = cleanLoadedState(item.state);
   syncFormFromState();
   renderAll();
   renderSavedLayouts(id);
-  setStatus(`Макет «${item.name}» загружен.`);
+  setStatus(`Макет «${item.name}» загружен без смешивания с текущим макетом.`);
+}
+function cleanLoadedState(source){
+  const currentVersion = state.version;
+  const nextState = {...cloneDefaultState(), ...(source || {}), version:currentVersion};
+  return {...nextState, blockOrder: normalizeBlockOrder(nextState.blockOrder)};
 }
 function deleteSelectedLayout(){
   const id = $('savedLayouts').value;
@@ -454,9 +467,7 @@ function loadFromFile(e){
   reader.onload = () => {
     try {
       const imported = JSON.parse(reader.result);
-      const currentVersion = state.version;
-      const nextState = {...cloneDefaultState(), ...imported, version:currentVersion};
-      state = {...nextState, blockOrder: normalizeBlockOrder(nextState.blockOrder)};
+      state = cleanLoadedState(imported);
       if($('savedLayouts')) $('savedLayouts').value='';
       syncFormFromState(); renderAll(); setStatus('Файл макета открыт без смешивания с предыдущим макетом.');
     }

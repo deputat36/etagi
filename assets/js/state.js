@@ -51,7 +51,7 @@ export const propertyPresets = [
 ];
 
 export const defaultState = {
-  version: '3.60.0',
+  version: '3.61.0',
   goal: 'seller',
   templateId: '',
   layoutName: '',
@@ -68,6 +68,10 @@ export const defaultState = {
   benefits: '',
   customBlockTitle: '',
   customBlockText: '',
+  contactCta: 'Позвоните — подскажу по объекту и условиям',
+  tearOffLabel: 'Недвижимость',
+  brandName: 'Этажи',
+  brandSideText: 'etagi.com',
   photoMode: 'none',
   photoOne: '',
   photoTwo: '',

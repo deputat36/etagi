@@ -418,6 +418,7 @@ function loadSavedProfile(){
 }
 function clearObjectData(){
   objectFields.forEach(id=>state[id]='');
+  state.layoutName='';
   state.photoOne='';
   state.photoTwo='';
   state.qrLink='';
@@ -427,8 +428,9 @@ function clearObjectData(){
   state.showCustomBlock=false;
   state.blockOrder = [...DEFAULT_BLOCK_ORDER];
   state.layoutMode='manual';
+  if($('savedLayouts')) $('savedLayouts').value='';
   syncFormFromState(); renderAll();
-  setStatus('Данные объекта очищены. Имя и телефон СПН сохранены.');
+  setStatus('Данные объекта очищены. Имя, телефон и настройки контактов сохранены.');
 }
 function shorten(text, max){
   const s = String(text || '').trim();

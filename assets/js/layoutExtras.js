@@ -6,9 +6,15 @@ export const layoutExtraFields = [
 ];
 
 export function getLayoutExtra(state, stateKey, options = {}){
-  const field = layoutExtraFields.find(item => item.stateKey === stateKey);
+  const field = getLayoutExtraField(stateKey);
   if(!field) return String(state?.[stateKey] || '').trim();
   return readLayoutExtra(field, state?.[stateKey], options);
+}
+
+export function getRawLayoutExtra(stateKey){
+  const field = getLayoutExtraField(stateKey);
+  if(!field) return '';
+  return readLayoutExtra({...field, fallback:''}, '', { ignoreInputFallback:false });
 }
 
 export function enrichLayoutExtras(state){
@@ -26,8 +32,16 @@ export function syncLayoutExtras(state){
     if(!value) continue;
     try{ localStorage.setItem(field.storageKey, value); } catch(e){}
     const input = typeof document !== 'undefined' ? document.getElementById(field.inputId) : null;
-    if(input) input.value = value;
+    if(input){
+      input.value = value;
+      input.dispatchEvent(new Event('input', {bubbles:true}));
+      input.dispatchEvent(new Event('change', {bubbles:true}));
+    }
   }
+}
+
+export function getLayoutExtraField(stateKey){
+  return layoutExtraFields.find(item => item.stateKey === stateKey) || null;
 }
 
 export function readLayoutExtra(field, currentValue, options = {}){

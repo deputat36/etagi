@@ -1,4 +1,4 @@
-const CONTACT_CTA_KEY = 'etagi-raskleyka-contact-cta-v1';
+import { getLayoutExtra, setLayoutExtraValue } from './layoutExtras.js';
 
 const ctaPresets = [
   'Позвоните — подскажу по объекту и условиям',
@@ -60,16 +60,10 @@ function rerenderFlyer(){
 }
 
 function saveCta(value){
-  try{
-    localStorage.setItem(CONTACT_CTA_KEY, String(value || ctaPresets[0]).trim() || ctaPresets[0]);
-  } catch(e){}
+  setLayoutExtraValue('contactCta', String(value || ctaPresets[0]).trim() || ctaPresets[0], {syncInput:false});
 }
 function loadCta(){
-  try{
-    return localStorage.getItem(CONTACT_CTA_KEY) || ctaPresets[0];
-  } catch(e){
-    return ctaPresets[0];
-  }
+  return getLayoutExtra(null, 'contactCta');
 }
 function injectStyles(){
   if(document.getElementById('contactCtaEditorStyles')) return;

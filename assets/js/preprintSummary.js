@@ -1,11 +1,7 @@
 import './layoutExtrasSync.js';
+import { getLayoutExtra, getRawLayoutExtra } from './layoutExtras.js';
 
 (function () {
-  const CONTACT_CTA_KEY = 'etagi-raskleyka-contact-cta-v1';
-  const TEAR_LABEL_KEY = 'etagi-raskleyka-tear-label-v1';
-  const BRAND_NAME_KEY = 'etagi-raskleyka-brand-name-v1';
-  const BRAND_SIDE_KEY = 'etagi-raskleyka-brand-side-v1';
-
   function byId(id) {
     return document.getElementById(id);
   }
@@ -14,25 +10,17 @@ import './layoutExtrasSync.js';
     return String(byId(id)?.value || '').trim();
   }
 
-  function storageValue(key, fallback = '') {
-    try {
-      return localStorage.getItem(key) || fallback;
-    } catch (e) {
-      return fallback;
-    }
+  function layoutExtra(stateKey) {
+    return getLayoutExtra(null, stateKey);
   }
 
-  function rawLayoutExtra(inputId, storageKey) {
-    return value(inputId) || storageValue(storageKey);
-  }
-
-  function layoutExtra(inputId, storageKey, fallback = '') {
-    return rawLayoutExtra(inputId, storageKey) || fallback;
+  function rawLayoutExtra(stateKey) {
+    return getRawLayoutExtra(stateKey);
   }
 
   function brandText() {
-    const name = layoutExtra('brandNameText', BRAND_NAME_KEY, 'Этажи');
-    const side = layoutExtra('brandSideText', BRAND_SIDE_KEY, 'etagi.com');
+    const name = layoutExtra('brandName');
+    const side = layoutExtra('brandSideText');
     return [name, side].filter(Boolean).join(' / ');
   }
 
@@ -83,8 +71,8 @@ import './layoutExtrasSync.js';
     const contactEnabled = checked('showContact') || checked('tearOffs');
     const qrEnabled = checked('showQr');
     const qrLink = value('qrLink');
-    const contactCta = rawLayoutExtra('contactCtaText', CONTACT_CTA_KEY);
-    const tearLabel = layoutExtra('tearOffLabel', TEAR_LABEL_KEY, 'Недвижимость');
+    const contactCta = rawLayoutExtra('contactCta');
+    const tearLabel = layoutExtra('tearOffLabel');
     const brandLine = brandText();
     const densePrint = ['4', '6', '8'].includes(printCountValue());
     const brandVisible = checked('showBrand') && value('colorMode') !== 'private';
@@ -141,8 +129,8 @@ import './layoutExtrasSync.js';
     const printCount = printCountValue() || 'не выбрано';
     const status = risks.length ? 'warn' : 'ok';
     const statusText = risks.length ? 'Лучше проверить перед печатью' : 'Критичных замечаний нет';
-    const contactCta = layoutExtra('contactCtaText', CONTACT_CTA_KEY, 'Позвоните — подскажу по объекту и условиям');
-    const tearLabel = layoutExtra('tearOffLabel', TEAR_LABEL_KEY, 'Недвижимость');
+    const contactCta = layoutExtra('contactCta');
+    const tearLabel = layoutExtra('tearOffLabel');
     const brandLine = brandText();
     const brandVisible = checked('showBrand') && value('colorMode') !== 'private';
 

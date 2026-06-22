@@ -1,19 +1,16 @@
 import { getQrInfo } from './qr.js';
+import { getLayoutExtra } from './layoutExtras.js';
 
 const CORE_BLOCKS = ['showHeadline','showPrice','showDescription','showMeta','showBenefits','showCustomBlock','showPhoto','showContact'];
-const CONTACT_CTA_KEY = 'etagi-raskleyka-contact-cta-v1';
-const TEAR_LABEL_KEY = 'etagi-raskleyka-tear-label-v1';
-const BRAND_NAME_KEY = 'etagi-raskleyka-brand-name-v1';
-const BRAND_SIDE_KEY = 'etagi-raskleyka-brand-side-v1';
 
 export function checkQuality(state, sheet){
   const issues = [];
   const count = Number(state.printCount) || 2;
   const phone = String(state.agentPhone || '').trim();
-  const contactCta = getLayoutExtra(state, 'contactCta', 'contactCtaText', CONTACT_CTA_KEY, 'Позвоните — подскажу по объекту и условиям');
-  const tearOffLabel = getLayoutExtra(state, 'tearOffLabel', 'tearOffLabel', TEAR_LABEL_KEY, 'Недвижимость');
-  const brandName = getLayoutExtra(state, 'brandName', 'brandNameText', BRAND_NAME_KEY, 'Этажи');
-  const brandSideText = getLayoutExtra(state, 'brandSideText', 'brandSideText', BRAND_SIDE_KEY, 'etagi.com');
+  const contactCta = getLayoutExtra(state, 'contactCta');
+  const tearOffLabel = getLayoutExtra(state, 'tearOffLabel');
+  const brandName = getLayoutExtra(state, 'brandName');
+  const brandSideText = getLayoutExtra(state, 'brandSideText');
   const headlineLen = String(state.headline || '').replace(/\s/g,'').length;
   const descLen = String(state.description || '').length;
   const customTextLen = String(state.customBlockText || '').length;
@@ -99,17 +96,6 @@ function addSellingChecks(issues, state, text, benefitsCount){
   if(!hasTrustSignal(text)) issues.push({level:'tip', title:'Нет снятия опасения', text:'Добавьте мягкую формулировку: без давления, без обязательств, по делу, объясню простым языком.', action:null});
 }
 
-function getLayoutExtra(state, stateKey, inputId, storageKey, fallback){
-  const fromInput = typeof document !== 'undefined' ? String(document.getElementById(inputId)?.value || '').trim() : '';
-  if(fromInput) return fromInput;
-  const fromState = String(state[stateKey] || '').trim();
-  if(fromState) return fromState;
-  try{
-    return localStorage.getItem(storageKey) || fallback;
-  } catch(e){
-    return fallback;
-  }
-}
 function hasCallToAction(text){
   return /позвон|напиш|звон|обсуд|узна|уточн|получ|остав|свяж|спрос|покаж|подска/.test(text);
 }

@@ -1,4 +1,4 @@
-const TEAR_LABEL_KEY = 'etagi-raskleyka-tear-label-v1';
+import { getLayoutExtra, setLayoutExtraValue } from './layoutExtras.js';
 
 const labelPresets = ['Недвижимость', 'Куплю квартиру', 'Оценка цены', 'Есть покупатель', 'Продажа дома', 'Консультация'];
 
@@ -63,16 +63,10 @@ function rerenderFlyer(){
 }
 
 function saveLabel(value){
-  try{
-    localStorage.setItem(TEAR_LABEL_KEY, String(value || 'Недвижимость').trim() || 'Недвижимость');
-  } catch(e){}
+  setLayoutExtraValue('tearOffLabel', String(value || 'Недвижимость').trim() || 'Недвижимость', {syncInput:false});
 }
 function loadLabel(){
-  try{
-    return localStorage.getItem(TEAR_LABEL_KEY) || 'Недвижимость';
-  } catch(e){
-    return 'Недвижимость';
-  }
+  return getLayoutExtra(null, 'tearOffLabel');
 }
 function injectStyles(){
   if(document.getElementById('tearOffEditorStyles')) return;

@@ -1,15 +1,10 @@
+import { enrichLayoutExtras, syncLayoutExtras } from './layoutExtras.js';
+
 const KEY = 'etagi-raskleyka-state-v1';
 const SAVED_KEY = 'etagi-raskleyka-saved-v1';
 const PROFILE_KEY = 'etagi-raskleyka-profile-v1';
 const LAYOUTS_KEY = 'etagi-raskleyka-layouts-v1';
 const FAVORITE_TEMPLATES_KEY = 'etagi-raskleyka-favorite-templates-v1';
-
-const LAYOUT_EXTRA_FIELDS = [
-  { stateKey:'contactCta', inputId:'contactCtaText', storageKey:'etagi-raskleyka-contact-cta-v1', fallback:'Позвоните — подскажу по объекту и условиям' },
-  { stateKey:'tearOffLabel', inputId:'tearOffLabel', storageKey:'etagi-raskleyka-tear-label-v1', fallback:'Недвижимость' },
-  { stateKey:'brandName', inputId:'brandNameText', storageKey:'etagi-raskleyka-brand-name-v1', fallback:'Этажи' },
-  { stateKey:'brandSideText', inputId:'brandSideText', storageKey:'etagi-raskleyka-brand-side-v1', fallback:'etagi.com' }
-];
 
 export function autoSave(state){
   try { localStorage.setItem(KEY, JSON.stringify(stripHeavyFields(state))); }
@@ -127,32 +122,7 @@ export function clearAll(){
   localStorage.removeItem(FAVORITE_TEMPLATES_KEY);
 }
 function stripHeavyFields(state){
-  const next = {...state, photoOne:'', photoTwo:''};
-  for(const field of LAYOUT_EXTRA_FIELDS){
-    next[field.stateKey] = readLayoutExtra(field, next[field.stateKey]);
-  }
-  return next;
-}
-function readLayoutExtra(field, currentValue){
-  const fromInput = typeof document !== 'undefined' ? String(document.getElementById(field.inputId)?.value || '').trim() : '';
-  if(fromInput) return fromInput;
-  const fromState = String(currentValue || '').trim();
-  if(fromState) return fromState;
-  try{
-    return localStorage.getItem(field.storageKey) || field.fallback;
-  } catch(e){
-    return field.fallback;
-  }
-}
-function syncLayoutExtras(state){
-  if(!state) return;
-  for(const field of LAYOUT_EXTRA_FIELDS){
-    const value = String(state[field.stateKey] || '').trim();
-    if(!value) continue;
-    try{ localStorage.setItem(field.storageKey, value); } catch(e){}
-    const input = typeof document !== 'undefined' ? document.getElementById(field.inputId) : null;
-    if(input) input.value = value;
-  }
+  return enrichLayoutExtras({...state, photoOne:'', photoTwo:''});
 }
 function makeLayoutId(name, layouts){
   const base = String(name || 'layout')

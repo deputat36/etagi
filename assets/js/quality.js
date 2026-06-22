@@ -1,23 +1,38 @@
 import { getQrInfo } from './qr.js';
 
 const CORE_BLOCKS = ['showHeadline','showPrice','showDescription','showMeta','showBenefits','showCustomBlock','showPhoto','showContact'];
+const CONTACT_CTA_KEY = 'etagi-raskleyka-contact-cta-v1';
+const TEAR_LABEL_KEY = 'etagi-raskleyka-tear-label-v1';
+const BRAND_NAME_KEY = 'etagi-raskleyka-brand-name-v1';
+const BRAND_SIDE_KEY = 'etagi-raskleyka-brand-side-v1';
 
 export function checkQuality(state, sheet){
   const issues = [];
   const count = Number(state.printCount) || 2;
   const phone = String(state.agentPhone || '').trim();
+  const contactCta = getLayoutExtra(state, 'contactCta', 'contactCtaText', CONTACT_CTA_KEY, 'Позвоните — подскажу по объекту и условиям');
+  const tearOffLabel = getLayoutExtra(state, 'tearOffLabel', 'tearOffLabel', TEAR_LABEL_KEY, 'Недвижимость');
+  const brandName = getLayoutExtra(state, 'brandName', 'brandNameText', BRAND_NAME_KEY, 'Этажи');
+  const brandSideText = getLayoutExtra(state, 'brandSideText', 'brandSideText', BRAND_SIDE_KEY, 'etagi.com');
   const headlineLen = String(state.headline || '').replace(/\s/g,'').length;
   const descLen = String(state.description || '').length;
   const customTextLen = String(state.customBlockText || '').length;
+  const contactCtaLen = contactCta.length;
+  const tearOffLabelLen = tearOffLabel.length;
+  const brandLen = `${brandName} ${brandSideText}`.trim().length;
   const benefitsCount = String(state.benefits || '').split('\n').filter(Boolean).length;
   const metaCount = [state.area, state.propertyType, state.params].filter(Boolean).length;
   const visibleBlocks = getVisibleBlockCount(state);
-  const sellingText = normalizeText(`${state.headline} ${state.description} ${state.benefits} ${state.customBlockTitle} ${state.customBlockText} ${state.price} ${state.area} ${state.propertyType}`);
+  const sellingText = normalizeText(`${state.headline} ${state.description} ${state.benefits} ${state.customBlockTitle} ${state.customBlockText} ${state.price} ${state.area} ${state.propertyType} ${contactCta}`);
 
   if(!state.showContact && !state.tearOffs && !(state.showQr && state.qrLink)) issues.push({level:'warn', title:'Нет канала отклика', text:'В макете нет контактов, отрывных телефонов и QR. Для расклейки это почти всегда ошибка.', action:'showContact'});
   if((state.showContact || state.tearOffs) && !phone) issues.push({level:'error', title:'Нет телефона для отклика', text:'Телефон обязателен, если включены контакты или отрывные листочки. Без номера макет печатать нельзя.', action:'phone'});
   if(state.showContact && phone && Number(state.phoneScale) < 1.1) issues.push({level:'warn', title:'Телефон мелковат', text:'Для расклейки номер должен читаться издалека.', action:'bigPhone'});
   if(count >= 6 && state.showContact && phone && Number(state.phoneScale) < 1.3) issues.push({level:'warn', title:'Телефон мелкий для плотной печати', text:'Для 6–8 макетов на А4 телефон лучше сделать крупнее, иначе его сложнее прочитать после печати.', action:'bigPhone'});
+  if(state.showContact && !contactCta) issues.push({level:'tip', title:'Нет призыва в контактах', text:'Под телефоном лучше оставить короткую фразу: зачем звонить и что человек получит.', action:null});
+  if(state.showContact && contactCta && !hasCallToAction(normalizeText(contactCta))) issues.push({level:'tip', title:'Слабый призыв в контактах', text:'В контактной строке лучше прямо написать: позвоните, напишите, уточните, обсудим или подскажу.', action:null});
+  if(state.showContact && contactCtaLen > 85 && count >= 4) issues.push({level:'warn', title:'Длинный призыв в контактах', text:'Для 4+ макетов на А4 контактный призыв лучше сократить, чтобы телефон оставался главным.', action:null});
+  if(state.showContact && contactCtaLen > 60 && count >= 6) issues.push({level:'warn', title:'Призыв длинный для мини-макета', text:'Для 6–8 макетов на листе оставьте короткую фразу под телефоном.', action:null});
   if(!state.showHeadline) issues.push({level:'tip', title:'Заголовок скрыт', text:'Без заголовка макет может хуже цеплять внимание.', action:'showHeadline'});
   if(state.showHeadline && headlineLen > 48) issues.push({level:'warn', title:'Длинный заголовок', text:'Лучше 1–3 короткие строки.', action:'shortHeadline'});
   if(state.showHeadline && headlineLen > 38 && count >= 6) issues.push({level:'warn', title:'Заголовок длинный для мини-макета', text:'Для 6–8 макетов на А4 заголовок лучше сделать максимально коротким.', action:'shortHeadline'});
@@ -30,6 +45,12 @@ export function checkQuality(state, sheet){
   if(count >= 4 && visibleBlocks > 8) issues.push({level:'warn', title:'Слишком много блоков для плотной печати', text:'Для 4+ макетов на А4 лучше оставить только заголовок, короткий смысл, контакт и 1–2 сильных причины.', action:'autoFix'});
   if(count >= 6 && visibleBlocks > 6) issues.push({level:'warn', title:'Макет перегружен для мини-формата', text:'Для 6–8 макетов на А4 часть блоков почти наверняка станет слишком мелкой.', action:'autoFix'});
   if(state.showMeta && metaCount >= 3 && count >= 4) issues.push({level:'tip', title:'Параметры занимают много места', text:'Для плотной расклейки район, тип и параметры лучше выводить компактной строкой или оставить только самое важное.', action:null});
+
+  if(state.tearOffs && !tearOffLabel) issues.push({level:'tip', title:'Нет подписи отрывных листков', text:'Короткая подпись над телефоном помогает понять, по какому вопросу звонить.', action:null});
+  if(state.tearOffs && tearOffLabelLen > 24) issues.push({level:'warn', title:'Длинная подпись отрывных листков', text:'На отрывном листке подпись должна быть короткой, иначе телефон станет хуже читаться.', action:null});
+  if(state.tearOffs && count >= 6 && tearOffLabelLen > 16) issues.push({level:'warn', title:'Подпись отрывных длинная для мини-макета', text:'Для 6–8 макетов на А4 лучше использовать 1–2 коротких слова над телефоном.', action:null});
+  if(state.showBrand && state.colorMode !== 'private' && brandLen > 34 && count >= 4) issues.push({level:'tip', title:'Брендовая строка длинновата', text:'Для плотной печати лучше укоротить текст рядом с логотипом или правую подпись.', action:null});
+  if(state.showBrand && state.colorMode !== 'private' && brandLen > 26 && count >= 6) issues.push({level:'warn', title:'Бренд перегружает мини-макет', text:'Для 6–8 макетов на листе брендовая строка должна быть максимально короткой.', action:null});
 
   addSellingChecks(issues, state, sellingText, benefitsCount);
 
@@ -49,7 +70,7 @@ export function checkQuality(state, sheet){
     if(count >= 6) issues.push({level:'warn', title:'QR слишком мал для мини-макета', text:'Для 6–8 макетов на А4 QR лучше убрать или печатать меньше объявлений на листе.', action:'twoOnPage'});
   }
 
-  if(state.colorMode === 'private' && /этажи|etagi/i.test(`${state.headline} ${state.description} ${state.customBlockText}`)) issues.push({level:'warn', title:'Частное объявление с фирменностью', text:'В частном режиме лучше убрать упоминание компании.', action:'cleanBrand'});
+  if(state.colorMode === 'private' && /этажи|etagi/i.test(`${state.headline} ${state.description} ${state.customBlockText} ${brandName} ${brandSideText}`)) issues.push({level:'warn', title:'Частное объявление с фирменностью', text:'В частном режиме лучше убрать упоминание компании.', action:'cleanBrand'});
 
   const overflow = [...sheet.querySelectorAll('.flyer')].some(f=>f.classList.contains('overflow'));
   if(overflow) issues.push({level:'error', title:'Текст не помещается', text:'В одном или нескольких макетах есть переполнение.', action:'autoFix'});
@@ -78,6 +99,17 @@ function addSellingChecks(issues, state, text, benefitsCount){
   if(!hasTrustSignal(text)) issues.push({level:'tip', title:'Нет снятия опасения', text:'Добавьте мягкую формулировку: без давления, без обязательств, по делу, объясню простым языком.', action:null});
 }
 
+function getLayoutExtra(state, stateKey, inputId, storageKey, fallback){
+  const fromInput = typeof document !== 'undefined' ? String(document.getElementById(inputId)?.value || '').trim() : '';
+  if(fromInput) return fromInput;
+  const fromState = String(state[stateKey] || '').trim();
+  if(fromState) return fromState;
+  try{
+    return localStorage.getItem(storageKey) || fallback;
+  } catch(e){
+    return fallback;
+  }
+}
 function hasCallToAction(text){
   return /позвон|напиш|звон|обсуд|узна|уточн|получ|остав|свяж|спрос|покаж|подска/.test(text);
 }

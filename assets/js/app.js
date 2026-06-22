@@ -90,7 +90,10 @@ function bindStaticUi(){
   $('saveNamedLayoutBtn').onclick = saveCurrentNamedLayout;
   $('loadNamedLayoutBtn').onclick = loadSelectedLayout;
   $('deleteNamedLayoutBtn').onclick = deleteSelectedLayout;
-  $('saveLocalBtn').onclick = () => { saveNamed(state); setStatus('Последний макет сохранён в этом браузере.'); };
+  $('saveLocalBtn').onclick = () => {
+    const saved = saveNamed(state);
+    setStatus(saved ? 'Последний макет сохранён в этом браузере.' : 'Не удалось сохранить последний макет. Возможно, в браузере закончилось место.');
+  };
   $('loadLocalBtn').onclick = () => {
     const s = loadNamed();
     if(s){
@@ -229,6 +232,7 @@ function saveCurrentNamedLayout(){
   if(!name){ setStatus('Укажите название макета.'); $('layoutName').focus(); return; }
   state.layoutName = name;
   const item = saveLayout(name, state);
+  if(!item){ setStatus('Не удалось сохранить макет. Возможно, в браузере закончилось место.'); return; }
   renderSavedLayouts(item.id);
   syncFormFromState();
   setStatus(`Макет «${name}» сохранён.`);

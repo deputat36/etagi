@@ -1,11 +1,9 @@
 import { esc, nl } from './utils.js';
 import { createQrSvg } from './qr.js';
+import { getLayoutExtra } from './layoutExtras.js';
 
 const DEFAULT_BLOCK_ORDER = ['headline','price','photo','description','meta','benefits','customBlock','contact'];
-const TEAR_LABEL_KEY = 'etagi-raskleyka-tear-label-v1';
-const CONTACT_CTA_KEY = 'etagi-raskleyka-contact-cta-v1';
-const BRAND_NAME_KEY = 'etagi-raskleyka-brand-name-v1';
-const BRAND_SIDE_KEY = 'etagi-raskleyka-brand-side-v1';
+const RENDER_EXTRA_OPTIONS = { ignoreInputFallback: true };
 
 export function applyCss(state){
   const root = document.documentElement;
@@ -150,48 +148,16 @@ function renderTears(state){
   return `<div class="tears">${Array.from({length:8},()=>`<div class="tear"><span class="tear-topic">${topic}</span><span class="tear-phone">${phone}</span></div>`).join('')}</div>`;
 }
 function getTearOffLabel(state){
-  return readLayoutExtra({
-    stateValue: state.tearOffLabel,
-    inputId: 'tearOffLabel',
-    storageKey: TEAR_LABEL_KEY,
-    fallback: 'Недвижимость'
-  });
+  return getLayoutExtra(state, 'tearOffLabel', RENDER_EXTRA_OPTIONS);
 }
 function getContactCta(state){
-  return readLayoutExtra({
-    stateValue: state.contactCta,
-    inputId: 'contactCtaText',
-    storageKey: CONTACT_CTA_KEY,
-    fallback: 'Позвоните — подскажу по объекту и условиям'
-  });
+  return getLayoutExtra(state, 'contactCta', RENDER_EXTRA_OPTIONS);
 }
 function getBrandName(state){
-  return readLayoutExtra({
-    stateValue: state.brandName,
-    inputId: 'brandNameText',
-    storageKey: BRAND_NAME_KEY,
-    fallback: 'Этажи'
-  });
+  return getLayoutExtra(state, 'brandName', RENDER_EXTRA_OPTIONS);
 }
 function getBrandSide(state){
-  return readLayoutExtra({
-    stateValue: state.brandSideText,
-    inputId: 'brandSideText',
-    storageKey: BRAND_SIDE_KEY,
-    fallback: 'etagi.com'
-  });
-}
-function readLayoutExtra({stateValue, inputId, storageKey, fallback}){
-  const fromInput = typeof document !== 'undefined' ? String(document.getElementById(inputId)?.value || '').trim() : '';
-  if(fromInput && fromInput !== fallback) return fromInput;
-  const fromState = String(stateValue || '').trim();
-  if(fromState) return fromState;
-  if(fromInput) return fromInput;
-  try{
-    return localStorage.getItem(storageKey) || fallback;
-  } catch(e){
-    return fallback;
-  }
+  return getLayoutExtra(state, 'brandSideText', RENDER_EXTRA_OPTIONS);
 }
 function splitTearTopic(value){
   const clean = String(value || 'Недвижимость').replace(/\s+/g, ' ').trim();

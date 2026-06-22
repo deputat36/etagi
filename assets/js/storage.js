@@ -16,14 +16,20 @@ export function autoSave(state){
   catch(e) { console.warn('autosave failed', e); }
 }
 export function loadAutoSave(){
-  try { return JSON.parse(localStorage.getItem(KEY) || 'null'); }
+  try {
+    const state = JSON.parse(localStorage.getItem(KEY) || 'null');
+    syncLayoutExtras(state);
+    return state;
+  }
   catch(e) { return null; }
 }
 export function saveNamed(state){
   localStorage.setItem(SAVED_KEY, JSON.stringify(stripHeavyFields(state)));
 }
 export function loadNamed(){
-  return JSON.parse(localStorage.getItem(SAVED_KEY) || 'null');
+  const state = JSON.parse(localStorage.getItem(SAVED_KEY) || 'null');
+  syncLayoutExtras(state);
+  return state;
 }
 export function saveProfile(profile){
   localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
@@ -52,7 +58,9 @@ export function saveLayout(name, state){
   return item;
 }
 export function loadLayout(id){
-  return listSavedLayouts().find(item => item.id === id) || null;
+  const item = listSavedLayouts().find(item => item.id === id) || null;
+  if(item?.state) syncLayoutExtras(item.state);
+  return item;
 }
 export function deleteLayout(id){
   const next = listSavedLayouts().filter(item => item.id !== id);
@@ -99,6 +107,16 @@ function readLayoutExtra(field, currentValue){
     return localStorage.getItem(field.storageKey) || field.fallback;
   } catch(e){
     return field.fallback;
+  }
+}
+function syncLayoutExtras(state){
+  if(!state) return;
+  for(const field of LAYOUT_EXTRA_FIELDS){
+    const value = String(state[field.stateKey] || '').trim();
+    if(!value) continue;
+    try{ localStorage.setItem(field.storageKey, value); } catch(e){}
+    const input = typeof document !== 'undefined' ? document.getElementById(field.inputId) : null;
+    if(input) input.value = value;
   }
 }
 function makeLayoutId(name, layouts){

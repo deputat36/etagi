@@ -150,47 +150,47 @@ function renderTears(state){
   return `<div class="tears">${Array.from({length:8},()=>`<div class="tear"><span class="tear-topic">${topic}</span><span class="tear-phone">${phone}</span></div>`).join('')}</div>`;
 }
 function getTearOffLabel(state){
-  const fromState = String(state.tearOffLabel || '').trim();
-  if(fromState) return fromState;
-  const fromInput = typeof document !== 'undefined' ? String(document.getElementById('tearOffLabel')?.value || '').trim() : '';
-  if(fromInput) return fromInput;
-  try{
-    return localStorage.getItem(TEAR_LABEL_KEY) || 'Недвижимость';
-  } catch(e){
-    return 'Недвижимость';
-  }
+  return readLayoutExtra({
+    stateValue: state.tearOffLabel,
+    inputId: 'tearOffLabel',
+    storageKey: TEAR_LABEL_KEY,
+    fallback: 'Недвижимость'
+  });
 }
 function getContactCta(state){
-  const fromState = String(state.contactCta || '').trim();
-  if(fromState) return fromState;
-  const fromInput = typeof document !== 'undefined' ? String(document.getElementById('contactCtaText')?.value || '').trim() : '';
-  if(fromInput) return fromInput;
-  try{
-    return localStorage.getItem(CONTACT_CTA_KEY) || 'Позвоните — подскажу по объекту и условиям';
-  } catch(e){
-    return 'Позвоните — подскажу по объекту и условиям';
-  }
+  return readLayoutExtra({
+    stateValue: state.contactCta,
+    inputId: 'contactCtaText',
+    storageKey: CONTACT_CTA_KEY,
+    fallback: 'Позвоните — подскажу по объекту и условиям'
+  });
 }
 function getBrandName(state){
-  const fromState = String(state.brandName || '').trim();
-  if(fromState) return fromState;
-  const fromInput = typeof document !== 'undefined' ? String(document.getElementById('brandNameText')?.value || '').trim() : '';
-  if(fromInput) return fromInput;
-  try{
-    return localStorage.getItem(BRAND_NAME_KEY) || 'Этажи';
-  } catch(e){
-    return 'Этажи';
-  }
+  return readLayoutExtra({
+    stateValue: state.brandName,
+    inputId: 'brandNameText',
+    storageKey: BRAND_NAME_KEY,
+    fallback: 'Этажи'
+  });
 }
 function getBrandSide(state){
-  const fromState = String(state.brandSideText || '').trim();
+  return readLayoutExtra({
+    stateValue: state.brandSideText,
+    inputId: 'brandSideText',
+    storageKey: BRAND_SIDE_KEY,
+    fallback: 'etagi.com'
+  });
+}
+function readLayoutExtra({stateValue, inputId, storageKey, fallback}){
+  const fromInput = typeof document !== 'undefined' ? String(document.getElementById(inputId)?.value || '').trim() : '';
+  if(fromInput && fromInput !== fallback) return fromInput;
+  const fromState = String(stateValue || '').trim();
   if(fromState) return fromState;
-  const fromInput = typeof document !== 'undefined' ? String(document.getElementById('brandSideText')?.value || '').trim() : '';
   if(fromInput) return fromInput;
   try{
-    return localStorage.getItem(BRAND_SIDE_KEY) || 'etagi.com';
+    return localStorage.getItem(storageKey) || fallback;
   } catch(e){
-    return 'etagi.com';
+    return fallback;
   }
 }
 function splitTearTopic(value){

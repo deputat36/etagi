@@ -36,6 +36,11 @@ import './layoutExtrasSync.js';
     return [name, side].filter(Boolean).join(' / ');
   }
 
+  function printCountValue() {
+    const activePrintPreset = document.querySelector('[data-count].active');
+    return value('printCount') || activePrintPreset?.dataset?.count || activePrintPreset?.textContent?.trim() || '';
+  }
+
   function checked(id) {
     return Boolean(byId(id)?.checked);
   }
@@ -81,7 +86,7 @@ import './layoutExtrasSync.js';
     const contactCta = rawLayoutExtra('contactCtaText', CONTACT_CTA_KEY);
     const tearLabel = layoutExtra('tearOffLabel', TEAR_LABEL_KEY, 'Недвижимость');
     const brandLine = brandText();
-    const densePrint = ['4', '6', '8'].includes(value('printCount'));
+    const densePrint = ['4', '6', '8'].includes(printCountValue());
     const brandVisible = checked('showBrand') && value('colorMode') !== 'private';
 
     if (contactEnabled && !phone) {
@@ -133,8 +138,7 @@ import './layoutExtrasSync.js';
     const phone = value('agentPhone');
     const headline = value('headline') || value('layoutName') || 'Без заголовка';
     const area = value('area') || 'не указан';
-    const activePrintPreset = document.querySelector('[data-count].active');
-    const printCount = value('printCount') || activePrintPreset?.dataset?.count || activePrintPreset?.textContent?.trim() || 'не выбрано';
+    const printCount = printCountValue() || 'не выбрано';
     const status = risks.length ? 'warn' : 'ok';
     const statusText = risks.length ? 'Лучше проверить перед печатью' : 'Критичных замечаний нет';
     const contactCta = layoutExtra('contactCtaText', CONTACT_CTA_KEY, 'Позвоните — подскажу по объекту и условиям');

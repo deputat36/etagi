@@ -256,7 +256,8 @@ function cleanLoadedState(source){
 function deleteSelectedLayout(){
   const id = $('savedLayouts').value;
   if(!id){ setStatus('Сначала выберите макет для удаления.'); return; }
-  deleteLayout(id);
+  const next = deleteLayout(id);
+  if(!next){ setStatus('Не удалось удалить макет. Возможно, браузер запретил изменение сохранений.'); return; }
   renderSavedLayouts();
   setStatus('Сохранённый макет удалён.');
 }
@@ -278,6 +279,7 @@ function renderTemplates(){
   $('templateList').querySelectorAll('[data-favorite-template]').forEach(btn=>btn.onclick=(event)=>{
     event.stopPropagation();
     const favorites = toggleFavoriteTemplate(btn.dataset.favoriteTemplate);
+    if(!favorites){ setStatus('Не удалось изменить избранное. Возможно, в браузере закончилось место.'); return; }
     favoriteTemplateIds = new Set(favorites);
     renderTemplates();
     setStatus(favoriteTemplateIds.has(btn.dataset.favoriteTemplate) ? 'Шаблон добавлен в избранное.' : 'Шаблон убран из избранного.');
@@ -423,7 +425,8 @@ function strengthenText(){
 function saveCurrentProfile(){
   const profile = pickProfile(state);
   if(!profile.agentName && !profile.agentPhone){ setStatus('Сначала заполните имя и телефон СПН.'); return; }
-  saveProfile(profile);
+  const saved = saveProfile(profile);
+  if(!saved){ setStatus('Не удалось сохранить профиль СПН. Возможно, в браузере закончилось место.'); return; }
   setStatus('Профиль СПН сохранён. Теперь можно менять шаблоны без потери имени и телефона.');
 }
 function loadSavedProfile(){

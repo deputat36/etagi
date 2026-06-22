@@ -1,6 +1,6 @@
 {
   "name": "etagi-raskleyka-generator",
-  "version": "3.74.0",
+  "version": "3.75.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -8,7 +8,8 @@
     "validate:js": "node tools/validate-js.mjs",
     "validate:assets": "node tools/validate-assets.mjs",
     "validate:quality-actions": "node tools/validate-quality-actions.mjs",
-    "validate": "npm run validate:templates && npm run validate:js && npm run validate:assets && npm run validate:quality-actions"
+    "validate:storage-safety": "node tools/validate-storage-safety.mjs",
+    "validate": "npm run validate:templates && npm run validate:js && npm run validate:assets && npm run validate:quality-actions && npm run validate:storage-safety"
   },
   "engines": {
     "node": ">=20"

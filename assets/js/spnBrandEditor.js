@@ -1,5 +1,4 @@
-const BRAND_NAME_KEY = 'etagi-raskleyka-brand-name-v1';
-const BRAND_SIDE_KEY = 'etagi-raskleyka-brand-side-v1';
+import { getLayoutExtra, setLayoutExtraValue } from './layoutExtras.js';
 
 const brandNamePresets = ['Этажи', 'Этажи Борисоглебск', 'Агентство Этажи'];
 const sidePresets = ['etagi.com', 'Борисоглебск', 'Этажи Борисоглебск', 'Недвижимость'];
@@ -61,8 +60,8 @@ function bindEditor(){
 function restoreBrand(){
   const name = document.getElementById('brandNameText');
   const side = document.getElementById('brandSideText');
-  if(name) name.value = load(BRAND_NAME_KEY, 'Этажи');
-  if(side) side.value = load(BRAND_SIDE_KEY, 'etagi.com');
+  if(name) name.value = loadBrandName();
+  if(side) side.value = loadBrandSide();
   rerenderFlyer();
 }
 
@@ -76,8 +75,8 @@ function updateEditorState(){
 function saveBrand(){
   const name = String(document.getElementById('brandNameText')?.value || 'Этажи').trim() || 'Этажи';
   const side = String(document.getElementById('brandSideText')?.value || 'etagi.com').trim() || 'etagi.com';
-  save(BRAND_NAME_KEY, name);
-  save(BRAND_SIDE_KEY, side);
+  setLayoutExtraValue('brandName', name, {syncInput:false});
+  setLayoutExtraValue('brandSideText', side, {syncInput:false});
 }
 
 function rerenderFlyer(){
@@ -88,11 +87,11 @@ function rerenderFlyer(){
   if(status) status.textContent = 'Брендовая строка обновлена.';
 }
 
-function save(key, value){
-  try{ localStorage.setItem(key, value); } catch(e){}
+function loadBrandName(){
+  return getLayoutExtra(null, 'brandName');
 }
-function load(key, fallback){
-  try{ return localStorage.getItem(key) || fallback; } catch(e){ return fallback; }
+function loadBrandSide(){
+  return getLayoutExtra(null, 'brandSideText');
 }
 function injectStyles(){
   if(document.getElementById('brandRowEditorStyles')) return;

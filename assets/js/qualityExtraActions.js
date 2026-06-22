@@ -1,13 +1,10 @@
-(function () {
-  const CONTACT_CTA_KEY = 'etagi-raskleyka-contact-cta-v1';
-  const TEAR_LABEL_KEY = 'etagi-raskleyka-tear-label-v1';
-  const BRAND_NAME_KEY = 'etagi-raskleyka-brand-name-v1';
-  const BRAND_SIDE_KEY = 'etagi-raskleyka-brand-side-v1';
+import { getLayoutExtra, getLayoutExtraField, setLayoutExtraValue } from './layoutExtras.js';
 
-  const DEFAULT_CTA = 'Позвоните — подскажу детали';
-  const DEFAULT_TEAR_LABEL = 'Недвижимость';
-  const DEFAULT_BRAND_NAME = 'Этажи';
-  const DEFAULT_BRAND_SIDE = 'etagi.com';
+(function () {
+  const QUICK_FIX_CTA = 'Позвоните — подскажу детали';
+  const DEFAULT_TEAR_LABEL = getLayoutExtraField('tearOffLabel')?.fallback || 'Недвижимость';
+  const DEFAULT_BRAND_NAME = getLayoutExtraField('brandName')?.fallback || 'Этажи';
+  const DEFAULT_BRAND_SIDE = getLayoutExtraField('brandSideText')?.fallback || 'etagi.com';
 
   const actions = [
     { title: 'Нет призыва в контактах', action: 'contactCta', label: 'Заполнить призыв' },
@@ -52,7 +49,7 @@
     if (!button) return;
 
     const action = button.dataset.extraQualityFix;
-    if (action === 'contactCta') setContactCta(DEFAULT_CTA);
+    if (action === 'contactCta') setContactCta(QUICK_FIX_CTA);
     if (action === 'shortContactCta') setContactCta(shortContactCta());
     if (action === 'tearLabel') setTearLabel(DEFAULT_TEAR_LABEL);
     if (action === 'shortTearLabel') setTearLabel(shortTearLabel());
@@ -63,13 +60,13 @@
 
   function setContactCta(text) {
     enableCheckbox('showContact');
-    setLayoutExtra('contactCtaText', CONTACT_CTA_KEY, text || DEFAULT_CTA);
+    setLayoutExtra('contactCta', text || QUICK_FIX_CTA);
     setStatus('Призыв в контактах исправлен.');
   }
 
   function setTearLabel(text) {
     enableCheckbox('tearOffs');
-    setLayoutExtra('tearOffLabel', TEAR_LABEL_KEY, text || DEFAULT_TEAR_LABEL);
+    setLayoutExtra('tearOffLabel', text || DEFAULT_TEAR_LABEL);
     setStatus('Подпись отрывных листков исправлена.');
   }
 
@@ -81,56 +78,25 @@
       colorMode.dispatchEvent(new Event('change', { bubbles: true }));
     }
 
-    setLayoutExtra('brandNameText', BRAND_NAME_KEY, DEFAULT_BRAND_NAME);
-    setLayoutExtra('brandSideText', BRAND_SIDE_KEY, DEFAULT_BRAND_SIDE);
+    setLayoutExtra('brandName', DEFAULT_BRAND_NAME);
+    setLayoutExtra('brandSideText', DEFAULT_BRAND_SIDE);
     setStatus('Брендовая строка укорочена.');
   }
 
   function shortContactCta() {
-    const current = readLayoutExtra('contactCtaText', CONTACT_CTA_KEY, DEFAULT_CTA);
-    if (!hasCallToAction(current) || current.length > 60) return DEFAULT_CTA;
+    const current = getLayoutExtra(null, 'contactCta');
+    if (!hasCallToAction(current) || current.length > 60) return QUICK_FIX_CTA;
     return shorten(current, 58);
   }
 
   function shortTearLabel() {
-    const current = readLayoutExtra('tearOffLabel', TEAR_LABEL_KEY, DEFAULT_TEAR_LABEL);
+    const current = getLayoutExtra(null, 'tearOffLabel');
     if (!current || current.length > 16) return DEFAULT_TEAR_LABEL;
     return current;
   }
 
-  function readLayoutExtra(inputId, storageKey, fallback) {
-    const inputValue = String(document.getElementById(inputId)?.value || '').trim();
-    if (inputValue) return inputValue;
-    try {
-      return localStorage.getItem(storageKey) || fallback;
-    } catch (e) {
-      return fallback;
-    }
-  }
-
-  function setLayoutExtra(inputId, storageKey, value) {
-    const clean = String(value || '').trim();
-    try {
-      localStorage.setItem(storageKey, clean);
-    } catch (e) {}
-
-    const input = document.getElementById(inputId);
-    if (!input) return;
-
-    input.value = clean;
-    input.dispatchEvent(new Event('input', { bubbles: true }));
-    input.dispatchEvent(new Event('change', { bubbles: true }));
-    revealInput(input);
-  }
-
-  function revealInput(input) {
-    const details = input.closest('details');
-    if (details && !details.open) details.open = true;
-
-    window.setTimeout(() => {
-      input.focus({ preventScroll: true });
-      input.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }, 60);
+  function setLayoutExtra(stateKey, value) {
+    setLayoutExtraValue(stateKey, value, {reveal:true});
   }
 
   function enableCheckbox(id) {

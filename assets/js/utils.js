@@ -1,13 +1,8 @@
+import { enrichLayoutExtras } from './layoutExtras.js';
+
 export const $ = (id) => document.getElementById(id);
 export const esc = (value='') => String(value).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]));
 export const nl = (value='') => String(value).split(/\n+/).map(v=>v.trim()).filter(Boolean);
-
-const layoutExtraFields = [
-  { stateKey:'contactCta', inputId:'contactCtaText', storageKey:'etagi-raskleyka-contact-cta-v1', fallback:'Позвоните — подскажу по объекту и условиям' },
-  { stateKey:'tearOffLabel', inputId:'tearOffLabel', storageKey:'etagi-raskleyka-tear-label-v1', fallback:'Недвижимость' },
-  { stateKey:'brandName', inputId:'brandNameText', storageKey:'etagi-raskleyka-brand-name-v1', fallback:'Этажи' },
-  { stateKey:'brandSideText', inputId:'brandSideText', storageKey:'etagi-raskleyka-brand-side-v1', fallback:'etagi.com' }
-];
 
 export function readFileAsDataURL(file){
   return new Promise((resolve,reject)=>{
@@ -42,24 +37,8 @@ function shouldEnrichLayoutDownload(filename, type){
 
 function addLayoutExtrasToJson(text){
   try{
-    const state = JSON.parse(text);
-    for(const field of layoutExtraFields){
-      state[field.stateKey] = readLayoutExtra(field, state[field.stateKey]);
-    }
-    return JSON.stringify(state, null, 2);
+    return JSON.stringify(enrichLayoutExtras(JSON.parse(text)), null, 2);
   } catch(e){
     return text;
-  }
-}
-
-function readLayoutExtra(field, currentValue){
-  const fromInput = typeof document !== 'undefined' ? String(document.getElementById(field.inputId)?.value || '').trim() : '';
-  if(fromInput) return fromInput;
-  const fromState = String(currentValue || '').trim();
-  if(fromState) return fromState;
-  try{
-    return localStorage.getItem(field.storageKey) || field.fallback;
-  } catch(e){
-    return field.fallback;
   }
 }

@@ -17,6 +17,26 @@ export function getRawLayoutExtra(stateKey){
   return readLayoutExtra({...field, fallback:''}, '', { ignoreInputFallback:false });
 }
 
+export function setLayoutExtraValue(stateKey, value, options = {}){
+  const field = getLayoutExtraField(stateKey);
+  if(!field) return '';
+
+  const clean = String(value || field.fallback || '').trim() || field.fallback || '';
+  try{ localStorage.setItem(field.storageKey, clean); } catch(e){}
+
+  const input = typeof document !== 'undefined' ? document.getElementById(field.inputId) : null;
+  if(input && options.syncInput !== false){
+    input.value = clean;
+    if(options.emitEvents !== false){
+      input.dispatchEvent(new Event('input', {bubbles:true}));
+      input.dispatchEvent(new Event('change', {bubbles:true}));
+    }
+    if(options.reveal) revealLayoutExtraInput(input);
+  }
+
+  return clean;
+}
+
 export function enrichLayoutExtras(state){
   const next = {...(state || {})};
   for(const field of layoutExtraFields){
@@ -30,13 +50,7 @@ export function syncLayoutExtras(state){
   for(const field of layoutExtraFields){
     const value = String(state[field.stateKey] || '').trim();
     if(!value) continue;
-    try{ localStorage.setItem(field.storageKey, value); } catch(e){}
-    const input = typeof document !== 'undefined' ? document.getElementById(field.inputId) : null;
-    if(input){
-      input.value = value;
-      input.dispatchEvent(new Event('input', {bubbles:true}));
-      input.dispatchEvent(new Event('change', {bubbles:true}));
-    }
+    setLayoutExtraValue(field.stateKey, value);
   }
 }
 
@@ -57,4 +71,14 @@ export function readLayoutExtra(field, currentValue, options = {}){
   } catch(e){
     return field.fallback;
   }
+}
+
+function revealLayoutExtraInput(input){
+  const details = input.closest('details');
+  if(details && !details.open) details.open = true;
+
+  window.setTimeout(() => {
+    input.focus({ preventScroll:true });
+    input.scrollIntoView({ behavior:'smooth', block:'center' });
+  }, 60);
 }

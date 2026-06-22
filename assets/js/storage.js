@@ -53,19 +53,25 @@ export function listSavedLayouts(){
   catch(e) { return []; }
 }
 export function saveLayout(name, state){
-  const cleanName = String(name || state.headline || 'Макет без названия').trim() || 'Макет без названия';
-  const layouts = listSavedLayouts();
-  const now = new Date().toISOString();
-  const id = makeLayoutId(cleanName, layouts);
-  const cleanState = {...stripHeavyFields(state), layoutName: cleanName};
-  const existingByName = layouts.findIndex(item => item.name.toLowerCase() === cleanName.toLowerCase());
-  const item = { id: existingByName >= 0 ? layouts[existingByName].id : id, name: cleanName, updatedAt: now, state: cleanState };
+  try {
+    const cleanName = String(name || state.headline || 'Макет без названия').trim() || 'Макет без названия';
+    const layouts = listSavedLayouts();
+    const now = new Date().toISOString();
+    const id = makeLayoutId(cleanName, layouts);
+    const cleanState = {...stripHeavyFields(state), layoutName: cleanName};
+    const existingByName = layouts.findIndex(item => String(item.name || '').toLowerCase() === cleanName.toLowerCase());
+    const item = { id: existingByName >= 0 ? layouts[existingByName].id : id, name: cleanName, updatedAt: now, state: cleanState };
 
-  if(existingByName >= 0) layouts[existingByName] = item;
-  else layouts.unshift(item);
+    if(existingByName >= 0) layouts[existingByName] = item;
+    else layouts.unshift(item);
 
-  localStorage.setItem(LAYOUTS_KEY, JSON.stringify(layouts.slice(0, 50)));
-  return item;
+    localStorage.setItem(LAYOUTS_KEY, JSON.stringify(layouts.slice(0, 50)));
+    return item;
+  }
+  catch(e) {
+    console.warn('save named layout failed', e);
+    return null;
+  }
 }
 export function loadLayout(id){
   const item = listSavedLayouts().find(item => item.id === id) || null;

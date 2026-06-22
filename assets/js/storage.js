@@ -42,7 +42,14 @@ export function loadNamed(){
   catch(e) { return null; }
 }
 export function saveProfile(profile){
-  localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
+  try {
+    localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
+    return true;
+  }
+  catch(e) {
+    console.warn('save profile failed', e);
+    return false;
+  }
 }
 export function loadProfile(){
   try { return JSON.parse(localStorage.getItem(PROFILE_KEY) || 'null'); }
@@ -79,9 +86,15 @@ export function loadLayout(id){
   return item;
 }
 export function deleteLayout(id){
-  const next = listSavedLayouts().filter(item => item.id !== id);
-  localStorage.setItem(LAYOUTS_KEY, JSON.stringify(next));
-  return next;
+  try {
+    const next = listSavedLayouts().filter(item => item.id !== id);
+    localStorage.setItem(LAYOUTS_KEY, JSON.stringify(next));
+    return next;
+  }
+  catch(e) {
+    console.warn('delete named layout failed', e);
+    return null;
+  }
 }
 export function listFavoriteTemplates(){
   try { return JSON.parse(localStorage.getItem(FAVORITE_TEMPLATES_KEY) || '[]'); }
@@ -91,14 +104,20 @@ export function isFavoriteTemplate(templateId){
   return listFavoriteTemplates().includes(templateId);
 }
 export function toggleFavoriteTemplate(templateId){
-  const id = String(templateId || '').trim();
-  if(!id) return listFavoriteTemplates();
-  const favorites = new Set(listFavoriteTemplates());
-  if(favorites.has(id)) favorites.delete(id);
-  else favorites.add(id);
-  const next = [...favorites];
-  localStorage.setItem(FAVORITE_TEMPLATES_KEY, JSON.stringify(next));
-  return next;
+  try {
+    const id = String(templateId || '').trim();
+    if(!id) return listFavoriteTemplates();
+    const favorites = new Set(listFavoriteTemplates());
+    if(favorites.has(id)) favorites.delete(id);
+    else favorites.add(id);
+    const next = [...favorites];
+    localStorage.setItem(FAVORITE_TEMPLATES_KEY, JSON.stringify(next));
+    return next;
+  }
+  catch(e) {
+    console.warn('toggle favorite template failed', e);
+    return null;
+  }
 }
 export function clearAll(){
   localStorage.removeItem(KEY);

@@ -1,12 +1,39 @@
 import './layoutExtrasSync.js';
 
 (function () {
+  const CONTACT_CTA_KEY = 'etagi-raskleyka-contact-cta-v1';
+  const TEAR_LABEL_KEY = 'etagi-raskleyka-tear-label-v1';
+  const BRAND_NAME_KEY = 'etagi-raskleyka-brand-name-v1';
+  const BRAND_SIDE_KEY = 'etagi-raskleyka-brand-side-v1';
+
   function byId(id) {
     return document.getElementById(id);
   }
 
   function value(id) {
     return String(byId(id)?.value || '').trim();
+  }
+
+  function storageValue(key, fallback = '') {
+    try {
+      return localStorage.getItem(key) || fallback;
+    } catch (e) {
+      return fallback;
+    }
+  }
+
+  function rawLayoutExtra(inputId, storageKey) {
+    return value(inputId) || storageValue(storageKey);
+  }
+
+  function layoutExtra(inputId, storageKey, fallback = '') {
+    return rawLayoutExtra(inputId, storageKey) || fallback;
+  }
+
+  function brandText() {
+    const name = layoutExtra('brandNameText', BRAND_NAME_KEY, 'Этажи');
+    const side = layoutExtra('brandSideText', BRAND_SIDE_KEY, 'etagi.com');
+    return [name, side].filter(Boolean).join(' / ');
   }
 
   function checked(id) {
@@ -51,9 +78,26 @@ import './layoutExtrasSync.js';
     const contactEnabled = checked('showContact') || checked('tearOffs');
     const qrEnabled = checked('showQr');
     const qrLink = value('qrLink');
+    const contactCta = rawLayoutExtra('contactCtaText', CONTACT_CTA_KEY);
+    const tearLabel = layoutExtra('tearOffLabel', TEAR_LABEL_KEY, 'Недвижимость');
+    const brandLine = brandText();
+    const densePrint = ['4', '6', '8'].includes(value('printCount'));
+    const brandVisible = checked('showBrand') && value('colorMode') !== 'private';
 
     if (contactEnabled && !phone) {
       risks.push('Не указан телефон для отклика.');
+    }
+
+    if (checked('showContact') && !contactCta) {
+      risks.push('Не заполнен призыв в контактном блоке.');
+    }
+
+    if (checked('tearOffs') && tearLabel.length > 24) {
+      risks.push('Подпись отрывных листков длинная.');
+    }
+
+    if (brandVisible && densePrint && brandLine.length > 34) {
+      risks.push('Брендовая строка может быть длинной для плотной печати.');
     }
 
     if (qrEnabled && !qrLink) {
@@ -93,6 +137,10 @@ import './layoutExtrasSync.js';
     const printCount = value('printCount') || activePrintPreset?.dataset?.count || activePrintPreset?.textContent?.trim() || 'не выбрано';
     const status = risks.length ? 'warn' : 'ok';
     const statusText = risks.length ? 'Лучше проверить перед печатью' : 'Критичных замечаний нет';
+    const contactCta = layoutExtra('contactCtaText', CONTACT_CTA_KEY, 'Позвоните — подскажу по объекту и условиям');
+    const tearLabel = layoutExtra('tearOffLabel', TEAR_LABEL_KEY, 'Недвижимость');
+    const brandLine = brandText();
+    const brandVisible = checked('showBrand') && value('colorMode') !== 'private';
 
     root.innerHTML = `
       <div class="print-summary print-summary--${status}">
@@ -107,6 +155,9 @@ import './layoutExtrasSync.js';
           ${row('На листе', `${printCount} макетов`)}
           ${row('Деление', selectedText('splitMode') || 'автоматически')}
           ${row('Цветность', selectedText('colorMode') || 'не выбрана')}
+          ${row('Призыв', checked('showContact') ? contactCta : 'контакты выключены')}
+          ${row('Отрывная подпись', checked('tearOffs') ? tearLabel : 'нет')}
+          ${row('Бренд', brandVisible ? brandLine : 'не показывается')}
           ${row('Отрывные телефоны', yesNo(checked('tearOffs')))}
           ${row('QR', checked('showQr') ? (value('qrLink') ? 'Да, ссылка есть' : 'Включен без ссылки') : 'Нет', checked('showQr') && !value('qrLink') ? 'bad' : '')}
           ${row('Оценка качества', quality.score)}

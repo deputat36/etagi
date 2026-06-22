@@ -452,7 +452,14 @@ function loadFromFile(e){
   if(!file) return;
   const reader = new FileReader();
   reader.onload = () => {
-    try { state = {...state, ...JSON.parse(reader.result), version:state.version}; state.blockOrder = normalizeBlockOrder(state.blockOrder); syncFormFromState(); renderAll(); setStatus('Файл макета открыт.'); }
+    try {
+      const imported = JSON.parse(reader.result);
+      const currentVersion = state.version;
+      const nextState = {...cloneDefaultState(), ...imported, version:currentVersion};
+      state = {...nextState, blockOrder: normalizeBlockOrder(nextState.blockOrder)};
+      if($('savedLayouts')) $('savedLayouts').value='';
+      syncFormFromState(); renderAll(); setStatus('Файл макета открыт без смешивания с предыдущим макетом.');
+    }
     catch(err){ setStatus('Не удалось открыть файл.'); }
   };
   reader.readAsText(file);

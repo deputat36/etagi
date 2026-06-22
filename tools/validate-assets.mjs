@@ -4,6 +4,7 @@ import path from 'node:path';
 const rootDir = process.cwd();
 const errors = [];
 const checked = new Set();
+const checkedModules = new Set();
 
 checkHtmlReferences();
 checkTemplateDataReferences();
@@ -41,7 +42,11 @@ function checkHtmlReferences() {
 
     refs
       .filter(ref => shouldCheckReference(ref))
-      .forEach(ref => checkFile(resolveReference(htmlPath, ref), relativeHtmlPath));
+      .forEach(ref => {
+        const resolved = resolveReference(htmlPath, ref);
+        checkFile(resolved, relativeHtmlPath);
+        if (/\.(js|mjs)$/i.test(resolved)) checkModuleImports(resolved);
+      });
   }
 }
 
@@ -66,13 +71,14 @@ function checkModuleImports(entryPath) {
     return;
   }
 
-  if (checked.has(relativePath)) return;
+  if (checkedModules.has(relativePath)) return;
+  checkedModules.add(relativePath);
   checked.add(relativePath);
 
   const source = fs.readFileSync(fullPath, 'utf8');
   const imports = [
-    ...matchAll(source, /import\s+[^'";]+['"]([^'"]+)['"]/g),
-    ...matchAll(source, /import\(['"]([^'"]+)['"]\)/g)
+    ...matchAll(source, /import\s+(?:[^'";]+?\s+from\s*)?['"]([^'"]+)['"]/g),
+    ...matchAll(source, /import\(\s*['"]([^'"]+)['"]\s*\)/g)
   ];
 
   for (const importPath of imports) {

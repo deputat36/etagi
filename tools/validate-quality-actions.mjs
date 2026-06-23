@@ -2,12 +2,14 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const rootDir = process.cwd();
+const appPath = path.join(rootDir, 'assets/js/app.js');
 const qualityPath = path.join(rootDir, 'assets/js/quality.js');
 const actionsPath = path.join(rootDir, 'assets/js/qualityExtraActions.js');
 const stylesPath = path.join(rootDir, 'assets/css/ui-improvements.css');
 const indexPath = path.join(rootDir, 'index.html');
 const errors = [];
 
+const appSource = readRequired(appPath);
 const qualitySource = readRequired(qualityPath);
 const actionsSource = readRequired(actionsPath);
 const stylesSource = readRequired(stylesPath);
@@ -105,8 +107,39 @@ if (qualitySource && actionsSource) {
   }
 }
 
-if (stylesSource && !stylesSource.includes('.quality-extra-fix-btn')) {
-  errors.push('assets/css/ui-improvements.css: не найден стиль .quality-extra-fix-btn');
+if (appSource) {
+  const requiredBuiltInButtonMarkup = [
+    {
+      snippet: 'class="quality-fix-btn"',
+      message: 'assets/js/app.js: кнопки штатных исправлений должны иметь класс quality-fix-btn'
+    },
+    {
+      snippet: 'aria-label="${esc(ariaLabel)}"',
+      message: 'assets/js/app.js: кнопки штатных исправлений должны иметь aria-label'
+    },
+    {
+      snippet: 'data-fix="${i.action}"',
+      message: 'assets/js/app.js: кнопки штатных исправлений должны сохранять data-fix'
+    },
+    {
+      snippet: 'esc(label)',
+      message: 'assets/js/app.js: подпись штатной кнопки должна экранироваться'
+    }
+  ];
+
+  for (const item of requiredBuiltInButtonMarkup) {
+    if (!appSource.includes(item.snippet)) {
+      errors.push(item.message);
+    }
+  }
+}
+
+if (stylesSource) {
+  for (const className of ['.quality-fix-btn', '.quality-extra-fix-btn']) {
+    if (!stylesSource.includes(className)) {
+      errors.push(`assets/css/ui-improvements.css: не найден стиль ${className}`);
+    }
+  }
 }
 
 if (indexSource) {

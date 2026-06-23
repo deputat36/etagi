@@ -2,8 +2,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const rootDir = process.cwd();
+const appPath = path.join(rootDir, 'assets/js/app.js');
 const qualityPath = path.join(rootDir, 'assets/js/quality.js');
 const errors = [];
+const appSource = readRequired(appPath);
 const qualitySource = readRequired(qualityPath);
 
 if (qualitySource) {
@@ -28,6 +30,58 @@ if (qualitySource) {
     }
     if (hasIssueAction(rule.title, rule.forbiddenAction)) {
       errors.push(`assets/js/quality.js: у замечания «${rule.title}» найдено запрещённое действие ${rule.forbiddenAction}`);
+    }
+  }
+
+  const requiredPrivateBrandSnippets = [
+    {
+      snippet: "const visibleBrandText = state.showBrand ? `${brandName} ${brandSideText}`.trim() : ''",
+      message: 'assets/js/quality.js: проверка частного режима должна учитывать только реально включённую бренд-строку'
+    },
+    {
+      snippet: '${state.customBlockTitle} ${state.customBlockText} ${visibleBrandText}',
+      message: 'assets/js/quality.js: проверка фирменности должна смотреть доп. блок и видимую бренд-строку'
+    }
+  ];
+
+  for (const item of requiredPrivateBrandSnippets) {
+    if (!qualitySource.includes(item.snippet)) {
+      errors.push(item.message);
+    }
+  }
+}
+
+if (appSource) {
+  const requiredCleanBrandSnippets = [
+    {
+      snippet: 'state.headline = cleanBrandText(state.headline)',
+      message: 'assets/js/app.js: очистка фирменности должна чистить заголовок'
+    },
+    {
+      snippet: 'state.description = cleanBrandText(state.description)',
+      message: 'assets/js/app.js: очистка фирменности должна чистить описание'
+    },
+    {
+      snippet: 'state.customBlockTitle = cleanBrandText(state.customBlockTitle)',
+      message: 'assets/js/app.js: очистка фирменности должна чистить заголовок дополнительного блока'
+    },
+    {
+      snippet: 'state.customBlockText = cleanBrandText(state.customBlockText)',
+      message: 'assets/js/app.js: очистка фирменности должна чистить текст дополнительного блока'
+    },
+    {
+      snippet: 'function cleanBrandText(text)',
+      message: 'assets/js/app.js: не найден общий helper очистки фирменности'
+    },
+    {
+      snippet: "replace(/этажи|etagi/ig,'')",
+      message: 'assets/js/app.js: очистка фирменности должна удалять Этажи и etagi'
+    }
+  ];
+
+  for (const item of requiredCleanBrandSnippets) {
+    if (!appSource.includes(item.snippet)) {
+      errors.push(item.message);
     }
   }
 }

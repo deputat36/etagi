@@ -121,10 +121,6 @@ if (extraActionsSource) {
       message: 'assets/js/qualityExtraActions.js: для длинной QR-ссылки нужна отдельная понятная кнопка замены ссылки'
     },
     {
-      snippet: "if (button.dataset.fix === 'shortQr') window.setTimeout(focusQrField, 180);",
-      message: 'assets/js/qualityExtraActions.js: штатная кнопка QR должна выделять поле ссылки и показывать подсказку'
-    },
-    {
       snippet: "if (action === 'shortQrLink') focusQrField();",
       message: 'assets/js/qualityExtraActions.js: дополнительная QR-кнопка должна вести в поле ссылки'
     },
@@ -150,6 +146,11 @@ if (extraActionsSource) {
     if (!extraActionsSource.includes(item.snippet)) {
       errors.push(item.message);
     }
+  }
+
+  const obsoleteQrHandler = "button.dataset.fix === 'shortQr'";
+  if (extraActionsSource.includes(obsoleteQrHandler)) {
+    errors.push('assets/js/qualityExtraActions.js: найден неиспользуемый обработчик удалённой штатной QR-кнопки');
   }
 }
 

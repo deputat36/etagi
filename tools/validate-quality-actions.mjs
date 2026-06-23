@@ -9,6 +9,7 @@ const levelLabelsPath = path.join(rootDir, 'assets/js/qualityLevelLabels.js');
 const issueSummaryPath = path.join(rootDir, 'assets/js/qualityIssueSummary.js');
 const priorityHintPath = path.join(rootDir, 'assets/js/qualityPriorityHint.js');
 const printGuardHintPath = path.join(rootDir, 'assets/js/qualityPrintGuardHint.js');
+const preprintSummaryPath = path.join(rootDir, 'assets/js/preprintSummary.js');
 const stylesPath = path.join(rootDir, 'assets/css/ui-improvements.css');
 const levelStylesPath = path.join(rootDir, 'assets/css/quality-level-labels.css');
 const issueSummaryStylesPath = path.join(rootDir, 'assets/css/quality-issue-summary.css');
@@ -22,6 +23,7 @@ const levelLabelsSource = readRequired(levelLabelsPath);
 const issueSummarySource = readRequired(issueSummaryPath);
 const priorityHintSource = readRequired(priorityHintPath);
 const printGuardHintSource = readRequired(printGuardHintPath);
+const preprintSummarySource = readRequired(preprintSummaryPath);
 const stylesSource = readRequired(stylesPath);
 const levelStylesSource = readRequired(levelStylesPath);
 const issueSummaryStylesSource = readRequired(issueSummaryStylesPath);
@@ -227,6 +229,26 @@ if (printGuardHintSource) {
 
   for (const [snippet, message] of requiredPrintGuardSnippets) {
     if (!printGuardHintSource.includes(snippet)) {
+      errors.push(message);
+    }
+  }
+}
+
+if (preprintSummarySource) {
+  const requiredPreprintSummarySnippets = [
+    ['const errorItems = items.filter((item) => item.classList.contains(\'error\'))', 'assets/js/preprintSummary.js: сводка должна отдельно собирать ошибки качества'],
+    ['const warningItems = items.filter((item) => item.classList.contains(\'warn\'))', 'assets/js/preprintSummary.js: сводка должна отдельно собирать важные замечания'],
+    ['errorTitles: getIssueTitles(errorItems)', 'assets/js/preprintSummary.js: не найдены названия ошибок в сводке печати'],
+    ['warningTitles: getIssueTitles(warningItems)', 'assets/js/preprintSummary.js: не найдены названия предупреждений в сводке печати'],
+    ['function getIssueTitles(items)', 'assets/js/preprintSummary.js: не найден helper названий замечаний'],
+    ['.slice(0, 3)', 'assets/js/preprintSummary.js: сводка должна ограничивать список названий замечаний'],
+    ['function formatIssueTitles(titles)', 'assets/js/preprintSummary.js: не найден формат названий замечаний'],
+    ['Критичные замечания: ${quality.errors}.${formatIssueTitles(quality.errorTitles)}', 'assets/js/preprintSummary.js: критичные замечания должны выводиться с названиями'],
+    ['Важные замечания: ${quality.warnings}.${formatIssueTitles(quality.warningTitles)}', 'assets/js/preprintSummary.js: важные замечания должны выводиться с названиями']
+  ];
+
+  for (const [snippet, message] of requiredPreprintSummarySnippets) {
+    if (!preprintSummarySource.includes(snippet)) {
       errors.push(message);
     }
   }

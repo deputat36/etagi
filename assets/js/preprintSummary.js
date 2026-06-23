@@ -68,6 +68,7 @@ import { getLayoutExtra, getRawLayoutExtra } from './layoutExtras.js';
   function getMainRiskList(quality) {
     const risks = [];
     const phone = value('agentPhone');
+    const phoneInfo = getPhoneInfo(phone);
     const contactEnabled = checked('showContact') || checked('tearOffs');
     const qrEnabled = checked('showQr');
     const qrLink = value('qrLink');
@@ -79,6 +80,14 @@ import { getLayoutExtra, getRawLayoutExtra } from './layoutExtras.js';
 
     if (contactEnabled && !phone) {
       risks.push('Не указан телефон для отклика.');
+    }
+
+    if (contactEnabled && phone && !phoneInfo.isLikelyPhone) {
+      risks.push('Телефон выглядит неполным или ошибочным. Проверьте номер перед печатью.');
+    }
+
+    if (phoneInfo.hasExtensionText) {
+      risks.push('В поле телефона есть лишний текст. Для отрывных листков лучше оставить только номер.');
     }
 
     if (checked('showContact') && !contactCta) {
@@ -124,6 +133,7 @@ import { getLayoutExtra, getRawLayoutExtra } from './layoutExtras.js';
     const quality = getQualityInfo();
     const risks = getMainRiskList(quality);
     const phone = value('agentPhone');
+    const phoneInfo = getPhoneInfo(phone);
     const headline = value('headline') || value('layoutName') || 'Без заголовка';
     const area = value('area') || 'не указан';
     const printCount = printCountValue() || 'не выбрано';
@@ -142,7 +152,7 @@ import { getLayoutExtra, getRawLayoutExtra } from './layoutExtras.js';
         </div>
         <div class="print-summary__grid">
           ${row('Заголовок', headline)}
-          ${row('Телефон', phone || 'не указан', phone ? 'ok' : 'bad')}
+          ${row('Телефон', phone || 'не указан', phone && phoneInfo.isLikelyPhone ? 'ok' : 'bad')}
           ${row('Район / адрес', area)}
           ${row('На листе', `${printCount} макетов`)}
           ${row('Деление', selectedText('splitMode') || 'автоматически')}
@@ -179,6 +189,17 @@ import { getLayoutExtra, getRawLayoutExtra } from './layoutExtras.js';
         if (dialog.open) renderPrintSummary();
       }).observe(dialog, { attributes: true, attributeFilter: ['open'] });
     }
+  }
+
+  function getPhoneInfo(value) {
+    const clean = String(value || '').trim();
+    const digits = clean.replace(/\D/g, '');
+    const letters = clean.replace(/[\d\s()+\-.]/g, '');
+    return {
+      digits,
+      isLikelyPhone: digits.length >= 10 && digits.length <= 15,
+      hasExtensionText: Boolean(letters.trim())
+    };
   }
 
   document.addEventListener('DOMContentLoaded', init);

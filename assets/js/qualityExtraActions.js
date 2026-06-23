@@ -32,6 +32,7 @@ import { cleanPhoneValue } from './phone.js';
     { title: 'Призыв длинный для мини-макета', action: 'shortContactCta', label: 'Сократить призыв' },
     { title: 'Нет явного призыва', action: 'descriptionCta', label: 'Добавить призыв' },
     { title: 'Мало причин позвонить', action: 'benefits', label: 'Добавить выгоды' },
+    { title: 'Много преимуществ для мини-макета', action: 'shortBenefits', label: 'Оставить 3 выгоды' },
     { title: 'Не указан контекст', action: 'focusContext', label: 'Указать район' },
     { title: 'Нет снятия опасения', action: 'trustSignal', label: 'Добавить доверие' },
     { title: 'Нет подписи отрывных листков', action: 'tearLabel', label: 'Заполнить подпись' },
@@ -87,6 +88,7 @@ import { cleanPhoneValue } from './phone.js';
     if (action === 'shortContactCta') setContactCta(shortContactCta());
     if (action === 'descriptionCta') addDescriptionSentence(QUICK_FIX_CTA, 'Призыв добавлен в описание.');
     if (action === 'benefits') setBenefits();
+    if (action === 'shortBenefits') trimBenefits();
     if (action === 'focusContext') focusContextField();
     if (action === 'trustSignal') addDescriptionSentence(TRUST_PHRASE, 'Фраза доверия добавлена в описание.');
     if (action === 'tearLabel') setTearLabel(DEFAULT_TEAR_LABEL);
@@ -143,6 +145,15 @@ import { cleanPhoneValue } from './phone.js';
     });
     setInputValue(input, nextLines.slice(0, 4).join('\n'));
     setStatus('Выгоды добавлены. Проверьте, что они подходят к вашему макету.');
+  }
+
+  function trimBenefits() {
+    const input = document.getElementById('benefits');
+    if (!input) return;
+
+    const lines = String(input.value || '').split('\n').map((line) => line.trim()).filter(Boolean);
+    setInputValue(input, lines.slice(0, 3).join('\n'));
+    setStatus('Список преимуществ сокращён до трёх строк для мини-макета.');
   }
 
   function focusContextField() {

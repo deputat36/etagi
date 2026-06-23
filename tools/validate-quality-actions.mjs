@@ -227,6 +227,42 @@ if (qualitySource && actionsSource) {
       message: 'assets/js/qualityExtraActions.js: дополнительный блок должен сокращаться до безопасной длины'
     },
     {
+      snippet: "{ title: 'Параметры занимают много места', action: 'simplifyMeta', label: 'Оставить главное' }",
+      message: 'assets/js/qualityExtraActions.js: не найдено быстрое упрощение параметров плотной печати'
+    },
+    {
+      snippet: "if (action === 'simplifyMeta') simplifyMeta()",
+      message: 'assets/js/qualityExtraActions.js: действие simplifyMeta должно упрощать параметры'
+    },
+    {
+      snippet: 'function simplifyMeta()',
+      message: 'assets/js/qualityExtraActions.js: не найден обработчик упрощения параметров'
+    },
+    {
+      snippet: "document.getElementById('params')",
+      message: 'assets/js/qualityExtraActions.js: упрощение параметров должно работать с полем params'
+    },
+    {
+      snippet: "setInputValue(input, '')",
+      message: 'assets/js/qualityExtraActions.js: плотные параметры должны очищать лишнюю строку параметров'
+    },
+    {
+      snippet: "{ title: 'QR включён, но ссылки нет', action: 'disableQr', label: 'Выключить QR' }",
+      message: 'assets/js/qualityExtraActions.js: не найдено быстрое выключение пустого QR'
+    },
+    {
+      snippet: "if (action === 'disableQr') disableQr()",
+      message: 'assets/js/qualityExtraActions.js: действие disableQr должно выключать пустой QR'
+    },
+    {
+      snippet: 'function disableQr()',
+      message: 'assets/js/qualityExtraActions.js: не найден обработчик выключения пустого QR'
+    },
+    {
+      snippet: "setCheckboxValue('showQr', false)",
+      message: 'assets/js/qualityExtraActions.js: пустой QR должен выключаться чекбоксом'
+    },
+    {
       snippet: 'function setCheckboxValue(id, checked)',
       message: 'assets/js/qualityExtraActions.js: не найден общий helper переключения чекбоксов'
     },

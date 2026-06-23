@@ -53,6 +53,8 @@
   }
 
   function focusFirstBlockingIssue() {
+    showErrorFilter();
+
     const issue = document.querySelector('#qualityList .qitem.error');
     if (!issue) return;
 
@@ -67,5 +69,11 @@
     }
 
     window.setTimeout(() => issue.classList.remove('quality-focus-target'), 1800);
+  }
+
+  function showErrorFilter() {
+    const errorFilter = document.querySelector('[data-quality-filter="error"]');
+    if (!errorFilter || errorFilter.hidden || errorFilter.classList.contains('active')) return;
+    errorFilter.click();
   }
 })();

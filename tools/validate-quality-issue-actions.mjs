@@ -144,6 +144,48 @@ if (extraActionsSource) {
     errors.push('assets/js/qualityExtraActions.js: фиксированный предел 54 может создавать новое замечание о длинном заголовке');
   }
 
+  const requiredDescriptionActionSnippets = [
+    {
+      snippet: 'const limit = getDescriptionLimit()',
+      message: 'assets/js/qualityExtraActions.js: добавление фразы в описание должно учитывать безопасную длину'
+    },
+    {
+      snippet: 'const prefixLimit = Math.max(0, limit - sentence.length - 1)',
+      message: 'assets/js/qualityExtraActions.js: место для обязательной фразы должно резервироваться заранее'
+    },
+    {
+      snippet: 'setInputValue(input, shorten(next, limit))',
+      message: 'assets/js/qualityExtraActions.js: итоговое описание должно укладываться в лимит печати'
+    },
+    {
+      snippet: 'function getDescriptionLimit() {',
+      message: 'assets/js/qualityExtraActions.js: не найден расчёт безопасной длины описания'
+    },
+    {
+      snippet: 'if (count >= 6) return 150',
+      message: 'assets/js/qualityExtraActions.js: для 6–8 макетов описание должно быть не длиннее 150 знаков'
+    },
+    {
+      snippet: 'if (count >= 4) return 260',
+      message: 'assets/js/qualityExtraActions.js: для четырёх макетов описание должно быть не длиннее 260 знаков'
+    },
+    {
+      snippet: 'return Number.POSITIVE_INFINITY',
+      message: 'assets/js/qualityExtraActions.js: для 1–2 макетов быстрое исправление не должно без причины обрезать описание'
+    }
+  ];
+
+  for (const item of requiredDescriptionActionSnippets) {
+    if (!extraActionsSource.includes(item.snippet)) {
+      errors.push(item.message);
+    }
+  }
+
+  const unsafeDescriptionAppend = 'const next = current && !includesText(current, sentence) ? `${current} ${sentence}` : current || sentence';
+  if (extraActionsSource.includes(unsafeDescriptionAppend)) {
+    errors.push('assets/js/qualityExtraActions.js: безусловное дописывание фразы может перегрузить описание плотного макета');
+  }
+
   const requiredBenefitActionSnippets = [
     {
       snippet: 'function setBenefits() {',

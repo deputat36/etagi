@@ -9,11 +9,23 @@ import { cleanPhoneValue } from './phone.js';
     'Помощь с документами',
     'Консультация по цене'
   ];
+  const HEADLINE_BY_GOAL = {
+    seller: 'Куплю недвижимость',
+    buyer: 'Есть покупатель',
+    object: 'Продам объект',
+    newbuild: 'Подберу новостройку',
+    service: 'Помогу с недвижимостью',
+    rent: 'Помогу с арендой',
+    brand: 'СПН по недвижимости',
+    private: 'Частное объявление о недвижимости'
+  };
   const DEFAULT_TEAR_LABEL = getLayoutExtraField('tearOffLabel')?.fallback || 'Недвижимость';
   const DEFAULT_BRAND_NAME = getLayoutExtraField('brandName')?.fallback || 'Этажи';
   const DEFAULT_BRAND_SIDE = getLayoutExtraField('brandSideText')?.fallback || 'etagi.com';
 
   const actions = [
+    { title: 'Заголовок не продаёт', action: 'strongHeadline', label: 'Усилить заголовок' },
+    { title: 'Слабый крючок в заголовке', action: 'strongHeadline', label: 'Усилить заголовок' },
     { title: 'Нет призыва в контактах', action: 'contactCta', label: 'Заполнить призыв' },
     { title: 'Слабый призыв в контактах', action: 'contactCta', label: 'Усилить призыв' },
     { title: 'Длинный призыв в контактах', action: 'shortContactCta', label: 'Сократить призыв' },
@@ -70,6 +82,7 @@ import { cleanPhoneValue } from './phone.js';
     if (!button) return;
 
     const action = button.dataset.extraQualityFix;
+    if (action === 'strongHeadline') setStrongHeadline();
     if (action === 'contactCta') setContactCta(QUICK_FIX_CTA);
     if (action === 'shortContactCta') setContactCta(shortContactCta());
     if (action === 'descriptionCta') addDescriptionSentence(QUICK_FIX_CTA, 'Призыв добавлен в описание.');
@@ -80,6 +93,25 @@ import { cleanPhoneValue } from './phone.js';
     if (action === 'shortTearLabel') setTearLabel(shortTearLabel());
     if (action === 'shortBrand') setShortBrand();
     if (action === 'cleanPhone') cleanPhone();
+  }
+
+  function setStrongHeadline() {
+    const input = document.getElementById('headline');
+    if (!input) return;
+
+    enableCheckbox('showHeadline');
+    setInputValue(input, shorten(getHeadlineSuggestion(), 54));
+    setStatus('Заголовок усилен. Проверьте, что он подходит к задаче.');
+  }
+
+  function getHeadlineSuggestion() {
+    const activeGoal = document.querySelector('[data-goal].active')?.dataset.goal || '';
+    const base = HEADLINE_BY_GOAL[activeGoal] || 'Помогу с недвижимостью';
+    const area = String(document.getElementById('area')?.value || '').trim();
+    const propertyType = String(document.getElementById('propertyType')?.value || '').trim();
+    const context = [propertyType, area].filter(Boolean).join(' в ');
+
+    return context ? `${base}: ${context}` : base;
   }
 
   function setContactCta(text) {

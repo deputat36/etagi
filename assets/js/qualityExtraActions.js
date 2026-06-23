@@ -79,10 +79,9 @@ import { cleanPhoneValue } from './phone.js';
 
   function handleBuiltInFixClick(event) {
     const button = event.target.closest('[data-fix]');
-    if (!button) return;
+    if (!button || button.dataset.fix !== 'phone') return;
 
-    if (button.dataset.fix === 'phone') window.setTimeout(focusPhoneField, 180);
-    if (button.dataset.fix === 'shortQr') window.setTimeout(focusQrField, 180);
+    window.setTimeout(focusPhoneField, 180);
   }
 
   function handleClick(event) {

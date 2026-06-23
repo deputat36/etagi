@@ -51,7 +51,7 @@
 - задание на расклейку для исполнителя;
 - отчёт после расклейки и фиксация результата;
 - HTML-центр помощи для СПН;
-- проверки шаблонов, JS, связей файлов, сохранений, версий, changelog, расширенных полей и helper телефона через `npm run validate`.
+- проверки шаблонов, JS, связей файлов, сохранений, версий, changelog, расширенных полей, helper телефона и действий замечаний качества через `npm run validate`.
 
 ## Структура
 
@@ -105,10 +105,17 @@ help/call-script.html                   скрипт обработки откл
 help/lead-qualification.html            квалификация отклика
 help/follow-up.html                     план повторного контакта
 help/results-analysis.html              анализ результатов расклейки
+docs/spn-quick-start.md                 быстрый старт для СПН
+docs/field-test-checklist.md            чек-лист полевого теста расклеек
+docs/template-authoring-guide.md        как добавлять шаблоны
+docs/maintenance-guide.md               как сопровождать проект
+docs/changelog.md                       история изменений
+docs/audit-and-improvement-plan.md      аудит и план развития
 tools/validate-templates.mjs            проверка шаблонов
 tools/validate-js.mjs                   проверка JS
 tools/validate-assets.mjs               проверка связей файлов
 tools/validate-quality-actions.mjs      проверка быстрых исправлений
+tools/validate-quality-issue-actions.mjs проверка действий замечаний качества
 tools/validate-storage-safety.mjs       проверка защиты браузерных сохранений
 tools/validate-version-sync.mjs         проверка синхронизации версий
 tools/validate-package-scripts.mjs      проверка подключения validate-скриптов
@@ -132,6 +139,7 @@ npm run validate:templates
 npm run validate:js
 npm run validate:assets
 npm run validate:quality-actions
+npm run validate:quality-issue-actions
 npm run validate:storage-safety
 npm run validate:version-sync
 npm run validate:package-scripts

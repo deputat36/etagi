@@ -171,6 +171,22 @@ if (qualitySource && actionsSource) {
       message: 'assets/js/qualityExtraActions.js: действие benefits должно добавлять выгоды'
     },
     {
+      snippet: "{ title: 'Много преимуществ для мини-макета', action: 'shortBenefits', label: 'Оставить 3 выгоды' }",
+      message: 'assets/js/qualityExtraActions.js: не найдено быстрое исправление длинного списка преимуществ'
+    },
+    {
+      snippet: "if (action === 'shortBenefits') trimBenefits()",
+      message: 'assets/js/qualityExtraActions.js: действие shortBenefits должно сокращать список преимуществ'
+    },
+    {
+      snippet: 'function trimBenefits()',
+      message: 'assets/js/qualityExtraActions.js: не найден обработчик сокращения преимуществ'
+    },
+    {
+      snippet: 'lines.slice(0, 3).join(\'\\n\')',
+      message: 'assets/js/qualityExtraActions.js: список преимуществ должен сокращаться до трёх строк'
+    },
+    {
       snippet: "if (action === 'focusContext') focusContextField()",
       message: 'assets/js/qualityExtraActions.js: действие focusContext должно переводить к полю контекста'
     },

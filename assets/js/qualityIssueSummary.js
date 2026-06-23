@@ -12,6 +12,7 @@
     if (!list) return;
 
     ensureSummaryElement();
+    document.getElementById('qualityIssueSummary')?.addEventListener('click', handleSummaryClick);
     new MutationObserver(updateSummary).observe(list, { childList: true, subtree: true });
     updateSummary();
   }
@@ -42,7 +43,16 @@
     }
 
     summary.innerHTML = counts
-      .map((item) => `<span class="quality-summary-chip quality-summary-${item.key}">${item.label}: ${item.count}</span>`)
+      .filter((item) => item.count > 0)
+      .map((item) => `<button type="button" class="quality-summary-chip quality-summary-${item.key}" data-quality-summary-filter="${item.key}" aria-label="Показать замечания: ${item.label}">${item.label}: ${item.count}</button>`)
       .join('');
+  }
+
+  function handleSummaryClick(event) {
+    const button = event.target.closest('[data-quality-summary-filter]');
+    if (!button) return;
+
+    const filterButton = document.querySelector(`[data-quality-filter="${button.dataset.qualitySummaryFilter}"]`);
+    if (filterButton && !filterButton.hidden) filterButton.click();
   }
 })();

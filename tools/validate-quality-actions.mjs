@@ -5,14 +5,18 @@ const rootDir = process.cwd();
 const appPath = path.join(rootDir, 'assets/js/app.js');
 const qualityPath = path.join(rootDir, 'assets/js/quality.js');
 const actionsPath = path.join(rootDir, 'assets/js/qualityExtraActions.js');
+const levelLabelsPath = path.join(rootDir, 'assets/js/qualityLevelLabels.js');
 const stylesPath = path.join(rootDir, 'assets/css/ui-improvements.css');
+const levelStylesPath = path.join(rootDir, 'assets/css/quality-level-labels.css');
 const indexPath = path.join(rootDir, 'index.html');
 const errors = [];
 
 const appSource = readRequired(appPath);
 const qualitySource = readRequired(qualityPath);
 const actionsSource = readRequired(actionsPath);
+const levelLabelsSource = readRequired(levelLabelsPath);
 const stylesSource = readRequired(stylesPath);
+const levelStylesSource = readRequired(levelStylesPath);
 const indexSource = readRequired(indexPath);
 
 if (qualitySource && actionsSource) {
@@ -134,6 +138,23 @@ if (appSource) {
   }
 }
 
+if (levelLabelsSource) {
+  const requiredLevelLabelSnippets = [
+    ['error: \'Ошибка\'', 'assets/js/qualityLevelLabels.js: не найдена метка Ошибка'],
+    ['warn: \'Важно\'', 'assets/js/qualityLevelLabels.js: не найдена метка Важно'],
+    ['tip: \'Совет\'', 'assets/js/qualityLevelLabels.js: не найдена метка Совет'],
+    ['new MutationObserver(enhanceQualityItems)', 'assets/js/qualityLevelLabels.js: метки должны обновляться после перерендера списка'],
+    ['item.querySelector(\'.quality-level\')', 'assets/js/qualityLevelLabels.js: нет защиты от повторной вставки меток'],
+    ['quality-level-${level}', 'assets/js/qualityLevelLabels.js: не найден CSS-класс уровня замечания']
+  ];
+
+  for (const [snippet, message] of requiredLevelLabelSnippets) {
+    if (!levelLabelsSource.includes(snippet)) {
+      errors.push(message);
+    }
+  }
+}
+
 if (stylesSource) {
   for (const className of ['.quality-fix-btn', '.quality-extra-fix-btn']) {
     if (!stylesSource.includes(className)) {
@@ -142,8 +163,18 @@ if (stylesSource) {
   }
 }
 
+if (levelStylesSource) {
+  for (const className of ['.quality-level', '.quality-level-error', '.quality-level-warn', '.quality-level-tip']) {
+    if (!levelStylesSource.includes(className)) {
+      errors.push(`assets/css/quality-level-labels.css: не найден стиль ${className}`);
+    }
+  }
+}
+
 if (indexSource) {
   const requiredScripts = [
+    'assets/js/app.js',
+    'assets/js/qualityLevelLabels.js',
     'assets/js/spnContactEditor.js',
     'assets/js/spnTearOffEditor.js',
     'assets/js/spnBrandEditor.js',
@@ -156,8 +187,21 @@ if (indexSource) {
     }
   }
 
-  if (!indexSource.includes('href="assets/css/ui-improvements.css"')) {
-    errors.push('index.html: не подключён assets/css/ui-improvements.css');
+  const requiredStyles = [
+    'assets/css/ui-improvements.css',
+    'assets/css/quality-level-labels.css'
+  ];
+
+  for (const style of requiredStyles) {
+    if (!indexSource.includes(`href="${style}"`)) {
+      errors.push(`index.html: не подключён ${style}`);
+    }
+  }
+
+  const appIndex = indexSource.indexOf('src="assets/js/app.js"');
+  const labelsIndex = indexSource.indexOf('src="assets/js/qualityLevelLabels.js"');
+  if (appIndex >= 0 && labelsIndex >= 0 && labelsIndex < appIndex) {
+    errors.push('index.html: qualityLevelLabels.js должен подключаться после app.js');
   }
 
   const brandIndex = indexSource.indexOf('src="assets/js/spnBrandEditor.js"');

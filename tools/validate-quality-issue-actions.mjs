@@ -115,6 +115,35 @@ if (appSource) {
 }
 
 if (extraActionsSource) {
+  const requiredHeadlineActionSnippets = [
+    {
+      snippet: 'setInputValue(input, shorten(getHeadlineSuggestion(), getHeadlineLimit()))',
+      message: 'assets/js/qualityExtraActions.js: усиленный заголовок должен учитывать плотность печати'
+    },
+    {
+      snippet: 'function getHeadlineLimit() {',
+      message: 'assets/js/qualityExtraActions.js: не найден расчёт безопасной длины заголовка'
+    },
+    {
+      snippet: "document.querySelector('[data-count].active')?.dataset.count",
+      message: 'assets/js/qualityExtraActions.js: длина заголовка должна учитывать активное количество макетов на А4'
+    },
+    {
+      snippet: 'return count >= 6 ? 38 : 48',
+      message: 'assets/js/qualityExtraActions.js: для 6–8 макетов нужен предел 38, для остальных — 48 знаков'
+    }
+  ];
+
+  for (const item of requiredHeadlineActionSnippets) {
+    if (!extraActionsSource.includes(item.snippet)) {
+      errors.push(item.message);
+    }
+  }
+
+  if (extraActionsSource.includes('shorten(getHeadlineSuggestion(), 54)')) {
+    errors.push('assets/js/qualityExtraActions.js: фиксированный предел 54 может создавать новое замечание о длинном заголовке');
+  }
+
   const requiredBenefitActionSnippets = [
     {
       snippet: 'function setBenefits() {',

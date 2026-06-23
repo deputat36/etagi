@@ -13,7 +13,8 @@
     "validate:package-scripts": "node tools/validate-package-scripts.mjs",
     "validate:changelog": "node tools/validate-changelog.mjs",
     "validate:layout-extras": "node tools/validate-layout-extras.mjs",
-    "validate": "npm run validate:templates && npm run validate:js && npm run validate:assets && npm run validate:quality-actions && npm run validate:storage-safety && npm run validate:version-sync && npm run validate:package-scripts && npm run validate:changelog && npm run validate:layout-extras"
+    "validate:phone-helper": "node tools/validate-phone-helper.mjs",
+    "validate": "npm run validate:templates && npm run validate:js && npm run validate:assets && npm run validate:quality-actions && npm run validate:storage-safety && npm run validate:version-sync && npm run validate:package-scripts && npm run validate:changelog && npm run validate:layout-extras && npm run validate:phone-helper"
   },
   "engines": {
     "node": ">=20"

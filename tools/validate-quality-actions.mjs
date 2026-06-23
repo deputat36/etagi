@@ -56,6 +56,43 @@ if (qualitySource && actionsSource) {
       errors.push(`assets/js/qualityExtraActions.js: действие не обработано в handleClick — ${actionName}`);
     }
   }
+
+  const requiredActionWiring = [
+    {
+      snippet: "document.addEventListener('DOMContentLoaded', init)",
+      message: 'assets/js/qualityExtraActions.js: модуль должен запускаться после загрузки DOM'
+    },
+    {
+      snippet: "list.addEventListener('click', handleClick)",
+      message: 'assets/js/qualityExtraActions.js: не найден обработчик клика быстрых исправлений'
+    },
+    {
+      snippet: 'new MutationObserver(enhanceQualityList)',
+      message: 'assets/js/qualityExtraActions.js: не найдено наблюдение за обновлением списка замечаний'
+    },
+    {
+      snippet: "item.querySelector('[data-extra-quality-fix]')",
+      message: 'assets/js/qualityExtraActions.js: нет защиты от повторной вставки кнопок'
+    },
+    {
+      snippet: 'data-extra-quality-fix=',
+      message: 'assets/js/qualityExtraActions.js: кнопки должны иметь data-extra-quality-fix'
+    },
+    {
+      snippet: 'type=\"button\"',
+      message: 'assets/js/qualityExtraActions.js: кнопки быстрых исправлений должны быть type="button"'
+    },
+    {
+      snippet: 'escapeHtml(config.label)',
+      message: 'assets/js/qualityExtraActions.js: подпись кнопки должна экранироваться перед вставкой в HTML'
+    }
+  ];
+
+  for (const item of requiredActionWiring) {
+    if (!actionsSource.includes(item.snippet)) {
+      errors.push(item.message);
+    }
+  }
 }
 
 if (indexSource) {

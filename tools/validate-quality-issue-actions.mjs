@@ -82,8 +82,20 @@ if (appSource) {
       message: 'assets/js/app.js: не найден общий helper очистки фирменности'
     },
     {
-      snippet: "replace(/этажи|etagi/ig,'')",
-      message: 'assets/js/app.js: очистка фирменности должна удалять Этажи и etagi'
+      snippet: '.replace(/(^|[\\s,.;:!—-]+)(этажи|etagi)(?=$|[\\s,.;:!—-]+)/ig, \' \')',
+      message: 'assets/js/app.js: очистка фирменности должна удалять Этажи и etagi вместе с лишними разделителями'
+    },
+    {
+      snippet: ".replace(/\\s+([,.;:!?])/g, '$1')",
+      message: 'assets/js/app.js: очистка фирменности должна убирать пробелы перед знаками препинания'
+    },
+    {
+      snippet: '.replace(/^[\\s,.;:!—-]+|[\\s,.;:!—-]+$/g, \'\')',
+      message: 'assets/js/app.js: очистка фирменности должна убирать разделители по краям текста'
+    },
+    {
+      snippet: ".replace(/\\s{2,}/g, ' ')",
+      message: 'assets/js/app.js: очистка фирменности должна схлопывать двойные пробелы'
     }
   ];
 

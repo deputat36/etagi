@@ -173,12 +173,19 @@ if (issueSummarySource) {
     ["{ key: 'error', label: 'Ошибки' }", 'assets/js/qualityIssueSummary.js: не найден счётчик ошибок'],
     ["{ key: 'warn', label: 'Важно' }", 'assets/js/qualityIssueSummary.js: не найден счётчик важных замечаний'],
     ["{ key: 'tip', label: 'Советы' }", 'assets/js/qualityIssueSummary.js: не найден счётчик советов'],
-    ['ensureSummaryElement()', 'assets/js/qualityIssueSummary.js: не найдено создание блока сводки'],
+    ['document.getElementById(\'qualityIssueSummary\')?.addEventListener(\'click\', handleSummaryClick)', 'assets/js/qualityIssueSummary.js: сводка должна обрабатывать клики по чипам'],
     ['new MutationObserver(updateSummary)', 'assets/js/qualityIssueSummary.js: сводка должна обновляться после перерендера списка'],
     ['id="qualityIssueSummary"', 'assets/js/qualityIssueSummary.js: не найден id блока сводки'],
     ['aria-live="polite"', 'assets/js/qualityIssueSummary.js: сводка должна быть доступна для экранных читалок'],
     ['quality-summary-good', 'assets/js/qualityIssueSummary.js: не найдено состояние без замечаний'],
-    ['list.querySelectorAll(`.qitem.${level.key}`)', 'assets/js/qualityIssueSummary.js: счётчики должны брать уровни из DOM-замечаний']
+    ['list.querySelectorAll(`.qitem.${level.key}`)', 'assets/js/qualityIssueSummary.js: счётчики должны брать уровни из DOM-замечаний'],
+    ['.filter((item) => item.count > 0)', 'assets/js/qualityIssueSummary.js: сводка не должна показывать нулевые чипы'],
+    ['<button type="button" class="quality-summary-chip', 'assets/js/qualityIssueSummary.js: чипы сводки должны быть кнопками'],
+    ['data-quality-summary-filter="${item.key}"', 'assets/js/qualityIssueSummary.js: чипы сводки должны иметь data-quality-summary-filter'],
+    ['aria-label="Показать замечания: ${item.label}"', 'assets/js/qualityIssueSummary.js: кнопки сводки должны иметь aria-label'],
+    ['function handleSummaryClick(event)', 'assets/js/qualityIssueSummary.js: не найден обработчик клика сводки'],
+    ['document.querySelector(`[data-quality-filter="${button.dataset.qualitySummaryFilter}"]`)', 'assets/js/qualityIssueSummary.js: клик по сводке должен искать соответствующий фильтр'],
+    ['filterButton.click()', 'assets/js/qualityIssueSummary.js: клик по сводке должен включать фильтр замечаний']
   ];
 
   for (const [snippet, message] of requiredIssueSummarySnippets) {
@@ -304,6 +311,7 @@ if (issueSummaryStylesSource) {
   const requiredIssueSummaryClasses = [
     '.quality-issue-summary',
     '.quality-summary-chip',
+    '.quality-summary-chip:hover',
     '.quality-summary-error',
     '.quality-summary-warn',
     '.quality-summary-tip',

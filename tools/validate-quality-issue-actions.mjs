@@ -39,6 +39,10 @@ if (qualitySource) {
       message: 'assets/js/quality.js: проверка частного режима должна учитывать только реально включённую бренд-строку'
     },
     {
+      snippet: '${state.description} ${state.benefits} ${state.customBlockTitle}',
+      message: 'assets/js/quality.js: проверка фирменности должна смотреть преимущества между описанием и доп. блоком'
+    },
+    {
       snippet: '${state.customBlockTitle} ${state.customBlockText} ${visibleBrandText}',
       message: 'assets/js/quality.js: проверка фирменности должна смотреть доп. блок и видимую бренд-строку'
     }
@@ -60,6 +64,10 @@ if (appSource) {
     {
       snippet: 'state.description = cleanBrandText(state.description)',
       message: 'assets/js/app.js: очистка фирменности должна чистить описание'
+    },
+    {
+      snippet: 'state.benefits = cleanBrandText(state.benefits)',
+      message: 'assets/js/app.js: очистка фирменности должна чистить преимущества'
     },
     {
       snippet: 'state.customBlockTitle = cleanBrandText(state.customBlockTitle)',

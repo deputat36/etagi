@@ -11,6 +11,14 @@ const requiredConsumers = [
   'assets/js/preprintSummary.js',
   'assets/js/qualityExtraActions.js'
 ];
+const extensionMarkers = [
+  'доб\\.?',
+  'добавочн\\S*',
+  'доп\\.?',
+  'вн\\.?',
+  'ext\\.?',
+  'extension'
+];
 
 const phoneSource = readRequired(phoneHelperPath);
 if (phoneSource) {
@@ -52,6 +60,15 @@ for (const filePath of collectJsFiles(jsDir)) {
   const source = fs.readFileSync(filePath, 'utf8');
   if (/function\s+getPhoneInfo\s*\(/.test(source)) {
     errors.push(`${relativePath}: локальная функция getPhoneInfo запрещена, используйте assets/js/phone.js`);
+  }
+  if (/function\s+cleanPhoneValue\s*\(/.test(source)) {
+    errors.push(`${relativePath}: локальная функция cleanPhoneValue запрещена, используйте assets/js/phone.js`);
+  }
+  for (const marker of extensionMarkers) {
+    if (source.includes(marker)) {
+      errors.push(`${relativePath}: правила удаления добавочного номера должны храниться только в assets/js/phone.js`);
+      break;
+    }
   }
 }
 

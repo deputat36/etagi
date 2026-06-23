@@ -55,11 +55,27 @@ import { getPhoneInfo } from './phone.js';
   function getQualityInfo() {
     const score = byId('qualityScore')?.textContent?.trim() || 'не проверено';
     const items = Array.from(document.querySelectorAll('#qualityList .qitem'));
+    const errorItems = items.filter((item) => item.classList.contains('error'));
+    const warningItems = items.filter((item) => item.classList.contains('warn'));
+
     return {
       score,
-      errors: items.filter((item) => item.classList.contains('error')).length,
-      warnings: items.filter((item) => item.classList.contains('warn')).length
+      errors: errorItems.length,
+      warnings: warningItems.length,
+      errorTitles: getIssueTitles(errorItems),
+      warningTitles: getIssueTitles(warningItems)
     };
+  }
+
+  function getIssueTitles(items) {
+    return items
+      .map((item) => item.querySelector('b')?.textContent?.trim() || '')
+      .filter(Boolean)
+      .slice(0, 3);
+  }
+
+  function formatIssueTitles(titles) {
+    return titles.length ? ` Первые: ${titles.join('; ')}.` : '';
   }
 
   function hasRenderedPhoto() {
@@ -112,11 +128,11 @@ import { getPhoneInfo } from './phone.js';
     }
 
     if (quality.errors > 0) {
-      risks.push('Есть критичные замечания в контроле качества.');
+      risks.push(`Критичные замечания: ${quality.errors}.${formatIssueTitles(quality.errorTitles)}`);
     }
 
     if (quality.warnings > 0) {
-      risks.push(`Есть предупреждения: ${quality.warnings}. Проверьте их перед печатью.`);
+      risks.push(`Важные замечания: ${quality.warnings}.${formatIssueTitles(quality.warningTitles)}`);
     }
 
     return risks;

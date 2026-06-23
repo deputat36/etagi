@@ -391,7 +391,9 @@ function runQuality(show){
 }
 function issueHtml(i){
   const labels = {phone:'Ввести телефон', bigPhone:'Увеличить телефон', shortHeadline:'Сократить заголовок', shortDesc:'Сократить описание', noPhoto:'Убрать фото', onePhoto:'Оставить 1 фото', twoOnPage:'Сделать 2 на А4', shortQr:'Проверить QR', cleanBrand:'Убрать фирменность', showContact:'Вернуть контакты', showHeadline:'Вернуть заголовок', showCustomBlock:'Включить доп. блок', showCutLines:'Включить линии реза', showSafeMargins:'Включить безопасные поля', autoFix:'Исправить автоматически'};
-  return `<div class="qitem ${i.level}"><b>${esc(i.title)}</b>${esc(i.text)}${labels[i.action]?`<br><button type="button" data-fix="${i.action}">${labels[i.action]}</button>`:''}</div>`;
+  const label = labels[i.action];
+  const ariaLabel = label ? `Исправить: ${i.title}` : '';
+  return `<div class="qitem ${i.level}"><b>${esc(i.title)}</b>${esc(i.text)}${label?`<br><button type="button" class="quality-fix-btn" data-fix="${i.action}" aria-label="${esc(ariaLabel)}">${esc(label)}</button>`:''}</div>`;
 }
 function applyFix(action){
   if(action === 'phone') $('agentPhone').focus();

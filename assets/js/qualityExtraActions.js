@@ -43,7 +43,8 @@ import { cleanPhoneValue } from './phone.js';
       const config = actions.find((entry) => entry.title === title);
       if (!config) return;
 
-      item.insertAdjacentHTML('beforeend', `<br><button type="button" data-extra-quality-fix="${config.action}">${escapeHtml(config.label)}</button>`);
+      const ariaLabel = `Исправить: ${title}`;
+      item.insertAdjacentHTML('beforeend', `<br><button type="button" class="quality-extra-fix-btn" data-extra-quality-fix="${config.action}" aria-label="${escapeHtml(ariaLabel)}">${escapeHtml(config.label)}</button>`);
     });
   }
 

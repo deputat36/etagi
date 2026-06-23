@@ -7,6 +7,7 @@ const qualityPath = path.join(rootDir, 'assets/js/quality.js');
 const actionsPath = path.join(rootDir, 'assets/js/qualityExtraActions.js');
 const levelLabelsPath = path.join(rootDir, 'assets/js/qualityLevelLabels.js');
 const issueSummaryPath = path.join(rootDir, 'assets/js/qualityIssueSummary.js');
+const priorityHintPath = path.join(rootDir, 'assets/js/qualityPriorityHint.js');
 const stylesPath = path.join(rootDir, 'assets/css/ui-improvements.css');
 const levelStylesPath = path.join(rootDir, 'assets/css/quality-level-labels.css');
 const issueSummaryStylesPath = path.join(rootDir, 'assets/css/quality-issue-summary.css');
@@ -18,6 +19,7 @@ const qualitySource = readRequired(qualityPath);
 const actionsSource = readRequired(actionsPath);
 const levelLabelsSource = readRequired(levelLabelsPath);
 const issueSummarySource = readRequired(issueSummaryPath);
+const priorityHintSource = readRequired(priorityHintPath);
 const stylesSource = readRequired(stylesPath);
 const levelStylesSource = readRequired(levelStylesPath);
 const issueSummaryStylesSource = readRequired(issueSummaryStylesPath);
@@ -180,6 +182,27 @@ if (issueSummarySource) {
   }
 }
 
+if (priorityHintSource) {
+  const requiredPriorityHintSnippets = [
+    ['const priorities = [', 'assets/js/qualityPriorityHint.js: не найден порядок приоритетов замечаний'],
+    ["{ key: 'error', label: 'Сначала исправьте ошибку' }", 'assets/js/qualityPriorityHint.js: не найден приоритет ошибок'],
+    ["{ key: 'warn', label: 'Потом важное замечание' }", 'assets/js/qualityPriorityHint.js: не найден приоритет важных замечаний'],
+    ["{ key: 'tip', label: 'Затем можно улучшить' }", 'assets/js/qualityPriorityHint.js: не найден приоритет советов'],
+    ['new MutationObserver(updatePriority)', 'assets/js/qualityPriorityHint.js: подсказка должна обновляться после перерендера списка'],
+    ['id="qualityPriorityHint"', 'assets/js/qualityPriorityHint.js: не найден id блока приоритетной подсказки'],
+    ['aria-live="polite"', 'assets/js/qualityPriorityHint.js: подсказка должна быть доступна для экранных читалок'],
+    ['getTopPriority(list)', 'assets/js/qualityPriorityHint.js: не найден выбор первого важного замечания'],
+    ['list.querySelector(`.qitem.${priority.key}`)', 'assets/js/qualityPriorityHint.js: приоритет должен выбираться из DOM-замечаний'],
+    ['escapeHtml(priority.title)', 'assets/js/qualityPriorityHint.js: заголовок замечания должен экранироваться перед вставкой в HTML']
+  ];
+
+  for (const [snippet, message] of requiredPriorityHintSnippets) {
+    if (!priorityHintSource.includes(snippet)) {
+      errors.push(message);
+    }
+  }
+}
+
 if (stylesSource) {
   for (const className of ['.quality-fix-btn', '.quality-extra-fix-btn']) {
     if (!stylesSource.includes(className)) {
@@ -203,7 +226,12 @@ if (issueSummaryStylesSource) {
     '.quality-summary-error',
     '.quality-summary-warn',
     '.quality-summary-tip',
-    '.quality-summary-good'
+    '.quality-summary-good',
+    '.quality-priority-hint',
+    '.quality-priority-hint.error',
+    '.quality-priority-hint.warn',
+    '.quality-priority-hint.tip',
+    '.quality-priority-hint.good'
   ];
 
   for (const className of requiredIssueSummaryClasses) {
@@ -218,6 +246,7 @@ if (indexSource) {
     'assets/js/app.js',
     'assets/js/qualityLevelLabels.js',
     'assets/js/qualityIssueSummary.js',
+    'assets/js/qualityPriorityHint.js',
     'assets/js/spnContactEditor.js',
     'assets/js/spnTearOffEditor.js',
     'assets/js/spnBrandEditor.js',
@@ -245,6 +274,7 @@ if (indexSource) {
   const appIndex = indexSource.indexOf('src="assets/js/app.js"');
   const labelsIndex = indexSource.indexOf('src="assets/js/qualityLevelLabels.js"');
   const summaryIndex = indexSource.indexOf('src="assets/js/qualityIssueSummary.js"');
+  const priorityIndex = indexSource.indexOf('src="assets/js/qualityPriorityHint.js"');
   if (appIndex >= 0 && labelsIndex >= 0 && labelsIndex < appIndex) {
     errors.push('index.html: qualityLevelLabels.js должен подключаться после app.js');
   }
@@ -253,6 +283,9 @@ if (indexSource) {
   }
   if (labelsIndex >= 0 && summaryIndex >= 0 && summaryIndex < labelsIndex) {
     errors.push('index.html: qualityIssueSummary.js должен подключаться после qualityLevelLabels.js');
+  }
+  if (summaryIndex >= 0 && priorityIndex >= 0 && priorityIndex < summaryIndex) {
+    errors.push('index.html: qualityPriorityHint.js должен подключаться после qualityIssueSummary.js');
   }
 
   const brandIndex = indexSource.indexOf('src="assets/js/spnBrandEditor.js"');

@@ -409,7 +409,14 @@ function applyFix(action){
   if(action === 'showCustomBlock') state.showCustomBlock = true;
   if(action === 'showCutLines') state.showCutLines = true;
   if(action === 'showSafeMargins') state.safePrintMargins = true;
-  if(action === 'cleanBrand') { state.colorMode='private'; state.showBrand=false; state.headline=state.headline.replace(/этажи/ig,'').trim(); state.description=state.description.replace(/этажи/ig,'').trim(); }
+  if(action === 'cleanBrand') {
+    state.colorMode = 'private';
+    state.showBrand = false;
+    state.headline = cleanBrandText(state.headline);
+    state.description = cleanBrandText(state.description);
+    state.customBlockTitle = cleanBrandText(state.customBlockTitle);
+    state.customBlockText = cleanBrandText(state.customBlockText);
+  }
   if(action === 'autoFix') state = applyLayoutMode(state, 'auto');
   state.blockOrder = normalizeBlockOrder(state.blockOrder);
   state.layoutMode = action === 'autoFix' ? 'auto' : 'manual';
@@ -458,6 +465,9 @@ function shorten(text, max){
   const s = String(text || '').trim();
   if(s.length <= max) return s;
   return s.slice(0, max-3).replace(/[\s,.;:!-]+$/,'') + '...';
+}
+function cleanBrandText(text){
+  return String(text || '').replace(/этажи|etagi/ig,'').replace(/\s{2,}/g,' ').trim();
 }
 function printFlow(){
   const q = runQuality(true);

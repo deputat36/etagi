@@ -10,6 +10,7 @@
       printBtn.dataset.originalLabel = printBtn.textContent.trim() || 'Печать / PDF';
     }
 
+    printBtn.addEventListener('click', handlePrintClick);
     new MutationObserver(updatePrintState).observe(list, { childList: true, subtree: true });
     updatePrintState();
   }
@@ -42,5 +43,29 @@
 
     printBtn.removeAttribute('title');
     printBtn.setAttribute('aria-label', originalLabel);
+  }
+
+  function handlePrintClick() {
+    const printBtn = document.getElementById('printBtn');
+    if (!printBtn?.classList.contains('print-blocked')) return;
+
+    setTimeout(focusFirstBlockingIssue, 0);
+  }
+
+  function focusFirstBlockingIssue() {
+    const issue = document.querySelector('#qualityList .qitem.error');
+    if (!issue) return;
+
+    issue.setAttribute('tabindex', '-1');
+    issue.classList.add('quality-focus-target');
+    issue.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    issue.focus({ preventScroll: true });
+
+    const status = document.getElementById('statusLine');
+    if (status) {
+      status.textContent = 'Исправьте выделенное замечание, затем снова нажмите «Печать / PDF».';
+    }
+
+    window.setTimeout(() => issue.classList.remove('quality-focus-target'), 1800);
   }
 })();

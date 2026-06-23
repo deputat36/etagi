@@ -154,7 +154,7 @@ import { cleanPhoneValue } from './phone.js';
     DEFAULT_BENEFITS.forEach((line) => {
       if (!nextLines.some((current) => includesText(current, line))) nextLines.push(line);
     });
-    setInputValue(input, nextLines.slice(0, 4).join('\n'));
+    setInputValue(input, nextLines.slice(0, 3).join('\n'));
     setStatus('Выгоды добавлены. Проверьте, что они подходят к вашему макету.');
   }
 

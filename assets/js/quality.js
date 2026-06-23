@@ -7,6 +7,7 @@ export function checkQuality(state, sheet){
   const issues = [];
   const count = Number(state.printCount) || 2;
   const phone = String(state.agentPhone || '').trim();
+  const phoneInfo = getPhoneInfo(phone);
   const contactCta = getLayoutExtra(state, 'contactCta');
   const tearOffLabel = getLayoutExtra(state, 'tearOffLabel');
   const brandName = getLayoutExtra(state, 'brandName');
@@ -24,8 +25,10 @@ export function checkQuality(state, sheet){
 
   if(!state.showContact && !state.tearOffs && !(state.showQr && state.qrLink)) issues.push({level:'warn', title:'Нет канала отклика', text:'В макете нет контактов, отрывных телефонов и QR. Для расклейки это почти всегда ошибка.', action:'showContact'});
   if((state.showContact || state.tearOffs) && !phone) issues.push({level:'error', title:'Нет телефона для отклика', text:'Телефон обязателен, если включены контакты или отрывные листочки. Без номера макет печатать нельзя.', action:'phone'});
-  if(state.showContact && phone && Number(state.phoneScale) < 1.1) issues.push({level:'warn', title:'Телефон мелковат', text:'Для расклейки номер должен читаться издалека.', action:'bigPhone'});
-  if(count >= 6 && state.showContact && phone && Number(state.phoneScale) < 1.3) issues.push({level:'warn', title:'Телефон мелкий для плотной печати', text:'Для 6–8 макетов на А4 телефон лучше сделать крупнее, иначе его сложнее прочитать после печати.', action:'bigPhone'});
+  if((state.showContact || state.tearOffs) && phone && !phoneInfo.isLikelyPhone) issues.push({level:'error', title:'Телефон похож на ошибочный', text:'Проверьте номер: для печати лучше указать полный номер с кодом, например +7 900 000-00-00.', action:'phone'});
+  if(phoneInfo.hasExtensionText) issues.push({level:'tip', title:'В поле телефона есть лишний текст', text:'Для читаемости на отрывных листках лучше оставить только номер телефона, без пояснений и комментариев.', action:'phone'});
+  if(state.showContact && phone && phoneInfo.isLikelyPhone && Number(state.phoneScale) < 1.1) issues.push({level:'warn', title:'Телефон мелковат', text:'Для расклейки номер должен читаться издалека.', action:'bigPhone'});
+  if(count >= 6 && state.showContact && phone && phoneInfo.isLikelyPhone && Number(state.phoneScale) < 1.3) issues.push({level:'warn', title:'Телефон мелкий для плотной печати', text:'Для 6–8 макетов на А4 телефон лучше сделать крупнее, иначе его сложнее прочитать после печати.', action:'bigPhone'});
   if(state.showContact && !contactCta) issues.push({level:'tip', title:'Нет призыва в контактах', text:'Под телефоном лучше оставить короткую фразу: зачем звонить и что человек получит.', action:null});
   if(state.showContact && contactCta && !hasCallToAction(normalizeText(contactCta))) issues.push({level:'tip', title:'Слабый призыв в контактах', text:'В контактной строке лучше прямо написать: позвоните, напишите, уточните, обсудим или подскажу.', action:null});
   if(state.showContact && contactCtaLen > 85 && count >= 4) issues.push({level:'warn', title:'Длинный призыв в контактах', text:'Для 4+ макетов на А4 контактный призыв лучше сократить, чтобы телефон оставался главным.', action:null});
@@ -96,6 +99,16 @@ function addSellingChecks(issues, state, text, benefitsCount){
   if(!hasTrustSignal(text)) issues.push({level:'tip', title:'Нет снятия опасения', text:'Добавьте мягкую формулировку: без давления, без обязательств, по делу, объясню простым языком.', action:null});
 }
 
+function getPhoneInfo(value){
+  const clean = String(value || '').trim();
+  const digits = clean.replace(/\D/g, '');
+  const letters = clean.replace(/[\d\s()+\-.]/g, '');
+  return {
+    digits,
+    isLikelyPhone: digits.length >= 10 && digits.length <= 15,
+    hasExtensionText: Boolean(letters.trim())
+  };
+}
 function hasCallToAction(text){
   return /позвон|напиш|звон|обсуд|узна|уточн|получ|остав|свяж|спрос|покаж|подска/.test(text);
 }

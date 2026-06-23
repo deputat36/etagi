@@ -38,11 +38,13 @@ import { cleanPhoneValue } from './phone.js';
     { title: 'Дополнительный блок пустой', action: 'disableCustomBlock', label: 'Выключить блок' },
     { title: 'Длинный дополнительный блок', action: 'shortCustomBlock', label: 'Сократить блок' },
     { title: 'Дополнительный блок перегружает мини-макет', action: 'shortCustomBlock', label: 'Сократить блок' },
+    { title: 'Параметры занимают много места', action: 'simplifyMeta', label: 'Оставить главное' },
     { title: 'Нет подписи отрывных листков', action: 'tearLabel', label: 'Заполнить подпись' },
     { title: 'Длинная подпись отрывных листков', action: 'shortTearLabel', label: 'Сократить подпись' },
     { title: 'Подпись отрывных длинная для мини-макета', action: 'shortTearLabel', label: 'Сократить подпись' },
     { title: 'Брендовая строка длинновата', action: 'shortBrand', label: 'Укоротить бренд' },
     { title: 'Бренд перегружает мини-макет', action: 'shortBrand', label: 'Укоротить бренд' },
+    { title: 'QR включён, но ссылки нет', action: 'disableQr', label: 'Выключить QR' },
     { title: 'В поле телефона есть лишний текст', action: 'cleanPhone', label: 'Оставить только номер' }
   ];
 
@@ -96,9 +98,11 @@ import { cleanPhoneValue } from './phone.js';
     if (action === 'trustSignal') addDescriptionSentence(TRUST_PHRASE, 'Фраза доверия добавлена в описание.');
     if (action === 'disableCustomBlock') disableCustomBlock();
     if (action === 'shortCustomBlock') trimCustomBlock();
+    if (action === 'simplifyMeta') simplifyMeta();
     if (action === 'tearLabel') setTearLabel(DEFAULT_TEAR_LABEL);
     if (action === 'shortTearLabel') setTearLabel(shortTearLabel());
     if (action === 'shortBrand') setShortBrand();
+    if (action === 'disableQr') disableQr();
     if (action === 'cleanPhone') cleanPhone();
   }
 
@@ -172,6 +176,19 @@ import { cleanPhoneValue } from './phone.js';
 
     setInputValue(input, shorten(input.value, 70));
     setStatus('Дополнительный блок сокращён для плотной печати.');
+  }
+
+  function simplifyMeta() {
+    const input = document.getElementById('params');
+    if (!input) return;
+
+    setInputValue(input, '');
+    setStatus('Параметры очищены: для плотной печати оставлены район и тип объекта.');
+  }
+
+  function disableQr() {
+    setCheckboxValue('showQr', false);
+    setStatus('Пустой QR выключен.');
   }
 
   function focusContextField() {

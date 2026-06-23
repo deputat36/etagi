@@ -4,11 +4,13 @@ import path from 'node:path';
 const rootDir = process.cwd();
 const qualityPath = path.join(rootDir, 'assets/js/quality.js');
 const actionsPath = path.join(rootDir, 'assets/js/qualityExtraActions.js');
+const stylesPath = path.join(rootDir, 'assets/css/ui-improvements.css');
 const indexPath = path.join(rootDir, 'index.html');
 const errors = [];
 
 const qualitySource = readRequired(qualityPath);
 const actionsSource = readRequired(actionsPath);
+const stylesSource = readRequired(stylesPath);
 const indexSource = readRequired(indexPath);
 
 if (qualitySource && actionsSource) {
@@ -103,6 +105,10 @@ if (qualitySource && actionsSource) {
   }
 }
 
+if (stylesSource && !stylesSource.includes('.quality-extra-fix-btn')) {
+  errors.push('assets/css/ui-improvements.css: не найден стиль .quality-extra-fix-btn');
+}
+
 if (indexSource) {
   const requiredScripts = [
     'assets/js/spnContactEditor.js',
@@ -115,6 +121,10 @@ if (indexSource) {
     if (!indexSource.includes(`src="${script}"`)) {
       errors.push(`index.html: не подключён ${script}`);
     }
+  }
+
+  if (!indexSource.includes('href="assets/css/ui-improvements.css"')) {
+    errors.push('index.html: не подключён assets/css/ui-improvements.css');
   }
 
   const brandIndex = indexSource.indexOf('src="assets/js/spnBrandEditor.js"');

@@ -25,6 +25,7 @@ import { getLayoutExtra, getLayoutExtraField, setLayoutExtraValue } from './layo
     const list = document.getElementById('qualityList');
     if (!list) return;
 
+    list.addEventListener('click', handleBuiltInFixClick, true);
     list.addEventListener('click', handleClick);
     new MutationObserver(enhanceQualityList).observe(list, { childList: true, subtree: true });
     enhanceQualityList();
@@ -43,6 +44,13 @@ import { getLayoutExtra, getLayoutExtraField, setLayoutExtraValue } from './layo
 
       item.insertAdjacentHTML('beforeend', `<br><button type="button" data-extra-quality-fix="${config.action}">${escapeHtml(config.label)}</button>`);
     });
+  }
+
+  function handleBuiltInFixClick(event) {
+    const button = event.target.closest('[data-fix]');
+    if (!button || button.dataset.fix !== 'phone') return;
+
+    window.setTimeout(focusPhoneField, 180);
   }
 
   function handleClick(event) {
@@ -97,9 +105,18 @@ import { getLayoutExtra, getLayoutExtraField, setLayoutExtraValue } from './layo
     input.value = cleaned;
     input.dispatchEvent(new Event('input', { bubbles: true }));
     input.dispatchEvent(new Event('change', { bubbles: true }));
+    focusPhoneField();
+    setStatus('Из поля телефона убран лишний текст. Проверьте номер глазами.');
+  }
+
+  function focusPhoneField() {
+    const input = document.getElementById('agentPhone');
+    if (!input) return;
+
     input.focus();
     input.select?.();
-    setStatus('Из поля телефона убран лишний текст. Проверьте номер глазами.');
+    input.scrollIntoView?.({ block: 'center', behavior: 'smooth' });
+    setStatus('Введите или проверьте телефон. Для печати лучше полный номер с кодом.');
   }
 
   function shortContactCta() {

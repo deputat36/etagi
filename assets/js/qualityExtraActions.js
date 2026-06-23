@@ -45,6 +45,7 @@ import { cleanPhoneValue } from './phone.js';
     { title: 'Брендовая строка длинновата', action: 'shortBrand', label: 'Укоротить бренд' },
     { title: 'Бренд перегружает мини-макет', action: 'shortBrand', label: 'Укоротить бренд' },
     { title: 'QR включён, но ссылки нет', action: 'disableQr', label: 'Выключить QR' },
+    { title: 'Ссылка для QR слишком длинная', action: 'shortQrLink', label: 'Заменить ссылку' },
     { title: 'В поле телефона есть лишний текст', action: 'cleanPhone', label: 'Оставить только номер' }
   ];
 
@@ -78,9 +79,10 @@ import { cleanPhoneValue } from './phone.js';
 
   function handleBuiltInFixClick(event) {
     const button = event.target.closest('[data-fix]');
-    if (!button || button.dataset.fix !== 'phone') return;
+    if (!button) return;
 
-    window.setTimeout(focusPhoneField, 180);
+    if (button.dataset.fix === 'phone') window.setTimeout(focusPhoneField, 180);
+    if (button.dataset.fix === 'shortQr') window.setTimeout(focusQrField, 180);
   }
 
   function handleClick(event) {
@@ -103,6 +105,7 @@ import { cleanPhoneValue } from './phone.js';
     if (action === 'shortTearLabel') setTearLabel(shortTearLabel());
     if (action === 'shortBrand') setShortBrand();
     if (action === 'disableQr') disableQr();
+    if (action === 'shortQrLink') focusQrField();
     if (action === 'cleanPhone') cleanPhone();
   }
 
@@ -189,6 +192,16 @@ import { cleanPhoneValue } from './phone.js';
   function disableQr() {
     setCheckboxValue('showQr', false);
     setStatus('Пустой QR выключен.');
+  }
+
+  function focusQrField() {
+    const input = document.getElementById('qrLink');
+    if (!input) return;
+
+    input.focus();
+    input.select?.();
+    input.scrollIntoView?.({ block: 'center', behavior: 'smooth' });
+    setStatus('Вставьте короткую ссылку для QR: длинные ссылки встроенный QR не печатает надёжно.');
   }
 
   function focusContextField() {

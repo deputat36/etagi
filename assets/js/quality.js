@@ -72,7 +72,7 @@ export function checkQuality(state, sheet){
     if(count >= 6) issues.push({level:'warn', title:'QR слишком мал для мини-макета', text:'Для 6–8 макетов на А4 QR лучше убрать или печатать меньше объявлений на листе.', action:'twoOnPage'});
   }
 
-  if(state.colorMode === 'private' && /этажи|etagi/i.test(`${state.headline} ${state.description} ${state.customBlockTitle} ${state.customBlockText} ${visibleBrandText}`)) issues.push({level:'warn', title:'Частное объявление с фирменностью', text:'В частном режиме лучше убрать упоминание компании.', action:'cleanBrand'});
+  if(state.colorMode === 'private' && /этажи|etagi/i.test(`${state.headline} ${state.description} ${state.benefits} ${state.customBlockTitle} ${state.customBlockText} ${visibleBrandText}`)) issues.push({level:'warn', title:'Частное объявление с фирменностью', text:'В частном режиме лучше убрать упоминание компании.', action:'cleanBrand'});
 
   const overflow = [...sheet.querySelectorAll('.flyer')].some(f=>f.classList.contains('overflow'));
   if(overflow) issues.push({level:'error', title:'Текст не помещается', text:'В одном или нескольких макетах есть переполнение.', action:'autoFix'});

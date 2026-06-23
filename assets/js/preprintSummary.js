@@ -1,5 +1,6 @@
 import './layoutExtrasSync.js';
 import { getLayoutExtra, getRawLayoutExtra } from './layoutExtras.js';
+import { getPhoneInfo } from './phone.js';
 
 (function () {
   function byId(id) {
@@ -189,17 +190,6 @@ import { getLayoutExtra, getRawLayoutExtra } from './layoutExtras.js';
         if (dialog.open) renderPrintSummary();
       }).observe(dialog, { attributes: true, attributeFilter: ['open'] });
     }
-  }
-
-  function getPhoneInfo(value) {
-    const clean = String(value || '').trim();
-    const digits = clean.replace(/\D/g, '');
-    const letters = clean.replace(/[\d\s()+\-.]/g, '');
-    return {
-      digits,
-      isLikelyPhone: digits.length >= 10 && digits.length <= 15,
-      hasExtensionText: Boolean(letters.trim())
-    };
   }
 
   document.addEventListener('DOMContentLoaded', init);

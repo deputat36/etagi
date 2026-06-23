@@ -13,14 +13,25 @@ const indexSource = readRequired(indexPath);
 
 if (qualitySource && actionsSource) {
   const actionTitles = [...actionsSource.matchAll(/title:\s*['"]([^'"]+)['"]/g)].map(match => match[1]);
+  const actionNames = [...actionsSource.matchAll(/action:\s*['"]([^'"]+)['"]/g)].map(match => match[1]);
 
   if (!actionTitles.length) {
     errors.push('assets/js/qualityExtraActions.js: не найдены заголовки быстрых исправлений');
   }
 
+  if (!actionNames.length) {
+    errors.push('assets/js/qualityExtraActions.js: не найдены действия быстрых исправлений');
+  }
+
   for (const title of actionTitles) {
     if (!qualitySource.includes(`title:'${title}'`) && !qualitySource.includes(`title: '${title}'`)) {
       errors.push(`assets/js/qualityExtraActions.js: заголовок не найден в quality.js — ${title}`);
+    }
+  }
+
+  for (const actionName of [...new Set(actionNames)]) {
+    if (!actionsSource.includes(`action === '${actionName}'`) && !actionsSource.includes(`action === "${actionName}"`)) {
+      errors.push(`assets/js/qualityExtraActions.js: действие не обработано в handleClick — ${actionName}`);
     }
   }
 }

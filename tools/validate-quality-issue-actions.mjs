@@ -23,6 +23,12 @@ if (qualitySource) {
       expectedAction: 'null',
       forbiddenAction: "'showCustomBlock'",
       message: 'перегруженный дополнительный блок должен исправляться только кнопкой сокращения, без штатной кнопки включения блока'
+    },
+    {
+      title: 'Ссылка для QR слишком длинная',
+      expectedAction: 'null',
+      forbiddenAction: "'shortQr'",
+      message: 'длинная QR-ссылка должна исправляться одной понятной кнопкой замены ссылки, без дублирующей штатной кнопки'
     }
   ];
 

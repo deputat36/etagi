@@ -8,6 +8,7 @@ const actionsPath = path.join(rootDir, 'assets/js/qualityExtraActions.js');
 const levelLabelsPath = path.join(rootDir, 'assets/js/qualityLevelLabels.js');
 const issueSummaryPath = path.join(rootDir, 'assets/js/qualityIssueSummary.js');
 const priorityHintPath = path.join(rootDir, 'assets/js/qualityPriorityHint.js');
+const printGuardHintPath = path.join(rootDir, 'assets/js/qualityPrintGuardHint.js');
 const stylesPath = path.join(rootDir, 'assets/css/ui-improvements.css');
 const levelStylesPath = path.join(rootDir, 'assets/css/quality-level-labels.css');
 const issueSummaryStylesPath = path.join(rootDir, 'assets/css/quality-issue-summary.css');
@@ -20,6 +21,7 @@ const actionsSource = readRequired(actionsPath);
 const levelLabelsSource = readRequired(levelLabelsPath);
 const issueSummarySource = readRequired(issueSummaryPath);
 const priorityHintSource = readRequired(priorityHintPath);
+const printGuardHintSource = readRequired(printGuardHintPath);
 const stylesSource = readRequired(stylesPath);
 const levelStylesSource = readRequired(levelStylesPath);
 const issueSummaryStylesSource = readRequired(issueSummaryStylesPath);
@@ -203,8 +205,28 @@ if (priorityHintSource) {
   }
 }
 
+if (printGuardHintSource) {
+  const requiredPrintGuardSnippets = [
+    ["const printBtn = document.getElementById('printBtn')", 'assets/js/qualityPrintGuardHint.js: не найдена кнопка печати'],
+    ['printBtn.dataset.originalLabel', 'assets/js/qualityPrintGuardHint.js: исходная подпись кнопки должна сохраняться'],
+    ['new MutationObserver(updatePrintState)', 'assets/js/qualityPrintGuardHint.js: состояние печати должно обновляться после перерендера списка'],
+    ["list.querySelector('.qitem.error')", 'assets/js/qualityPrintGuardHint.js: не найдена проверка критичных ошибок'],
+    ["list.querySelector('.qitem.warn')", 'assets/js/qualityPrintGuardHint.js: не найдена проверка важных замечаний'],
+    ["printBtn.classList.toggle('print-blocked', hasError)", 'assets/js/qualityPrintGuardHint.js: не найден визуальный класс блокировки печати'],
+    ["printBtn.classList.toggle('print-has-warnings', !hasError && hasWarning)", 'assets/js/qualityPrintGuardHint.js: не найден визуальный класс предупреждений печати'],
+    ["printBtn.textContent = 'Исправьте ошибки'", 'assets/js/qualityPrintGuardHint.js: кнопка должна явно говорить об ошибках'],
+    ["printBtn.setAttribute('aria-label'", 'assets/js/qualityPrintGuardHint.js: у состояния печати должен быть aria-label']
+  ];
+
+  for (const [snippet, message] of requiredPrintGuardSnippets) {
+    if (!printGuardHintSource.includes(snippet)) {
+      errors.push(message);
+    }
+  }
+}
+
 if (stylesSource) {
-  for (const className of ['.quality-fix-btn', '.quality-extra-fix-btn']) {
+  for (const className of ['.quality-fix-btn', '.quality-extra-fix-btn', '#printBtn.print-blocked', '#printBtn.print-has-warnings']) {
     if (!stylesSource.includes(className)) {
       errors.push(`assets/css/ui-improvements.css: не найден стиль ${className}`);
     }
@@ -247,6 +269,7 @@ if (indexSource) {
     'assets/js/qualityLevelLabels.js',
     'assets/js/qualityIssueSummary.js',
     'assets/js/qualityPriorityHint.js',
+    'assets/js/qualityPrintGuardHint.js',
     'assets/js/spnContactEditor.js',
     'assets/js/spnTearOffEditor.js',
     'assets/js/spnBrandEditor.js',
@@ -275,6 +298,7 @@ if (indexSource) {
   const labelsIndex = indexSource.indexOf('src="assets/js/qualityLevelLabels.js"');
   const summaryIndex = indexSource.indexOf('src="assets/js/qualityIssueSummary.js"');
   const priorityIndex = indexSource.indexOf('src="assets/js/qualityPriorityHint.js"');
+  const printGuardIndex = indexSource.indexOf('src="assets/js/qualityPrintGuardHint.js"');
   if (appIndex >= 0 && labelsIndex >= 0 && labelsIndex < appIndex) {
     errors.push('index.html: qualityLevelLabels.js должен подключаться после app.js');
   }
@@ -286,6 +310,9 @@ if (indexSource) {
   }
   if (summaryIndex >= 0 && priorityIndex >= 0 && priorityIndex < summaryIndex) {
     errors.push('index.html: qualityPriorityHint.js должен подключаться после qualityIssueSummary.js');
+  }
+  if (priorityIndex >= 0 && printGuardIndex >= 0 && printGuardIndex < priorityIndex) {
+    errors.push('index.html: qualityPrintGuardHint.js должен подключаться после qualityPriorityHint.js');
   }
 
   const brandIndex = indexSource.indexOf('src="assets/js/spnBrandEditor.js"');

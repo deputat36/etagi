@@ -79,8 +79,16 @@ if (qualitySource && actionsSource) {
       message: 'assets/js/qualityExtraActions.js: кнопки должны иметь data-extra-quality-fix'
     },
     {
-      snippet: 'type=\"button\"',
+      snippet: 'type="button"',
       message: 'assets/js/qualityExtraActions.js: кнопки быстрых исправлений должны быть type="button"'
+    },
+    {
+      snippet: 'class="quality-extra-fix-btn"',
+      message: 'assets/js/qualityExtraActions.js: кнопки быстрых исправлений должны иметь отдельный CSS-класс'
+    },
+    {
+      snippet: 'aria-label="${escapeHtml(ariaLabel)}"',
+      message: 'assets/js/qualityExtraActions.js: у кнопок быстрых исправлений должен быть aria-label'
     },
     {
       snippet: 'escapeHtml(config.label)',

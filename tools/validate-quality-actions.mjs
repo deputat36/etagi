@@ -9,6 +9,7 @@ const levelLabelsPath = path.join(rootDir, 'assets/js/qualityLevelLabels.js');
 const issueSummaryPath = path.join(rootDir, 'assets/js/qualityIssueSummary.js');
 const priorityHintPath = path.join(rootDir, 'assets/js/qualityPriorityHint.js');
 const printGuardHintPath = path.join(rootDir, 'assets/js/qualityPrintGuardHint.js');
+const issueFiltersPath = path.join(rootDir, 'assets/js/qualityIssueFilters.js');
 const preprintSummaryPath = path.join(rootDir, 'assets/js/preprintSummary.js');
 const stylesPath = path.join(rootDir, 'assets/css/ui-improvements.css');
 const levelStylesPath = path.join(rootDir, 'assets/css/quality-level-labels.css');
@@ -23,6 +24,7 @@ const levelLabelsSource = readRequired(levelLabelsPath);
 const issueSummarySource = readRequired(issueSummaryPath);
 const priorityHintSource = readRequired(priorityHintPath);
 const printGuardHintSource = readRequired(printGuardHintPath);
+const issueFiltersSource = readRequired(issueFiltersPath);
 const preprintSummarySource = readRequired(preprintSummaryPath);
 const stylesSource = readRequired(stylesPath);
 const levelStylesSource = readRequired(levelStylesPath);
@@ -234,6 +236,30 @@ if (printGuardHintSource) {
   }
 }
 
+if (issueFiltersSource) {
+  const requiredIssueFilterSnippets = [
+    ['const filters = [', 'assets/js/qualityIssueFilters.js: не найден список фильтров замечаний'],
+    ["{ key: 'all', label: 'Все' }", 'assets/js/qualityIssueFilters.js: не найден фильтр всех замечаний'],
+    ["{ key: 'error', label: 'Ошибки' }", 'assets/js/qualityIssueFilters.js: не найден фильтр ошибок'],
+    ["{ key: 'warn', label: 'Важно' }", 'assets/js/qualityIssueFilters.js: не найден фильтр важных замечаний'],
+    ["{ key: 'tip', label: 'Советы' }", 'assets/js/qualityIssueFilters.js: не найден фильтр советов'],
+    ['id="qualityIssueFilters"', 'assets/js/qualityIssueFilters.js: не найден контейнер фильтров'],
+    ['aria-label="Фильтр замечаний качества"', 'assets/js/qualityIssueFilters.js: фильтр должен иметь aria-label'],
+    ['data-quality-filter=', 'assets/js/qualityIssueFilters.js: кнопки фильтра должны иметь data-quality-filter'],
+    ['new MutationObserver(updateFilters)', 'assets/js/qualityIssueFilters.js: фильтры должны обновляться после перерендера списка'],
+    ['button.setAttribute(\'aria-pressed\'', 'assets/js/qualityIssueFilters.js: активная кнопка фильтра должна иметь aria-pressed'],
+    ['button.textContent = `${getFilterLabel(key)} ${count}`', 'assets/js/qualityIssueFilters.js: кнопки фильтра должны показывать счётчики'],
+    ['item.hidden = !visible', 'assets/js/qualityIssueFilters.js: фильтр должен скрывать лишние замечания'],
+    ['function getCounts(items)', 'assets/js/qualityIssueFilters.js: не найден подсчёт замечаний по уровням']
+  ];
+
+  for (const [snippet, message] of requiredIssueFilterSnippets) {
+    if (!issueFiltersSource.includes(snippet)) {
+      errors.push(message);
+    }
+  }
+}
+
 if (preprintSummarySource) {
   const requiredPreprintSummarySnippets = [
     ['const errorItems = items.filter((item) => item.classList.contains(\'error\'))', 'assets/js/preprintSummary.js: сводка должна отдельно собирать ошибки качества'],
@@ -282,7 +308,10 @@ if (issueSummaryStylesSource) {
     '.quality-priority-hint.error',
     '.quality-priority-hint.warn',
     '.quality-priority-hint.tip',
-    '.quality-priority-hint.good'
+    '.quality-priority-hint.good',
+    '.quality-issue-filters',
+    '.quality-issue-filters button',
+    '.quality-issue-filters button.active'
   ];
 
   for (const className of requiredIssueSummaryClasses) {
@@ -299,6 +328,7 @@ if (indexSource) {
     'assets/js/qualityIssueSummary.js',
     'assets/js/qualityPriorityHint.js',
     'assets/js/qualityPrintGuardHint.js',
+    'assets/js/qualityIssueFilters.js',
     'assets/js/spnContactEditor.js',
     'assets/js/spnTearOffEditor.js',
     'assets/js/spnBrandEditor.js',
@@ -328,6 +358,7 @@ if (indexSource) {
   const summaryIndex = indexSource.indexOf('src="assets/js/qualityIssueSummary.js"');
   const priorityIndex = indexSource.indexOf('src="assets/js/qualityPriorityHint.js"');
   const printGuardIndex = indexSource.indexOf('src="assets/js/qualityPrintGuardHint.js"');
+  const filtersIndex = indexSource.indexOf('src="assets/js/qualityIssueFilters.js"');
   if (appIndex >= 0 && labelsIndex >= 0 && labelsIndex < appIndex) {
     errors.push('index.html: qualityLevelLabels.js должен подключаться после app.js');
   }
@@ -342,6 +373,9 @@ if (indexSource) {
   }
   if (priorityIndex >= 0 && printGuardIndex >= 0 && printGuardIndex < priorityIndex) {
     errors.push('index.html: qualityPrintGuardHint.js должен подключаться после qualityPriorityHint.js');
+  }
+  if (printGuardIndex >= 0 && filtersIndex >= 0 && filtersIndex < printGuardIndex) {
+    errors.push('index.html: qualityIssueFilters.js должен подключаться после qualityPrintGuardHint.js');
   }
 
   const brandIndex = indexSource.indexOf('src="assets/js/spnBrandEditor.js"');

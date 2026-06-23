@@ -113,8 +113,13 @@ import { cleanPhoneValue } from './phone.js';
     if (!input) return;
 
     enableCheckbox('showHeadline');
-    setInputValue(input, shorten(getHeadlineSuggestion(), 54));
-    setStatus('Заголовок усилен. Проверьте, что он подходит к задаче.');
+    setInputValue(input, shorten(getHeadlineSuggestion(), getHeadlineLimit()));
+    setStatus('Заголовок усилен и подогнан под плотность печати. Проверьте смысл.');
+  }
+
+  function getHeadlineLimit() {
+    const count = Number(document.querySelector('[data-count].active')?.dataset.count) || 2;
+    return count >= 6 ? 38 : 48;
   }
 
   function getHeadlineSuggestion() {

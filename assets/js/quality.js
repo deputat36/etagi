@@ -1,5 +1,6 @@
 import { getQrInfo } from './qr.js';
 import { getLayoutExtra } from './layoutExtras.js';
+import { getPhoneInfo } from './phone.js';
 
 const CORE_BLOCKS = ['showHeadline','showPrice','showDescription','showMeta','showBenefits','showCustomBlock','showPhoto','showContact'];
 
@@ -99,16 +100,6 @@ function addSellingChecks(issues, state, text, benefitsCount){
   if(!hasTrustSignal(text)) issues.push({level:'tip', title:'Нет снятия опасения', text:'Добавьте мягкую формулировку: без давления, без обязательств, по делу, объясню простым языком.', action:null});
 }
 
-function getPhoneInfo(value){
-  const clean = String(value || '').trim();
-  const digits = clean.replace(/\D/g, '');
-  const letters = clean.replace(/[\d\s()+\-.]/g, '');
-  return {
-    digits,
-    isLikelyPhone: digits.length >= 10 && digits.length <= 15,
-    hasExtensionText: Boolean(letters.trim())
-  };
-}
 function hasCallToAction(text){
   return /позвон|напиш|звон|обсуд|узна|уточн|получ|остав|свяж|спрос|покаж|подска/.test(text);
 }

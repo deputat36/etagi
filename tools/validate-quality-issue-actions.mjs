@@ -4,9 +4,11 @@ import path from 'node:path';
 const rootDir = process.cwd();
 const appPath = path.join(rootDir, 'assets/js/app.js');
 const qualityPath = path.join(rootDir, 'assets/js/quality.js');
+const extraActionsPath = path.join(rootDir, 'assets/js/qualityExtraActions.js');
 const errors = [];
 const appSource = readRequired(appPath);
 const qualitySource = readRequired(qualityPath);
+const extraActionsSource = readRequired(extraActionsPath);
 
 if (qualitySource) {
   const issueActionRules = [
@@ -101,6 +103,45 @@ if (appSource) {
 
   for (const item of requiredCleanBrandSnippets) {
     if (!appSource.includes(item.snippet)) {
+      errors.push(item.message);
+    }
+  }
+}
+
+if (extraActionsSource) {
+  const requiredQrActionSnippets = [
+    {
+      snippet: "{ title: 'Ссылка для QR слишком длинная', action: 'shortQrLink', label: 'Заменить ссылку' }",
+      message: 'assets/js/qualityExtraActions.js: для длинной QR-ссылки нужна отдельная понятная кнопка замены ссылки'
+    },
+    {
+      snippet: "if (button.dataset.fix === 'shortQr') window.setTimeout(focusQrField, 180);",
+      message: 'assets/js/qualityExtraActions.js: штатная кнопка QR должна выделять поле ссылки и показывать подсказку'
+    },
+    {
+      snippet: "if (action === 'shortQrLink') focusQrField();",
+      message: 'assets/js/qualityExtraActions.js: дополнительная QR-кнопка должна вести в поле ссылки'
+    },
+    {
+      snippet: 'function focusQrField() {',
+      message: 'assets/js/qualityExtraActions.js: не найден helper фокуса QR-ссылки'
+    },
+    {
+      snippet: "document.getElementById('qrLink')",
+      message: 'assets/js/qualityExtraActions.js: helper QR должен работать с полем qrLink'
+    },
+    {
+      snippet: 'input.select?.();',
+      message: 'assets/js/qualityExtraActions.js: QR-ссылка должна выделяться для быстрой замены'
+    },
+    {
+      snippet: 'Вставьте короткую ссылку для QR',
+      message: 'assets/js/qualityExtraActions.js: статус должен объяснять, что нужна короткая ссылка'
+    }
+  ];
+
+  for (const item of requiredQrActionSnippets) {
+    if (!extraActionsSource.includes(item.snippet)) {
       errors.push(item.message);
     }
   }

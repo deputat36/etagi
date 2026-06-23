@@ -48,8 +48,9 @@
     const items = Array.from(list.querySelectorAll('.qitem'));
     const counts = getCounts(items);
 
-    if (!counts.total) {
+    if (!counts.total || isReadyOnly(items)) {
       root.hidden = true;
+      items.forEach((item) => { item.hidden = false; });
       return;
     }
 
@@ -78,6 +79,10 @@
       warn: items.filter((item) => item.classList.contains('warn')).length,
       tip: items.filter((item) => item.classList.contains('tip')).length
     };
+  }
+
+  function isReadyOnly(items) {
+    return items.length === 1 && items[0].textContent.includes('Макет готов');
   }
 
   function getFilterLabel(key) {

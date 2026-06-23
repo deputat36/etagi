@@ -113,6 +113,38 @@ if (qualitySource && actionsSource) {
     {
       snippet: 'escapeHtml(config.label)',
       message: 'assets/js/qualityExtraActions.js: подпись кнопки должна экранироваться перед вставкой в HTML'
+    },
+    {
+      snippet: 'const TRUST_PHRASE =',
+      message: 'assets/js/qualityExtraActions.js: не найдена безопасная фраза доверия'
+    },
+    {
+      snippet: 'const DEFAULT_BENEFITS = [',
+      message: 'assets/js/qualityExtraActions.js: не найден список типовых выгод'
+    },
+    {
+      snippet: 'addDescriptionSentence(QUICK_FIX_CTA',
+      message: 'assets/js/qualityExtraActions.js: быстрый призыв должен добавляться в описание'
+    },
+    {
+      snippet: "if (action === 'benefits') setBenefits()",
+      message: 'assets/js/qualityExtraActions.js: действие benefits должно добавлять выгоды'
+    },
+    {
+      snippet: "if (action === 'focusContext') focusContextField()",
+      message: 'assets/js/qualityExtraActions.js: действие focusContext должно переводить к полю контекста'
+    },
+    {
+      snippet: 'addDescriptionSentence(TRUST_PHRASE',
+      message: 'assets/js/qualityExtraActions.js: фраза доверия должна добавляться в описание'
+    },
+    {
+      snippet: 'function setInputValue(input, value)',
+      message: 'assets/js/qualityExtraActions.js: не найден helper безопасного обновления полей формы'
+    },
+    {
+      snippet: "input.dispatchEvent(new Event('input', { bubbles: true }))",
+      message: 'assets/js/qualityExtraActions.js: обновление полей должно запускать input-событие'
     }
   ];
 

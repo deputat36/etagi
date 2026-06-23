@@ -144,9 +144,19 @@ import { cleanPhoneValue } from './phone.js';
 
     enableCheckbox('showDescription');
     const current = String(input.value || '').trim();
-    const next = current && !includesText(current, sentence) ? `${current} ${sentence}` : current || sentence;
-    setInputValue(input, next);
+    const limit = getDescriptionLimit();
+    const prefixLimit = Math.max(0, limit - sentence.length - 1);
+    const prefix = current && !includesText(current, sentence) ? shorten(current, prefixLimit) : current;
+    const next = current && !includesText(current, sentence) ? `${prefix} ${sentence}`.trim() : current || sentence;
+    setInputValue(input, shorten(next, limit));
     setStatus(statusText);
+  }
+
+  function getDescriptionLimit() {
+    const count = Number(document.querySelector('[data-count].active')?.dataset.count) || 2;
+    if (count >= 6) return 150;
+    if (count >= 4) return 260;
+    return Number.POSITIVE_INFINITY;
   }
 
   function setBenefits() {

@@ -115,6 +115,46 @@ if (qualitySource && actionsSource) {
       message: 'assets/js/qualityExtraActions.js: подпись кнопки должна экранироваться перед вставкой в HTML'
     },
     {
+      snippet: 'const HEADLINE_BY_GOAL = {',
+      message: 'assets/js/qualityExtraActions.js: не найдена карта заголовков по задачам'
+    },
+    {
+      snippet: "{ title: 'Заголовок не продаёт', action: 'strongHeadline', label: 'Усилить заголовок' }",
+      message: 'assets/js/qualityExtraActions.js: не найдено быстрое исправление непродающего заголовка'
+    },
+    {
+      snippet: "{ title: 'Слабый крючок в заголовке', action: 'strongHeadline', label: 'Усилить заголовок' }",
+      message: 'assets/js/qualityExtraActions.js: не найдено быстрое исправление слабого крючка заголовка'
+    },
+    {
+      snippet: "if (action === 'strongHeadline') setStrongHeadline()",
+      message: 'assets/js/qualityExtraActions.js: действие strongHeadline должно усиливать заголовок'
+    },
+    {
+      snippet: 'function setStrongHeadline()',
+      message: 'assets/js/qualityExtraActions.js: не найден обработчик усиления заголовка'
+    },
+    {
+      snippet: 'setInputValue(input, shorten(getHeadlineSuggestion(), 54))',
+      message: 'assets/js/qualityExtraActions.js: заголовок должен обновляться через обычные события формы'
+    },
+    {
+      snippet: 'function getHeadlineSuggestion()',
+      message: 'assets/js/qualityExtraActions.js: не найден подбор заголовка по данным макета'
+    },
+    {
+      snippet: "document.querySelector('[data-goal].active')?.dataset.goal",
+      message: 'assets/js/qualityExtraActions.js: подбор заголовка должен учитывать текущую задачу'
+    },
+    {
+      snippet: "document.getElementById('area')?.value",
+      message: 'assets/js/qualityExtraActions.js: подбор заголовка должен учитывать район'
+    },
+    {
+      snippet: "document.getElementById('propertyType')?.value",
+      message: 'assets/js/qualityExtraActions.js: подбор заголовка должен учитывать тип объекта'
+    },
+    {
       snippet: 'const TRUST_PHRASE =',
       message: 'assets/js/qualityExtraActions.js: не найдена безопасная фраза доверия'
     },

@@ -15,7 +15,8 @@ import { getLayoutExtra, getLayoutExtraField, setLayoutExtraValue } from './layo
     { title: 'Длинная подпись отрывных листков', action: 'shortTearLabel', label: 'Сократить подпись' },
     { title: 'Подпись отрывных длинная для мини-макета', action: 'shortTearLabel', label: 'Сократить подпись' },
     { title: 'Брендовая строка длинновата', action: 'shortBrand', label: 'Укоротить бренд' },
-    { title: 'Бренд перегружает мини-макет', action: 'shortBrand', label: 'Укоротить бренд' }
+    { title: 'Бренд перегружает мини-макет', action: 'shortBrand', label: 'Укоротить бренд' },
+    { title: 'В поле телефона есть лишний текст', action: 'cleanPhone', label: 'Оставить только номер' }
   ];
 
   document.addEventListener('DOMContentLoaded', init);
@@ -54,6 +55,7 @@ import { getLayoutExtra, getLayoutExtraField, setLayoutExtraValue } from './layo
     if (action === 'tearLabel') setTearLabel(DEFAULT_TEAR_LABEL);
     if (action === 'shortTearLabel') setTearLabel(shortTearLabel());
     if (action === 'shortBrand') setShortBrand();
+    if (action === 'cleanPhone') cleanPhone();
 
     rerunQuality();
   }
@@ -81,6 +83,23 @@ import { getLayoutExtra, getLayoutExtraField, setLayoutExtraValue } from './layo
     setLayoutExtra('brandName', DEFAULT_BRAND_NAME);
     setLayoutExtra('brandSideText', DEFAULT_BRAND_SIDE);
     setStatus('Брендовая строка укорочена.');
+  }
+
+  function cleanPhone() {
+    const input = document.getElementById('agentPhone');
+    if (!input) return;
+
+    const cleaned = String(input.value || '')
+      .replace(/[^\d\s()+\-.]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    input.value = cleaned;
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+    input.focus();
+    input.select?.();
+    setStatus('Из поля телефона убран лишний текст. Проверьте номер глазами.');
   }
 
   function shortContactCta() {

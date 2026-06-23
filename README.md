@@ -41,6 +41,7 @@
 - настоящий QR без внешнего сервера;
 - подсказки по качеству макета;
 - понятные метки замечаний контроля качества: ошибка, важно, совет;
+- короткая сводка количества ошибок, важных замечаний и советов;
 - быстрые исправления замечаний контроля качества;
 - сводка перед печатью с телефоном, форматом листа, QR и главными предупреждениями;
 - задание на расклейку для исполнителя;
@@ -55,6 +56,7 @@ index.html                              главная страница гене
 assets/css/app.css                      основной интерфейс
 assets/css/ui-improvements.css          дополнительные стили интерфейса
 assets/css/quality-level-labels.css     метки уровней замечаний качества
+assets/css/quality-issue-summary.css    сводка количества замечаний качества
 assets/css/preprint-summary.css         сводка перед печатью
 assets/css/print.css                    стили печати А4
 assets/js/app.js                        управление приложением
@@ -74,6 +76,7 @@ assets/js/spnContactEditor.js           редактор контактного 
 assets/js/spnTearOffEditor.js           настройка отрывных телефонов
 assets/js/spnBrandEditor.js             настройка брендовой строки
 assets/js/qualityLevelLabels.js         метки ошибка/важно/совет в контроле качества
+assets/js/qualityIssueSummary.js        счётчики замечаний контроля качества
 assets/js/qualityExtraActions.js        быстрые исправления контроля качества
 assets/js/spnDistributionTaskHelper.js  задание на расклейку
 assets/js/spnDistributionReportHelper.js отчёт после расклейки

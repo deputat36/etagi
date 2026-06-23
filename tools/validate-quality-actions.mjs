@@ -153,6 +153,23 @@ if (qualitySource && actionsSource) {
       errors.push(item.message);
     }
   }
+
+  const forbiddenActionSnippets = [
+    {
+      snippet: "document.getElementById('qualityBtn')?.click()",
+      message: 'assets/js/qualityExtraActions.js: быстрые исправления не должны программно нажимать Проверить качество и перетирать статус'
+    },
+    {
+      snippet: 'function rerunQuality()',
+      message: 'assets/js/qualityExtraActions.js: повторная проверка должна идти через события формы, без отдельного rerunQuality'
+    }
+  ];
+
+  for (const item of forbiddenActionSnippets) {
+    if (actionsSource.includes(item.snippet)) {
+      errors.push(item.message);
+    }
+  }
 }
 
 if (appSource) {

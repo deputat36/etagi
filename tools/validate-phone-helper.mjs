@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 const rootDir = process.cwd();
 const jsDir = path.join(rootDir, 'assets/js');
@@ -21,6 +22,10 @@ if (phoneSource) {
   if (!phoneSource.includes('hasExtensionText')) {
     errors.push('assets/js/phone.js: не найден признак hasExtensionText');
   }
+}
+
+if (phoneSource) {
+  await validatePhoneBehavior();
 }
 
 for (const relativePath of requiredConsumers) {
@@ -50,6 +55,46 @@ if (errors.length) {
 }
 
 console.log('Проверка общего helper телефона пройдена.');
+
+async function validatePhoneBehavior() {
+  let getPhoneInfo;
+  try {
+    ({ getPhoneInfo } = await import(pathToFileURL(phoneHelperPath).href));
+  }
+  catch (error) {
+    errors.push(`assets/js/phone.js: не удалось импортировать helper — ${error.message}`);
+    return;
+  }
+
+  if (typeof getPhoneInfo !== 'function') {
+    errors.push('assets/js/phone.js: getPhoneInfo должен быть функцией');
+    return;
+  }
+
+  const cases = [
+    {
+      value: '+7 900 000-00-00',
+      expected: { digits: '79000000000', isLikelyPhone: true, hasExtensionText: false }
+    },
+    {
+      value: '900',
+      expected: { digits: '900', isLikelyPhone: false, hasExtensionText: false }
+    },
+    {
+      value: '+7 900 000-00-00 доб. 12',
+      expected: { digits: '7900000000012', isLikelyPhone: true, hasExtensionText: true }
+    }
+  ];
+
+  for (const item of cases) {
+    const info = getPhoneInfo(item.value);
+    for (const [key, expectedValue] of Object.entries(item.expected)) {
+      if (info?.[key] !== expectedValue) {
+        errors.push(`assets/js/phone.js: для "${item.value}" ожидалось ${key}=${expectedValue}, получено ${info?.[key]}`);
+      }
+    }
+  }
+}
 
 function collectJsFiles(dir) {
   if (!fs.existsSync(dir)) {

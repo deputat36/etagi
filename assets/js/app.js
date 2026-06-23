@@ -414,6 +414,7 @@ function applyFix(action){
     state.showBrand = false;
     state.headline = cleanBrandText(state.headline);
     state.description = cleanBrandText(state.description);
+    state.benefits = cleanBrandText(state.benefits);
     state.customBlockTitle = cleanBrandText(state.customBlockTitle);
     state.customBlockText = cleanBrandText(state.customBlockText);
   }

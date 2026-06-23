@@ -6,8 +6,10 @@ const appPath = path.join(rootDir, 'assets/js/app.js');
 const qualityPath = path.join(rootDir, 'assets/js/quality.js');
 const actionsPath = path.join(rootDir, 'assets/js/qualityExtraActions.js');
 const levelLabelsPath = path.join(rootDir, 'assets/js/qualityLevelLabels.js');
+const issueSummaryPath = path.join(rootDir, 'assets/js/qualityIssueSummary.js');
 const stylesPath = path.join(rootDir, 'assets/css/ui-improvements.css');
 const levelStylesPath = path.join(rootDir, 'assets/css/quality-level-labels.css');
+const issueSummaryStylesPath = path.join(rootDir, 'assets/css/quality-issue-summary.css');
 const indexPath = path.join(rootDir, 'index.html');
 const errors = [];
 
@@ -15,8 +17,10 @@ const appSource = readRequired(appPath);
 const qualitySource = readRequired(qualityPath);
 const actionsSource = readRequired(actionsPath);
 const levelLabelsSource = readRequired(levelLabelsPath);
+const issueSummarySource = readRequired(issueSummaryPath);
 const stylesSource = readRequired(stylesPath);
 const levelStylesSource = readRequired(levelStylesPath);
+const issueSummaryStylesSource = readRequired(issueSummaryStylesPath);
 const indexSource = readRequired(indexPath);
 
 if (qualitySource && actionsSource) {
@@ -155,6 +159,27 @@ if (levelLabelsSource) {
   }
 }
 
+if (issueSummarySource) {
+  const requiredIssueSummarySnippets = [
+    ['const levels = [', 'assets/js/qualityIssueSummary.js: не найден список уровней замечаний'],
+    ["{ key: 'error', label: 'Ошибки' }", 'assets/js/qualityIssueSummary.js: не найден счётчик ошибок'],
+    ["{ key: 'warn', label: 'Важно' }", 'assets/js/qualityIssueSummary.js: не найден счётчик важных замечаний'],
+    ["{ key: 'tip', label: 'Советы' }", 'assets/js/qualityIssueSummary.js: не найден счётчик советов'],
+    ['ensureSummaryElement()', 'assets/js/qualityIssueSummary.js: не найдено создание блока сводки'],
+    ['new MutationObserver(updateSummary)', 'assets/js/qualityIssueSummary.js: сводка должна обновляться после перерендера списка'],
+    ['id="qualityIssueSummary"', 'assets/js/qualityIssueSummary.js: не найден id блока сводки'],
+    ['aria-live="polite"', 'assets/js/qualityIssueSummary.js: сводка должна быть доступна для экранных читалок'],
+    ['quality-summary-good', 'assets/js/qualityIssueSummary.js: не найдено состояние без замечаний'],
+    ['list.querySelectorAll(`.qitem.${level.key}`)', 'assets/js/qualityIssueSummary.js: счётчики должны брать уровни из DOM-замечаний']
+  ];
+
+  for (const [snippet, message] of requiredIssueSummarySnippets) {
+    if (!issueSummarySource.includes(snippet)) {
+      errors.push(message);
+    }
+  }
+}
+
 if (stylesSource) {
   for (const className of ['.quality-fix-btn', '.quality-extra-fix-btn']) {
     if (!stylesSource.includes(className)) {
@@ -171,10 +196,28 @@ if (levelStylesSource) {
   }
 }
 
+if (issueSummaryStylesSource) {
+  const requiredIssueSummaryClasses = [
+    '.quality-issue-summary',
+    '.quality-summary-chip',
+    '.quality-summary-error',
+    '.quality-summary-warn',
+    '.quality-summary-tip',
+    '.quality-summary-good'
+  ];
+
+  for (const className of requiredIssueSummaryClasses) {
+    if (!issueSummaryStylesSource.includes(className)) {
+      errors.push(`assets/css/quality-issue-summary.css: не найден стиль ${className}`);
+    }
+  }
+}
+
 if (indexSource) {
   const requiredScripts = [
     'assets/js/app.js',
     'assets/js/qualityLevelLabels.js',
+    'assets/js/qualityIssueSummary.js',
     'assets/js/spnContactEditor.js',
     'assets/js/spnTearOffEditor.js',
     'assets/js/spnBrandEditor.js',
@@ -189,7 +232,8 @@ if (indexSource) {
 
   const requiredStyles = [
     'assets/css/ui-improvements.css',
-    'assets/css/quality-level-labels.css'
+    'assets/css/quality-level-labels.css',
+    'assets/css/quality-issue-summary.css'
   ];
 
   for (const style of requiredStyles) {
@@ -200,8 +244,15 @@ if (indexSource) {
 
   const appIndex = indexSource.indexOf('src="assets/js/app.js"');
   const labelsIndex = indexSource.indexOf('src="assets/js/qualityLevelLabels.js"');
+  const summaryIndex = indexSource.indexOf('src="assets/js/qualityIssueSummary.js"');
   if (appIndex >= 0 && labelsIndex >= 0 && labelsIndex < appIndex) {
     errors.push('index.html: qualityLevelLabels.js должен подключаться после app.js');
+  }
+  if (appIndex >= 0 && summaryIndex >= 0 && summaryIndex < appIndex) {
+    errors.push('index.html: qualityIssueSummary.js должен подключаться после app.js');
+  }
+  if (labelsIndex >= 0 && summaryIndex >= 0 && summaryIndex < labelsIndex) {
+    errors.push('index.html: qualityIssueSummary.js должен подключаться после qualityLevelLabels.js');
   }
 
   const brandIndex = indexSource.indexOf('src="assets/js/spnBrandEditor.js"');

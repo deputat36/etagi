@@ -187,6 +187,54 @@ if (qualitySource && actionsSource) {
       message: 'assets/js/qualityExtraActions.js: список преимуществ должен сокращаться до трёх строк'
     },
     {
+      snippet: "{ title: 'Дополнительный блок пустой', action: 'disableCustomBlock', label: 'Выключить блок' }",
+      message: 'assets/js/qualityExtraActions.js: не найдено быстрое выключение пустого дополнительного блока'
+    },
+    {
+      snippet: "{ title: 'Длинный дополнительный блок', action: 'shortCustomBlock', label: 'Сократить блок' }",
+      message: 'assets/js/qualityExtraActions.js: не найдено быстрое исправление длинного дополнительного блока'
+    },
+    {
+      snippet: "{ title: 'Дополнительный блок перегружает мини-макет', action: 'shortCustomBlock', label: 'Сократить блок' }",
+      message: 'assets/js/qualityExtraActions.js: не найдено быстрое исправление перегруженного дополнительного блока'
+    },
+    {
+      snippet: "if (action === 'disableCustomBlock') disableCustomBlock()",
+      message: 'assets/js/qualityExtraActions.js: действие disableCustomBlock должно выключать пустой дополнительный блок'
+    },
+    {
+      snippet: "if (action === 'shortCustomBlock') trimCustomBlock()",
+      message: 'assets/js/qualityExtraActions.js: действие shortCustomBlock должно сокращать дополнительный блок'
+    },
+    {
+      snippet: 'function disableCustomBlock()',
+      message: 'assets/js/qualityExtraActions.js: не найден обработчик выключения пустого дополнительного блока'
+    },
+    {
+      snippet: "setCheckboxValue('showCustomBlock', false)",
+      message: 'assets/js/qualityExtraActions.js: пустой дополнительный блок должен выключаться чекбоксом'
+    },
+    {
+      snippet: 'function trimCustomBlock()',
+      message: 'assets/js/qualityExtraActions.js: не найден обработчик сокращения дополнительного блока'
+    },
+    {
+      snippet: "document.getElementById('customBlockText')",
+      message: 'assets/js/qualityExtraActions.js: сокращение дополнительного блока должно работать с полем customBlockText'
+    },
+    {
+      snippet: 'setInputValue(input, shorten(input.value, 70))',
+      message: 'assets/js/qualityExtraActions.js: дополнительный блок должен сокращаться до безопасной длины'
+    },
+    {
+      snippet: 'function setCheckboxValue(id, checked)',
+      message: 'assets/js/qualityExtraActions.js: не найден общий helper переключения чекбоксов'
+    },
+    {
+      snippet: "checkbox.dispatchEvent(new Event('change', { bubbles: true }))",
+      message: 'assets/js/qualityExtraActions.js: переключение чекбокса должно запускать change-событие'
+    },
+    {
       snippet: "if (action === 'focusContext') focusContextField()",
       message: 'assets/js/qualityExtraActions.js: действие focusContext должно переводить к полю контекста'
     },

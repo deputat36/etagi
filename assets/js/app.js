@@ -468,7 +468,12 @@ function shorten(text, max){
   return s.slice(0, max-3).replace(/[\s,.;:!-]+$/,'') + '...';
 }
 function cleanBrandText(text){
-  return String(text || '').replace(/этажи|etagi/ig,'').replace(/\s{2,}/g,' ').trim();
+  return String(text || '')
+    .replace(/(^|[\s,.;:!—-]+)(этажи|etagi)(?=$|[\s,.;:!—-]+)/ig, ' ')
+    .replace(/\s+([,.;:!?])/g, '$1')
+    .replace(/^[\s,.;:!—-]+|[\s,.;:!—-]+$/g, '')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
 }
 function printFlow(){
   const q = runQuality(true);

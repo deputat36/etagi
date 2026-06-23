@@ -3,6 +3,12 @@ import { cleanPhoneValue } from './phone.js';
 
 (function () {
   const QUICK_FIX_CTA = 'Позвоните — подскажу детали';
+  const TRUST_PHRASE = 'Без давления, по делу, объясню простым языком';
+  const DEFAULT_BENEFITS = [
+    'Безопасное сопровождение',
+    'Помощь с документами',
+    'Консультация по цене'
+  ];
   const DEFAULT_TEAR_LABEL = getLayoutExtraField('tearOffLabel')?.fallback || 'Недвижимость';
   const DEFAULT_BRAND_NAME = getLayoutExtraField('brandName')?.fallback || 'Этажи';
   const DEFAULT_BRAND_SIDE = getLayoutExtraField('brandSideText')?.fallback || 'etagi.com';
@@ -12,6 +18,10 @@ import { cleanPhoneValue } from './phone.js';
     { title: 'Слабый призыв в контактах', action: 'contactCta', label: 'Усилить призыв' },
     { title: 'Длинный призыв в контактах', action: 'shortContactCta', label: 'Сократить призыв' },
     { title: 'Призыв длинный для мини-макета', action: 'shortContactCta', label: 'Сократить призыв' },
+    { title: 'Нет явного призыва', action: 'descriptionCta', label: 'Добавить призыв' },
+    { title: 'Мало причин позвонить', action: 'benefits', label: 'Добавить выгоды' },
+    { title: 'Не указан контекст', action: 'focusContext', label: 'Указать район' },
+    { title: 'Нет снятия опасения', action: 'trustSignal', label: 'Добавить доверие' },
     { title: 'Нет подписи отрывных листков', action: 'tearLabel', label: 'Заполнить подпись' },
     { title: 'Длинная подпись отрывных листков', action: 'shortTearLabel', label: 'Сократить подпись' },
     { title: 'Подпись отрывных длинная для мини-макета', action: 'shortTearLabel', label: 'Сократить подпись' },
@@ -62,6 +72,10 @@ import { cleanPhoneValue } from './phone.js';
     const action = button.dataset.extraQualityFix;
     if (action === 'contactCta') setContactCta(QUICK_FIX_CTA);
     if (action === 'shortContactCta') setContactCta(shortContactCta());
+    if (action === 'descriptionCta') addDescriptionSentence(QUICK_FIX_CTA, 'Призыв добавлен в описание.');
+    if (action === 'benefits') setBenefits();
+    if (action === 'focusContext') focusContextField();
+    if (action === 'trustSignal') addDescriptionSentence(TRUST_PHRASE, 'Фраза доверия добавлена в описание.');
     if (action === 'tearLabel') setTearLabel(DEFAULT_TEAR_LABEL);
     if (action === 'shortTearLabel') setTearLabel(shortTearLabel());
     if (action === 'shortBrand') setShortBrand();
@@ -74,6 +88,41 @@ import { cleanPhoneValue } from './phone.js';
     enableCheckbox('showContact');
     setLayoutExtra('contactCta', text || QUICK_FIX_CTA);
     setStatus('Призыв в контактах исправлен.');
+  }
+
+  function addDescriptionSentence(sentence, statusText) {
+    const input = document.getElementById('description');
+    if (!input) return;
+
+    enableCheckbox('showDescription');
+    const current = String(input.value || '').trim();
+    const next = current && !includesText(current, sentence) ? `${current} ${sentence}` : current || sentence;
+    setInputValue(input, next);
+    setStatus(statusText);
+  }
+
+  function setBenefits() {
+    const input = document.getElementById('benefits');
+    if (!input) return;
+
+    enableCheckbox('showBenefits');
+    const lines = String(input.value || '').split('\n').map((line) => line.trim()).filter(Boolean);
+    const nextLines = [...lines];
+    DEFAULT_BENEFITS.forEach((line) => {
+      if (!nextLines.some((current) => includesText(current, line))) nextLines.push(line);
+    });
+    setInputValue(input, nextLines.slice(0, 4).join('\n'));
+    setStatus('Выгоды добавлены. Проверьте, что они подходят к вашему макету.');
+  }
+
+  function focusContextField() {
+    const input = document.getElementById('area') || document.getElementById('propertyType');
+    if (!input) return;
+
+    input.focus();
+    input.select?.();
+    input.scrollIntoView?.({ block: 'center', behavior: 'smooth' });
+    setStatus('Укажите район, дом или тип объекта — это нельзя надёжно заполнить автоматически.');
   }
 
   function setTearLabel(text) {
@@ -139,6 +188,12 @@ import { cleanPhoneValue } from './phone.js';
     checkbox.dispatchEvent(new Event('change', { bubbles: true }));
   }
 
+  function setInputValue(input, value) {
+    input.value = value;
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+
   function rerunQuality() {
     window.setTimeout(() => {
       document.getElementById('qualityBtn')?.click();
@@ -152,6 +207,10 @@ import { cleanPhoneValue } from './phone.js';
 
   function hasCallToAction(text) {
     return /позвон|напиш|звон|обсуд|узна|уточн|получ|остав|свяж|спрос|покаж|подска/i.test(String(text || ''));
+  }
+
+  function includesText(source, needle) {
+    return String(source || '').toLowerCase().includes(String(needle || '').toLowerCase());
   }
 
   function shorten(text, max) {

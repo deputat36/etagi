@@ -80,8 +80,6 @@ import { cleanPhoneValue } from './phone.js';
     if (action === 'shortTearLabel') setTearLabel(shortTearLabel());
     if (action === 'shortBrand') setShortBrand();
     if (action === 'cleanPhone') cleanPhone();
-
-    rerunQuality();
   }
 
   function setContactCta(text) {
@@ -192,12 +190,6 @@ import { cleanPhoneValue } from './phone.js';
     input.value = value;
     input.dispatchEvent(new Event('input', { bubbles: true }));
     input.dispatchEvent(new Event('change', { bubbles: true }));
-  }
-
-  function rerunQuality() {
-    window.setTimeout(() => {
-      document.getElementById('qualityBtn')?.click();
-    }, 160);
   }
 
   function setStatus(text) {

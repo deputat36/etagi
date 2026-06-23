@@ -209,13 +209,20 @@ if (printGuardHintSource) {
   const requiredPrintGuardSnippets = [
     ["const printBtn = document.getElementById('printBtn')", 'assets/js/qualityPrintGuardHint.js: не найдена кнопка печати'],
     ['printBtn.dataset.originalLabel', 'assets/js/qualityPrintGuardHint.js: исходная подпись кнопки должна сохраняться'],
+    ["printBtn.addEventListener('click', handlePrintClick)", 'assets/js/qualityPrintGuardHint.js: не найден обработчик клика по заблокированной печати'],
     ['new MutationObserver(updatePrintState)', 'assets/js/qualityPrintGuardHint.js: состояние печати должно обновляться после перерендера списка'],
     ["list.querySelector('.qitem.error')", 'assets/js/qualityPrintGuardHint.js: не найдена проверка критичных ошибок'],
     ["list.querySelector('.qitem.warn')", 'assets/js/qualityPrintGuardHint.js: не найдена проверка важных замечаний'],
     ["printBtn.classList.toggle('print-blocked', hasError)", 'assets/js/qualityPrintGuardHint.js: не найден визуальный класс блокировки печати'],
     ["printBtn.classList.toggle('print-has-warnings', !hasError && hasWarning)", 'assets/js/qualityPrintGuardHint.js: не найден визуальный класс предупреждений печати'],
     ["printBtn.textContent = 'Исправьте ошибки'", 'assets/js/qualityPrintGuardHint.js: кнопка должна явно говорить об ошибках'],
-    ["printBtn.setAttribute('aria-label'", 'assets/js/qualityPrintGuardHint.js: у состояния печати должен быть aria-label']
+    ["printBtn.setAttribute('aria-label'", 'assets/js/qualityPrintGuardHint.js: у состояния печати должен быть aria-label'],
+    ['focusFirstBlockingIssue', 'assets/js/qualityPrintGuardHint.js: не найден переход к первой ошибке'],
+    ["document.querySelector('#qualityList .qitem.error')", 'assets/js/qualityPrintGuardHint.js: переход должен искать первое критичное замечание'],
+    ["issue.setAttribute('tabindex', '-1')", 'assets/js/qualityPrintGuardHint.js: замечание должно получать фокус клавиатуры'],
+    ["issue.classList.add('quality-focus-target')", 'assets/js/qualityPrintGuardHint.js: не найдена подсветка выбранного замечания'],
+    ["issue.scrollIntoView({ behavior: 'smooth', block: 'center' })", 'assets/js/qualityPrintGuardHint.js: не найдена прокрутка к ошибке'],
+    ["status.textContent = 'Исправьте выделенное замечание", 'assets/js/qualityPrintGuardHint.js: статус должен объяснять следующий шаг']
   ];
 
   for (const [snippet, message] of requiredPrintGuardSnippets) {
@@ -226,7 +233,7 @@ if (printGuardHintSource) {
 }
 
 if (stylesSource) {
-  for (const className of ['.quality-fix-btn', '.quality-extra-fix-btn', '#printBtn.print-blocked', '#printBtn.print-has-warnings']) {
+  for (const className of ['.quality-fix-btn', '.quality-extra-fix-btn', '#printBtn.print-blocked', '#printBtn.print-has-warnings', '.qitem.quality-focus-target']) {
     if (!stylesSource.includes(className)) {
       errors.push(`assets/css/ui-improvements.css: не найден стиль ${className}`);
     }

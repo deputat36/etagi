@@ -35,6 +35,9 @@ import { cleanPhoneValue } from './phone.js';
     { title: 'Много преимуществ для мини-макета', action: 'shortBenefits', label: 'Оставить 3 выгоды' },
     { title: 'Не указан контекст', action: 'focusContext', label: 'Указать район' },
     { title: 'Нет снятия опасения', action: 'trustSignal', label: 'Добавить доверие' },
+    { title: 'Дополнительный блок пустой', action: 'disableCustomBlock', label: 'Выключить блок' },
+    { title: 'Длинный дополнительный блок', action: 'shortCustomBlock', label: 'Сократить блок' },
+    { title: 'Дополнительный блок перегружает мини-макет', action: 'shortCustomBlock', label: 'Сократить блок' },
     { title: 'Нет подписи отрывных листков', action: 'tearLabel', label: 'Заполнить подпись' },
     { title: 'Длинная подпись отрывных листков', action: 'shortTearLabel', label: 'Сократить подпись' },
     { title: 'Подпись отрывных длинная для мини-макета', action: 'shortTearLabel', label: 'Сократить подпись' },
@@ -91,6 +94,8 @@ import { cleanPhoneValue } from './phone.js';
     if (action === 'shortBenefits') trimBenefits();
     if (action === 'focusContext') focusContextField();
     if (action === 'trustSignal') addDescriptionSentence(TRUST_PHRASE, 'Фраза доверия добавлена в описание.');
+    if (action === 'disableCustomBlock') disableCustomBlock();
+    if (action === 'shortCustomBlock') trimCustomBlock();
     if (action === 'tearLabel') setTearLabel(DEFAULT_TEAR_LABEL);
     if (action === 'shortTearLabel') setTearLabel(shortTearLabel());
     if (action === 'shortBrand') setShortBrand();
@@ -154,6 +159,19 @@ import { cleanPhoneValue } from './phone.js';
     const lines = String(input.value || '').split('\n').map((line) => line.trim()).filter(Boolean);
     setInputValue(input, lines.slice(0, 3).join('\n'));
     setStatus('Список преимуществ сокращён до трёх строк для мини-макета.');
+  }
+
+  function disableCustomBlock() {
+    setCheckboxValue('showCustomBlock', false);
+    setStatus('Пустой дополнительный блок выключен.');
+  }
+
+  function trimCustomBlock() {
+    const input = document.getElementById('customBlockText');
+    if (!input) return;
+
+    setInputValue(input, shorten(input.value, 70));
+    setStatus('Дополнительный блок сокращён для плотной печати.');
   }
 
   function focusContextField() {
@@ -223,9 +241,13 @@ import { cleanPhoneValue } from './phone.js';
   }
 
   function enableCheckbox(id) {
+    setCheckboxValue(id, true);
+  }
+
+  function setCheckboxValue(id, checked) {
     const checkbox = document.getElementById(id);
-    if (!checkbox || checkbox.checked) return;
-    checkbox.checked = true;
+    if (!checkbox || checkbox.checked === checked) return;
+    checkbox.checked = checked;
     checkbox.dispatchEvent(new Event('change', { bubbles: true }));
   }
 

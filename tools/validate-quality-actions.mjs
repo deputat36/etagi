@@ -12,10 +12,9 @@ const actionsSource = readRequired(actionsPath);
 const indexSource = readRequired(indexPath);
 
 if (qualitySource && actionsSource) {
-  const quickActions = [...actionsSource.matchAll(/\{\s*title:\s*['"]([^'"]+)['"]\s*,\s*action:\s*['"]([^'"]+)['"]\s*,\s*label:\s*['"]([^'"]+)['"]\s*\}/g)]
-    .map(match => ({ title: match[1], action: match[2], label: match[3] }));
-  const actionTitles = quickActions.map(item => item.title);
-  const actionNames = quickActions.map(item => item.action);
+  const quickActions = extractQuickActions(actionsSource);
+  const actionTitles = quickActions.map(item => item.title).filter(Boolean);
+  const actionNames = quickActions.map(item => item.action).filter(Boolean);
 
   if (!quickActions.length) {
     errors.push('assets/js/qualityExtraActions.js: не найдены быстрые исправления с title/action/label');
@@ -29,16 +28,19 @@ if (qualitySource && actionsSource) {
   }
 
   for (const item of quickActions) {
-    if (!item.title.trim()) {
+    if (!item.title?.trim()) {
       errors.push('assets/js/qualityExtraActions.js: у быстрого исправления пустой title');
     }
-    if (!/^[a-z][a-zA-Z0-9]*$/.test(item.action)) {
+    if (!item.action?.trim()) {
+      errors.push(`assets/js/qualityExtraActions.js: пустое имя действия для заголовка — ${item.title || 'без title'}`);
+    }
+    else if (!/^[a-z][a-zA-Z0-9]*$/.test(item.action)) {
       errors.push(`assets/js/qualityExtraActions.js: небезопасное имя действия — ${item.action}`);
     }
-    if (!item.label.trim()) {
-      errors.push(`assets/js/qualityExtraActions.js: пустая подпись кнопки для действия — ${item.action}`);
+    if (!item.label?.trim()) {
+      errors.push(`assets/js/qualityExtraActions.js: пустая подпись кнопки для действия — ${item.action || 'без action'}`);
     }
-    if (item.label.length > 32) {
+    else if (item.label.length > 32) {
       errors.push(`assets/js/qualityExtraActions.js: слишком длинная подпись кнопки — ${item.label}`);
     }
   }
@@ -84,6 +86,22 @@ if (errors.length) {
 }
 
 console.log('Проверка быстрых исправлений контроля качества пройдена.');
+
+function extractQuickActions(source) {
+  return [...source.matchAll(/\{[^{}]*\}/g)]
+    .map(match => match[0])
+    .map(block => ({
+      title: getStringProperty(block, 'title'),
+      action: getStringProperty(block, 'action'),
+      label: getStringProperty(block, 'label')
+    }))
+    .filter(item => item.title !== null || item.action !== null || item.label !== null);
+}
+
+function getStringProperty(block, propertyName) {
+  const pattern = new RegExp(`${propertyName}:\\s*['\"]([^'\"]*)['\"]`);
+  return block.match(pattern)?.[1] ?? null;
+}
 
 function countItems(items) {
   const counts = new Map();

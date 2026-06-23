@@ -1,4 +1,5 @@
 import { getLayoutExtra, getLayoutExtraField, setLayoutExtraValue } from './layoutExtras.js';
+import { cleanPhoneValue } from './phone.js';
 
 (function () {
   const QUICK_FIX_CTA = 'Позвоните — подскажу детали';
@@ -97,14 +98,7 @@ import { getLayoutExtra, getLayoutExtraField, setLayoutExtraValue } from './layo
     const input = document.getElementById('agentPhone');
     if (!input) return;
 
-    const withoutExtension = String(input.value || '')
-      .replace(/\s*(?:доб\.?|добавочн\S*|доп\.?|вн\.?|ext\.?|extension)\s*[:#.-]?\s*\d.*$/i, '');
-    const cleaned = withoutExtension
-      .replace(/[^\d\s()+\-.]/g, '')
-      .replace(/\s+/g, ' ')
-      .trim();
-
-    input.value = cleaned;
+    input.value = cleanPhoneValue(input.value);
     input.dispatchEvent(new Event('input', { bubbles: true }));
     input.dispatchEvent(new Event('change', { bubbles: true }));
     focusPhoneField();

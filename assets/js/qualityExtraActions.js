@@ -97,7 +97,9 @@ import { getLayoutExtra, getLayoutExtraField, setLayoutExtraValue } from './layo
     const input = document.getElementById('agentPhone');
     if (!input) return;
 
-    const cleaned = String(input.value || '')
+    const withoutExtension = String(input.value || '')
+      .replace(/\s*(?:доб\.?|добавочн\S*|доп\.?|вн\.?|ext\.?|extension)\s*[:#.-]?\s*\d.*$/i, '');
+    const cleaned = withoutExtension
       .replace(/[^\d\s()+\-.]/g, '')
       .replace(/\s+/g, ' ')
       .trim();

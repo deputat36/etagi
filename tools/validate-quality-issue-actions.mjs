@@ -115,6 +115,27 @@ if (appSource) {
 }
 
 if (extraActionsSource) {
+  const requiredBenefitActionSnippets = [
+    {
+      snippet: 'function setBenefits() {',
+      message: 'assets/js/qualityExtraActions.js: не найдено добавление типовых преимуществ'
+    },
+    {
+      snippet: "setInputValue(input, nextLines.slice(0, 3).join('\\n'))",
+      message: 'assets/js/qualityExtraActions.js: быстрое добавление должно оставлять не больше трёх преимуществ'
+    }
+  ];
+
+  for (const item of requiredBenefitActionSnippets) {
+    if (!extraActionsSource.includes(item.snippet)) {
+      errors.push(item.message);
+    }
+  }
+
+  if (extraActionsSource.includes("nextLines.slice(0, 4).join('\\n')")) {
+    errors.push('assets/js/qualityExtraActions.js: быстрое добавление четырёх преимуществ создаёт новое замечание для мини-макета');
+  }
+
   const requiredQrActionSnippets = [
     {
       snippet: "{ title: 'Ссылка для QR слишком длинная', action: 'shortQrLink', label: 'Заменить ссылку' }",

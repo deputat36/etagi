@@ -272,15 +272,26 @@ import { cleanPhoneValue } from './phone.js';
 
   function setShortBrand() {
     enableCheckbox('showBrand');
-    const colorMode = document.getElementById('colorMode');
-    if (colorMode?.value === 'private') {
-      colorMode.value = 'brand';
-      colorMode.dispatchEvent(new Event('change', { bubbles: true }));
-    }
+    const values = getShortBrandValues();
+    setLayoutExtra('brandName', values.name);
+    setLayoutExtra('brandSideText', values.side);
+    setStatus('Брендовая строка укорочена без замены введённого названия.');
+  }
 
-    setLayoutExtra('brandName', DEFAULT_BRAND_NAME);
-    setLayoutExtra('brandSideText', DEFAULT_BRAND_SIDE);
-    setStatus('Брендовая строка укорочена.');
+  function getShortBrandValues() {
+    const limit = getBrandLimit();
+    const currentName = getLayoutExtra(null, 'brandName') || DEFAULT_BRAND_NAME;
+    const currentSide = getLayoutExtra(null, 'brandSideText') || DEFAULT_BRAND_SIDE;
+    const maxSide = getPrintCount() >= 6 ? 8 : 9;
+    const sideLimit = Math.min(currentSide.length, maxSide);
+    const nameLimit = Math.max(4, limit - sideLimit - 1);
+    const name = shorten(currentName, nameLimit);
+    const side = shorten(currentSide, Math.max(4, limit - name.length - 1));
+    return { name, side };
+  }
+
+  function getBrandLimit() {
+    return getPrintCount() >= 6 ? 26 : 34;
   }
 
   function cleanPhone() {

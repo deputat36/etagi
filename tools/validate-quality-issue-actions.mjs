@@ -117,12 +117,28 @@ if (appSource) {
 if (extraActionsSource) {
   const requiredBuiltInTextFixSnippets = [
     {
-      snippet: "if (button.dataset.fix === 'shortHeadline') window.setTimeout(trimHeadlineForPrint, 180)",
-      message: 'assets/js/qualityExtraActions.js: штатное сокращение заголовка должно учитывать плотность печати'
+      snippet: "if (button.dataset.fix === 'shortHeadline') {",
+      message: 'assets/js/qualityExtraActions.js: штатное сокращение заголовка должно перехватываться до старого обработчика'
     },
     {
-      snippet: "if (button.dataset.fix === 'shortDesc') window.setTimeout(trimDescriptionForPrint, 180)",
-      message: 'assets/js/qualityExtraActions.js: штатное сокращение описания должно учитывать плотность печати'
+      snippet: "if (button.dataset.fix === 'shortDesc') {",
+      message: 'assets/js/qualityExtraActions.js: штатное сокращение описания должно перехватываться до старого обработчика'
+    },
+    {
+      snippet: 'event.preventDefault()',
+      message: 'assets/js/qualityExtraActions.js: перехват сокращения должен отменять стандартное действие кнопки'
+    },
+    {
+      snippet: 'event.stopPropagation()',
+      message: 'assets/js/qualityExtraActions.js: старый обработчик не должен повторно сокращать текст'
+    },
+    {
+      snippet: 'trimHeadlineForPrint()',
+      message: 'assets/js/qualityExtraActions.js: заголовок должен сокращаться сразу по плотностному пределу'
+    },
+    {
+      snippet: 'trimDescriptionForPrint()',
+      message: 'assets/js/qualityExtraActions.js: описание должно сокращаться сразу по плотностному пределу'
     },
     {
       snippet: 'function trimHeadlineForPrint() {',
@@ -145,6 +161,16 @@ if (extraActionsSource) {
   for (const item of requiredBuiltInTextFixSnippets) {
     if (!extraActionsSource.includes(item.snippet)) {
       errors.push(item.message);
+    }
+  }
+
+  const obsoleteDelayedTextFixes = [
+    "window.setTimeout(trimHeadlineForPrint, 180)",
+    "window.setTimeout(trimDescriptionForPrint, 180)"
+  ];
+  for (const snippet of obsoleteDelayedTextFixes) {
+    if (extraActionsSource.includes(snippet)) {
+      errors.push(`assets/js/qualityExtraActions.js: отложенное исправление ${snippet} допускает двойное сокращение текста`);
     }
   }
 

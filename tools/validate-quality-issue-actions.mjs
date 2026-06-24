@@ -115,6 +115,39 @@ if (appSource) {
 }
 
 if (extraActionsSource) {
+  const requiredBuiltInTextFixSnippets = [
+    {
+      snippet: "if (button.dataset.fix === 'shortHeadline') window.setTimeout(trimHeadlineForPrint, 180)",
+      message: 'assets/js/qualityExtraActions.js: штатное сокращение заголовка должно учитывать плотность печати'
+    },
+    {
+      snippet: "if (button.dataset.fix === 'shortDesc') window.setTimeout(trimDescriptionForPrint, 180)",
+      message: 'assets/js/qualityExtraActions.js: штатное сокращение описания должно учитывать плотность печати'
+    },
+    {
+      snippet: 'function trimHeadlineForPrint() {',
+      message: 'assets/js/qualityExtraActions.js: не найдено плотностное сокращение штатного заголовка'
+    },
+    {
+      snippet: 'setInputValue(input, shorten(input.value, getHeadlineLimit()))',
+      message: 'assets/js/qualityExtraActions.js: штатный заголовок должен использовать общий безопасный предел'
+    },
+    {
+      snippet: 'function trimDescriptionForPrint() {',
+      message: 'assets/js/qualityExtraActions.js: не найдено плотностное сокращение штатного описания'
+    },
+    {
+      snippet: 'setInputValue(input, shorten(input.value, getDescriptionLimit()))',
+      message: 'assets/js/qualityExtraActions.js: штатное описание должно использовать общий безопасный предел'
+    }
+  ];
+
+  for (const item of requiredBuiltInTextFixSnippets) {
+    if (!extraActionsSource.includes(item.snippet)) {
+      errors.push(item.message);
+    }
+  }
+
   const requiredHeadlineActionSnippets = [
     {
       snippet: 'setInputValue(input, shorten(getHeadlineSuggestion(), getHeadlineLimit()))',

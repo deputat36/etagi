@@ -79,9 +79,11 @@ import { cleanPhoneValue } from './phone.js';
 
   function handleBuiltInFixClick(event) {
     const button = event.target.closest('[data-fix]');
-    if (!button || button.dataset.fix !== 'phone') return;
+    if (!button) return;
 
-    window.setTimeout(focusPhoneField, 180);
+    if (button.dataset.fix === 'phone') window.setTimeout(focusPhoneField, 180);
+    if (button.dataset.fix === 'shortHeadline') window.setTimeout(trimHeadlineForPrint, 180);
+    if (button.dataset.fix === 'shortDesc') window.setTimeout(trimDescriptionForPrint, 180);
   }
 
   function handleClick(event) {
@@ -117,6 +119,14 @@ import { cleanPhoneValue } from './phone.js';
     setStatus('Заголовок усилен и подогнан под плотность печати. Проверьте смысл.');
   }
 
+  function trimHeadlineForPrint() {
+    const input = document.getElementById('headline');
+    if (!input) return;
+
+    setInputValue(input, shorten(input.value, getHeadlineLimit()));
+    setStatus('Заголовок сокращён под выбранное количество макетов на А4.');
+  }
+
   function getHeadlineLimit() {
     const count = Number(document.querySelector('[data-count].active')?.dataset.count) || 2;
     return count >= 6 ? 38 : 48;
@@ -150,6 +160,14 @@ import { cleanPhoneValue } from './phone.js';
     const next = current && !includesText(current, sentence) ? `${prefix} ${sentence}`.trim() : current || sentence;
     setInputValue(input, shorten(next, limit));
     setStatus(statusText);
+  }
+
+  function trimDescriptionForPrint() {
+    const input = document.getElementById('description');
+    if (!input) return;
+
+    setInputValue(input, shorten(input.value, getDescriptionLimit()));
+    setStatus('Описание сокращено под выбранное количество макетов на А4.');
   }
 
   function getDescriptionLimit() {

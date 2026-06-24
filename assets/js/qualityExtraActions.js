@@ -310,8 +310,15 @@ import { cleanPhoneValue } from './phone.js';
 
   function shortContactCta() {
     const current = getLayoutExtra(null, 'contactCta');
-    if (!hasCallToAction(current) || current.length > 60) return QUICK_FIX_CTA;
-    return shorten(current, 58);
+    if (!hasCallToAction(current)) return QUICK_FIX_CTA;
+    return shorten(current, getContactCtaLimit());
+  }
+
+  function getContactCtaLimit() {
+    const count = getPrintCount();
+    if (count >= 6) return 60;
+    if (count >= 4) return 85;
+    return Number.POSITIVE_INFINITY;
   }
 
   function shortTearLabel() {

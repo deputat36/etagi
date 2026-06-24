@@ -232,11 +232,17 @@ import { cleanPhoneValue } from './phone.js';
   }
 
   function simplifyMeta() {
-    const input = document.getElementById('params');
-    if (!input) return;
+    const paramsInput = document.getElementById('params');
+    const typeInput = document.getElementById('propertyType');
+    if (!paramsInput || !typeInput) return;
 
-    setInputValue(input, '');
-    setStatus('Параметры очищены: для плотной печати оставлены район и тип объекта.');
+    const params = String(paramsInput.value || '').trim();
+    const propertyType = String(typeInput.value || '').trim();
+    if (params && !includesText(propertyType, params)) {
+      setInputValue(typeInput, [propertyType, params].filter(Boolean).join(', '));
+    }
+    setInputValue(paramsInput, '');
+    setStatus('Параметры сохранены в компактной строке вместе с типом объекта.');
   }
 
   function disableQr() {

@@ -93,8 +93,9 @@ function getVisibleBlockCount(state){
 }
 
 function addSellingChecks(issues, state, text, benefitsCount){
-  if(isStarterPlaceholder(state.headline)) issues.push({level:'warn', title:'Заголовок не продаёт', text:'Замените технический заголовок на конкретный смысл: что человеку получить или узнать.', action:null});
-  if(state.showHeadline && state.headline && !hasClientHook(text)) issues.push({level:'tip', title:'Слабый крючок в заголовке', text:'Добавьте понятный повод: цена, покупатель, объект, район, безопасность, консультация или выгода.', action:null});
+  const placeholderHeadline = isStarterPlaceholder(state.headline);
+  if(placeholderHeadline) issues.push({level:'warn', title:'Заголовок не продаёт', text:'Замените технический заголовок на конкретный смысл: что человеку получить или узнать.', action:null});
+  if(state.showHeadline && state.headline && !placeholderHeadline && !hasClientHook(text)) issues.push({level:'tip', title:'Слабый крючок в заголовке', text:'Добавьте понятный повод: цена, покупатель, объект, район, безопасность, консультация или выгода.', action:null});
   if(state.showDescription && state.description && !hasCallToAction(text)) issues.push({level:'tip', title:'Нет явного призыва', text:'Для продающей расклейки лучше прямо написать: позвоните, напишите, узнайте цену, обсудим вариант.', action:null});
   if(state.showBenefits && benefitsCount < 2) issues.push({level:'tip', title:'Мало причин позвонить', text:'Добавьте 2–3 короткие выгоды: без давления, по делу, проверка документов, помощь с ипотекой, оценка цены.', action:null});
   if(!state.area && !state.propertyType && ['seller','buyer','object','rent'].includes(state.goal)) issues.push({level:'tip', title:'Не указан контекст', text:'Район, дом, тип объекта или ситуация помогают человеку понять, что объявление относится к нему.', action:null});

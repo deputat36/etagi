@@ -45,6 +45,36 @@ for (const snippet of requiredActionSnippets) {
   }
 }
 
+const requiredGoalHeadlines = [
+  "seller: 'Ищу недвижимость для покупки'",
+  "buyer: 'Помогу найти покупателя'",
+  "object: 'Помогу продать недвижимость'",
+  "newbuild: 'Подберу квартиру в новостройке'",
+  "service: 'Помогу с недвижимостью'",
+  "rent: 'Помогу с арендой недвижимости'",
+  "brand: 'Ваш специалист по недвижимости'",
+  "private: 'Частное объявление о недвижимости'"
+];
+
+for (const snippet of requiredGoalHeadlines) {
+  if (!actionsSource.includes(snippet)) {
+    errors.push(`qualityExtraActions.js: отсутствует понятный заголовок для выбранной задачи — ${snippet}`);
+  }
+}
+
+const misleadingGoalHeadlines = [
+  "seller: 'Куплю недвижимость'",
+  "buyer: 'Есть покупатель'",
+  "object: 'Продам объект'",
+  "brand: 'СПН по недвижимости'"
+];
+
+for (const snippet of misleadingGoalHeadlines) {
+  if (actionsSource.includes(snippet)) {
+    errors.push(`qualityExtraActions.js: автоматический заголовок не должен создавать неподтверждённое обещание или непонятное сокращение — ${snippet}`);
+  }
+}
+
 if (errors.length) {
   console.error('\nОшибки действия усиления заголовка:');
   errors.forEach(error => console.error(`- ${error}`));

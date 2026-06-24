@@ -139,7 +139,7 @@ import { cleanPhoneValue } from './phone.js';
   }
 
   function getHeadlineLimit() {
-    const count = Number(document.querySelector('[data-count].active')?.dataset.count) || 2;
+    const count = getPrintCount();
     return count >= 6 ? 38 : 48;
   }
 
@@ -182,7 +182,7 @@ import { cleanPhoneValue } from './phone.js';
   }
 
   function getDescriptionLimit() {
-    const count = Number(document.querySelector('[data-count].active')?.dataset.count) || 2;
+    const count = getPrintCount();
     if (count >= 6) return 150;
     if (count >= 4) return 260;
     return Number.POSITIVE_INFINITY;
@@ -220,8 +220,15 @@ import { cleanPhoneValue } from './phone.js';
     const input = document.getElementById('customBlockText');
     if (!input) return;
 
-    setInputValue(input, shorten(input.value, 70));
-    setStatus('Дополнительный блок сокращён для плотной печати.');
+    setInputValue(input, shorten(input.value, getCustomBlockLimit()));
+    setStatus('Дополнительный блок сокращён под выбранное количество макетов на А4.');
+  }
+
+  function getCustomBlockLimit() {
+    const count = getPrintCount();
+    if (count >= 6) return 70;
+    if (count >= 4) return 120;
+    return Number.POSITIVE_INFINITY;
   }
 
   function simplifyMeta() {
@@ -295,6 +302,10 @@ import { cleanPhoneValue } from './phone.js';
     input.select?.();
     input.scrollIntoView?.({ block: 'center', behavior: 'smooth' });
     setStatus('Введите или проверьте телефон. Для печати лучше полный номер с кодом.');
+  }
+
+  function getPrintCount() {
+    return Number(document.querySelector('[data-count].active')?.dataset.count) || 2;
   }
 
   function shortContactCta() {

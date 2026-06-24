@@ -81,9 +81,20 @@ import { cleanPhoneValue } from './phone.js';
     const button = event.target.closest('[data-fix]');
     if (!button) return;
 
-    if (button.dataset.fix === 'phone') window.setTimeout(focusPhoneField, 180);
-    if (button.dataset.fix === 'shortHeadline') window.setTimeout(trimHeadlineForPrint, 180);
-    if (button.dataset.fix === 'shortDesc') window.setTimeout(trimDescriptionForPrint, 180);
+    if (button.dataset.fix === 'phone') {
+      window.setTimeout(focusPhoneField, 180);
+      return;
+    }
+    if (button.dataset.fix === 'shortHeadline') {
+      event.preventDefault();
+      event.stopPropagation();
+      trimHeadlineForPrint();
+    }
+    if (button.dataset.fix === 'shortDesc') {
+      event.preventDefault();
+      event.stopPropagation();
+      trimDescriptionForPrint();
+    }
   }
 
   function handleClick(event) {

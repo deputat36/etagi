@@ -16,13 +16,30 @@ if (forbiddenAction.test(qualitySource)) {
   errors.push('quality.js: найдена бесполезная кнопка показа уже видимого заголовка');
 }
 
-const requiredSnippets = [
+const requiredQualitySnippets = [
+  'const placeholderHeadline = isStarterPlaceholder(state.headline)',
+  'if(placeholderHeadline) issues.push',
+  'state.headline && !placeholderHeadline && !hasClientHook(text)'
+];
+
+for (const snippet of requiredQualitySnippets) {
+  if (!qualitySource.includes(snippet)) {
+    errors.push(`quality.js: техническая заглушка не должна одновременно создавать второе замечание — ${snippet}`);
+  }
+}
+
+const unsafeHookCheck = 'state.showHeadline && state.headline && !hasClientHook(text)';
+if (qualitySource.includes(unsafeHookCheck)) {
+  errors.push('quality.js: проверка слабого крючка должна исключать технический заголовок');
+}
+
+const requiredActionSnippets = [
   "{ title: 'Заголовок не продаёт', action: 'strongHeadline', label: 'Усилить заголовок' }",
   "if (action === 'strongHeadline') setStrongHeadline()",
   'function setStrongHeadline() {'
 ];
 
-for (const snippet of requiredSnippets) {
+for (const snippet of requiredActionSnippets) {
   if (!actionsSource.includes(snippet)) {
     errors.push(`qualityExtraActions.js: отсутствует часть рабочего усиления заголовка — ${snippet}`);
   }

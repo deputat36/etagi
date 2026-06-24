@@ -75,6 +75,28 @@ for (const snippet of misleadingGoalHeadlines) {
   }
 }
 
+const requiredContextSnippets = [
+  "const context = [propertyType, area].filter(Boolean).join(', ')",
+  'return context ? `${base} — ${context}` : base'
+];
+
+for (const snippet of requiredContextSnippets) {
+  if (!actionsSource.includes(snippet)) {
+    errors.push(`qualityExtraActions.js: контекст заголовка должен собираться без попытки склонять свободный текст — ${snippet}`);
+  }
+}
+
+const unsafeContextSnippets = [
+  "[propertyType, area].filter(Boolean).join(' в ')",
+  'return context ? `${base}: ${context}` : base'
+];
+
+for (const snippet of unsafeContextSnippets) {
+  if (actionsSource.includes(snippet)) {
+    errors.push(`qualityExtraActions.js: найдено грамматически ненадёжное соединение типа объекта и района — ${snippet}`);
+  }
+}
+
 if (errors.length) {
   console.error('\nОшибки действия усиления заголовка:');
   errors.forEach(error => console.error(`- ${error}`));

@@ -148,9 +148,9 @@ import { cleanPhoneValue } from './phone.js';
     const base = HEADLINE_BY_GOAL[activeGoal] || 'Помогу с недвижимостью';
     const area = String(document.getElementById('area')?.value || '').trim();
     const propertyType = String(document.getElementById('propertyType')?.value || '').trim();
-    const context = [propertyType, area].filter(Boolean).join(' в ');
+    const context = [propertyType, area].filter(Boolean).join(', ');
 
-    return context ? `${base}: ${context}` : base;
+    return context ? `${base} — ${context}` : base;
   }
 
   function setContactCta(text) {

@@ -10,13 +10,13 @@ import { cleanPhoneValue } from './phone.js';
     'Консультация по цене'
   ];
   const HEADLINE_BY_GOAL = {
-    seller: 'Куплю недвижимость',
-    buyer: 'Есть покупатель',
-    object: 'Продам объект',
-    newbuild: 'Подберу новостройку',
+    seller: 'Ищу недвижимость для покупки',
+    buyer: 'Помогу найти покупателя',
+    object: 'Помогу продать недвижимость',
+    newbuild: 'Подберу квартиру в новостройке',
     service: 'Помогу с недвижимостью',
-    rent: 'Помогу с арендой',
-    brand: 'СПН по недвижимости',
+    rent: 'Помогу с арендой недвижимости',
+    brand: 'Ваш специалист по недвижимости',
     private: 'Частное объявление о недвижимости'
   };
   const DEFAULT_TEAR_LABEL = getLayoutExtraField('tearOffLabel')?.fallback || 'Недвижимость';

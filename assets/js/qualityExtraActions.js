@@ -323,8 +323,15 @@ import { cleanPhoneValue } from './phone.js';
 
   function shortTearLabel() {
     const current = getLayoutExtra(null, 'tearOffLabel');
-    if (!current || current.length > 16) return DEFAULT_TEAR_LABEL;
-    return current;
+    if (!current) return DEFAULT_TEAR_LABEL;
+    return shorten(current, getTearLabelLimit());
+  }
+
+  function getTearLabelLimit() {
+    const count = getPrintCount();
+    if (count >= 6) return 16;
+    if (count >= 4) return 24;
+    return Number.POSITIVE_INFINITY;
   }
 
   function setLayoutExtra(stateKey, value) {

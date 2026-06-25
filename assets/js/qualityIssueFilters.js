@@ -15,7 +15,7 @@
 
     ensureFilterElement();
     document.getElementById('qualityIssueFilters')?.addEventListener('click', handleFilterClick);
-    new MutationObserver(updateFilters).observe(list, { childList: true, subtree: true });
+    new MutationObserver(updateFilters).observe(list, { childList: true, subtree: true, attributes: true, attributeFilter: ['data-quality-suppressed', 'hidden'] });
     updateFilters();
   }
 
@@ -45,8 +45,12 @@
     const root = document.getElementById('qualityIssueFilters');
     if (!list || !root) return;
 
-    const items = Array.from(list.querySelectorAll('.qitem'));
+    const allItems = Array.from(list.querySelectorAll('.qitem'));
+    const items = allItems.filter((item) => !item.dataset.qualitySuppressed);
+    const suppressedItems = allItems.filter((item) => item.dataset.qualitySuppressed);
     const counts = getCounts(items);
+
+    suppressedItems.forEach((item) => { item.hidden = true; });
 
     if (!counts.total || isReadyOnly(items)) {
       root.hidden = true;

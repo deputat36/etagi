@@ -11,6 +11,9 @@ const requiredPhotoSnippets = [
   "markPhotoButton(item, 'noPhoto', 'photoOne'",
   "markPhotoButton(item, 'onePhoto', 'photoTwo'",
   "button.dataset.photoIntentFix = inputId",
+  "const preparedButton = target.closest?.('[data-photo-intent-fix]')",
+  "const rawButton = target.closest?.('[data-fix=\"noPhoto\"], [data-fix=\"onePhoto\"]')",
+  "return button.dataset.fix === 'onePhoto' ? 'photoTwo' : 'photoOne'",
   "event.stopImmediatePropagation?.()",
   "Фото оставлено включённым"
 ];

@@ -17,13 +17,14 @@
     "validate:brand-density-action": "node tools/validate-brand-density-action.mjs",
     "validate:meta-preservation-action": "node tools/validate-meta-preservation-action.mjs",
     "validate:photo-intent-action": "node tools/validate-photo-intent-action.mjs",
+    "validate:suppressed-quality-items": "node tools/validate-suppressed-quality-items.mjs",
     "validate:storage-safety": "node tools/validate-storage-safety.mjs",
     "validate:version-sync": "node tools/validate-version-sync.mjs",
     "validate:package-scripts": "node tools/validate-package-scripts.mjs",
     "validate:changelog": "node tools/validate-changelog.mjs",
     "validate:layout-extras": "node tools/validate-layout-extras.mjs",
     "validate:phone-helper": "node tools/validate-phone-helper.mjs",
-    "validate": "npm run validate:templates && npm run validate:js && npm run validate:assets && npm run validate:quality-actions && npm run validate:quality-issue-actions && npm run validate:phone-cleanup-action && npm run validate:headline-placeholder-action && npm run validate:custom-block-density-action && npm run validate:contact-cta-density-action && npm run validate:tear-label-density-action && npm run validate:brand-density-action && npm run validate:meta-preservation-action && npm run validate:photo-intent-action && npm run validate:storage-safety && npm run validate:version-sync && npm run validate:package-scripts && npm run validate:changelog && npm run validate:layout-extras && npm run validate:phone-helper"
+    "validate": "npm run validate:templates && npm run validate:js && npm run validate:assets && npm run validate:quality-actions && npm run validate:quality-issue-actions && npm run validate:phone-cleanup-action && npm run validate:headline-placeholder-action && npm run validate:custom-block-density-action && npm run validate:contact-cta-density-action && npm run validate:tear-label-density-action && npm run validate:brand-density-action && npm run validate:meta-preservation-action && npm run validate:photo-intent-action && npm run validate:suppressed-quality-items && npm run validate:storage-safety && npm run validate:version-sync && npm run validate:package-scripts && npm run validate:changelog && npm run validate:layout-extras && npm run validate:phone-helper"
   },
   "engines": {
     "node": ">=20"

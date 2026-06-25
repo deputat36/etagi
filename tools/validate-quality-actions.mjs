@@ -7,6 +7,8 @@ const qualitySource = readRequired('assets/js/quality.js');
 const appSource = readRequired('assets/js/app.js');
 const indexSource = readRequired('index.html');
 const stylesSource = readRequired('assets/css/ui-improvements.css');
+const qrIntentSource = readRequired('assets/js/qrIntentFix.js');
+const layoutExtrasSyncSource = readRequired('assets/js/layoutExtrasSync.js');
 const errors = [];
 
 if (actionsSource && qualitySource) {
@@ -75,6 +77,23 @@ const forbiddenActionSnippets = [
 for (const snippet of forbiddenActionSnippets) {
   if (actionsSource.includes(snippet)) {
     errors.push(`assets/js/qualityExtraActions.js: найдено устаревшее или разрушающее данные поведение — ${snippet}`);
+  }
+}
+
+const requiredQrIntentSnippets = [
+  "const EMPTY_QR_TITLE = 'QR включён, но ссылки нет'",
+  "const BUTTON_TEXT = 'Добавить ссылку'",
+  "button.dataset.qrEmptyFix = 'focusQrLink'",
+  "event.stopImmediatePropagation?.()",
+  "const input = document.getElementById('qrLink')",
+  'QR оставлен включённым',
+  "import './qrIntentFix.js';"
+];
+
+for (const snippet of requiredQrIntentSnippets) {
+  const source = snippet.startsWith('import ') ? layoutExtrasSyncSource : qrIntentSource;
+  if (!source.includes(snippet)) {
+    errors.push(`assets/js/qrIntentFix.js: не закреплено безопасное поведение пустого QR — ${snippet}`);
   }
 }
 

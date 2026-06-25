@@ -31,13 +31,25 @@
   }
 
   function handleQrEmptyClick(event) {
-    const button = event.target.closest('[data-qr-empty-fix="focusQrLink"]');
+    const button = getQrEmptyButton(event.target);
     if (!button) return;
 
     event.preventDefault();
     event.stopPropagation();
     event.stopImmediatePropagation?.();
     focusQrLinkField();
+  }
+
+  function getQrEmptyButton(target) {
+    const preparedButton = target.closest?.('[data-qr-empty-fix="focusQrLink"]');
+    if (preparedButton) return preparedButton;
+
+    const rawButton = target.closest?.('[data-extra-quality-fix="disableQr"]');
+    if (!rawButton) return null;
+
+    const item = rawButton.closest('.qitem');
+    const title = item?.querySelector('b')?.textContent?.trim() || '';
+    return title === EMPTY_QR_TITLE ? rawButton : null;
   }
 
   function focusQrLinkField() {

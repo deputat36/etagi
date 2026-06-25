@@ -40,14 +40,14 @@
   }
 
   function handlePhotoClick(event) {
-    const button = event.target.closest('[data-photo-intent-fix]');
+    const button = getPhotoButton(event.target);
     if (!button) return;
 
     event.preventDefault();
     event.stopPropagation();
     event.stopImmediatePropagation?.();
 
-    const inputId = button.dataset.photoIntentFix;
+    const inputId = getPhotoInputId(button);
     const input = document.getElementById(inputId);
     if (!input) return;
 
@@ -56,6 +56,23 @@
     setStatus(inputId === 'photoTwo'
       ? 'Фото оставлено включённым. Выберите второе фото или переключите режим на одно фото.'
       : 'Фото оставлено включённым. Выберите файл в поле Фото 1.');
+  }
+
+  function getPhotoButton(target) {
+    const preparedButton = target.closest?.('[data-photo-intent-fix]');
+    if (preparedButton) return preparedButton;
+
+    const rawButton = target.closest?.('[data-fix="noPhoto"], [data-fix="onePhoto"]');
+    if (!rawButton) return null;
+
+    const item = rawButton.closest('.qitem');
+    const title = item?.querySelector('b')?.textContent?.trim() || '';
+    return title === FIRST_PHOTO_TITLE || title === SECOND_PHOTO_TITLE ? rawButton : null;
+  }
+
+  function getPhotoInputId(button) {
+    if (button.dataset.photoIntentFix) return button.dataset.photoIntentFix;
+    return button.dataset.fix === 'onePhoto' ? 'photoTwo' : 'photoOne';
   }
 
   function setStatus(text) {

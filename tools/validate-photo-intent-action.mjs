@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 
 const photoSource = read('assets/js/photoIntentFix.js');
-const qrSource = read('assets/js/qrIntentFix.js');
+const layoutExtrasSyncSource = read('assets/js/layoutExtrasSync.js');
 const qualitySource = read('assets/js/quality.js');
 const errors = [];
 
@@ -21,8 +21,8 @@ for (const snippet of requiredPhotoSnippets) {
   }
 }
 
-if (!qrSource.includes("import './photoIntentFix.js';")) {
-  errors.push('qrIntentFix.js: photoIntentFix.js не подключён через существующую цепочку модулей');
+if (!layoutExtrasSyncSource.includes("import './photoIntentFix.js';")) {
+  errors.push('layoutExtrasSync.js: photoIntentFix.js не подключён явно');
 }
 
 const requiredQualitySnippets = [

@@ -1,6 +1,7 @@
 (function () {
   const SOFT_QR_TITLE = 'QR может быть мелким';
   const HARD_QR_TITLE = 'QR слишком мал для мини-макета';
+  const SUPPRESSED_REASON = 'qr-size-duplicate';
 
   document.addEventListener('DOMContentLoaded', init);
 
@@ -20,7 +21,16 @@
     const hardItem = findIssueByTitle(list, HARD_QR_TITLE);
     if (!softItem) return;
 
-    softItem.hidden = Boolean(hardItem);
+    if (hardItem) {
+      softItem.dataset.qualitySuppressed = SUPPRESSED_REASON;
+      softItem.hidden = true;
+      return;
+    }
+
+    if (softItem.dataset.qualitySuppressed === SUPPRESSED_REASON) {
+      delete softItem.dataset.qualitySuppressed;
+      softItem.hidden = false;
+    }
   }
 
   function findIssueByTitle(list, title) {

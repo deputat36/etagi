@@ -1,5 +1,3 @@
-import './qrSizeHint.js';
-
 (function () {
   const FIRST_PHOTO_TITLE = 'Фото включено, но не загружено';
   const SECOND_PHOTO_TITLE = 'Второе фото не загружено';

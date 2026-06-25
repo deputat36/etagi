@@ -6,6 +6,7 @@ const summarySource = read('assets/js/qualityIssueSummary.js');
 const prioritySource = read('assets/js/qualitySuppressedPriority.js');
 const printGuardSource = read('assets/js/qualityPrintGuardHint.js');
 const qrSizeSource = read('assets/js/qrSizeHint.js');
+const layoutExtrasSyncSource = read('assets/js/layoutExtrasSync.js');
 const errors = [];
 
 check(dedupeSource, 'qualityQrDeduplicate.js', [
@@ -42,6 +43,10 @@ check(printGuardSource, 'qualityPrintGuardHint.js', [
 check(qrSizeSource, 'qrSizeHint.js', [
   "import './qualityQrDeduplicate.js';",
   "import './qualitySuppressedPriority.js';"
+]);
+
+check(layoutExtrasSyncSource, 'layoutExtrasSync.js', [
+  "import './qrSizeHint.js';"
 ]);
 
 if (errors.length) {

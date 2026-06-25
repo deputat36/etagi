@@ -13,7 +13,7 @@
 
     ensureSummaryElement();
     document.getElementById('qualityIssueSummary')?.addEventListener('click', handleSummaryClick);
-    new MutationObserver(updateSummary).observe(list, { childList: true, subtree: true });
+    new MutationObserver(updateSummary).observe(list, { childList: true, subtree: true, attributes: true, attributeFilter: ['data-quality-suppressed', 'hidden'] });
     updateSummary();
   }
 
@@ -31,9 +31,10 @@
     const list = document.getElementById('qualityList');
     if (!summary || !list) return;
 
+    const activeItems = Array.from(list.querySelectorAll('.qitem')).filter((item) => !item.dataset.qualitySuppressed);
     const counts = levels.map((level) => ({
       ...level,
-      count: list.querySelectorAll(`.qitem.${level.key}`).length
+      count: activeItems.filter((item) => item.classList.contains(level.key)).length
     }));
     const total = counts.reduce((sum, item) => sum + item.count, 0);
 

@@ -1,5 +1,3 @@
-import './photoIntentFix.js';
-
 (function () {
   const EMPTY_QR_TITLE = 'QR включён, но ссылки нет';
   const BUTTON_TEXT = 'Добавить ссылку';

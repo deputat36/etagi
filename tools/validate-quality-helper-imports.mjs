@@ -16,7 +16,8 @@ check(preprintSource, 'preprintSummary.js', [
 check(layoutSyncSource, 'layoutExtrasSync.js', [
   "import './qrIntentFix.js';",
   "import './photoIntentFix.js';",
-  "import './qrSizeHint.js';"
+  "import './qrSizeHint.js';",
+  "import './responseChannelPhoneGuard.js';"
 ]);
 
 if (errors.length) {

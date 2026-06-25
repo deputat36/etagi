@@ -4,6 +4,7 @@ const dedupeSource = read('assets/js/qualityQrDeduplicate.js');
 const filtersSource = read('assets/js/qualityIssueFilters.js');
 const summarySource = read('assets/js/qualityIssueSummary.js');
 const prioritySource = read('assets/js/qualitySuppressedPriority.js');
+const printGuardSource = read('assets/js/qualityPrintGuardHint.js');
 const qrSizeSource = read('assets/js/qrSizeHint.js');
 const errors = [];
 
@@ -29,6 +30,13 @@ check(prioritySource, 'qualitySuppressedPriority.js', [
   "attributeFilter: ['data-quality-suppressed']",
   "find((entry) => !entry.dataset.qualitySuppressed)",
   'quality-priority-hint good'
+]);
+
+check(printGuardSource, 'qualityPrintGuardHint.js', [
+  "attributeFilter: ['data-quality-suppressed']",
+  "const hasError = Boolean(findActiveIssue(list, 'error'))",
+  "const hasWarning = Boolean(findActiveIssue(list, 'warn'))",
+  "find((item) => !item.dataset.qualitySuppressed)"
 ]);
 
 check(qrSizeSource, 'qrSizeHint.js', [

@@ -6,7 +6,7 @@ const errors = [];
 
 check(actionsSource, 'qualityExtraActions.js', [
   "button.dataset.fix === 'showContact' && !hasPhoneValue()",
-  'event.stopImmediatePropagation?.()",
+  'event.stopImmediatePropagation?.()',
   'focusPhoneField();',
   'function hasPhoneValue()'
 ]);

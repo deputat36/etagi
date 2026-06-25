@@ -11,7 +11,12 @@
     }
 
     printBtn.addEventListener('click', handlePrintClick);
-    new MutationObserver(updatePrintState).observe(list, { childList: true, subtree: true });
+    new MutationObserver(updatePrintState).observe(list, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['data-quality-suppressed']
+    });
     updatePrintState();
   }
 
@@ -20,8 +25,8 @@
     const printBtn = document.getElementById('printBtn');
     if (!list || !printBtn) return;
 
-    const hasError = Boolean(list.querySelector('.qitem.error'));
-    const hasWarning = Boolean(list.querySelector('.qitem.warn'));
+    const hasError = Boolean(findActiveIssue(list, 'error'));
+    const hasWarning = Boolean(findActiveIssue(list, 'warn'));
     const originalLabel = printBtn.dataset.originalLabel || 'Печать / PDF';
 
     printBtn.classList.toggle('print-blocked', hasError);
@@ -55,7 +60,7 @@
   function focusFirstBlockingIssue() {
     showErrorFilter();
 
-    const issue = document.querySelector('#qualityList .qitem.error');
+    const issue = findActiveIssue(document.getElementById('qualityList'), 'error');
     if (!issue) return;
 
     issue.setAttribute('tabindex', '-1');
@@ -75,5 +80,11 @@
     const errorFilter = document.querySelector('[data-quality-filter="error"]');
     if (!errorFilter || errorFilter.hidden || errorFilter.classList.contains('active')) return;
     errorFilter.click();
+  }
+
+  function findActiveIssue(list, level) {
+    if (!list) return null;
+    return Array.from(list.querySelectorAll(`.qitem.${level}`))
+      .find((item) => !item.dataset.qualitySuppressed) || null;
   }
 })();

@@ -1,4 +1,6 @@
 import './qrIntentFix.js';
+import './photoIntentFix.js';
+import './qrSizeHint.js';
 import { syncLayoutExtras } from './layoutExtras.js';
 
 document.addEventListener('DOMContentLoaded', () => {

@@ -17,6 +17,7 @@
     "validate:brand-density-action": "node tools/validate-brand-density-action.mjs",
     "validate:meta-preservation-action": "node tools/validate-meta-preservation-action.mjs",
     "validate:photo-intent-action": "node tools/validate-photo-intent-action.mjs",
+    "validate:response-channel-action": "node tools/validate-response-channel-action.mjs",
     "validate:suppressed-quality-items": "node tools/validate-suppressed-quality-items.mjs",
     "validate:quality-helper-imports": "node tools/validate-quality-helper-imports.mjs",
     "validate:storage-safety": "node tools/validate-storage-safety.mjs",
@@ -25,7 +26,7 @@
     "validate:changelog": "node tools/validate-changelog.mjs",
     "validate:layout-extras": "node tools/validate-layout-extras.mjs",
     "validate:phone-helper": "node tools/validate-phone-helper.mjs",
-    "validate": "npm run validate:templates && npm run validate:js && npm run validate:assets && npm run validate:quality-actions && npm run validate:quality-issue-actions && npm run validate:phone-cleanup-action && npm run validate:headline-placeholder-action && npm run validate:custom-block-density-action && npm run validate:contact-cta-density-action && npm run validate:tear-label-density-action && npm run validate:brand-density-action && npm run validate:meta-preservation-action && npm run validate:photo-intent-action && npm run validate:suppressed-quality-items && npm run validate:quality-helper-imports && npm run validate:storage-safety && npm run validate:version-sync && npm run validate:package-scripts && npm run validate:changelog && npm run validate:layout-extras && npm run validate:phone-helper"
+    "validate": "npm run validate:templates && npm run validate:js && npm run validate:assets && npm run validate:quality-actions && npm run validate:quality-issue-actions && npm run validate:phone-cleanup-action && npm run validate:headline-placeholder-action && npm run validate:custom-block-density-action && npm run validate:contact-cta-density-action && npm run validate:tear-label-density-action && npm run validate:brand-density-action && npm run validate:meta-preservation-action && npm run validate:photo-intent-action && npm run validate:response-channel-action && npm run validate:suppressed-quality-items && npm run validate:quality-helper-imports && npm run validate:storage-safety && npm run validate:version-sync && npm run validate:package-scripts && npm run validate:changelog && npm run validate:layout-extras && npm run validate:phone-helper"
   },
   "engines": {
     "node": ">=20"

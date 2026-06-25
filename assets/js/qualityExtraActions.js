@@ -85,6 +85,14 @@ import { cleanPhoneValue } from './phone.js';
       window.setTimeout(focusPhoneField, 180);
       return;
     }
+    if (button.dataset.fix === 'showContact' && !hasPhoneValue()) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation?.();
+      focusPhoneField();
+      setStatus('Сначала укажите телефон для отклика. После этого контакты можно включить без новой ошибки.');
+      return;
+    }
     if (button.dataset.fix === 'shortHeadline') {
       event.preventDefault();
       event.stopPropagation();
@@ -319,6 +327,10 @@ import { cleanPhoneValue } from './phone.js';
     input.select?.();
     input.scrollIntoView?.({ block: 'center', behavior: 'smooth' });
     setStatus('Введите или проверьте телефон. Для печати лучше полный номер с кодом.');
+  }
+
+  function hasPhoneValue() {
+    return Boolean(String(document.getElementById('agentPhone')?.value || '').trim());
   }
 
   function getPrintCount() {

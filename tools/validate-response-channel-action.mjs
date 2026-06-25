@@ -1,6 +1,8 @@
 import fs from 'node:fs';
 
 const actionsSource = read('assets/js/qualityExtraActions.js');
+const guardSource = read('assets/js/responseChannelPhoneGuard.js');
+const layoutSyncSource = read('assets/js/layoutExtrasSync.js');
 const qualitySource = read('assets/js/quality.js');
 const errors = [];
 
@@ -9,6 +11,18 @@ check(actionsSource, 'qualityExtraActions.js', [
   'event.stopImmediatePropagation?.()',
   'focusPhoneField();',
   'function hasPhoneValue()'
+]);
+
+check(guardSource, 'responseChannelPhoneGuard.js', [
+  "import { getPhoneInfo } from './phone.js';",
+  "event.target.closest('[data-fix=\"showContact\"]')",
+  'if (phoneInfo.isLikelyPhone) return;',
+  'event.stopImmediatePropagation?.()',
+  'Контакты не включены'
+]);
+
+check(layoutSyncSource, 'layoutExtrasSync.js', [
+  "import './responseChannelPhoneGuard.js';"
 ]);
 
 check(qualitySource, 'quality.js', [

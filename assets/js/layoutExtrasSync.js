@@ -1,3 +1,4 @@
+import './qrIntentFix.js';
 import { syncLayoutExtras } from './layoutExtras.js';
 
 document.addEventListener('DOMContentLoaded', () => {

@@ -7,7 +7,9 @@ check(checklistSource, 'docs/quality-regression-checklist.md', [
   '# Чек-лист регрессионной проверки качества',
   'QR включён, но ссылка пустая',
   'штатное действие в `qualityExtraActions.js` сразу использует `focusQrLink`, а не старое `disableQr`',
+  'временный helper `qrIntentFix.js` не возвращается',
   'validate:qr-empty-direct-action',
+  'validate:quality-helper-imports',
   'Фото включено, но файл не загружен',
   'Нет канала отклика',
   'Дублирующиеся QR-замечания',
@@ -18,6 +20,7 @@ check(checklistSource, 'docs/quality-regression-checklist.md', [
   'подавленное замечание не выбирается как первое исправление в `qualityPriorityHint.js`',
   '`qualityPriorityHint.js` подключён в `index.html` выше `preprintSummary.js`',
   '`preprintSummary.js` подключён в `index.html` выше `qualityExtraActions.js`',
+  '`layoutExtrasSync.js` не импортирует удалённый `qrIntentFix.js`',
   '`qrSizeHint.js` явно импортирует `qualityQrDeduplicate.js`',
   'ключевые helper-файлы качества не должны лежать в `assets/js` без ожидаемого импорта',
   'устаревшие helper-файлы после переноса логики не должны возвращаться в `assets/js`',
@@ -34,6 +37,10 @@ check(checklistSource, 'docs/quality-regression-checklist.md', [
   'validate:quality-helper-imports',
   'validate:response-channel-action'
 ]);
+
+if (checklistSource.includes('даже ранний клик по старой кнопке `disableQr`')) {
+  errors.push('docs/quality-regression-checklist.md: устаревшее требование перехвата старой кнопки disableQr после удаления qrIntentFix.js');
+}
 
 if (checklistSource.includes('страховочном модуле')) {
   errors.push('docs/quality-regression-checklist.md: устаревшее упоминание страховочного приоритета после переноса логики в qualityPriorityHint.js');

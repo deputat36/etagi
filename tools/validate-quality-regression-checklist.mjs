@@ -18,6 +18,7 @@ check(checklistSource, 'docs/quality-regression-checklist.md', [
   '`preprintSummary.js` подключён в `index.html` выше `qualityExtraActions.js`',
   '`qrSizeHint.js` явно импортирует `qualityQrDeduplicate.js`',
   'ключевые helper-файлы качества не должны лежать в `assets/js` без ожидаемого импорта',
+  'устаревшие helper-файлы после переноса логики не должны возвращаться в `assets/js`',
   'Порядок загрузки помощников',
   'Перед печатью',
   'сводка перед печатью не должна считать подавленные замечания активными ошибками или предупреждениями',

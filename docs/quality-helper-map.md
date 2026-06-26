@@ -11,7 +11,7 @@
 - `assets/js/qualityPrintGuardHint.js` — подсказка и состояние печати;
 - `assets/js/qualityIssueFilters.js` — фильтры замечаний;
 - `assets/js/preprintSummary.js` — сводка перед печатью;
-- `assets/js/qualityExtraActions.js` — быстрые исправления, включая прямой переход к полю ссылки для пустого QR и к полям загрузки для пустых фото.
+- `assets/js/qualityExtraActions.js` — быстрые исправления, включая прямой переход к полю ссылки для пустого QR, к полям загрузки для пустых фото и к безопасной настройке канала отклика.
 
 ## Цепочка безопасных помощников
 
@@ -19,8 +19,7 @@
 
 `layoutExtrasSync.js` импортирует:
 
-- `qrSizeHint.js` — подключает QR-страховку от дублей;
-- `responseChannelPhoneGuard.js` — не даёт включить контакты без корректного телефона.
+- `qrSizeHint.js` — подключает QR-страховку от дублей.
 
 `qrSizeHint.js` импортирует:
 
@@ -47,9 +46,14 @@
 - `tools/validate-readme-quality-docs.mjs` — проверяет README, подключение проверки в `package.json` и покрытие `.github/workflows/validate.yml` для `docs/**` и `README.md`;
 - `tools/validate-photo-intent-action.mjs` — проверяет, что штатные фото-замечания сразу ведут к полям загрузки, а не выключают фото;
 - `tools/validate-qr-empty-direct-action.mjs` — проверяет, что штатное действие пустого QR сразу ведёт к ссылке, а не выключает QR;
+- `tools/validate-response-channel-action.mjs` — проверяет, что замечание без канала отклика обрабатывается прямым действием `responseChannel`, а не старым `showContact`;
 - `tools/validate-changelog.mjs` — проверяет, что раздел `3.84.0` содержит ключевые изменения по helper-модулям качества.
 
 ## Устаревшие модули
+
+`responseChannelPhoneGuard.js` удалён.
+
+Причина: канал отклика теперь безопасно обрабатывается напрямую в `qualityExtraActions.js` через действие `responseChannel`. Если телефон пустой или похож на ошибочный, пользователь переходит к полю телефона; если телефон корректный, включаются контакты. Отдельный перехватчик старого `showContact` больше не нужен.
 
 `photoIntentFix.js` удалён.
 

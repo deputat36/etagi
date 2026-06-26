@@ -11,7 +11,7 @@
 - `assets/js/qualityPrintGuardHint.js` — подсказка и состояние печати;
 - `assets/js/qualityIssueFilters.js` — фильтры замечаний;
 - `assets/js/preprintSummary.js` — сводка перед печатью;
-- `assets/js/qualityExtraActions.js` — быстрые исправления, включая прямой переход к полю ссылки для пустого QR.
+- `assets/js/qualityExtraActions.js` — быстрые исправления, включая прямой переход к полю ссылки для пустого QR и к полям загрузки для пустых фото.
 
 ## Цепочка безопасных помощников
 
@@ -19,7 +19,6 @@
 
 `layoutExtrasSync.js` импортирует:
 
-- `photoIntentFix.js` — сохраняет намерение пользователя при пустом фото и переводит к полю загрузки;
 - `qrSizeHint.js` — подключает QR-страховку от дублей;
 - `responseChannelPhoneGuard.js` — не даёт включить контакты без корректного телефона.
 
@@ -46,10 +45,15 @@
 - `tools/validate-quality-helper-imports.mjs` — проверяет порядок загрузки, side-effect imports и отсутствие удалённых временных helper-файлов;
 - `tools/validate-quality-helper-map.mjs` — проверяет этот документ;
 - `tools/validate-readme-quality-docs.mjs` — проверяет README, подключение проверки в `package.json` и покрытие `.github/workflows/validate.yml` для `docs/**` и `README.md`;
+- `tools/validate-photo-intent-action.mjs` — проверяет, что штатные фото-замечания сразу ведут к полям загрузки, а не выключают фото;
 - `tools/validate-qr-empty-direct-action.mjs` — проверяет, что штатное действие пустого QR сразу ведёт к ссылке, а не выключает QR;
 - `tools/validate-changelog.mjs` — проверяет, что раздел `3.84.0` содержит ключевые изменения по helper-модулям качества.
 
 ## Устаревшие модули
+
+`photoIntentFix.js` удалён.
+
+Причина: пустые фото теперь безопасно обрабатываются напрямую в `qualityExtraActions.js` через действия `focusPhotoOne` и `focusPhotoTwo`. Отдельный временный helper больше не нужен и не должен возвращать знание о старых `noPhoto` и `onePhoto`.
 
 `qrIntentFix.js` удалён.
 

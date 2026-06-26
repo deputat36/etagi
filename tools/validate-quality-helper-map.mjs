@@ -18,6 +18,13 @@ check(mapSource, 'docs/quality-helper-map.md', [
   '`qualityPriorityHint.js`',
   '`qualityPrintGuardHint.js`',
   '`preprintSummary.js`',
+  '## Документация и проверки',
+  '`tools/validate-quality-helper-imports.mjs`',
+  '`tools/validate-quality-helper-map.mjs`',
+  '`tools/validate-readme-quality-docs.mjs`',
+  '`.github/workflows/validate.yml`',
+  '`docs/**` и `README.md`',
+  '`tools/validate-changelog.mjs`',
   '`qualitySuppressedPriority.js` удалён',
   'data-quality-suppressed',
   'Файл, который лежит в `assets/js`, но не подключён ожидаемым импортом, считается нерабочим'

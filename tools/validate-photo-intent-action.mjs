@@ -23,17 +23,13 @@ for (const snippet of requiredActionSnippets) {
   }
 }
 
-const requiredQualitySnippets = [
+check(qualitySource, 'quality.js', [
   "title:'Фото включено, но не загружено'",
-  "title:'Второе фото не загружено'",
-  "action:null"
-];
+  "title:'Второе фото не загружено'"
+]);
 
-for (const snippet of requiredQualitySnippets) {
-  if (!qualitySource.includes(snippet)) {
-    errors.push(`quality.js: не найдено безопасное замечание для фото — ${snippet}`);
-  }
-}
+checkIssueAction('Фото включено, но не загружено', 'null', "'noPhoto'", 'первое пустое фото должно вести к полю загрузки через focusPhotoOne, а не выключать фото');
+checkIssueAction('Второе фото не загружено', 'null', "'onePhoto'", 'второе пустое фото должно вести к полю загрузки через focusPhotoTwo, а не менять режим фото');
 
 const forbiddenSnippets = [
   "import './photoIntentFix.js';",
@@ -60,6 +56,30 @@ if (errors.length) {
 }
 
 console.log('Проверка безопасного сценария фото пройдена.');
+
+function checkIssueAction(title, expectedAction, forbiddenAction, message) {
+  if (!hasIssueAction(title, expectedAction)) {
+    errors.push(`quality.js: ${message}`);
+  }
+  if (hasIssueAction(title, forbiddenAction)) {
+    errors.push(`quality.js: у замечания «${title}» найдено запрещённое действие ${forbiddenAction}`);
+  }
+}
+
+function hasIssueAction(title, actionValue) {
+  const pattern = new RegExp(`issues\\.push\\(\\{[^}]*title\\s*:\\s*['\"]${escapeRegExp(title)}['\"][^}]*action\\s*:\\s*${escapeRegExp(actionValue)}[^}]*\\}\\)`);
+  return pattern.test(qualitySource);
+}
+
+function check(source, file, snippets) {
+  for (const snippet of snippets) {
+    if (!source.includes(snippet)) errors.push(`${file}: отсутствует ${snippet}`);
+  }
+}
+
+function escapeRegExp(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
 
 function read(file) {
   return fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : '';

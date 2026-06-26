@@ -2,6 +2,7 @@ import fs from 'node:fs';
 
 const readmeSource = read('README.md');
 const packageSource = read('package.json');
+const workflowSource = read('.github/workflows/validate.yml');
 const errors = [];
 
 check(readmeSource, 'README.md', [
@@ -35,13 +36,19 @@ check(packageSource, 'package.json', [
   'npm run validate:readme-quality-docs'
 ]);
 
+check(workflowSource, '.github/workflows/validate.yml', [
+  "- 'docs/**'",
+  "- 'README.md'",
+  'run: npm run validate'
+]);
+
 if (errors.length) {
-  console.error('\nОшибки README по helper-документации:');
+  console.error('\nОшибки README, документации и workflow по helper-модулям качества:');
   errors.forEach(error => console.error(`- ${error}`));
   process.exit(1);
 }
 
-console.log('README по helper-документации актуален.');
+console.log('README, документация и workflow по helper-модулям качества актуальны.');
 
 function check(source, file, snippets) {
   for (const snippet of snippets) {

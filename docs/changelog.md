@@ -16,6 +16,7 @@
 - Мягкая QR-подсказка теперь работает только для 4 макетов и не дублирует предупреждение для мини-макетов 6–8.
 - Подавленный QR-дубль больше не учитывается в фильтре, сводке, приоритете, состоянии кнопки печати и сводке перед печатью.
 - Проверка changelog теперь безопасно выделяет только текущий раздел версии и не опирается на неподходящий для JavaScript якорь `\z`.
+- Проверки прямых действий QR, фото и канала отклика теперь связывают `action:null` с конкретным замечанием, чтобы старые действия `disableQr`, `noPhoto`, `onePhoto` и `showContact` не вернулись под изменённым текстом.
 - Добавлены документы `docs/quality-helper-map.md` и `docs/quality-regression-checklist.md` для сопровождения helper-модулей качества и ручной регрессии.
 - README обновлён под текущую цепочку helper-модулей качества, а workflow теперь запускает проверки при изменении `docs/**` и `README.md`.
 - Добавлены проверки `validate:photo-intent-action`, `validate:response-channel-action`, `validate:qr-empty-direct-action`, `validate:suppressed-quality-items`, `validate:quality-helper-imports`, `validate:quality-helper-map`, `validate:quality-regression-checklist` и `validate:readme-quality-docs`.

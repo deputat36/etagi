@@ -23,6 +23,24 @@ export function applyLayoutMode(state, mode = 'auto'){
   return next;
 }
 
+export function applyLayoutModePreservingMedia(state, mode = 'auto'){
+  const mediaIntent = pickMediaIntent(state);
+  const next = applyLayoutMode(state, mode);
+  next.layoutMode = mode;
+
+  if(mediaIntent.showPhoto){
+    next.showPhoto = true;
+    next.photoMode = mediaIntent.photoMode;
+  }
+
+  if(mediaIntent.showQr){
+    next.showQr = true;
+  }
+
+  normalizeBlocks(next);
+  return next;
+}
+
 export function getLayoutHints(state){
   const hints = [];
   const count = Number(state.printCount) || 2;
@@ -47,6 +65,15 @@ export function getLayoutHints(state){
   }
 
   return hints.slice(0, 4);
+}
+
+function pickMediaIntent(state){
+  const photoMode = state.photoMode && state.photoMode !== 'none' ? state.photoMode : 'one';
+  return {
+    showPhoto: Boolean(state.showPhoto && state.photoMode !== 'none'),
+    photoMode,
+    showQr: Boolean(state.showQr)
+  };
 }
 
 function pickAutoMode(state){

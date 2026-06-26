@@ -54,7 +54,8 @@ import { getPhoneInfo } from './phone.js';
 
   function getQualityInfo() {
     const score = byId('qualityScore')?.textContent?.trim() || 'не проверено';
-    const items = Array.from(document.querySelectorAll('#qualityList .qitem'));
+    const items = Array.from(document.querySelectorAll('#qualityList .qitem'))
+      .filter((item) => !item.dataset.qualitySuppressed);
     const errorItems = items.filter((item) => item.classList.contains('error'));
     const warningItems = items.filter((item) => item.classList.contains('warn'));
 

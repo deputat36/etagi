@@ -6,12 +6,11 @@ const errors = [];
 check(mapSource, 'docs/quality-helper-map.md', [
   '# Карта помощников качества',
   '`index.html` подключает основные модули качества напрямую',
-  'включая прямой переход к полю ссылки для пустого QR и к полям загрузки для пустых фото',
+  'включая прямой переход к полю ссылки для пустого QR, к полям загрузки для пустых фото и к безопасной настройке канала отклика',
   '`preprintSummary.js` импортирует `layoutExtrasSync.js`',
   '`layoutExtrasSync.js` импортирует',
   '`qrSizeHint.js` импортирует',
   '`qualityQrDeduplicate.js`',
-  '`responseChannelPhoneGuard.js`',
   '`qualityIssueFilters.js`',
   '`qualityIssueSummary.js`',
   '`qualityPriorityHint.js`',
@@ -25,9 +24,13 @@ check(mapSource, 'docs/quality-helper-map.md', [
   'штатные фото-замечания сразу ведут к полям загрузки, а не выключают фото',
   '`tools/validate-qr-empty-direct-action.mjs`',
   'штатное действие пустого QR сразу ведёт к ссылке, а не выключает QR',
+  '`tools/validate-response-channel-action.mjs`',
+  'замечание без канала отклика обрабатывается прямым действием `responseChannel`, а не старым `showContact`',
   '`.github/workflows/validate.yml`',
   '`docs/**` и `README.md`',
   '`tools/validate-changelog.mjs`',
+  '`responseChannelPhoneGuard.js` удалён',
+  'канал отклика теперь безопасно обрабатывается напрямую в `qualityExtraActions.js` через действие `responseChannel`',
   '`photoIntentFix.js` удалён',
   'пустые фото теперь безопасно обрабатываются напрямую в `qualityExtraActions.js`',
   '`qrIntentFix.js` удалён',
@@ -36,6 +39,10 @@ check(mapSource, 'docs/quality-helper-map.md', [
   'data-quality-suppressed',
   'Файл, который лежит в `assets/js`, но не подключён ожидаемым импортом, считается нерабочим'
 ]);
+
+if (mapSource.includes('- `responseChannelPhoneGuard.js` —')) {
+  errors.push('docs/quality-helper-map.md: responseChannelPhoneGuard.js не должен оставаться в рабочей цепочке helper-модулей');
+}
 
 if (mapSource.includes('- `photoIntentFix.js` —')) {
   errors.push('docs/quality-helper-map.md: photoIntentFix.js не должен оставаться в рабочей цепочке helper-модулей');

@@ -29,6 +29,7 @@ const requiredCurrentSnippets = [
   'безопасно выделяет только текущий раздел версии',
   'Проверки прямых действий QR, фото и канала отклика теперь связывают `action:null` с конкретным замечанием',
   'Проверка package-скриптов теперь точно разбирает общий `npm run validate`',
+  'Проверка связей файлов теперь ловит повторное подключение локальных `script` и `stylesheet`-ассетов в HTML',
   'docs/quality-helper-map.md',
   'docs/quality-regression-checklist.md',
   'docs/**',

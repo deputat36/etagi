@@ -8,6 +8,9 @@ const source = readRequired(changelogPath);
 const requiredHistoricalVersions = ['3.84.0', '3.60.0', '2.0.0', '1.0.0'];
 const minimumVersionCount = 35;
 const requiredCurrentSnippets = [
+  'assets/js/qualityExtraActions.js',
+  'сразу показывает для пустого QR действие «Добавить ссылку»',
+  'disableQr',
   'assets/js/responseChannelPhoneGuard.js',
   'Мягкая QR-подсказка теперь работает только для 4 макетов',
   'сводке перед печатью',
@@ -16,6 +19,7 @@ const requiredCurrentSnippets = [
   'docs/**',
   'README.md',
   'validate:response-channel-action',
+  'validate:qr-empty-direct-action',
   'validate:quality-helper-map',
   'validate:quality-regression-checklist',
   'validate:readme-quality-docs'

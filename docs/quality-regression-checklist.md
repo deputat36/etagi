@@ -11,7 +11,7 @@
 - QR не выключается автоматически;
 - клик переводит пользователя к полю ссылки QR;
 - статус сообщает, что QR оставлен включённым;
-- даже ранний клик по старой кнопке `disableQr` не выключает QR.
+- временный helper `qrIntentFix.js` не возвращается, потому что прямое действие уже живёт в `qualityExtraActions.js`.
 
 Что проверить вручную:
 
@@ -24,7 +24,8 @@
 Автоматически это защищают проверки:
 
 - `validate:qr-empty-direct-action`;
-- `validate:quality-actions`.
+- `validate:quality-actions`;
+- `validate:quality-helper-imports`.
 
 ## 2. Фото включено, но файл не загружен
 
@@ -93,7 +94,8 @@
 - `qualityPriorityHint.js` подключён в `index.html` выше `preprintSummary.js`;
 - `preprintSummary.js` подключён в `index.html` выше `qualityExtraActions.js`;
 - `preprintSummary.js` импортирует `layoutExtrasSync.js`;
-- `layoutExtrasSync.js` явно импортирует помощники QR, фото, QR-подсказок и канала отклика;
+- `layoutExtrasSync.js` явно импортирует помощники фото, QR-подсказок и канала отклика;
+- `layoutExtrasSync.js` не импортирует удалённый `qrIntentFix.js`;
 - `qrSizeHint.js` явно импортирует `qualityQrDeduplicate.js`;
 - ключевые helper-файлы качества не должны лежать в `assets/js` без ожидаемого импорта;
 - устаревшие helper-файлы после переноса логики не должны возвращаться в `assets/js`.

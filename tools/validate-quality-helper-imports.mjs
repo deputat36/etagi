@@ -6,9 +6,18 @@ const layoutSyncSource = read('assets/js/layoutExtrasSync.js');
 const errors = [];
 
 check(indexSource, 'index.html', [
+  'src="assets/js/qualityPriorityHint.js"',
   'src="assets/js/preprintSummary.js"',
   'src="assets/js/qualityExtraActions.js"'
 ]);
+
+checkScriptOrder(
+  indexSource,
+  'index.html',
+  'assets/js/qualityPriorityHint.js',
+  'assets/js/preprintSummary.js',
+  'основной приоритет качества должен быть готов до помощников подавления'
+);
 
 checkScriptOrder(
   indexSource,

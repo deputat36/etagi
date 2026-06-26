@@ -18,6 +18,7 @@ check(qualitySource, 'quality.js', [
 ]);
 
 checkQrSourceGuard(qualitySource);
+checkRemovedSuppressedPriority();
 
 check(dedupeSource, 'qualityQrDeduplicate.js', [
   "const SUPPRESSED_REASON = 'qr-size-duplicate'",
@@ -84,6 +85,12 @@ function checkQrSourceGuard(source) {
 
   if (!/count\s*>=\s*4\s*&&\s*count\s*<\s*6/.test(softQrLine)) {
     errors.push('quality.js: мягкий QR-совет должен работать только для 4 макетов, а не для 6–8');
+  }
+}
+
+function checkRemovedSuppressedPriority() {
+  if (fs.existsSync('assets/js/qualitySuppressedPriority.js')) {
+    errors.push('assets/js/qualitySuppressedPriority.js: устаревший дубль основного qualityPriorityHint.js должен оставаться удалённым');
   }
 }
 

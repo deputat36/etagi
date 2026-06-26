@@ -33,10 +33,11 @@ function checkHtmlReferences() {
   for (const htmlPath of htmlFiles) {
     const relativeHtmlPath = toProjectPath(htmlPath);
     const html = fs.readFileSync(htmlPath, 'utf8');
-    const stylesheetRefs = matchAll(html, /<link[^>]+href=["']([^"']+)["']/gi);
+    const linkRefs = matchAll(html, /<link[^>]+href=["']([^"']+)["']/gi);
+    const stylesheetRefs = matchStylesheetRefs(html);
     const scriptRefs = matchAll(html, /<script[^>]+src=["']([^"']+)["']/gi);
     const refs = [
-      ...stylesheetRefs,
+      ...linkRefs,
       ...scriptRefs,
       ...matchAll(html, /<a[^>]+href=["']([^"']+)["']/gi),
       ...matchAll(html, /<img[^>]+src=["']([^"']+)["']/gi)
@@ -107,6 +108,13 @@ function checkDuplicateHtmlAssetReferences(htmlPath, relativeHtmlPath, refs, typ
   for (const [file, count] of counts) {
     if (count > 1) errors.push(`${relativeHtmlPath}: ${type} подключён повторно — ${file}`);
   }
+}
+
+function matchStylesheetRefs(html) {
+  return [...html.matchAll(/<link\b[^>]*>/gi)]
+    .filter(match => /\brel\s*=\s*["'][^"']*\bstylesheet\b[^"']*["']/i.test(match[0]))
+    .map(match => match[0].match(/\bhref\s*=\s*["']([^"']+)["']/i)?.[1])
+    .filter(Boolean);
 }
 
 function resolveImport(fromFile, importPath) {

@@ -7,12 +7,13 @@
 - Добавлена подсказка, если в поле телефона есть лишний текст, ухудшающий читаемость отрывных листков.
 - `assets/js/preprintSummary.js` теперь отдельно предупреждает о неполном номере перед печатью.
 - Добавлены безопасные помощники для QR и фото: включённые блоки не отключаются автоматически, а переводят пользователя к нужному полю.
+- `assets/js/qualityExtraActions.js` теперь сразу показывает для пустого QR действие «Добавить ссылку» и больше не содержит прямого выключения QR через `disableQr`.
 - `assets/js/responseChannelPhoneGuard.js` не даёт включить контакты через быстрые исправления, если телефон пустой, неполный или выглядит ошибочным.
 - Мягкая QR-подсказка теперь работает только для 4 макетов и не дублирует предупреждение для мини-макетов 6–8.
 - Подавленный QR-дубль больше не учитывается в фильтре, сводке, приоритете, состоянии кнопки печати и сводке перед печатью.
 - Добавлены документы `docs/quality-helper-map.md` и `docs/quality-regression-checklist.md` для сопровождения helper-модулей качества и ручной регрессии.
 - README обновлён под текущую цепочку helper-модулей качества, а workflow теперь запускает проверки при изменении `docs/**` и `README.md`.
-- Добавлены проверки `validate:photo-intent-action`, `validate:response-channel-action`, `validate:suppressed-quality-items`, `validate:quality-helper-imports`, `validate:quality-helper-map`, `validate:quality-regression-checklist` и `validate:readme-quality-docs`.
+- Добавлены проверки `validate:photo-intent-action`, `validate:response-channel-action`, `validate:qr-empty-direct-action`, `validate:suppressed-quality-items`, `validate:quality-helper-imports`, `validate:quality-helper-map`, `validate:quality-regression-checklist` и `validate:readme-quality-docs`.
 - Версия состояния и пакета обновлена до `3.84.0`.
 
 ## 3.83.0

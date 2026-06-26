@@ -87,7 +87,9 @@
 - `qualityPriorityHint.js` подключён в `index.html` выше `preprintSummary.js`;
 - `preprintSummary.js` подключён в `index.html` выше `qualityExtraActions.js`;
 - `preprintSummary.js` импортирует `layoutExtrasSync.js`;
-- `layoutExtrasSync.js` явно импортирует помощники QR, фото, QR-подсказок и канала отклика.
+- `layoutExtrasSync.js` явно импортирует помощники QR, фото, QR-подсказок и канала отклика;
+- `qrSizeHint.js` явно импортирует `qualityQrDeduplicate.js`;
+- ключевые helper-файлы качества не должны лежать в `assets/js` без ожидаемого импорта.
 
 Автоматически это защищают проверки:
 

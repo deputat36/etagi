@@ -47,11 +47,13 @@
 - визуальное состояние кнопки печати при ошибках и важных замечаниях;
 - переход к первому критичному замечанию при попытке печати с ошибками;
 - быстрые исправления заголовков, технических и продающих замечаний контроля качества;
+- безопасные помощники качества для QR, фото и канала отклика: выбранный пользователем блок не выключается автоматически, а интерфейс переводит к нужному полю;
+- подавление дублирующих QR-замечаний в фильтрах, сводке, приоритете, печатной подсказке и сводке перед печатью;
 - сводка перед печатью с телефоном, форматом листа, QR и названиями главных предупреждений;
 - задание на расклейку для исполнителя;
 - отчёт после расклейки и фиксация результата;
 - HTML-центр помощи для СПН;
-- проверки шаблонов, JS, связей файлов, сохранений, версий, changelog, расширенных полей, helper телефона и действий замечаний качества через `npm run validate`.
+- проверки шаблонов, JS, связей файлов, сохранений, версий, changelog, расширенных полей, helper телефона, helper-карты и действий замечаний качества через `npm run validate`.
 
 ## Структура
 
@@ -73,7 +75,12 @@ assets/js/qr.js                         генерация QR
 assets/js/phone.js                      проверка и разбор телефона
 assets/js/layoutRules.js                быстрые режимы и автоподстройка
 assets/js/layoutExtras.js               единые расширенные поля макета
-assets/js/layoutExtrasSync.js           синхронизация расширенных полей при импорте JSON
+assets/js/layoutExtrasSync.js           цепочка подключения безопасных helper-модулей
+assets/js/qrIntentFix.js                переход к ссылке, если QR включён без ссылки
+assets/js/photoIntentFix.js             переход к загрузке, если фото включено без файла
+assets/js/qrSizeHint.js                 подключение страховки QR-подсказок
+assets/js/qualityQrDeduplicate.js       подавление дублирующих QR-замечаний
+assets/js/responseChannelPhoneGuard.js  защита включения контактов без корректного телефона
 assets/js/preprintSummary.js            сводка перед печатью
 assets/js/spnClarityPanel.js            пошаговый маршрут работы
 assets/js/spnContactEditor.js           редактор контактного блока
@@ -109,6 +116,8 @@ docs/spn-quick-start.md                 быстрый старт для СПН
 docs/field-test-checklist.md            чек-лист полевого теста расклеек
 docs/template-authoring-guide.md        как добавлять шаблоны
 docs/maintenance-guide.md               как сопровождать проект
+docs/quality-helper-map.md              карта helper-модулей качества
+docs/quality-regression-checklist.md    ручной чек-лист регрессии качества
 docs/changelog.md                       история изменений
 docs/audit-and-improvement-plan.md      аудит и план развития
 tools/validate-templates.mjs            проверка шаблонов
@@ -116,6 +125,12 @@ tools/validate-js.mjs                   проверка JS
 tools/validate-assets.mjs               проверка связей файлов
 tools/validate-quality-actions.mjs      проверка быстрых исправлений
 tools/validate-quality-issue-actions.mjs проверка действий замечаний качества
+tools/validate-photo-intent-action.mjs  проверка безопасного действия фото
+tools/validate-response-channel-action.mjs проверка безопасного канала отклика
+tools/validate-suppressed-quality-items.mjs проверка подавленных замечаний
+tools/validate-quality-helper-imports.mjs проверка цепочки helper-импортов
+tools/validate-quality-regression-checklist.mjs проверка чек-листа регрессии
+tools/validate-quality-helper-map.mjs   проверка карты helper-модулей
 tools/validate-storage-safety.mjs       проверка защиты браузерных сохранений
 tools/validate-version-sync.mjs         проверка синхронизации версий
 tools/validate-package-scripts.mjs      проверка подключения validate-скриптов
@@ -140,6 +155,19 @@ npm run validate:js
 npm run validate:assets
 npm run validate:quality-actions
 npm run validate:quality-issue-actions
+npm run validate:phone-cleanup-action
+npm run validate:headline-placeholder-action
+npm run validate:custom-block-density-action
+npm run validate:contact-cta-density-action
+npm run validate:tear-label-density-action
+npm run validate:brand-density-action
+npm run validate:meta-preservation-action
+npm run validate:photo-intent-action
+npm run validate:response-channel-action
+npm run validate:suppressed-quality-items
+npm run validate:quality-helper-imports
+npm run validate:quality-regression-checklist
+npm run validate:quality-helper-map
 npm run validate:storage-safety
 npm run validate:version-sync
 npm run validate:package-scripts
@@ -151,12 +179,14 @@ npm run validate:phone-helper
 ## Документация
 
 ```text
-docs/spn-quick-start.md            быстрый старт для СПН
-docs/field-test-checklist.md       чек-лист полевого теста расклеек
-docs/template-authoring-guide.md   как добавлять шаблоны
-docs/maintenance-guide.md          как сопровождать проект
-docs/changelog.md                  история изменений
-docs/audit-and-improvement-plan.md аудит и план развития
+docs/spn-quick-start.md              быстрый старт для СПН
+docs/field-test-checklist.md         чек-лист полевого теста расклеек
+docs/template-authoring-guide.md     как добавлять шаблоны
+docs/maintenance-guide.md            как сопровождать проект
+docs/quality-helper-map.md           карта helper-модулей качества
+docs/quality-regression-checklist.md ручной чек-лист регрессии качества
+docs/changelog.md                    история изменений
+docs/audit-and-improvement-plan.md   аудит и план развития
 ```
 
 ## GitHub Pages

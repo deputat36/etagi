@@ -6,12 +6,11 @@ const errors = [];
 check(mapSource, 'docs/quality-helper-map.md', [
   '# Карта помощников качества',
   '`index.html` подключает основные модули качества напрямую',
-  'включая прямой переход к полю ссылки для пустого QR',
+  'включая прямой переход к полю ссылки для пустого QR и к полям загрузки для пустых фото',
   '`preprintSummary.js` импортирует `layoutExtrasSync.js`',
   '`layoutExtrasSync.js` импортирует',
   '`qrSizeHint.js` импортирует',
   '`qualityQrDeduplicate.js`',
-  '`photoIntentFix.js`',
   '`responseChannelPhoneGuard.js`',
   '`qualityIssueFilters.js`',
   '`qualityIssueSummary.js`',
@@ -22,17 +21,25 @@ check(mapSource, 'docs/quality-helper-map.md', [
   '`tools/validate-quality-helper-imports.mjs`',
   '`tools/validate-quality-helper-map.mjs`',
   '`tools/validate-readme-quality-docs.mjs`',
+  '`tools/validate-photo-intent-action.mjs`',
+  'штатные фото-замечания сразу ведут к полям загрузки, а не выключают фото',
   '`tools/validate-qr-empty-direct-action.mjs`',
   'штатное действие пустого QR сразу ведёт к ссылке, а не выключает QR',
   '`.github/workflows/validate.yml`',
   '`docs/**` и `README.md`',
   '`tools/validate-changelog.mjs`',
+  '`photoIntentFix.js` удалён',
+  'пустые фото теперь безопасно обрабатываются напрямую в `qualityExtraActions.js`',
   '`qrIntentFix.js` удалён',
   'пустой QR теперь безопасно обрабатывается напрямую в `qualityExtraActions.js`',
   '`qualitySuppressedPriority.js` удалён',
   'data-quality-suppressed',
   'Файл, который лежит в `assets/js`, но не подключён ожидаемым импортом, считается нерабочим'
 ]);
+
+if (mapSource.includes('- `photoIntentFix.js` —')) {
+  errors.push('docs/quality-helper-map.md: photoIntentFix.js не должен оставаться в рабочей цепочке helper-модулей');
+}
 
 if (mapSource.includes('- `qrIntentFix.js` —')) {
   errors.push('docs/quality-helper-map.md: qrIntentFix.js не должен оставаться в рабочей цепочке helper-модулей');

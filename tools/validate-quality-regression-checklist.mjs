@@ -13,7 +13,7 @@ check(checklistSource, 'docs/quality-regression-checklist.md', [
   'при 6–8 макетах на А4 мягкий совет не должен создаваться в `quality.js`',
   'UI-подавление дубля остаётся страховкой',
   'подавленное замечание не учитывается в сводке перед печатью',
-  'подавленное замечание не выбирается как первое исправление ни в `qualityPriorityHint.js`',
+  'подавленное замечание не выбирается как первое исправление в `qualityPriorityHint.js`',
   '`qualityPriorityHint.js` подключён в `index.html` выше `preprintSummary.js`',
   '`preprintSummary.js` подключён в `index.html` выше `qualityExtraActions.js`',
   'Порядок загрузки помощников',
@@ -29,6 +29,10 @@ check(checklistSource, 'docs/quality-regression-checklist.md', [
   'validate:quality-helper-imports',
   'validate:response-channel-action'
 ]);
+
+if (checklistSource.includes('страховочном модуле')) {
+  errors.push('docs/quality-regression-checklist.md: устаревшее упоминание страховочного приоритета после переноса логики в qualityPriorityHint.js');
+}
 
 if (errors.length) {
   console.error('\nОшибки чек-листа регрессионной проверки качества:');

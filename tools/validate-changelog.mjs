@@ -7,9 +7,23 @@ const errors = [];
 const source = readRequired(changelogPath);
 const requiredHistoricalVersions = ['3.84.0', '3.60.0', '2.0.0', '1.0.0'];
 const minimumVersionCount = 35;
+const requiredCurrentSnippets = [
+  'assets/js/responseChannelPhoneGuard.js',
+  'Мягкая QR-подсказка теперь работает только для 4 макетов',
+  'сводке перед печатью',
+  'docs/quality-helper-map.md',
+  'docs/quality-regression-checklist.md',
+  'docs/**',
+  'README.md',
+  'validate:response-channel-action',
+  'validate:quality-helper-map',
+  'validate:quality-regression-checklist',
+  'validate:readme-quality-docs'
+];
 
 if (source) {
   const versions = [...source.matchAll(/^##\s+([0-9]+\.[0-9]+\.[0-9]+)\s*$/gm)].map(match => match[1]);
+  const currentSection = getSection(source, '3.84.0');
 
   if (!versions.length) {
     errors.push('docs/changelog.md: не найдены записи версий вида ## X.Y.Z');
@@ -22,6 +36,12 @@ if (source) {
   for (const version of requiredHistoricalVersions) {
     if (!versions.includes(version)) {
       errors.push(`docs/changelog.md: отсутствует ключевая историческая версия ${version}`);
+    }
+  }
+
+  for (const snippet of requiredCurrentSnippets) {
+    if (!currentSection.includes(snippet)) {
+      errors.push(`docs/changelog.md: в разделе 3.84.0 отсутствует актуальный пункт ${snippet}`);
     }
   }
 
@@ -47,6 +67,15 @@ if (errors.length) {
 }
 
 console.log('Проверка истории изменений пройдена.');
+
+function getSection(text, version) {
+  const pattern = new RegExp(`^##\\s+${escapeRegExp(version)}\\s*$([\\s\\S]*?)(?=^##\\s+\\d+\\.\\d+\\.\\d+\\s*$|\\z)`, 'm');
+  return text.match(pattern)?.[1] || '';
+}
+
+function escapeRegExp(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
 
 function compareVersions(left, right) {
   const a = left.split('.').map(Number);

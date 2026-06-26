@@ -44,6 +44,8 @@ import { cleanPhoneValue } from './phone.js';
     { title: 'Подпись отрывных длинная для мини-макета', action: 'shortTearLabel', label: 'Сократить подпись' },
     { title: 'Брендовая строка длинновата', action: 'shortBrand', label: 'Укоротить бренд' },
     { title: 'Бренд перегружает мини-макет', action: 'shortBrand', label: 'Укоротить бренд' },
+    { title: 'Фото включено, но не загружено', action: 'focusPhotoOne', label: 'Перейти к фото' },
+    { title: 'Второе фото не загружено', action: 'focusPhotoTwo', label: 'Перейти ко второму фото' },
     { title: 'QR включён, но ссылки нет', action: 'focusQrLink', label: 'Добавить ссылку' },
     { title: 'Ссылка для QR слишком длинная', action: 'shortQrLink', label: 'Заменить ссылку' },
     { title: 'В поле телефона есть лишний текст', action: 'cleanPhone', label: 'Оставить только номер' }
@@ -124,6 +126,8 @@ import { cleanPhoneValue } from './phone.js';
     if (action === 'tearLabel') setTearLabel(DEFAULT_TEAR_LABEL);
     if (action === 'shortTearLabel') setTearLabel(shortTearLabel());
     if (action === 'shortBrand') setShortBrand();
+    if (action === 'focusPhotoOne') focusPhotoField('photoOne', 'Фото оставлено включённым. Выберите файл в поле Фото 1.');
+    if (action === 'focusPhotoTwo') focusPhotoField('photoTwo', 'Фото оставлено включённым. Выберите второе фото или переключите режим на одно фото.');
     if (action === 'focusQrLink') focusQrField('QR оставлен включённым. Вставьте ссылку, которую человек откроет после сканирования.');
     if (action === 'shortQrLink') focusQrField();
     if (action === 'cleanPhone') cleanPhone();
@@ -260,6 +264,15 @@ import { cleanPhoneValue } from './phone.js';
     input.focus();
     input.select?.();
     input.scrollIntoView?.({ block: 'center', behavior: 'smooth' });
+    setStatus(statusText);
+  }
+
+  function focusPhotoField(inputId, statusText) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+
+    input.scrollIntoView?.({ block: 'center', behavior: 'smooth' });
+    input.focus?.();
     setStatus(statusText);
   }
 

@@ -14,6 +14,8 @@ check(checklistSource, 'docs/quality-regression-checklist.md', [
   'UI-подавление дубля остаётся страховкой',
   'подавленное замечание не учитывается в сводке перед печатью',
   'подавленное замечание не выбирается как первое исправление ни в `qualityPriorityHint.js`',
+  '`qualityPriorityHint.js` подключён в `index.html` выше `preprintSummary.js`',
+  '`preprintSummary.js` подключён в `index.html` выше `qualityExtraActions.js`',
   'Порядок загрузки помощников',
   'Перед печатью',
   'сводка перед печатью не должна считать подавленные замечания активными ошибками или предупреждениями',

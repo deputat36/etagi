@@ -19,9 +19,10 @@
 - Проверки прямых действий QR, фото и канала отклика теперь связывают `action:null` с конкретным замечанием, чтобы старые действия `disableQr`, `noPhoto`, `onePhoto` и `showContact` не вернулись под изменённым текстом.
 - Проверка package-скриптов теперь точно разбирает общий `npm run validate`, ловит лишние команды, дубли и нарушение порядка validate-скриптов.
 - Проверка связей файлов теперь ловит повторное подключение локальных `script` и `stylesheet`-ассетов в HTML, чтобы один модуль не запускался дважды.
+- Добавлена проверка `validate:asset-duplicates`, которая закрепляет защиту от возврата дублей HTML-ассетов.
 - Добавлены документы `docs/quality-helper-map.md` и `docs/quality-regression-checklist.md` для сопровождения helper-модулей качества и ручной регрессии.
 - README обновлён под текущую цепочку helper-модулей качества, а workflow теперь запускает проверки при изменении `docs/**` и `README.md`.
-- Добавлены проверки `validate:photo-intent-action`, `validate:response-channel-action`, `validate:qr-empty-direct-action`, `validate:suppressed-quality-items`, `validate:quality-helper-imports`, `validate:quality-helper-map`, `validate:quality-regression-checklist` и `validate:readme-quality-docs`.
+- Добавлены проверки `validate:asset-duplicates`, `validate:photo-intent-action`, `validate:response-channel-action`, `validate:qr-empty-direct-action`, `validate:suppressed-quality-items`, `validate:quality-helper-imports`, `validate:quality-helper-map`, `validate:quality-regression-checklist` и `validate:readme-quality-docs`.
 - Версия состояния и пакета обновлена до `3.84.0`.
 
 ## 3.83.0

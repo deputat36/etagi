@@ -33,12 +33,17 @@ function checkHtmlReferences() {
   for (const htmlPath of htmlFiles) {
     const relativeHtmlPath = toProjectPath(htmlPath);
     const html = fs.readFileSync(htmlPath, 'utf8');
+    const stylesheetRefs = matchAll(html, /<link[^>]+href=["']([^"']+)["']/gi);
+    const scriptRefs = matchAll(html, /<script[^>]+src=["']([^"']+)["']/gi);
     const refs = [
-      ...matchAll(html, /<link[^>]+href=["']([^"']+)["']/gi),
-      ...matchAll(html, /<script[^>]+src=["']([^"']+)["']/gi),
+      ...stylesheetRefs,
+      ...scriptRefs,
       ...matchAll(html, /<a[^>]+href=["']([^"']+)["']/gi),
       ...matchAll(html, /<img[^>]+src=["']([^"']+)["']/gi)
     ];
+
+    checkDuplicateHtmlAssetReferences(htmlPath, relativeHtmlPath, stylesheetRefs, 'stylesheet');
+    checkDuplicateHtmlAssetReferences(htmlPath, relativeHtmlPath, scriptRefs, 'script');
 
     refs
       .filter(ref => shouldCheckReference(ref))
@@ -88,6 +93,19 @@ function checkModuleImports(entryPath) {
     checkFile(resolved, relativePath);
 
     if (/\.(js|mjs)$/i.test(resolved)) checkModuleImports(resolved);
+  }
+}
+
+function checkDuplicateHtmlAssetReferences(htmlPath, relativeHtmlPath, refs, type) {
+  const counts = new Map();
+  for (const ref of refs) {
+    if (!shouldCheckReference(ref)) continue;
+    const key = toProjectPath(resolveReference(htmlPath, ref));
+    counts.set(key, (counts.get(key) || 0) + 1);
+  }
+
+  for (const [file, count] of counts) {
+    if (count > 1) errors.push(`${relativeHtmlPath}: ${type} подключён повторно — ${file}`);
   }
 }
 

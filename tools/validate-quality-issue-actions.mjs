@@ -7,6 +7,7 @@ const qualitySource = readRequired('assets/js/quality.js');
 const extraActionsSource = readRequired('assets/js/qualityExtraActions.js');
 const errors = [];
 
+checkIssueAction('Нет канала отклика', 'null', "'showContact'", 'замечание без канала отклика должно исправляться прямой кнопкой, а не старым штатным включением контактов');
 checkIssueAction('Длинный дополнительный блок', 'null', "'showCustomBlock'", 'длинный дополнительный блок должен исправляться только кнопкой сокращения');
 checkIssueAction('Дополнительный блок перегружает мини-макет', 'null', "'showCustomBlock'", 'перегруженный дополнительный блок должен исправляться только кнопкой сокращения');
 checkIssueAction('Ссылка для QR слишком длинная', 'null', "'shortQr'", 'длинная QR-ссылка должна вести к замене ссылки без дублирующей штатной кнопки');
@@ -53,6 +54,12 @@ check(extraActionsSource, 'assets/js/qualityExtraActions.js', [
   'if (count >= 4) return 260',
   'return Number.POSITIVE_INFINITY',
   "setInputValue(input, nextLines.slice(0, 3).join('\\n'))",
+  "{ title: 'Нет канала отклика', action: 'responseChannel', label: 'Настроить отклик' }",
+  "if (action === 'responseChannel') setResponseChannel();",
+  'function setResponseChannel()',
+  'getPhoneInfo(getPhoneValue())',
+  "enableCheckbox('showContact');",
+  'Контакты включены',
   "{ title: 'Ссылка для QR слишком длинная', action: 'shortQrLink', label: 'Заменить ссылку' }",
   "if (action === 'shortQrLink') focusQrField();",
   'function focusQrField(statusText =',
@@ -73,10 +80,12 @@ forbid(extraActionsSource, 'assets/js/qualityExtraActions.js', [
   'shorten(getHeadlineSuggestion(), 54)',
   'const next = current && !includesText(current, sentence) ? `${current} ${sentence}` : current || sentence',
   "nextLines.slice(0, 4).join('\\n')",
-  "button.dataset.fix === 'shortQr'"
+  "button.dataset.fix === 'shortQr'",
+  'function hasPhoneValue()'
 ]);
 
 forbid(qualitySource, 'assets/js/quality.js', [
+  "title:'Нет канала отклика', text:'В макете нет контактов, отрывных телефонов и QR. Для расклейки это почти всегда ошибка.', action:'showContact'",
   "action:'noPhoto'",
   "action:'onePhoto'"
 ]);

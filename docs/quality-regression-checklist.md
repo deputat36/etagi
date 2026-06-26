@@ -84,6 +84,7 @@
 
 Ожидаемое поведение:
 
+- `qualityPriorityHint.js` подключён в `index.html` выше `preprintSummary.js`;
 - `preprintSummary.js` подключён в `index.html` выше `qualityExtraActions.js`;
 - `preprintSummary.js` импортирует `layoutExtrasSync.js`;
 - `layoutExtrasSync.js` явно импортирует помощники QR, фото, QR-подсказок и канала отклика.

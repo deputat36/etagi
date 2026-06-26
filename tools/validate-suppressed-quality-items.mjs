@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 
+const qualitySource = read('assets/js/quality.js');
 const dedupeSource = read('assets/js/qualityQrDeduplicate.js');
 const filtersSource = read('assets/js/qualityIssueFilters.js');
 const summarySource = read('assets/js/qualityIssueSummary.js');
@@ -8,6 +9,16 @@ const printGuardSource = read('assets/js/qualityPrintGuardHint.js');
 const qrSizeSource = read('assets/js/qrSizeHint.js');
 const layoutExtrasSyncSource = read('assets/js/layoutExtrasSync.js');
 const errors = [];
+
+check(qualitySource, 'quality.js', [
+  'if(count >= 4 && count < 6)',
+  "title:'QR может быть мелким'",
+  "title:'QR слишком мал для мини-макета'"
+]);
+
+if (qualitySource.includes('if(count >= 4) issues.push({level:\'tip\', title:\'QR может быть мелким\'')) {
+  errors.push('quality.js: мягкий QR-совет снова создаётся для 6–8 макетов и снижает балл дублем');
+}
 
 check(dedupeSource, 'qualityQrDeduplicate.js', [
   "const SUPPRESSED_REASON = 'qr-size-duplicate'",

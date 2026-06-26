@@ -6,11 +6,11 @@ const errors = [];
 check(mapSource, 'docs/quality-helper-map.md', [
   '# Карта помощников качества',
   '`index.html` подключает основные модули качества напрямую',
+  'включая прямой переход к полю ссылки для пустого QR',
   '`preprintSummary.js` импортирует `layoutExtrasSync.js`',
   '`layoutExtrasSync.js` импортирует',
   '`qrSizeHint.js` импортирует',
   '`qualityQrDeduplicate.js`',
-  '`qrIntentFix.js`',
   '`photoIntentFix.js`',
   '`responseChannelPhoneGuard.js`',
   '`qualityIssueFilters.js`',
@@ -27,10 +27,16 @@ check(mapSource, 'docs/quality-helper-map.md', [
   '`.github/workflows/validate.yml`',
   '`docs/**` и `README.md`',
   '`tools/validate-changelog.mjs`',
+  '`qrIntentFix.js` удалён',
+  'пустой QR теперь безопасно обрабатывается напрямую в `qualityExtraActions.js`',
   '`qualitySuppressedPriority.js` удалён',
   'data-quality-suppressed',
   'Файл, который лежит в `assets/js`, но не подключён ожидаемым импортом, считается нерабочим'
 ]);
+
+if (mapSource.includes('- `qrIntentFix.js` —')) {
+  errors.push('docs/quality-helper-map.md: qrIntentFix.js не должен оставаться в рабочей цепочке helper-модулей');
+}
 
 if (errors.length) {
   console.error('\nОшибки карты помощников качества:');

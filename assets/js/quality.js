@@ -68,7 +68,7 @@ export function checkQuality(state, sheet){
   if(state.showQr && state.qrLink){
     const qr = getQrInfo(state.qrLink);
     if(!qr.ok) issues.push({level:'warn', title:'Ссылка для QR слишком длинная', text:`Встроенный QR поддерживает до ${qr.maxBytes} байт. Лучше использовать короткую ссылку.`, action:null});
-    if(count >= 4) issues.push({level:'tip', title:'QR может быть мелким', text:'Для QR лучше 1, 2 или 4 макета на листе, а перед печатью нужно проверить сканирование.', action:'twoOnPage'});
+    if(count >= 4 && count < 6) issues.push({level:'tip', title:'QR может быть мелким', text:'Для QR лучше 1, 2 или 4 макета на листе, а перед печатью нужно проверить сканирование.', action:'twoOnPage'});
     if(count >= 6) issues.push({level:'warn', title:'QR слишком мал для мини-макета', text:'Для 6–8 макетов на А4 QR лучше убрать или печатать меньше объявлений на листе.', action:'twoOnPage'});
   }
 

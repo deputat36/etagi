@@ -53,7 +53,7 @@
 - задание на расклейку для исполнителя;
 - отчёт после расклейки и фиксация результата;
 - HTML-центр помощи для СПН;
-- проверки шаблонов, JS, связей файлов, сохранений, версий, changelog, расширенных полей, helper телефона, helper-карты, README и действий замечаний качества через `npm run validate`.
+- проверки шаблонов, JS, связей файлов, дублей HTML-ассетов, сохранений, версий, changelog, расширенных полей, helper телефона, helper-карты, README и действий замечаний качества через `npm run validate`.
 
 ## Структура
 
@@ -120,6 +120,7 @@ docs/audit-and-improvement-plan.md      аудит и план развития
 tools/validate-templates.mjs            проверка шаблонов
 tools/validate-js.mjs                   проверка JS
 tools/validate-assets.mjs               проверка связей файлов
+tools/validate-asset-duplicates.mjs     проверка дублей HTML-ассетов
 tools/validate-quality-actions.mjs      проверка быстрых исправлений
 tools/validate-quality-issue-actions.mjs проверка действий замечаний качества
 tools/validate-photo-intent-action.mjs  проверка безопасного действия фото
@@ -152,6 +153,7 @@ npm run validate
 npm run validate:templates
 npm run validate:js
 npm run validate:assets
+npm run validate:asset-duplicates
 npm run validate:quality-actions
 npm run validate:quality-issue-actions
 npm run validate:phone-cleanup-action

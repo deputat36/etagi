@@ -33,7 +33,6 @@ check(preprintSource, 'preprintSummary.js', [
 ]);
 
 check(layoutSyncSource, 'layoutExtrasSync.js', [
-  "import './photoIntentFix.js';",
   "import './qrSizeHint.js';",
   "import './responseChannelPhoneGuard.js';"
 ]);
@@ -42,15 +41,19 @@ check(qrSizeSource, 'qrSizeHint.js', [
   "import './qualityQrDeduplicate.js';"
 ]);
 
-checkConnectedHelper('assets/js/photoIntentFix.js', layoutSyncSource, "import './photoIntentFix.js';");
 checkConnectedHelper('assets/js/qrSizeHint.js', layoutSyncSource, "import './qrSizeHint.js';");
 checkConnectedHelper('assets/js/responseChannelPhoneGuard.js', layoutSyncSource, "import './responseChannelPhoneGuard.js';");
 checkConnectedHelper('assets/js/qualityQrDeduplicate.js', qrSizeSource, "import './qualityQrDeduplicate.js';");
 checkRemovedHelper('assets/js/qualitySuppressedPriority.js');
 checkRemovedHelper('assets/js/qrIntentFix.js');
+checkRemovedHelper('assets/js/photoIntentFix.js');
 
 if (layoutSyncSource.includes("import './qrIntentFix.js';")) {
   errors.push('layoutExtrasSync.js: не должен импортировать удалённый qrIntentFix.js');
+}
+
+if (layoutSyncSource.includes("import './photoIntentFix.js';")) {
+  errors.push('layoutExtrasSync.js: не должен импортировать удалённый photoIntentFix.js');
 }
 
 if (qrSizeSource.includes("import './qualitySuppressedPriority.js';")) {

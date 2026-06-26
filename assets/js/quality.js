@@ -56,8 +56,8 @@ export function checkQuality(state, sheet){
 
   addSellingChecks(issues, state, sellingText, benefitsCount);
 
-  if(state.showPhoto && state.photoMode !== 'none' && !state.photoOne) issues.push({level:'warn', title:'Фото включено, но не загружено', text:'Загрузите фото или выключите блок фото.', action:'noPhoto'});
-  if(state.showPhoto && state.photoMode === 'two' && !state.photoTwo) issues.push({level:'warn', title:'Второе фото не загружено', text:'Для шаблона с двумя фото загрузите второе изображение.', action:'onePhoto'});
+  if(state.showPhoto && state.photoMode !== 'none' && !state.photoOne) issues.push({level:'warn', title:'Фото включено, но не загружено', text:'Загрузите фото в поле Фото 1 или выключите блок фото вручную, если он не нужен.', action:null});
+  if(state.showPhoto && state.photoMode === 'two' && !state.photoTwo) issues.push({level:'warn', title:'Второе фото не загружено', text:'Для шаблона с двумя фото загрузите второе изображение или переключите режим на одно фото.', action:null});
   if(state.showPhoto && state.photoMode !== 'none' && count >= 6) issues.push({level:'warn', title:'Фото при плотной печати', text:'На 6+ макетах фото ухудшает читаемость.', action:'twoOnPage'});
 
   if(!state.showCutLines && count > 1) issues.push({level:'tip', title:'Линии реза выключены', text:'При нескольких макетах на А4 линии реза помогут ровно разрезать лист.', action:'showCutLines'});

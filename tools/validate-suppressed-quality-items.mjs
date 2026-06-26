@@ -5,7 +5,6 @@ const dedupeSource = read('assets/js/qualityQrDeduplicate.js');
 const filtersSource = read('assets/js/qualityIssueFilters.js');
 const summarySource = read('assets/js/qualityIssueSummary.js');
 const priorityHintSource = read('assets/js/qualityPriorityHint.js');
-const prioritySource = read('assets/js/qualitySuppressedPriority.js');
 const printGuardSource = read('assets/js/qualityPrintGuardHint.js');
 const preprintSource = read('assets/js/preprintSummary.js');
 const qrSizeSource = read('assets/js/qrSizeHint.js');
@@ -43,12 +42,6 @@ check(priorityHintSource, 'qualityPriorityHint.js', [
   "find((entry) => !entry.dataset.qualitySuppressed)"
 ]);
 
-check(prioritySource, 'qualitySuppressedPriority.js', [
-  "attributeFilter: ['data-quality-suppressed']",
-  "find((entry) => !entry.dataset.qualitySuppressed)",
-  'quality-priority-hint good'
-]);
-
 check(printGuardSource, 'qualityPrintGuardHint.js', [
   "attributeFilter: ['data-quality-suppressed']",
   "const hasError = Boolean(findActiveIssue(list, 'error'))",
@@ -63,9 +56,12 @@ check(preprintSource, 'preprintSummary.js', [
 ]);
 
 check(qrSizeSource, 'qrSizeHint.js', [
-  "import './qualityQrDeduplicate.js';",
-  "import './qualitySuppressedPriority.js';"
+  "import './qualityQrDeduplicate.js';"
 ]);
+
+if (qrSizeSource.includes("import './qualitySuppressedPriority.js';")) {
+  errors.push('qrSizeHint.js: не должен подключать устаревший страховочный приоритет, основной qualityPriorityHint.js уже учитывает подавленные замечания');
+}
 
 check(layoutExtrasSyncSource, 'layoutExtrasSync.js', [
   "import './qrSizeHint.js';"

@@ -22,6 +22,8 @@ check(mapSource, 'docs/quality-helper-map.md', [
   '`tools/validate-quality-helper-imports.mjs`',
   '`tools/validate-quality-helper-map.mjs`',
   '`tools/validate-readme-quality-docs.mjs`',
+  '`tools/validate-qr-empty-direct-action.mjs`',
+  'штатное действие пустого QR сразу ведёт к ссылке, а не выключает QR',
   '`.github/workflows/validate.yml`',
   '`docs/**` и `README.md`',
   '`tools/validate-changelog.mjs`',

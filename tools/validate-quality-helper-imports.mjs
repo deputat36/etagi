@@ -3,6 +3,7 @@ import fs from 'node:fs';
 const indexSource = read('index.html');
 const preprintSource = read('assets/js/preprintSummary.js');
 const layoutSyncSource = read('assets/js/layoutExtrasSync.js');
+const qrSizeSource = read('assets/js/qrSizeHint.js');
 const errors = [];
 
 check(indexSource, 'index.html', [
@@ -38,6 +39,16 @@ check(layoutSyncSource, 'layoutExtrasSync.js', [
   "import './responseChannelPhoneGuard.js';"
 ]);
 
+check(qrSizeSource, 'qrSizeHint.js', [
+  "import './qualityQrDeduplicate.js';"
+]);
+
+checkConnectedHelper('assets/js/qrIntentFix.js', layoutSyncSource, "import './qrIntentFix.js';");
+checkConnectedHelper('assets/js/photoIntentFix.js', layoutSyncSource, "import './photoIntentFix.js';");
+checkConnectedHelper('assets/js/qrSizeHint.js', layoutSyncSource, "import './qrSizeHint.js';");
+checkConnectedHelper('assets/js/responseChannelPhoneGuard.js', layoutSyncSource, "import './responseChannelPhoneGuard.js';");
+checkConnectedHelper('assets/js/qualityQrDeduplicate.js', qrSizeSource, "import './qualityQrDeduplicate.js';");
+
 if (errors.length) {
   console.error('\nQuality helper import errors:');
   errors.forEach(error => console.error(`- ${error}`));
@@ -58,6 +69,17 @@ function checkScriptOrder(source, file, firstScript, secondScript, message) {
   if (firstIndex === -1 || secondIndex === -1) return;
   if (firstIndex > secondIndex) {
     errors.push(`${file}: ${message} — ${firstScript} должен быть выше ${secondScript}`);
+  }
+}
+
+function checkConnectedHelper(file, source, importSnippet) {
+  if (!fs.existsSync(file)) {
+    errors.push(`${file}: файл помощника не найден`);
+    return;
+  }
+
+  if (!source.includes(importSnippet)) {
+    errors.push(`${file}: файл существует, но не подключён ожидаемым импортом ${importSnippet}`);
   }
 }
 

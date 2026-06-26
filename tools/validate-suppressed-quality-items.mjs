@@ -17,9 +17,7 @@ check(qualitySource, 'quality.js', [
   "title:'QR слишком мал для мини-макета'"
 ]);
 
-if (qualitySource.includes('if(count >= 4) issues.push({level:\'tip\', title:\'QR может быть мелким\'')) {
-  errors.push('quality.js: мягкий QR-совет снова создаётся для 6–8 макетов и снижает балл дублем');
-}
+checkQrSourceGuard(qualitySource);
 
 check(dedupeSource, 'qualityQrDeduplicate.js', [
   "const SUPPRESSED_REASON = 'qr-size-duplicate'",
@@ -74,6 +72,22 @@ if (errors.length) {
 }
 
 console.log('Проверка подавленных замечаний качества пройдена.');
+
+function checkQrSourceGuard(source) {
+  const softQrLine = findLine(source, 'QR может быть мелким');
+  if (!softQrLine) {
+    errors.push('quality.js: не найден мягкий QR-совет');
+    return;
+  }
+
+  if (!/count\s*>=\s*4\s*&&\s*count\s*<\s*6/.test(softQrLine)) {
+    errors.push('quality.js: мягкий QR-совет должен работать только для 4 макетов, а не для 6–8');
+  }
+}
+
+function findLine(source, needle) {
+  return String(source || '').split('\n').find((line) => line.includes(needle)) || '';
+}
 
 function check(source, file, snippets) {
   for (const snippet of snippets) {

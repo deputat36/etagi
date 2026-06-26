@@ -38,13 +38,18 @@ check(checklistSource, 'docs/quality-regression-checklist.md', [
   'Перед печатью',
   'сводка перед печатью не должна считать подавленные замечания активными ошибками или предупреждениями',
   'Автоподстройка макета',
+  'обычная кнопка «Подстроить автоматически» сохраняет прежнее поведение',
+  'отдельная кнопка «Подстроить, сохранив фото и QR» использует `applyLayoutModePreservingMedia`',
+  'мягкая автоподстройка сохраняет уже включённый QR',
+  'мягкая автоподстройка сохраняет уже включённое фото и текущий `photoMode`',
+  'быстрое исправление `autoFix` в контроле качества остаётся на старом `applyLayoutMode`',
+  'validate:layout-media-preservation',
   'disableQr',
   'noPhoto',
   'onePhoto',
   'showContact',
   'autoFix',
   'applyLayoutMode',
-  'Подстроить без отключения фото и QR',
   'validate:quality-helper-imports',
   'validate:response-channel-action'
 ]);
@@ -59,6 +64,14 @@ if (checklistSource.includes('даже ранний клик по штатным
 
 if (checklistSource.includes('Нажать «Вернуть контакты»')) {
   errors.push('docs/quality-regression-checklist.md: устаревшая кнопка «Вернуть контакты» после переноса действия в responseChannel');
+}
+
+if (checklistSource.includes('До отдельного решения не менять это поведение автоматически')) {
+  errors.push('docs/quality-regression-checklist.md: автоподстройка уже получила отдельное мягкое действие, старый спорный блок нужно убрать');
+}
+
+if (checklistSource.includes('Подстроить без отключения фото и QR')) {
+  errors.push('docs/quality-regression-checklist.md: используйте фактическую подпись кнопки «Подстроить, сохранив фото и QR»');
 }
 
 if (checklistSource.includes('страховочном модуле')) {

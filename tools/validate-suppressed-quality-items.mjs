@@ -4,6 +4,7 @@ const qualitySource = read('assets/js/quality.js');
 const dedupeSource = read('assets/js/qualityQrDeduplicate.js');
 const filtersSource = read('assets/js/qualityIssueFilters.js');
 const summarySource = read('assets/js/qualityIssueSummary.js');
+const priorityHintSource = read('assets/js/qualityPriorityHint.js');
 const prioritySource = read('assets/js/qualitySuppressedPriority.js');
 const printGuardSource = read('assets/js/qualityPrintGuardHint.js');
 const preprintSource = read('assets/js/preprintSummary.js');
@@ -35,6 +36,11 @@ check(summarySource, 'qualityIssueSummary.js', [
   "attributeFilter: ['data-quality-suppressed', 'hidden']",
   "filter((item) => !item.dataset.qualitySuppressed)",
   'count: activeItems.filter((item) => item.classList.contains(level.key)).length'
+]);
+
+check(priorityHintSource, 'qualityPriorityHint.js', [
+  "attributeFilter: ['data-quality-suppressed']",
+  "find((entry) => !entry.dataset.qualitySuppressed)"
 ]);
 
 check(prioritySource, 'qualitySuppressedPriority.js', [

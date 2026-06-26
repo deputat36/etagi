@@ -9,10 +9,10 @@ const pkg = readPackage(packageSource);
 
 if (pkg) {
   const scripts = pkg.scripts || {};
-  const validateScript = String(scripts.validate || '');
+  const validateScript = String(scripts.validate || '').trim();
   const validateNames = Object.keys(scripts)
-    .filter(name => name.startsWith('validate:'))
-    .sort();
+    .filter(name => name.startsWith('validate:'));
+  const validateCalls = parseValidateCalls(validateScript);
 
   if (!validateScript) {
     errors.push('package.json: отсутствует общий скрипт validate');
@@ -22,10 +22,25 @@ if (pkg) {
     errors.push('package.json: не найдены отдельные validate:* скрипты');
   }
 
+  if (validateScript && !validateCalls.length) {
+    errors.push('package.json: общий скрипт validate должен состоять из команд npm run validate:* через &&');
+  }
+
+  for (const segment of splitValidateSegments(validateScript)) {
+    if (!/^npm run validate:[^\s]+$/.test(segment)) {
+      errors.push(`package.json: общий validate содержит неподдерживаемую команду — ${segment}`);
+    }
+  }
+
+  const validateCallCounts = countItems(validateCalls);
   for (const scriptName of validateNames) {
     const command = String(scripts[scriptName] || '').trim();
-    if (!validateScript.includes(`npm run ${scriptName}`)) {
+    const count = validateCallCounts.get(scriptName) || 0;
+    if (count === 0) {
       errors.push(`package.json: ${scriptName} не включён в общий npm run validate`);
+    }
+    if (count > 1) {
+      errors.push(`package.json: ${scriptName} повторяется в общем npm run validate`);
     }
 
     const nodeTarget = getNodeTarget(command);
@@ -42,6 +57,18 @@ if (pkg) {
       errors.push(`package.json: ${scriptName} ссылается на несуществующий файл — ${nodeTarget}`);
     }
   }
+
+  for (const scriptName of validateCalls) {
+    if (!Object.hasOwn(scripts, scriptName)) {
+      errors.push(`package.json: общий npm run validate вызывает несуществующий скрипт — ${scriptName}`);
+    }
+  }
+
+  const expectedOrder = validateNames.join(' && ');
+  const actualOrder = validateCalls.join(' && ');
+  if (expectedOrder && actualOrder && expectedOrder !== actualOrder) {
+    errors.push('package.json: порядок команд в общем npm run validate должен совпадать с порядком validate:* скриптов в package.json');
+  }
 }
 
 if (errors.length) {
@@ -51,6 +78,25 @@ if (errors.length) {
 }
 
 console.log('Проверка validate-скриптов package.json пройдена.');
+
+function parseValidateCalls(command) {
+  return splitValidateSegments(command)
+    .map(segment => segment.match(/^npm run (validate:[^\s]+)$/)?.[1] || '')
+    .filter(Boolean);
+}
+
+function splitValidateSegments(command) {
+  return String(command || '')
+    .split(/\s+&&\s+/)
+    .map(segment => segment.trim())
+    .filter(Boolean);
+}
+
+function countItems(items) {
+  const counts = new Map();
+  for (const item of items) counts.set(item, (counts.get(item) || 0) + 1);
+  return counts;
+}
 
 function getNodeTarget(command) {
   const match = command.match(/^node\s+([^\s]+)$/);

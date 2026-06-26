@@ -21,9 +21,12 @@
 - Проверка связей файлов теперь ловит повторное подключение локальных `script` и `stylesheet`-ассетов в HTML, чтобы один модуль не запускался дважды.
 - Добавлена проверка `validate:asset-duplicates`, которая закрепляет защиту от возврата дублей HTML-ассетов.
 - Проверка README теперь контролирует описание `validate:asset-duplicates` и его подключение в `package.json`.
+- Добавлена отдельная кнопка «Подстроить, сохранив фото и QR» для мягкой автоподстройки без отключения уже включённых медиа.
+- Чек-лист регрессии теперь фиксирует выбранный принцип автоподстройки: старое автоисправление не меняется, мягкое действие доступно отдельно.
+- Добавлена проверка `validate:layout-media-preservation`, которая защищает мягкую автоподстройку фото и QR.
 - Добавлены документы `docs/quality-helper-map.md` и `docs/quality-regression-checklist.md` для сопровождения helper-модулей качества и ручной регрессии.
 - README обновлён под текущую цепочку helper-модулей качества, а workflow теперь запускает проверки при изменении `docs/**` и `README.md`.
-- Добавлены проверки `validate:asset-duplicates`, `validate:photo-intent-action`, `validate:response-channel-action`, `validate:qr-empty-direct-action`, `validate:suppressed-quality-items`, `validate:quality-helper-imports`, `validate:quality-helper-map`, `validate:quality-regression-checklist` и `validate:readme-quality-docs`.
+- Добавлены проверки `validate:asset-duplicates`, `validate:layout-media-preservation`, `validate:photo-intent-action`, `validate:response-channel-action`, `validate:qr-empty-direct-action`, `validate:suppressed-quality-items`, `validate:quality-helper-imports`, `validate:quality-helper-map`, `validate:quality-regression-checklist` и `validate:readme-quality-docs`.
 - Версия состояния и пакета обновлена до `3.84.0`.
 
 ## 3.83.0

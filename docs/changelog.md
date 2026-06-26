@@ -15,6 +15,7 @@
 - `assets/js/responseChannelPhoneGuard.js` удалён: временная страховка больше не нужна, потому что канал отклика теперь обрабатывается напрямую в `qualityExtraActions.js`.
 - Мягкая QR-подсказка теперь работает только для 4 макетов и не дублирует предупреждение для мини-макетов 6–8.
 - Подавленный QR-дубль больше не учитывается в фильтре, сводке, приоритете, состоянии кнопки печати и сводке перед печатью.
+- Проверка changelog теперь безопасно выделяет только текущий раздел версии и не опирается на неподходящий для JavaScript якорь `\z`.
 - Добавлены документы `docs/quality-helper-map.md` и `docs/quality-regression-checklist.md` для сопровождения helper-модулей качества и ручной регрессии.
 - README обновлён под текущую цепочку helper-модулей качества, а workflow теперь запускает проверки при изменении `docs/**` и `README.md`.
 - Добавлены проверки `validate:photo-intent-action`, `validate:response-channel-action`, `validate:qr-empty-direct-action`, `validate:suppressed-quality-items`, `validate:quality-helper-imports`, `validate:quality-helper-map`, `validate:quality-regression-checklist` и `validate:readme-quality-docs`.

@@ -6,14 +6,12 @@ const workflowSource = read('.github/workflows/validate.yml');
 const errors = [];
 
 check(readmeSource, 'README.md', [
-  'прямые безопасные действия для пустого QR и фото',
-  'выбранный блок остаётся включённым, а пользователь переходит к нужному полю',
-  'безопасный помощник канала отклика',
+  'прямые безопасные действия для пустого QR, фото и отсутствующего канала отклика',
+  'выбранные блоки не выключаются автоматически, а пользователь переходит к нужному полю или включает контакты только при корректном телефоне',
   'подавление дублирующих QR-замечаний',
   'assets/js/qrSizeHint.js',
   'assets/js/qualityQrDeduplicate.js',
-  'assets/js/responseChannelPhoneGuard.js',
-  'assets/js/qualityExtraActions.js        быстрые исправления контроля качества, включая пустые QR и фото',
+  'assets/js/qualityExtraActions.js        быстрые исправления контроля качества, включая канал отклика, пустые QR и фото',
   'docs/quality-helper-map.md',
   'docs/quality-regression-checklist.md',
   'tools/validate-photo-intent-action.mjs',
@@ -40,6 +38,10 @@ if (readmeSource.includes('assets/js/qrIntentFix.js')) {
 
 if (readmeSource.includes('assets/js/photoIntentFix.js')) {
   errors.push('README.md: удалённый photoIntentFix.js не должен оставаться в структуре проекта');
+}
+
+if (readmeSource.includes('assets/js/responseChannelPhoneGuard.js')) {
+  errors.push('README.md: удалённый responseChannelPhoneGuard.js не должен оставаться в структуре проекта');
 }
 
 check(packageSource, 'package.json', [

@@ -63,6 +63,22 @@ for (const snippet of requiredActionSnippets) {
   }
 }
 
+const requiredDirectPhotoActionSnippets = [
+  "{ title: 'Фото включено, но не загружено', action: 'focusPhotoOne', label: 'Перейти к фото' }",
+  "{ title: 'Второе фото не загружено', action: 'focusPhotoTwo', label: 'Перейти ко второму фото' }",
+  "if (action === 'focusPhotoOne') focusPhotoField('photoOne', 'Фото оставлено включённым. Выберите файл в поле Фото 1.');",
+  "if (action === 'focusPhotoTwo') focusPhotoField('photoTwo', 'Фото оставлено включённым. Выберите второе фото или переключите режим на одно фото.');",
+  'function focusPhotoField(inputId, statusText)',
+  "const input = document.getElementById(inputId)",
+  'Фото оставлено включённым'
+];
+
+for (const snippet of requiredDirectPhotoActionSnippets) {
+  if (!actionsSource.includes(snippet)) {
+    errors.push(`assets/js/qualityExtraActions.js: не закреплено прямое безопасное действие фото — ${snippet}`);
+  }
+}
+
 const requiredDirectQrActionSnippets = [
   "{ title: 'QR включён, но ссылки нет', action: 'focusQrLink', label: 'Добавить ссылку' }",
   "if (action === 'focusQrLink') focusQrField('QR оставлен включённым. Вставьте ссылку, которую человек откроет после сканирования.');",
@@ -92,6 +108,17 @@ const forbiddenActionSnippets = [
 for (const snippet of forbiddenActionSnippets) {
   if (actionsSource.includes(snippet)) {
     errors.push(`assets/js/qualityExtraActions.js: найдено устаревшее или разрушающее данные поведение — ${snippet}`);
+  }
+}
+
+const forbiddenQualitySnippets = [
+  "action:'noPhoto'",
+  "action:'onePhoto'"
+];
+
+for (const snippet of forbiddenQualitySnippets) {
+  if (qualitySource.includes(snippet)) {
+    errors.push(`assets/js/quality.js: найдено устаревшее действие фото — ${snippet}`);
   }
 }
 

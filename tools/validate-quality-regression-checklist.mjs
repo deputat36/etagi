@@ -6,6 +6,8 @@ const errors = [];
 check(checklistSource, 'docs/quality-regression-checklist.md', [
   '# Чек-лист регрессионной проверки качества',
   'QR включён, но ссылка пустая',
+  'штатное действие в `qualityExtraActions.js` сразу использует `focusQrLink`, а не старое `disableQr`',
+  'validate:qr-empty-direct-action',
   'Фото включено, но файл не загружен',
   'Нет канала отклика',
   'Дублирующиеся QR-замечания',

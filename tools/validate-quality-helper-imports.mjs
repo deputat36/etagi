@@ -33,7 +33,6 @@ check(preprintSource, 'preprintSummary.js', [
 ]);
 
 check(layoutSyncSource, 'layoutExtrasSync.js', [
-  "import './qrIntentFix.js';",
   "import './photoIntentFix.js';",
   "import './qrSizeHint.js';",
   "import './responseChannelPhoneGuard.js';"
@@ -43,12 +42,16 @@ check(qrSizeSource, 'qrSizeHint.js', [
   "import './qualityQrDeduplicate.js';"
 ]);
 
-checkConnectedHelper('assets/js/qrIntentFix.js', layoutSyncSource, "import './qrIntentFix.js';");
 checkConnectedHelper('assets/js/photoIntentFix.js', layoutSyncSource, "import './photoIntentFix.js';");
 checkConnectedHelper('assets/js/qrSizeHint.js', layoutSyncSource, "import './qrSizeHint.js';");
 checkConnectedHelper('assets/js/responseChannelPhoneGuard.js', layoutSyncSource, "import './responseChannelPhoneGuard.js';");
 checkConnectedHelper('assets/js/qualityQrDeduplicate.js', qrSizeSource, "import './qualityQrDeduplicate.js';");
 checkRemovedHelper('assets/js/qualitySuppressedPriority.js');
+checkRemovedHelper('assets/js/qrIntentFix.js');
+
+if (layoutSyncSource.includes("import './qrIntentFix.js';")) {
+  errors.push('layoutExtrasSync.js: не должен импортировать удалённый qrIntentFix.js');
+}
 
 if (qrSizeSource.includes("import './qualitySuppressedPriority.js';")) {
   errors.push('qrSizeHint.js: не должен импортировать удалённый qualitySuppressedPriority.js');

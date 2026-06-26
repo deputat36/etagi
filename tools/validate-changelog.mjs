@@ -26,6 +26,7 @@ const requiredCurrentSnippets = [
   'канал отклика теперь обрабатывается напрямую в `qualityExtraActions.js`',
   'Мягкая QR-подсказка теперь работает только для 4 макетов',
   'сводке перед печатью',
+  'безопасно выделяет только текущий раздел версии',
   'docs/quality-helper-map.md',
   'docs/quality-regression-checklist.md',
   'docs/**',
@@ -54,6 +55,14 @@ if (source) {
     if (!versions.includes(version)) {
       errors.push(`docs/changelog.md: отсутствует ключевая историческая версия ${version}`);
     }
+  }
+
+  if (!currentSection) {
+    errors.push('docs/changelog.md: не найден текущий раздел 3.84.0');
+  }
+
+  if (currentSection.includes('\n## ')) {
+    errors.push('docs/changelog.md: текущий раздел 3.84.0 захватил следующий заголовок версии');
   }
 
   for (const snippet of requiredCurrentSnippets) {
@@ -86,8 +95,17 @@ if (errors.length) {
 console.log('Проверка истории изменений пройдена.');
 
 function getSection(text, version) {
-  const pattern = new RegExp(`^##\\s+${escapeRegExp(version)}\\s*$([\\s\\S]*?)(?=^##\\s+\\d+\\.\\d+\\.\\d+\\s*$|\\z)`, 'm');
-  return text.match(pattern)?.[1] || '';
+  const headingPattern = new RegExp(`^##\\s+${escapeRegExp(version)}\\s*$`, 'm');
+  const heading = headingPattern.exec(text);
+  if (!heading) return '';
+
+  const sectionStart = heading.index + heading[0].length;
+  const nextHeadingPattern = /^##\s+\d+\.\d+\.\d+\s*$/gm;
+  nextHeadingPattern.lastIndex = sectionStart;
+  const nextHeading = nextHeadingPattern.exec(text);
+  const sectionEnd = nextHeading ? nextHeading.index : text.length;
+
+  return text.slice(sectionStart, sectionEnd).trim();
 }
 
 function escapeRegExp(value) {

@@ -34,7 +34,8 @@
 - при пустом первом фото действие ведёт к полю `Фото 1`;
 - при пустом втором фото действие ведёт к полю `Фото 2`;
 - фото не выключается автоматически;
-- даже ранний клик по штатным действиям `noPhoto` или `onePhoto` не отключает фото.
+- штатные действия `noPhoto` и `onePhoto` не создаются в `quality.js`;
+- временный helper `photoIntentFix.js` не возвращается, потому что прямые действия уже живут в `qualityExtraActions.js`.
 
 Что проверить вручную:
 
@@ -44,6 +45,12 @@
 4. Нажать действие у замечания.
 5. Повторить для режима с двумя фото.
 6. Убедиться, что блок фото остаётся включённым.
+
+Автоматически это защищают проверки:
+
+- `validate:photo-intent-action`;
+- `validate:quality-actions`;
+- `validate:quality-helper-imports`.
 
 ## 3. Нет канала отклика
 
@@ -94,8 +101,8 @@
 - `qualityPriorityHint.js` подключён в `index.html` выше `preprintSummary.js`;
 - `preprintSummary.js` подключён в `index.html` выше `qualityExtraActions.js`;
 - `preprintSummary.js` импортирует `layoutExtrasSync.js`;
-- `layoutExtrasSync.js` явно импортирует помощники фото, QR-подсказок и канала отклика;
-- `layoutExtrasSync.js` не импортирует удалённый `qrIntentFix.js`;
+- `layoutExtrasSync.js` явно импортирует помощники QR-подсказок и канала отклика;
+- `layoutExtrasSync.js` не импортирует удалённые `qrIntentFix.js` и `photoIntentFix.js`;
 - `qrSizeHint.js` явно импортирует `qualityQrDeduplicate.js`;
 - ключевые helper-файлы качества не должны лежать в `assets/js` без ожидаемого импорта;
 - устаревшие helper-файлы после переноса логики не должны возвращаться в `assets/js`.

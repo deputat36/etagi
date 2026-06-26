@@ -31,6 +31,7 @@ const requiredCurrentSnippets = [
   'Проверка package-скриптов теперь точно разбирает общий `npm run validate`',
   'Проверка связей файлов теперь ловит повторное подключение локальных `script` и `stylesheet`-ассетов в HTML',
   'Добавлена проверка `validate:asset-duplicates`',
+  'Проверка README теперь контролирует описание `validate:asset-duplicates`',
   'docs/quality-helper-map.md',
   'docs/quality-regression-checklist.md',
   'docs/**',

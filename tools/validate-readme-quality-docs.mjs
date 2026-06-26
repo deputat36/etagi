@@ -22,18 +22,22 @@ check(readmeSource, 'README.md', [
   'tools/validate-quality-regression-checklist.mjs',
   'tools/validate-quality-helper-map.mjs',
   'tools/validate-readme-quality-docs.mjs',
+  'tools/validate-qr-empty-direct-action.mjs',
   'npm run validate:photo-intent-action',
   'npm run validate:response-channel-action',
   'npm run validate:suppressed-quality-items',
   'npm run validate:quality-helper-imports',
   'npm run validate:quality-regression-checklist',
   'npm run validate:quality-helper-map',
-  'npm run validate:readme-quality-docs'
+  'npm run validate:readme-quality-docs',
+  'npm run validate:qr-empty-direct-action'
 ]);
 
 check(packageSource, 'package.json', [
   '"validate:readme-quality-docs": "node tools/validate-readme-quality-docs.mjs"',
-  'npm run validate:readme-quality-docs'
+  '"validate:qr-empty-direct-action": "node tools/validate-qr-empty-direct-action.mjs"',
+  'npm run validate:readme-quality-docs',
+  'npm run validate:qr-empty-direct-action'
 ]);
 
 check(workflowSource, '.github/workflows/validate.yml', [

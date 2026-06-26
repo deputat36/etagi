@@ -9,11 +9,13 @@ check(readmeSource, 'README.md', [
   'прямые безопасные действия для пустого QR, фото и отсутствующего канала отклика',
   'выбранные блоки не выключаются автоматически, а пользователь переходит к нужному полю или включает контакты только при корректном телефоне',
   'подавление дублирующих QR-замечаний',
+  'дублей HTML-ассетов',
   'assets/js/qrSizeHint.js',
   'assets/js/qualityQrDeduplicate.js',
   'assets/js/qualityExtraActions.js        быстрые исправления контроля качества, включая канал отклика, пустые QR и фото',
   'docs/quality-helper-map.md',
   'docs/quality-regression-checklist.md',
+  'tools/validate-asset-duplicates.mjs',
   'tools/validate-photo-intent-action.mjs',
   'tools/validate-response-channel-action.mjs',
   'tools/validate-suppressed-quality-items.mjs',
@@ -22,6 +24,7 @@ check(readmeSource, 'README.md', [
   'tools/validate-quality-helper-map.mjs',
   'tools/validate-readme-quality-docs.mjs',
   'tools/validate-qr-empty-direct-action.mjs',
+  'npm run validate:asset-duplicates',
   'npm run validate:photo-intent-action',
   'npm run validate:response-channel-action',
   'npm run validate:suppressed-quality-items',
@@ -45,8 +48,10 @@ if (readmeSource.includes('assets/js/responseChannelPhoneGuard.js')) {
 }
 
 check(packageSource, 'package.json', [
+  '"validate:asset-duplicates": "node tools/validate-asset-duplicates.mjs"',
   '"validate:readme-quality-docs": "node tools/validate-readme-quality-docs.mjs"',
   '"validate:qr-empty-direct-action": "node tools/validate-qr-empty-direct-action.mjs"',
+  'npm run validate:asset-duplicates',
   'npm run validate:readme-quality-docs',
   'npm run validate:qr-empty-direct-action'
 ]);

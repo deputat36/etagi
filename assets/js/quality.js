@@ -25,7 +25,7 @@ export function checkQuality(state, sheet){
   const visibleBlocks = getVisibleBlockCount(state);
   const sellingText = normalizeText(`${state.headline} ${state.description} ${state.benefits} ${state.customBlockTitle} ${state.customBlockText} ${state.price} ${state.area} ${state.propertyType} ${contactCta}`);
 
-  if(!state.showContact && !state.tearOffs && !(state.showQr && state.qrLink)) issues.push({level:'warn', title:'Нет канала отклика', text:'В макете нет контактов, отрывных телефонов и QR. Для расклейки это почти всегда ошибка.', action:'showContact'});
+  if(!state.showContact && !state.tearOffs && !(state.showQr && state.qrLink)) issues.push({level:'warn', title:'Нет канала отклика', text:'В макете нет контактов, отрывных телефонов и QR. Добавьте канал отклика: контакты, отрывные листки или QR.', action:null});
   if((state.showContact || state.tearOffs) && !phone) issues.push({level:'error', title:'Нет телефона для отклика', text:'Телефон обязателен, если включены контакты или отрывные листочки. Без номера макет печатать нельзя.', action:'phone'});
   if((state.showContact || state.tearOffs) && phone && !phoneInfo.isLikelyPhone) issues.push({level:'error', title:'Телефон похож на ошибочный', text:'Проверьте номер: для печати лучше указать полный номер с кодом, например +7 900 000-00-00.', action:'phone'});
   if(phoneInfo.hasExtensionText) issues.push({level:'tip', title:'В поле телефона есть лишний текст', text:'Для читаемости на отрывных листках лучше оставить только номер телефона, без пояснений и комментариев.', action:null});

@@ -63,6 +63,24 @@ for (const snippet of requiredActionSnippets) {
   }
 }
 
+const requiredDirectResponseActionSnippets = [
+  "import { cleanPhoneValue, getPhoneInfo } from './phone.js';",
+  "{ title: 'Нет канала отклика', action: 'responseChannel', label: 'Настроить отклик' }",
+  "if (action === 'responseChannel') setResponseChannel();",
+  'function setResponseChannel()',
+  'getPhoneInfo(getPhoneValue())',
+  "enableCheckbox('showContact');",
+  'Контакты включены',
+  "button.dataset.fix === 'showContact' && !hasLikelyPhoneValue()",
+  'function hasLikelyPhoneValue()'
+];
+
+for (const snippet of requiredDirectResponseActionSnippets) {
+  if (!actionsSource.includes(snippet)) {
+    errors.push(`assets/js/qualityExtraActions.js: не закреплено прямое безопасное действие канала отклика — ${snippet}`);
+  }
+}
+
 const requiredDirectPhotoActionSnippets = [
   "{ title: 'Фото включено, но не загружено', action: 'focusPhotoOne', label: 'Перейти к фото' }",
   "{ title: 'Второе фото не загружено', action: 'focusPhotoTwo', label: 'Перейти ко второму фото' }",
@@ -102,7 +120,8 @@ const forbiddenActionSnippets = [
   "setLayoutExtra('brandName', DEFAULT_BRAND_NAME)",
   "setLayoutExtra('brandSideText', DEFAULT_BRAND_SIDE)",
   "{ title: 'QR включён, но ссылки нет', action: 'disableQr'",
-  'function disableQr()'
+  'function disableQr()',
+  'function hasPhoneValue()'
 ];
 
 for (const snippet of forbiddenActionSnippets) {
@@ -112,13 +131,14 @@ for (const snippet of forbiddenActionSnippets) {
 }
 
 const forbiddenQualitySnippets = [
+  "title:'Нет канала отклика', text:'В макете нет контактов, отрывных телефонов и QR. Для расклейки это почти всегда ошибка.', action:'showContact'",
   "action:'noPhoto'",
   "action:'onePhoto'"
 ];
 
 for (const snippet of forbiddenQualitySnippets) {
   if (qualitySource.includes(snippet)) {
-    errors.push(`assets/js/quality.js: найдено устаревшее действие фото — ${snippet}`);
+    errors.push(`assets/js/quality.js: найдено устаревшее действие — ${snippet}`);
   }
 }
 

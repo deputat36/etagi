@@ -6,6 +6,7 @@ const filtersSource = read('assets/js/qualityIssueFilters.js');
 const summarySource = read('assets/js/qualityIssueSummary.js');
 const prioritySource = read('assets/js/qualitySuppressedPriority.js');
 const printGuardSource = read('assets/js/qualityPrintGuardHint.js');
+const preprintSource = read('assets/js/preprintSummary.js');
 const qrSizeSource = read('assets/js/qrSizeHint.js');
 const layoutExtrasSyncSource = read('assets/js/layoutExtrasSync.js');
 const errors = [];
@@ -49,6 +50,12 @@ check(printGuardSource, 'qualityPrintGuardHint.js', [
   "const hasError = Boolean(findActiveIssue(list, 'error'))",
   "const hasWarning = Boolean(findActiveIssue(list, 'warn'))",
   "find((item) => !item.dataset.qualitySuppressed)"
+]);
+
+check(preprintSource, 'preprintSummary.js', [
+  "filter((item) => !item.dataset.qualitySuppressed)",
+  "const errorItems = items.filter((item) => item.classList.contains('error'))",
+  "const warningItems = items.filter((item) => item.classList.contains('warn'))"
 ]);
 
 check(qrSizeSource, 'qrSizeHint.js', [

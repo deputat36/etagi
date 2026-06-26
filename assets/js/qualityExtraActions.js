@@ -1,5 +1,5 @@
 import { getLayoutExtra, getLayoutExtraField, setLayoutExtraValue } from './layoutExtras.js';
-import { cleanPhoneValue } from './phone.js';
+import { cleanPhoneValue, getPhoneInfo } from './phone.js';
 
 (function () {
   const QUICK_FIX_CTA = 'Позвоните — подскажу детали';
@@ -26,6 +26,7 @@ import { cleanPhoneValue } from './phone.js';
   const actions = [
     { title: 'Заголовок не продаёт', action: 'strongHeadline', label: 'Усилить заголовок' },
     { title: 'Слабый крючок в заголовке', action: 'strongHeadline', label: 'Усилить заголовок' },
+    { title: 'Нет канала отклика', action: 'responseChannel', label: 'Настроить отклик' },
     { title: 'Нет призыва в контактах', action: 'contactCta', label: 'Заполнить призыв' },
     { title: 'Слабый призыв в контактах', action: 'contactCta', label: 'Усилить призыв' },
     { title: 'Длинный призыв в контактах', action: 'shortContactCta', label: 'Сократить призыв' },
@@ -87,12 +88,12 @@ import { cleanPhoneValue } from './phone.js';
       window.setTimeout(focusPhoneField, 180);
       return;
     }
-    if (button.dataset.fix === 'showContact' && !hasPhoneValue()) {
+    if (button.dataset.fix === 'showContact' && !hasLikelyPhoneValue()) {
       event.preventDefault();
       event.stopPropagation();
       event.stopImmediatePropagation?.();
       focusPhoneField();
-      setStatus('Сначала укажите телефон для отклика. После этого контакты можно включить без новой ошибки.');
+      setStatus('Сначала укажите полный телефон для отклика. После этого контакты можно включить без новой ошибки.');
       return;
     }
     if (button.dataset.fix === 'shortHeadline') {
@@ -113,6 +114,7 @@ import { cleanPhoneValue } from './phone.js';
 
     const action = button.dataset.extraQualityFix;
     if (action === 'strongHeadline') setStrongHeadline();
+    if (action === 'responseChannel') setResponseChannel();
     if (action === 'contactCta') setContactCta(QUICK_FIX_CTA);
     if (action === 'shortContactCta') setContactCta(shortContactCta());
     if (action === 'descriptionCta') addDescriptionSentence(QUICK_FIX_CTA, 'Призыв добавлен в описание.');
@@ -163,6 +165,18 @@ import { cleanPhoneValue } from './phone.js';
     const context = [propertyType, area].filter(Boolean).join(', ');
 
     return context ? `${base} — ${context}` : base;
+  }
+
+  function setResponseChannel() {
+    const phoneInfo = getPhoneInfo(getPhoneValue());
+    if (!phoneInfo.isLikelyPhone) {
+      focusPhoneField();
+      setStatus('Сначала укажите полный телефон для отклика. После этого контакты можно включить без новой ошибки.');
+      return;
+    }
+
+    enableCheckbox('showContact');
+    setStatus('Контакты включены. Проверьте, что телефон хорошо читается в макете.');
   }
 
   function setContactCta(text) {
@@ -337,8 +351,12 @@ import { cleanPhoneValue } from './phone.js';
     setStatus('Введите или проверьте телефон. Для печати лучше полный номер с кодом.');
   }
 
-  function hasPhoneValue() {
-    return Boolean(String(document.getElementById('agentPhone')?.value || '').trim());
+  function hasLikelyPhoneValue() {
+    return getPhoneInfo(getPhoneValue()).isLikelyPhone;
+  }
+
+  function getPhoneValue() {
+    return String(document.getElementById('agentPhone')?.value || '').trim();
   }
 
   function getPrintCount() {

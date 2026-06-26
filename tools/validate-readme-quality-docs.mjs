@@ -6,13 +6,15 @@ const workflowSource = read('.github/workflows/validate.yml');
 const errors = [];
 
 check(readmeSource, 'README.md', [
-  'безопасные помощники качества для QR, фото и канала отклика',
+  'прямое безопасное действие для пустого QR',
+  'блок остаётся включённым, а пользователь переходит к полю ссылки',
+  'безопасные помощники качества для фото и канала отклика',
   'подавление дублирующих QR-замечаний',
-  'assets/js/qrIntentFix.js',
   'assets/js/photoIntentFix.js',
   'assets/js/qrSizeHint.js',
   'assets/js/qualityQrDeduplicate.js',
   'assets/js/responseChannelPhoneGuard.js',
+  'assets/js/qualityExtraActions.js        быстрые исправления контроля качества, включая пустой QR',
   'docs/quality-helper-map.md',
   'docs/quality-regression-checklist.md',
   'tools/validate-photo-intent-action.mjs',
@@ -32,6 +34,10 @@ check(readmeSource, 'README.md', [
   'npm run validate:readme-quality-docs',
   'npm run validate:qr-empty-direct-action'
 ]);
+
+if (readmeSource.includes('assets/js/qrIntentFix.js')) {
+  errors.push('README.md: удалённый qrIntentFix.js не должен оставаться в структуре проекта');
+}
 
 check(packageSource, 'package.json', [
   '"validate:readme-quality-docs": "node tools/validate-readme-quality-docs.mjs"',

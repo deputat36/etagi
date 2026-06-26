@@ -48,6 +48,11 @@ checkConnectedHelper('assets/js/photoIntentFix.js', layoutSyncSource, "import '.
 checkConnectedHelper('assets/js/qrSizeHint.js', layoutSyncSource, "import './qrSizeHint.js';");
 checkConnectedHelper('assets/js/responseChannelPhoneGuard.js', layoutSyncSource, "import './responseChannelPhoneGuard.js';");
 checkConnectedHelper('assets/js/qualityQrDeduplicate.js', qrSizeSource, "import './qualityQrDeduplicate.js';");
+checkRemovedHelper('assets/js/qualitySuppressedPriority.js');
+
+if (qrSizeSource.includes("import './qualitySuppressedPriority.js';")) {
+  errors.push('qrSizeHint.js: не должен импортировать удалённый qualitySuppressedPriority.js');
+}
 
 if (errors.length) {
   console.error('\nQuality helper import errors:');
@@ -80,6 +85,12 @@ function checkConnectedHelper(file, source, importSnippet) {
 
   if (!source.includes(importSnippet)) {
     errors.push(`${file}: файл существует, но не подключён ожидаемым импортом ${importSnippet}`);
+  }
+}
+
+function checkRemovedHelper(file) {
+  if (fs.existsSync(file)) {
+    errors.push(`${file}: устаревший helper должен оставаться удалённым`);
   }
 }
 

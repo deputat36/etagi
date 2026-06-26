@@ -4,7 +4,7 @@ import { loadTemplates, filterTemplates } from './templates.js';
 import { applyCss, renderSheet, getGrid } from './render.js';
 import { checkQuality } from './quality.js';
 import { autoSave, saveNamed, loadNamed, loadAutoSave, saveProfile, loadProfile, listSavedLayouts, saveLayout, loadLayout, deleteLayout, listFavoriteTemplates, toggleFavoriteTemplate } from './storage.js';
-import { applyLayoutMode, getLayoutHints } from './layoutRules.js';
+import { applyLayoutMode, applyLayoutModePreservingMedia, getLayoutHints } from './layoutRules.js';
 
 let state = cloneDefaultState();
 let templates = [];
@@ -87,6 +87,7 @@ function bindStaticUi(){
   $('loadProfileBtn').onclick = loadSavedProfile;
   $('clearObjectBtn').onclick = clearObjectData;
   $('autoLayoutBtn').onclick = () => applyMode('auto');
+  if($('preserveMediaLayoutBtn')) $('preserveMediaLayoutBtn').onclick = () => applyModePreservingMedia('auto');
   $('saveNamedLayoutBtn').onclick = saveCurrentNamedLayout;
   $('loadNamedLayoutBtn').onclick = loadSelectedLayout;
   $('deleteNamedLayoutBtn').onclick = deleteSelectedLayout;
@@ -267,6 +268,13 @@ function applyMode(mode){
   syncFormFromState();
   renderAll();
   setStatus(mode === 'auto' ? 'Макет подстроен автоматически.' : `Применён режим: ${layoutModes.find(m=>m.id===mode)?.title || mode}.`);
+}
+function applyModePreservingMedia(mode){
+  state = applyLayoutModePreservingMedia(state, mode);
+  state.blockOrder = normalizeBlockOrder(state.blockOrder);
+  syncFormFromState();
+  renderAll();
+  setStatus('Макет подстроен без отключения включённых фото и QR. Проверьте подсказки по читаемости.');
 }
 function renderTemplates(){
   const baseList = getBaseTemplateList();

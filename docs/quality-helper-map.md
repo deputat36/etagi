@@ -47,6 +47,7 @@
 - `tools/validate-quality-helper-imports.mjs` — проверяет порядок загрузки и side-effect imports;
 - `tools/validate-quality-helper-map.mjs` — проверяет этот документ;
 - `tools/validate-readme-quality-docs.mjs` — проверяет README, подключение проверки в `package.json` и покрытие `.github/workflows/validate.yml` для `docs/**` и `README.md`;
+- `tools/validate-qr-empty-direct-action.mjs` — проверяет, что штатное действие пустого QR сразу ведёт к ссылке, а не выключает QR;
 - `tools/validate-changelog.mjs` — проверяет, что раздел `3.84.0` содержит ключевые изменения по helper-модулям качества.
 
 ## Устаревшие модули

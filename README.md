@@ -132,6 +132,7 @@ tools/validate-quality-helper-imports.mjs проверка цепочки helper
 tools/validate-quality-regression-checklist.mjs проверка чек-листа регрессии
 tools/validate-quality-helper-map.mjs   проверка карты helper-модулей
 tools/validate-readme-quality-docs.mjs  проверка README по helper-документации
+tools/validate-qr-empty-direct-action.mjs проверка прямого действия пустого QR
 tools/validate-storage-safety.mjs       проверка защиты браузерных сохранений
 tools/validate-version-sync.mjs         проверка синхронизации версий
 tools/validate-package-scripts.mjs      проверка подключения validate-скриптов
@@ -170,6 +171,7 @@ npm run validate:quality-helper-imports
 npm run validate:quality-regression-checklist
 npm run validate:quality-helper-map
 npm run validate:readme-quality-docs
+npm run validate:qr-empty-direct-action
 npm run validate:storage-safety
 npm run validate:version-sync
 npm run validate:package-scripts

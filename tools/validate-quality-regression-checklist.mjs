@@ -11,9 +11,13 @@ check(checklistSource, 'docs/quality-regression-checklist.md', [
   'Дублирующиеся QR-замечания',
   'Порядок загрузки помощников',
   'Перед печатью',
+  'Автоподстройка макета',
   'disableQr',
   'noPhoto',
   'onePhoto',
+  'autoFix',
+  'applyLayoutMode',
+  'Подстроить без отключения фото и QR',
   'validate:quality-helper-imports',
   'validate:response-channel-action'
 ]);

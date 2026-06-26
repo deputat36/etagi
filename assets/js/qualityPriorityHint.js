@@ -12,7 +12,7 @@
     if (!list) return;
 
     ensurePriorityElement();
-    new MutationObserver(updatePriority).observe(list, { childList: true, subtree: true });
+    new MutationObserver(updatePriority).observe(list, { childList: true, subtree: true, attributes: true, attributeFilter: ['data-quality-suppressed'] });
     updatePriority();
   }
 
@@ -43,7 +43,8 @@
 
   function getTopPriority(list) {
     for (const priority of priorities) {
-      const item = list.querySelector(`.qitem.${priority.key}`);
+      const item = Array.from(list.querySelectorAll(`.qitem.${priority.key}`))
+        .find((entry) => !entry.dataset.qualitySuppressed);
       if (item) {
         return {
           level: priority.key,

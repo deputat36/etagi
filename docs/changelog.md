@@ -25,6 +25,7 @@
 - Подсказки плотного макета теперь прямо предлагают мягкую подстройку, когда пользователь хочет сохранить фото или QR.
 - Чек-лист регрессии теперь фиксирует выбранный принцип автоподстройки: старое автоисправление не меняется, мягкое действие доступно отдельно.
 - Добавлена проверка `validate:layout-media-preservation`, которая защищает мягкую автоподстройку фото и QR.
+- Проверка `validate:layout-media-preservation` теперь проверяет реальное поведение обычной и мягкой автоподстройки на перегруженном макете.
 - Добавлены документы `docs/quality-helper-map.md` и `docs/quality-regression-checklist.md` для сопровождения helper-модулей качества и ручной регрессии.
 - README обновлён под текущую цепочку helper-модулей качества, а workflow теперь запускает проверки при изменении `docs/**` и `README.md`.
 - Добавлены проверки `validate:asset-duplicates`, `validate:layout-media-preservation`, `validate:photo-intent-action`, `validate:response-channel-action`, `validate:qr-empty-direct-action`, `validate:suppressed-quality-items`, `validate:quality-helper-imports`, `validate:quality-helper-map`, `validate:quality-regression-checklist` и `validate:readme-quality-docs`.

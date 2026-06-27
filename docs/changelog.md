@@ -21,6 +21,7 @@
 - Проверка `validate:layout-media-preservation` теперь берёт список явных режимов подстройки из `assets/js/state.js`, а не из ручного списка.
 - Проверка `validate:layout-media-preservation` теперь сверяет каждый режим из `assets/js/state.js` с обработкой в `assets/js/layoutRules.js` и порядком блоков.
 - Проверка `validate:layout-media-preservation` теперь также ловит лишние или повторяющиеся режимы в `BLOCK_ORDERS` и обработчиках `applyLayoutMode`.
+- Проверка `validate:layout-media-preservation` теперь контролирует, что режимы фото и режимы подстройки в `assets/js/state.js` не имеют повторяющихся ID.
 - Проверка `validate:layout-media-preservation` теперь проверяет все включённые режимы фото не только в `auto`, но и в явных режимах подстройки.
 - Проверка `validate:layout-media-preservation` теперь контролирует, что мягкая подстройка сохраняет сами данные `photoOne` и `photoTwo`.
 - Проверка `validate:layout-media-preservation` теперь контролирует, что мягкая подстройка сохраняет данные QR: `qrLink` и `qrCaption`.

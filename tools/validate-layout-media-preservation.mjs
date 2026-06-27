@@ -73,22 +73,34 @@ function checkFunctionalBehavior() {
     showBrand: true,
     blockOrder: ['headline', 'price', 'photo', 'description', 'meta', 'benefits', 'customBlock', 'contact']
   };
+  const originalSnapshot = JSON.stringify(overloadedState);
 
   const regular = applyLayoutMode(overloadedState, 'auto');
   if (regular.showPhoto || regular.photoMode !== 'none' || regular.showQr) {
     errors.push('applyLayoutMode: обычная автоподстройка должна сохранять прежнее право отключать фото и QR');
   }
 
-  const preserved = applyLayoutModePreservingMedia(overloadedState, 'auto');
-  if (!preserved.showPhoto) errors.push('applyLayoutModePreservingMedia: включённое фото должно сохраниться');
-  if (preserved.photoMode !== 'two') errors.push('applyLayoutModePreservingMedia: текущий photoMode должен сохраниться');
-  if (!preserved.showQr) errors.push('applyLayoutModePreservingMedia: включённый QR должен сохраниться');
-  if (preserved.layoutMode !== 'auto') errors.push('applyLayoutModePreservingMedia: layoutMode должен остаться auto');
+  assertPreservedMedia(applyLayoutModePreservingMedia(overloadedState, 'auto'), 'auto');
+
+  for (const mode of ['readable', 'economy', 'entrance', 'private']) {
+    assertPreservedMedia(applyLayoutModePreservingMedia(overloadedState, mode), mode);
+  }
 
   const noMedia = applyLayoutModePreservingMedia({ ...overloadedState, showPhoto: false, photoMode: 'none', showQr: false }, 'auto');
   if (noMedia.showPhoto || noMedia.photoMode !== 'none' || noMedia.showQr) {
     errors.push('applyLayoutModePreservingMedia: выключенные фото и QR не должны включаться сами');
   }
+
+  if (JSON.stringify(overloadedState) !== originalSnapshot) {
+    errors.push('applyLayoutModePreservingMedia: исходное состояние макета не должно мутироваться');
+  }
+}
+
+function assertPreservedMedia(result, mode) {
+  if (!result.showPhoto) errors.push(`applyLayoutModePreservingMedia(${mode}): включённое фото должно сохраниться`);
+  if (result.photoMode !== 'two') errors.push(`applyLayoutModePreservingMedia(${mode}): текущий photoMode должен сохраниться`);
+  if (!result.showQr) errors.push(`applyLayoutModePreservingMedia(${mode}): включённый QR должен сохраниться`);
+  if (result.layoutMode !== mode) errors.push(`applyLayoutModePreservingMedia(${mode}): layoutMode должен остаться ${mode}`);
 }
 
 function check(source, file, snippets) {

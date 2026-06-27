@@ -81,10 +81,16 @@ function checkFunctionalBehavior() {
     errors.push('applyLayoutMode: обычная автоподстройка должна сохранять прежнее право отключать фото и QR');
   }
 
-  assertPreservedMedia(applyLayoutModePreservingMedia(overloadedState, 'auto'), 'auto');
+  for (const photoMode of ['one', 'two', 'plan']) {
+    assertPreservedMedia(
+      applyLayoutModePreservingMedia({ ...overloadedState, photoMode }, 'auto'),
+      'auto',
+      photoMode
+    );
+  }
 
   for (const mode of ['readable', 'economy', 'entrance', 'private']) {
-    assertPreservedMedia(applyLayoutModePreservingMedia(overloadedState, mode), mode);
+    assertPreservedMedia(applyLayoutModePreservingMedia(overloadedState, mode), mode, 'two');
   }
 
   const noMedia = applyLayoutModePreservingMedia({ ...overloadedState, showPhoto: false, photoMode: 'none', showQr: false }, 'auto');
@@ -112,9 +118,9 @@ function checkFunctionalBehavior() {
   }
 }
 
-function assertPreservedMedia(result, mode) {
+function assertPreservedMedia(result, mode, expectedPhotoMode) {
   if (!result.showPhoto) errors.push(`applyLayoutModePreservingMedia(${mode}): включённое фото должно сохраниться`);
-  if (result.photoMode !== 'two') errors.push(`applyLayoutModePreservingMedia(${mode}): текущий photoMode должен сохраниться`);
+  if (result.photoMode !== expectedPhotoMode) errors.push(`applyLayoutModePreservingMedia(${mode}): photoMode ${expectedPhotoMode} должен сохраниться`);
   if (!result.showQr) errors.push(`applyLayoutModePreservingMedia(${mode}): включённый QR должен сохраниться`);
   if (result.layoutMode !== mode) errors.push(`applyLayoutModePreservingMedia(${mode}): layoutMode должен остаться ${mode}`);
 }

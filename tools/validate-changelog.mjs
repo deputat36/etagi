@@ -33,6 +33,7 @@ const requiredCurrentSnippets = [
   'Добавлена проверка `validate:asset-duplicates`',
   'Проверка README теперь контролирует описание `validate:asset-duplicates`',
   'Добавлена отдельная кнопка «Подстроить, сохранив фото и QR»',
+  'Подсказки плотного макета теперь прямо предлагают мягкую подстройку',
   'Чек-лист регрессии теперь фиксирует выбранный принцип автоподстройки',
   'Добавлена проверка `validate:layout-media-preservation`',
   'docs/quality-helper-map.md',

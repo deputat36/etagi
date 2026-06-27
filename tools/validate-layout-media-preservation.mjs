@@ -136,6 +136,17 @@ function checkFunctionalBehavior() {
     errors.push('applyLayoutMode: обычная автоподстройка должна сохранять прежнее право отключать фото и QR');
   }
 
+  for (const mode of ['auto', ...explicitLayoutModes]) {
+    assertBlockOrderIntegrity(
+      applyLayoutMode({ ...overloadedState }, mode).blockOrder,
+      `applyLayoutMode(${mode})`
+    );
+    assertBlockOrderIntegrity(
+      applyLayoutModePreservingMedia({ ...overloadedState }, mode).blockOrder,
+      `applyLayoutModePreservingMedia(${mode})`
+    );
+  }
+
   for (const photoMode of enabledPhotoModes) {
     assertPreservedMedia(
       applyLayoutModePreservingMedia({ ...overloadedState, photoMode }, 'auto'),
@@ -261,6 +272,26 @@ function extractBlockOrderEntries(source) {
 
 function extractHandledLayoutModes(source) {
   return [...source.matchAll(/effectiveMode === ['"]([^'"]+)['"]/g)].map(match => match[1]);
+}
+
+function assertBlockOrderIntegrity(order, label) {
+  if (!Array.isArray(order)) {
+    errors.push(`${label}: blockOrder должен быть массивом`);
+    return;
+  }
+
+  const defaultSet = new Set(defaultBlockOrder);
+  for (const blockId of defaultBlockOrder) {
+    if (!order.includes(blockId)) errors.push(`${label}: blockOrder должен содержать ${blockId}`);
+  }
+
+  for (const blockId of order) {
+    if (!defaultSet.has(blockId)) errors.push(`${label}: blockOrder содержит неизвестный блок ${blockId}`);
+  }
+
+  for (const blockId of findDuplicates(order)) {
+    errors.push(`${label}: blockOrder содержит повтор ${blockId}`);
+  }
 }
 
 function assertPreservedMedia(result, mode, expectedPhotoMode, sourceState) {

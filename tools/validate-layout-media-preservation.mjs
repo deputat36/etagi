@@ -10,8 +10,9 @@ const enabledPhotoModes = photoModeIds.filter(id => id !== 'none');
 const explicitLayoutModes = layoutModes.map(({ id }) => id);
 const allowedDefaultLayoutModes = ['manual', ...explicitLayoutModes];
 const defaultBlockOrder = Array.isArray(defaultState.blockOrder) ? defaultState.blockOrder : [];
-const blockOrdersByMode = extractBlockOrders(layoutRulesSource);
-const blockOrderModes = Object.keys(blockOrdersByMode);
+const blockOrderEntries = extractBlockOrderEntries(layoutRulesSource);
+const blockOrdersByMode = Object.fromEntries(blockOrderEntries.map(({ mode, order }) => [mode, order]));
+const blockOrderModes = blockOrderEntries.map(({ mode }) => mode);
 const handledLayoutModes = extractHandledLayoutModes(layoutRulesSource);
 const errors = [];
 
@@ -242,17 +243,20 @@ function findDuplicates(values) {
   return [...duplicates];
 }
 
-function extractBlockOrders(source) {
+function extractBlockOrderEntries(source) {
   const block = source.match(/const BLOCK_ORDERS = \{([\s\S]*?)\n\};/);
-  if (!block) return {};
+  if (!block) return [];
 
-  const orders = {};
+  const entries = [];
   const pattern = /^\s*['"]?([a-z][a-z0-9_-]*)['"]?\s*:\s*\[([^\]]*)\]/gmi;
   let match;
   while ((match = pattern.exec(block[1]))) {
-    orders[match[1]] = [...match[2].matchAll(/['"]([^'"]+)['"]/g)].map(item => item[1]);
+    entries.push({
+      mode: match[1],
+      order: [...match[2].matchAll(/['"]([^'"]+)['"]/g)].map(item => item[1])
+    });
   }
-  return orders;
+  return entries;
 }
 
 function extractHandledLayoutModes(source) {

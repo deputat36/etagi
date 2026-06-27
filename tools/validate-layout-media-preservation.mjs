@@ -5,7 +5,8 @@ import { layoutModes, photoModes } from '../assets/js/state.js';
 const layoutRulesSource = read('assets/js/layoutRules.js');
 const appSource = read('assets/js/app.js');
 const indexSource = read('index.html');
-const enabledPhotoModes = photoModes.map(({ id }) => id).filter(id => id !== 'none');
+const photoModeIds = photoModes.map(({ id }) => id);
+const enabledPhotoModes = photoModeIds.filter(id => id !== 'none');
 const explicitLayoutModes = layoutModes.map(({ id }) => id);
 const blockOrderModes = extractBlockOrderModes(layoutRulesSource);
 const handledLayoutModes = extractHandledLayoutModes(layoutRulesSource);
@@ -51,6 +52,14 @@ if (!enabledPhotoModes.length) {
 
 if (!explicitLayoutModes.length) {
   errors.push('assets/js/state.js: должен быть хотя бы один явный режим подстройки');
+}
+
+for (const mode of findDuplicates(photoModeIds)) {
+  errors.push(`assets/js/state.js: режим фото ${mode} повторяется`);
+}
+
+for (const mode of findDuplicates(explicitLayoutModes)) {
+  errors.push(`assets/js/state.js: режим подстройки ${mode} повторяется`);
 }
 
 if (!blockOrderModes.length) {

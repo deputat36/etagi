@@ -46,7 +46,8 @@ export function getLayoutHints(state){
   const count = Number(state.printCount) || 2;
 
   if(count >= 4 && state.showPhoto && state.photoMode !== 'none'){
-    hints.push('Для 4 макетов на А4 фото часто делает объявление мелким. Если фото важно сохранить, используйте мягкую подстройку с сохранением фото и QR.');
+    const countLabel = count === 4 ? 'Для 4 макетов на А4' : 'Для 6–8 макетов на А4';
+    hints.push(`${countLabel} фото часто делает объявление мелким. Если фото важно сохранить, используйте мягкую подстройку с сохранением фото и QR.`);
   }
   if(count >= 4 && state.showDescription && String(state.description || '').length > 220){
     hints.push('Для экономной расклейки описание лучше сократить до 1–2 коротких предложений.');

@@ -85,7 +85,8 @@ function checkFunctionalBehavior() {
     assertPreservedMedia(
       applyLayoutModePreservingMedia({ ...overloadedState, photoMode }, 'auto'),
       'auto',
-      photoMode
+      photoMode,
+      overloadedState
     );
   }
 
@@ -94,7 +95,8 @@ function checkFunctionalBehavior() {
       assertPreservedMedia(
         applyLayoutModePreservingMedia({ ...overloadedState, photoMode }, mode),
         mode,
-        photoMode
+        photoMode,
+        overloadedState
       );
     }
   }
@@ -124,9 +126,11 @@ function checkFunctionalBehavior() {
   }
 }
 
-function assertPreservedMedia(result, mode, expectedPhotoMode) {
+function assertPreservedMedia(result, mode, expectedPhotoMode, sourceState) {
   if (!result.showPhoto) errors.push(`applyLayoutModePreservingMedia(${mode}): включённое фото должно сохраниться`);
   if (result.photoMode !== expectedPhotoMode) errors.push(`applyLayoutModePreservingMedia(${mode}): photoMode ${expectedPhotoMode} должен сохраниться`);
+  if (result.photoOne !== sourceState.photoOne) errors.push(`applyLayoutModePreservingMedia(${mode}): первое фото должно сохраниться`);
+  if (result.photoTwo !== sourceState.photoTwo) errors.push(`applyLayoutModePreservingMedia(${mode}): второе фото должно сохраниться`);
   if (!result.showQr) errors.push(`applyLayoutModePreservingMedia(${mode}): включённый QR должен сохраниться`);
   if (result.layoutMode !== mode) errors.push(`applyLayoutModePreservingMedia(${mode}): layoutMode должен остаться ${mode}`);
 }

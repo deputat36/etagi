@@ -7,6 +7,8 @@ const appSource = read('assets/js/app.js');
 const indexSource = read('index.html');
 const enabledPhotoModes = photoModes.map(({ id }) => id).filter(id => id !== 'none');
 const explicitLayoutModes = layoutModes.map(({ id }) => id);
+const blockOrderModes = extractBlockOrderModes(layoutRulesSource);
+const handledLayoutModes = extractHandledLayoutModes(layoutRulesSource);
 const errors = [];
 
 checkFunctionalBehavior();
@@ -51,14 +53,16 @@ if (!explicitLayoutModes.length) {
   errors.push('assets/js/state.js: должен быть хотя бы один явный режим подстройки');
 }
 
-for (const mode of explicitLayoutModes) {
-  if (!layoutRulesSource.includes(`${mode}: [`)) {
-    errors.push(`assets/js/layoutRules.js: режим ${mode} должен иметь порядок блоков в BLOCK_ORDERS`);
-  }
-  if (!layoutRulesSource.includes(`effectiveMode === '${mode}'`)) {
-    errors.push(`assets/js/layoutRules.js: режим ${mode} должен обрабатываться в applyLayoutMode`);
-  }
+if (!blockOrderModes.length) {
+  errors.push('assets/js/layoutRules.js: не удалось определить режимы из BLOCK_ORDERS');
 }
+
+if (!handledLayoutModes.length) {
+  errors.push('assets/js/layoutRules.js: не удалось определить режимы, обрабатываемые в applyLayoutMode');
+}
+
+checkModeCoverage('BLOCK_ORDERS', blockOrderModes);
+checkModeCoverage('applyLayoutMode', handledLayoutModes);
 
 if (errors.length) {
   console.error('\nОшибки мягкой автоподстройки фото и QR:');
@@ -155,6 +159,54 @@ function checkFunctionalBehavior() {
       errors.push(`getLayoutHints: подсказка ${printCount} макетов не должна ошибочно говорить про 4 макета`);
     }
   }
+}
+
+function checkModeCoverage(sourceName, sourceModes) {
+  const explicitSet = new Set(explicitLayoutModes);
+  const sourceSet = new Set(sourceModes);
+
+  for (const mode of explicitLayoutModes) {
+    if (!sourceSet.has(mode)) {
+      errors.push(`assets/js/layoutRules.js: режим ${mode} должен быть описан в ${sourceName}`);
+    }
+  }
+
+  for (const mode of sourceSet) {
+    if (!explicitSet.has(mode)) {
+      errors.push(`assets/js/layoutRules.js: режим ${mode} есть в ${sourceName}, но отсутствует в assets/js/state.js`);
+    }
+  }
+
+  for (const mode of findDuplicates(sourceModes)) {
+    errors.push(`assets/js/layoutRules.js: режим ${mode} повторяется в ${sourceName}`);
+  }
+}
+
+function findDuplicates(values) {
+  const seen = new Set();
+  const duplicates = new Set();
+  for (const value of values) {
+    if (seen.has(value)) duplicates.add(value);
+    seen.add(value);
+  }
+  return [...duplicates];
+}
+
+function extractBlockOrderModes(source) {
+  const block = source.match(/const BLOCK_ORDERS = \{([\s\S]*?)\n\};/);
+  if (!block) return [];
+
+  const modes = [];
+  const pattern = /^\s*['"]?([a-z][a-z0-9_-]*)['"]?\s*:\s*\[/gmi;
+  let match;
+  while ((match = pattern.exec(block[1]))) {
+    modes.push(match[1]);
+  }
+  return modes;
+}
+
+function extractHandledLayoutModes(source) {
+  return [...source.matchAll(/effectiveMode === ['"]([^'"]+)['"]/g)].map(match => match[1]);
 }
 
 function assertPreservedMedia(result, mode, expectedPhotoMode, sourceState) {

@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import { applyLayoutMode, applyLayoutModePreservingMedia } from '../assets/js/layoutRules.js';
+import { applyLayoutMode, applyLayoutModePreservingMedia, getLayoutHints } from '../assets/js/layoutRules.js';
 
 const layoutRulesSource = read('assets/js/layoutRules.js');
 const appSource = read('assets/js/app.js');
@@ -18,6 +18,7 @@ check(layoutRulesSource, 'assets/js/layoutRules.js', [
   'function pickMediaIntent',
   'showPhoto: Boolean(state.showPhoto && state.photoMode !== \'none\')',
   'showQr: Boolean(state.showQr)',
+  "const countLabel = count === 4 ? 'Для 4 макетов на А4' : 'Для 6–8 макетов на А4';",
   'Если фото важно сохранить, используйте мягкую подстройку с сохранением фото и QR',
   'Если QR нужен, используйте мягкую подстройку с сохранением фото и QR или печатайте 1–2 на А4'
 ]);
@@ -93,6 +94,19 @@ function checkFunctionalBehavior() {
 
   if (JSON.stringify(overloadedState) !== originalSnapshot) {
     errors.push('applyLayoutModePreservingMedia: исходное состояние макета не должно мутироваться');
+  }
+
+  const fourPhotoHint = getLayoutHints(overloadedState).join('\n');
+  if (!fourPhotoHint.includes('Для 4 макетов на А4 фото часто делает объявление мелким')) {
+    errors.push('getLayoutHints: для 4 макетов подсказка фото должна говорить про 4 макета');
+  }
+
+  const sixPhotoHint = getLayoutHints({ ...overloadedState, printCount: 6 }).join('\n');
+  if (!sixPhotoHint.includes('Для 6–8 макетов на А4 фото часто делает объявление мелким')) {
+    errors.push('getLayoutHints: для 6–8 макетов подсказка фото должна говорить про 6–8 макетов');
+  }
+  if (sixPhotoHint.includes('Для 4 макетов на А4 фото часто делает объявление мелким')) {
+    errors.push('getLayoutHints: подсказка 6–8 макетов не должна ошибочно говорить про 4 макета');
   }
 }
 

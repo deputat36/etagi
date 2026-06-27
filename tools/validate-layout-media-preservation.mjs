@@ -101,12 +101,14 @@ function checkFunctionalBehavior() {
     errors.push('getLayoutHints: для 4 макетов подсказка фото должна говорить про 4 макета');
   }
 
-  const sixPhotoHint = getLayoutHints({ ...overloadedState, printCount: 6 }).join('\n');
-  if (!sixPhotoHint.includes('Для 6–8 макетов на А4 фото часто делает объявление мелким')) {
-    errors.push('getLayoutHints: для 6–8 макетов подсказка фото должна говорить про 6–8 макетов');
-  }
-  if (sixPhotoHint.includes('Для 4 макетов на А4 фото часто делает объявление мелким')) {
-    errors.push('getLayoutHints: подсказка 6–8 макетов не должна ошибочно говорить про 4 макета');
+  for (const printCount of [6, 8]) {
+    const compactPhotoHint = getLayoutHints({ ...overloadedState, printCount }).join('\n');
+    if (!compactPhotoHint.includes('Для 6–8 макетов на А4 фото часто делает объявление мелким')) {
+      errors.push(`getLayoutHints: для ${printCount} макетов подсказка фото должна говорить про 6–8 макетов`);
+    }
+    if (compactPhotoHint.includes('Для 4 макетов на А4 фото часто делает объявление мелким')) {
+      errors.push(`getLayoutHints: подсказка ${printCount} макетов не должна ошибочно говорить про 4 макета`);
+    }
   }
 }
 

@@ -1,9 +1,12 @@
 import fs from 'node:fs';
+import { applyLayoutMode, applyLayoutModePreservingMedia } from '../assets/js/layoutRules.js';
 
 const layoutRulesSource = read('assets/js/layoutRules.js');
 const appSource = read('assets/js/app.js');
 const indexSource = read('index.html');
 const errors = [];
+
+checkFunctionalBehavior();
 
 check(layoutRulesSource, 'assets/js/layoutRules.js', [
   'export function applyLayoutModePreservingMedia',
@@ -43,6 +46,50 @@ if (errors.length) {
 }
 
 console.log('Проверка мягкой автоподстройки фото и QR пройдена.');
+
+function checkFunctionalBehavior() {
+  const overloadedState = {
+    printCount: 4,
+    splitMode: 'grid',
+    layoutDensity: 'dense',
+    colorMode: 'brand',
+    price: '3 200 000 ₽',
+    area: 'Северный район',
+    propertyType: 'квартира',
+    params: '2-комн., 48 м²',
+    showHeadline: true,
+    showPrice: true,
+    showDescription: true,
+    showMeta: true,
+    showBenefits: true,
+    showPhoto: true,
+    photoMode: 'two',
+    photoOne: 'data:image/png;base64,one',
+    photoTwo: 'data:image/png;base64,two',
+    showQr: true,
+    qrLink: 'https://example.com/object',
+    showContact: true,
+    tearOffs: true,
+    showBrand: true,
+    blockOrder: ['headline', 'price', 'photo', 'description', 'meta', 'benefits', 'customBlock', 'contact']
+  };
+
+  const regular = applyLayoutMode(overloadedState, 'auto');
+  if (regular.showPhoto || regular.photoMode !== 'none' || regular.showQr) {
+    errors.push('applyLayoutMode: обычная автоподстройка должна сохранять прежнее право отключать фото и QR');
+  }
+
+  const preserved = applyLayoutModePreservingMedia(overloadedState, 'auto');
+  if (!preserved.showPhoto) errors.push('applyLayoutModePreservingMedia: включённое фото должно сохраниться');
+  if (preserved.photoMode !== 'two') errors.push('applyLayoutModePreservingMedia: текущий photoMode должен сохраниться');
+  if (!preserved.showQr) errors.push('applyLayoutModePreservingMedia: включённый QR должен сохраниться');
+  if (preserved.layoutMode !== 'auto') errors.push('applyLayoutModePreservingMedia: layoutMode должен остаться auto');
+
+  const noMedia = applyLayoutModePreservingMedia({ ...overloadedState, showPhoto: false, photoMode: 'none', showQr: false }, 'auto');
+  if (noMedia.showPhoto || noMedia.photoMode !== 'none' || noMedia.showQr) {
+    errors.push('applyLayoutModePreservingMedia: выключенные фото и QR не должны включаться сами');
+  }
+}
 
 function check(source, file, snippets) {
   for (const snippet of snippets) {

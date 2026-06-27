@@ -10,7 +10,7 @@ check(readmeSource, 'README.md', [
   'выбранные блоки не выключаются автоматически, а пользователь переходит к нужному полю или включает контакты только при корректном телефоне',
   'подавление дублирующих QR-замечаний',
   'дублей HTML-ассетов',
-  'мягкая автоподстройка, которая сохраняет включённые фото и QR',
+  'мягкая автоподстройка, которая сохраняет включённые фото и QR в `auto` и явных режимах подстройки',
   'assets/js/qrSizeHint.js',
   'assets/js/qualityQrDeduplicate.js',
   'assets/js/qualityExtraActions.js        быстрые исправления контроля качества, включая канал отклика, пустые QR и фото',
@@ -37,6 +37,10 @@ check(readmeSource, 'README.md', [
   'npm run validate:readme-quality-docs',
   'npm run validate:qr-empty-direct-action'
 ]);
+
+if (readmeSource.includes('мягкая автоподстройка, которая сохраняет включённые фото и QR;')) {
+  errors.push('README.md: описание мягкой автоподстройки должно уточнять auto и явные режимы');
+}
 
 if (readmeSource.includes('assets/js/qrIntentFix.js')) {
   errors.push('README.md: удалённый qrIntentFix.js не должен оставаться в структуре проекта');

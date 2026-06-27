@@ -136,13 +136,36 @@ function checkFunctionalBehavior() {
     errors.push('applyLayoutMode: обычная автоподстройка должна сохранять прежнее право отключать фото и QR');
   }
 
-  for (const mode of ['auto', ...explicitLayoutModes]) {
-    assertBlockOrderIntegrity(
+  const autoModeCases = [
+    ['private', { ...overloadedState, colorMode: 'private' }, 'private'],
+    ['economy', { ...overloadedState, colorMode: 'brand', printCount: 4 }, 'economy'],
+    ['showcase', { ...overloadedState, colorMode: 'brand', printCount: 1 }, 'showcase'],
+    ['photo', { ...overloadedState, colorMode: 'brand', printCount: 2, photoMode: 'two', photoOne: 'data:image/png;base64,one' }, 'photo'],
+    ['readable', { ...overloadedState, colorMode: 'brand', printCount: 2, showPhoto: false, photoMode: 'none', photoOne: '', photoTwo: '' }, 'readable']
+  ];
+
+  for (const [label, state, expectedMode] of autoModeCases) {
+    assertBlockOrderMatchesMode(
+      applyLayoutMode({ ...state }, 'auto').blockOrder,
+      expectedMode,
+      `applyLayoutMode(auto/${label})`
+    );
+    assertBlockOrderMatchesMode(
+      applyLayoutModePreservingMedia({ ...state }, 'auto').blockOrder,
+      expectedMode,
+      `applyLayoutModePreservingMedia(auto/${label})`
+    );
+  }
+
+  for (const mode of explicitLayoutModes) {
+    assertBlockOrderMatchesMode(
       applyLayoutMode({ ...overloadedState }, mode).blockOrder,
+      mode,
       `applyLayoutMode(${mode})`
     );
-    assertBlockOrderIntegrity(
+    assertBlockOrderMatchesMode(
       applyLayoutModePreservingMedia({ ...overloadedState }, mode).blockOrder,
+      mode,
       `applyLayoutModePreservingMedia(${mode})`
     );
   }
@@ -272,6 +295,21 @@ function extractBlockOrderEntries(source) {
 
 function extractHandledLayoutModes(source) {
   return [...source.matchAll(/effectiveMode === ['"]([^'"]+)['"]/g)].map(match => match[1]);
+}
+
+function assertBlockOrderMatchesMode(order, expectedMode, label) {
+  assertBlockOrderIntegrity(order, label);
+  const expectedOrder = blockOrdersByMode[expectedMode];
+  if (!expectedOrder) {
+    errors.push(`${label}: не найден ожидаемый порядок блоков для режима ${expectedMode}`);
+    return;
+  }
+
+  const actual = JSON.stringify(order);
+  const expected = JSON.stringify(expectedOrder);
+  if (actual !== expected) {
+    errors.push(`${label}: blockOrder должен совпадать с режимом ${expectedMode}`);
+  }
 }
 
 function assertBlockOrderIntegrity(order, label) {

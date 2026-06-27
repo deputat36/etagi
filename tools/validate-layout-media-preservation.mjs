@@ -14,7 +14,9 @@ check(layoutRulesSource, 'assets/js/layoutRules.js', [
   'next.showQr = true;',
   'function pickMediaIntent',
   'showPhoto: Boolean(state.showPhoto && state.photoMode !== \'none\')',
-  'showQr: Boolean(state.showQr)'
+  'showQr: Boolean(state.showQr)',
+  'Если фото важно сохранить, используйте мягкую подстройку с сохранением фото и QR',
+  'Если QR нужен, используйте мягкую подстройку с сохранением фото и QR или печатайте 1–2 на А4'
 ]);
 
 check(appSource, 'assets/js/app.js', [

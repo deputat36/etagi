@@ -30,6 +30,7 @@ const requiredCurrentSnippets = [
   'Проверка `validate:layout-media-preservation` теперь контролирует сохранение всех включённых режимов фото: `one`, `two` и `plan`',
   'Проверка `validate:layout-media-preservation` теперь проверяет все включённые режимы фото не только в `auto`, но и в явных режимах подстройки',
   'Проверка `validate:layout-media-preservation` теперь контролирует, что мягкая подстройка сохраняет сами данные `photoOne` и `photoTwo`',
+  'Проверка `validate:layout-media-preservation` теперь контролирует, что мягкая подстройка сохраняет данные QR: `qrLink` и `qrCaption`',
   'сводке перед печатью',
   'безопасно выделяет только текущий раздел версии',
   'Проверки прямых действий QR, фото и канала отклика теперь связывают `action:null` с конкретным замечанием',

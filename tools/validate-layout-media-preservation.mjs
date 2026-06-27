@@ -9,7 +9,9 @@ const photoModeIds = photoModes.map(({ id }) => id);
 const enabledPhotoModes = photoModeIds.filter(id => id !== 'none');
 const explicitLayoutModes = layoutModes.map(({ id }) => id);
 const allowedDefaultLayoutModes = ['manual', ...explicitLayoutModes];
-const blockOrderModes = extractBlockOrderModes(layoutRulesSource);
+const defaultBlockOrder = Array.isArray(defaultState.blockOrder) ? defaultState.blockOrder : [];
+const blockOrdersByMode = extractBlockOrders(layoutRulesSource);
+const blockOrderModes = Object.keys(blockOrdersByMode);
 const handledLayoutModes = extractHandledLayoutModes(layoutRulesSource);
 const errors = [];
 
@@ -55,12 +57,20 @@ if (!explicitLayoutModes.length) {
   errors.push('assets/js/state.js: должен быть хотя бы один явный режим подстройки');
 }
 
+if (!defaultBlockOrder.length) {
+  errors.push('assets/js/state.js: defaultState.blockOrder должен содержать базовые блоки макета');
+}
+
 if (!photoModeIds.includes(defaultState.photoMode)) {
   errors.push(`assets/js/state.js: defaultState.photoMode ${defaultState.photoMode} должен быть описан в photoModes`);
 }
 
 if (!allowedDefaultLayoutModes.includes(defaultState.layoutMode)) {
   errors.push(`assets/js/state.js: defaultState.layoutMode ${defaultState.layoutMode} должен быть manual или режимом из layoutModes`);
+}
+
+for (const blockId of findDuplicates(defaultBlockOrder)) {
+  errors.push(`assets/js/state.js: блок ${blockId} повторяется в defaultState.blockOrder`);
 }
 
 for (const mode of findDuplicates(photoModeIds)) {
@@ -81,6 +91,7 @@ if (!handledLayoutModes.length) {
 
 checkModeCoverage('BLOCK_ORDERS', blockOrderModes);
 checkModeCoverage('applyLayoutMode', handledLayoutModes);
+checkBlockOrders();
 
 if (errors.length) {
   console.error('\nОшибки мягкой автоподстройки фото и QR:');
@@ -200,6 +211,27 @@ function checkModeCoverage(sourceName, sourceModes) {
   }
 }
 
+function checkBlockOrders() {
+  const defaultSet = new Set(defaultBlockOrder);
+  for (const [mode, order] of Object.entries(blockOrdersByMode)) {
+    for (const blockId of defaultBlockOrder) {
+      if (!order.includes(blockId)) {
+        errors.push(`assets/js/layoutRules.js: порядок блоков режима ${mode} должен содержать ${blockId}`);
+      }
+    }
+
+    for (const blockId of order) {
+      if (!defaultSet.has(blockId)) {
+        errors.push(`assets/js/layoutRules.js: порядок блоков режима ${mode} содержит неизвестный блок ${blockId}`);
+      }
+    }
+
+    for (const blockId of findDuplicates(order)) {
+      errors.push(`assets/js/layoutRules.js: блок ${blockId} повторяется в порядке режима ${mode}`);
+    }
+  }
+}
+
 function findDuplicates(values) {
   const seen = new Set();
   const duplicates = new Set();
@@ -210,17 +242,17 @@ function findDuplicates(values) {
   return [...duplicates];
 }
 
-function extractBlockOrderModes(source) {
+function extractBlockOrders(source) {
   const block = source.match(/const BLOCK_ORDERS = \{([\s\S]*?)\n\};/);
-  if (!block) return [];
+  if (!block) return {};
 
-  const modes = [];
-  const pattern = /^\s*['"]?([a-z][a-z0-9_-]*)['"]?\s*:\s*\[/gmi;
+  const orders = {};
+  const pattern = /^\s*['"]?([a-z][a-z0-9_-]*)['"]?\s*:\s*\[([^\]]*)\]/gmi;
   let match;
   while ((match = pattern.exec(block[1]))) {
-    modes.push(match[1]);
+    orders[match[1]] = [...match[2].matchAll(/['"]([^'"]+)['"]/g)].map(item => item[1]);
   }
-  return modes;
+  return orders;
 }
 
 function extractHandledLayoutModes(source) {

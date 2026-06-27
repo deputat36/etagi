@@ -32,6 +32,7 @@ const requiredCurrentSnippets = [
   'Проверка `validate:layout-media-preservation` теперь берёт список явных режимов подстройки из `assets/js/state.js`, а не из ручного списка',
   'Проверка `validate:layout-media-preservation` теперь сверяет каждый режим из `assets/js/state.js` с обработкой в `assets/js/layoutRules.js` и порядком блоков',
   'Проверка `validate:layout-media-preservation` теперь также ловит лишние или повторяющиеся режимы в `BLOCK_ORDERS` и обработчиках `applyLayoutMode`',
+  'Проверка `validate:layout-media-preservation` теперь сохраняет список режимов `BLOCK_ORDERS` до преобразования в объект, чтобы повторяющиеся режимы не терялись при проверке',
   'Проверка `validate:layout-media-preservation` теперь контролирует, что режимы фото и режимы подстройки в `assets/js/state.js` не имеют повторяющихся ID',
   'Проверка `validate:layout-media-preservation` теперь контролирует, что `defaultState.photoMode` и `defaultState.layoutMode` используют допустимые режимы',
   'Проверка `validate:layout-media-preservation` теперь контролирует, что каждый порядок блоков в `BLOCK_ORDERS` содержит все базовые блоки из `defaultState.blockOrder` без дублей и неизвестных блоков',

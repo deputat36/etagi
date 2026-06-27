@@ -51,6 +51,15 @@ if (!explicitLayoutModes.length) {
   errors.push('assets/js/state.js: должен быть хотя бы один явный режим подстройки');
 }
 
+for (const mode of explicitLayoutModes) {
+  if (!layoutRulesSource.includes(`${mode}: [`)) {
+    errors.push(`assets/js/layoutRules.js: режим ${mode} должен иметь порядок блоков в BLOCK_ORDERS`);
+  }
+  if (!layoutRulesSource.includes(`effectiveMode === '${mode}'`)) {
+    errors.push(`assets/js/layoutRules.js: режим ${mode} должен обрабатываться в applyLayoutMode`);
+  }
+}
+
 if (errors.length) {
   console.error('\nОшибки мягкой автоподстройки фото и QR:');
   errors.forEach(error => console.error(`- ${error}`));

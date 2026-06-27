@@ -90,7 +90,13 @@ function checkFunctionalBehavior() {
   }
 
   for (const mode of ['readable', 'economy', 'entrance', 'private']) {
-    assertPreservedMedia(applyLayoutModePreservingMedia(overloadedState, mode), mode, 'two');
+    for (const photoMode of ['one', 'two', 'plan']) {
+      assertPreservedMedia(
+        applyLayoutModePreservingMedia({ ...overloadedState, photoMode }, mode),
+        mode,
+        photoMode
+      );
+    }
   }
 
   const noMedia = applyLayoutModePreservingMedia({ ...overloadedState, showPhoto: false, photoMode: 'none', showQr: false }, 'auto');

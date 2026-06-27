@@ -37,6 +37,7 @@ const requiredCurrentSnippets = [
   'Чек-лист регрессии теперь фиксирует выбранный принцип автоподстройки',
   'Добавлена проверка `validate:layout-media-preservation`',
   'Проверка `validate:layout-media-preservation` теперь проверяет реальное поведение обычной и мягкой автоподстройки',
+  'Проверка `validate:layout-media-preservation` теперь также покрывает явные режимы подстройки',
   'docs/quality-helper-map.md',
   'docs/quality-regression-checklist.md',
   'docs/**',

@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import { applyLayoutMode, applyLayoutModePreservingMedia, getLayoutHints } from '../assets/js/layoutRules.js';
-import { layoutModes, photoModes } from '../assets/js/state.js';
+import { defaultState, layoutModes, photoModes } from '../assets/js/state.js';
 
 const layoutRulesSource = read('assets/js/layoutRules.js');
 const appSource = read('assets/js/app.js');
@@ -8,6 +8,7 @@ const indexSource = read('index.html');
 const photoModeIds = photoModes.map(({ id }) => id);
 const enabledPhotoModes = photoModeIds.filter(id => id !== 'none');
 const explicitLayoutModes = layoutModes.map(({ id }) => id);
+const allowedDefaultLayoutModes = ['manual', ...explicitLayoutModes];
 const blockOrderModes = extractBlockOrderModes(layoutRulesSource);
 const handledLayoutModes = extractHandledLayoutModes(layoutRulesSource);
 const errors = [];
@@ -52,6 +53,14 @@ if (!enabledPhotoModes.length) {
 
 if (!explicitLayoutModes.length) {
   errors.push('assets/js/state.js: должен быть хотя бы один явный режим подстройки');
+}
+
+if (!photoModeIds.includes(defaultState.photoMode)) {
+  errors.push(`assets/js/state.js: defaultState.photoMode ${defaultState.photoMode} должен быть описан в photoModes`);
+}
+
+if (!allowedDefaultLayoutModes.includes(defaultState.layoutMode)) {
+  errors.push(`assets/js/state.js: defaultState.layoutMode ${defaultState.layoutMode} должен быть manual или режимом из layoutModes`);
 }
 
 for (const mode of findDuplicates(photoModeIds)) {

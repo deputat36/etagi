@@ -103,12 +103,14 @@ function checkFunctionalBehavior() {
   }
 
   const emptyQrIntent = { ...overloadedState, qrLink: '', qrCaption: '' };
-  assertPreservedMedia(
-    applyLayoutModePreservingMedia(emptyQrIntent, 'auto'),
-    'auto',
-    emptyQrIntent.photoMode,
-    emptyQrIntent
-  );
+  for (const mode of ['auto', 'readable', 'economy', 'entrance', 'private']) {
+    assertPreservedMedia(
+      applyLayoutModePreservingMedia(emptyQrIntent, mode),
+      mode,
+      emptyQrIntent.photoMode,
+      emptyQrIntent
+    );
+  }
 
   const noMedia = applyLayoutModePreservingMedia({ ...overloadedState, showPhoto: false, photoMode: 'none', showQr: false }, 'auto');
   if (noMedia.showPhoto || noMedia.photoMode !== 'none' || noMedia.showQr) {

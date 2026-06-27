@@ -42,6 +42,8 @@ check(checklistSource, 'docs/quality-regression-checklist.md', [
   'отдельная кнопка «Подстроить, сохранив фото и QR» использует `applyLayoutModePreservingMedia`',
   'мягкая автоподстройка сохраняет уже включённый QR',
   'мягкая автоподстройка сохраняет уже включённое фото и текущий `photoMode`',
+  'мягкая автоподстройка сохраняет фото и QR не только в режиме `auto`, но и в явных режимах подстройки',
+  '`applyLayoutModePreservingMedia` не должен менять исходное состояние макета до возврата нового состояния',
   'быстрое исправление `autoFix` в контроле качества остаётся на старом `applyLayoutMode`',
   'validate:layout-media-preservation',
   'disableQr',

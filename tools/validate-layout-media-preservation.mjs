@@ -1,11 +1,12 @@
 import fs from 'node:fs';
 import { applyLayoutMode, applyLayoutModePreservingMedia, getLayoutHints } from '../assets/js/layoutRules.js';
-import { photoModes } from '../assets/js/state.js';
+import { layoutModes, photoModes } from '../assets/js/state.js';
 
 const layoutRulesSource = read('assets/js/layoutRules.js');
 const appSource = read('assets/js/app.js');
 const indexSource = read('index.html');
 const enabledPhotoModes = photoModes.map(({ id }) => id).filter(id => id !== 'none');
+const explicitLayoutModes = layoutModes.map(({ id }) => id);
 const errors = [];
 
 checkFunctionalBehavior();
@@ -44,6 +45,10 @@ if (!appSource.includes("$('autoLayoutBtn').onclick = () => applyMode('auto');")
 
 if (!enabledPhotoModes.length) {
   errors.push('assets/js/state.js: должен быть хотя бы один включаемый режим фото кроме none');
+}
+
+if (!explicitLayoutModes.length) {
+  errors.push('assets/js/state.js: должен быть хотя бы один явный режим подстройки');
 }
 
 if (errors.length) {
@@ -97,7 +102,7 @@ function checkFunctionalBehavior() {
     );
   }
 
-  for (const mode of ['readable', 'economy', 'entrance', 'private']) {
+  for (const mode of explicitLayoutModes) {
     for (const photoMode of enabledPhotoModes) {
       assertPreservedMedia(
         applyLayoutModePreservingMedia({ ...overloadedState, photoMode }, mode),
@@ -109,7 +114,7 @@ function checkFunctionalBehavior() {
   }
 
   const emptyQrIntent = { ...overloadedState, qrLink: '', qrCaption: '' };
-  for (const mode of ['auto', 'readable', 'economy', 'entrance', 'private']) {
+  for (const mode of ['auto', ...explicitLayoutModes]) {
     assertPreservedMedia(
       applyLayoutModePreservingMedia(emptyQrIntent, mode),
       mode,

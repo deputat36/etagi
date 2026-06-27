@@ -1,9 +1,11 @@
 import fs from 'node:fs';
 import { applyLayoutMode, applyLayoutModePreservingMedia, getLayoutHints } from '../assets/js/layoutRules.js';
+import { photoModes } from '../assets/js/state.js';
 
 const layoutRulesSource = read('assets/js/layoutRules.js');
 const appSource = read('assets/js/app.js');
 const indexSource = read('index.html');
+const enabledPhotoModes = photoModes.map(({ id }) => id).filter(id => id !== 'none');
 const errors = [];
 
 checkFunctionalBehavior();
@@ -38,6 +40,10 @@ check(indexSource, 'index.html', [
 
 if (!appSource.includes("$('autoLayoutBtn').onclick = () => applyMode('auto');")) {
   errors.push('assets/js/app.js: старая кнопка автоподстройки должна остаться отдельной');
+}
+
+if (!enabledPhotoModes.length) {
+  errors.push('assets/js/state.js: должен быть хотя бы один включаемый режим фото кроме none');
 }
 
 if (errors.length) {
@@ -82,7 +88,7 @@ function checkFunctionalBehavior() {
     errors.push('applyLayoutMode: обычная автоподстройка должна сохранять прежнее право отключать фото и QR');
   }
 
-  for (const photoMode of ['one', 'two', 'plan']) {
+  for (const photoMode of enabledPhotoModes) {
     assertPreservedMedia(
       applyLayoutModePreservingMedia({ ...overloadedState, photoMode }, 'auto'),
       'auto',
@@ -92,7 +98,7 @@ function checkFunctionalBehavior() {
   }
 
   for (const mode of ['readable', 'economy', 'entrance', 'private']) {
-    for (const photoMode of ['one', 'two', 'plan']) {
+    for (const photoMode of enabledPhotoModes) {
       assertPreservedMedia(
         applyLayoutModePreservingMedia({ ...overloadedState, photoMode }, mode),
         mode,

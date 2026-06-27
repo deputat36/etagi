@@ -36,6 +36,7 @@ const requiredCurrentSnippets = [
   'Подсказки плотного макета теперь прямо предлагают мягкую подстройку',
   'Чек-лист регрессии теперь фиксирует выбранный принцип автоподстройки',
   'Добавлена проверка `validate:layout-media-preservation`',
+  'Проверка `validate:layout-media-preservation` теперь проверяет реальное поведение обычной и мягкой автоподстройки',
   'docs/quality-helper-map.md',
   'docs/quality-regression-checklist.md',
   'docs/**',

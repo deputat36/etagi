@@ -37,6 +37,7 @@ const requiredCurrentSnippets = [
   'Проверка `validate:layout-media-preservation` теперь контролирует, что `defaultState.photoMode` и `defaultState.layoutMode` используют допустимые режимы',
   'Проверка `validate:layout-media-preservation` теперь контролирует, что каждый порядок блоков в `BLOCK_ORDERS` содержит все базовые блоки из `defaultState.blockOrder` без дублей и неизвестных блоков',
   'Проверка `validate:layout-media-preservation` теперь проверяет реальный результат `applyLayoutMode` и мягкой подстройки: порядок блоков должен оставаться полным, без дублей и неизвестных блоков',
+  'Проверка `validate:layout-media-preservation` теперь также проверяет, что `auto` выбирает ожидаемые режимы подстройки: `private`, `economy`, `showcase`, `photo` и `readable`',
   'Проверка `validate:layout-media-preservation` теперь проверяет все включённые режимы фото не только в `auto`, но и в явных режимах подстройки',
   'Проверка `validate:layout-media-preservation` теперь контролирует, что мягкая подстройка сохраняет сами данные `photoOne` и `photoTwo`',
   'Проверка `validate:layout-media-preservation` теперь контролирует, что мягкая подстройка сохраняет данные QR: `qrLink` и `qrCaption`',

@@ -28,6 +28,7 @@ const requiredCurrentSnippets = [
   'Подсказка плотного макета с фото теперь различает 4 макета и 6–8 макетов на А4',
   'Проверка `validate:layout-media-preservation` теперь отдельно контролирует текст фото-подсказки для 6 и 8 макетов',
   'Проверка `validate:layout-media-preservation` теперь контролирует сохранение всех включённых режимов фото: `one`, `two` и `plan`',
+  'Проверка `validate:layout-media-preservation` теперь берёт список включаемых режимов фото из `assets/js/state.js`, а не из ручного списка',
   'Проверка `validate:layout-media-preservation` теперь проверяет все включённые режимы фото не только в `auto`, но и в явных режимах подстройки',
   'Проверка `validate:layout-media-preservation` теперь контролирует, что мягкая подстройка сохраняет сами данные `photoOne` и `photoTwo`',
   'Проверка `validate:layout-media-preservation` теперь контролирует, что мягкая подстройка сохраняет данные QR: `qrLink` и `qrCaption`',

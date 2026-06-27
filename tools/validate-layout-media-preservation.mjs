@@ -69,6 +69,7 @@ function checkFunctionalBehavior() {
     photoTwo: 'data:image/png;base64,two',
     showQr: true,
     qrLink: 'https://example.com/object',
+    qrCaption: 'Смотреть объект',
     showContact: true,
     tearOffs: true,
     showBrand: true,
@@ -132,6 +133,8 @@ function assertPreservedMedia(result, mode, expectedPhotoMode, sourceState) {
   if (result.photoOne !== sourceState.photoOne) errors.push(`applyLayoutModePreservingMedia(${mode}): первое фото должно сохраниться`);
   if (result.photoTwo !== sourceState.photoTwo) errors.push(`applyLayoutModePreservingMedia(${mode}): второе фото должно сохраниться`);
   if (!result.showQr) errors.push(`applyLayoutModePreservingMedia(${mode}): включённый QR должен сохраниться`);
+  if (result.qrLink !== sourceState.qrLink) errors.push(`applyLayoutModePreservingMedia(${mode}): ссылка QR должна сохраниться`);
+  if (result.qrCaption !== sourceState.qrCaption) errors.push(`applyLayoutModePreservingMedia(${mode}): подпись QR должна сохраниться`);
   if (result.layoutMode !== mode) errors.push(`applyLayoutModePreservingMedia(${mode}): layoutMode должен остаться ${mode}`);
 }
 

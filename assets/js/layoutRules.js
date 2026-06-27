@@ -46,13 +46,13 @@ export function getLayoutHints(state){
   const count = Number(state.printCount) || 2;
 
   if(count >= 4 && state.showPhoto && state.photoMode !== 'none'){
-    hints.push('Для 4 макетов на А4 фото часто делает объявление мелким. Лучше выключить фото или печатать 2 на А4.');
+    hints.push('Для 4 макетов на А4 фото часто делает объявление мелким. Если фото важно сохранить, используйте мягкую подстройку с сохранением фото и QR.');
   }
   if(count >= 4 && state.showDescription && String(state.description || '').length > 220){
     hints.push('Для экономной расклейки описание лучше сократить до 1–2 коротких предложений.');
   }
   if(state.showQr && state.qrLink && count >= 4){
-    hints.push('QR на плотной расклейке может плохо сканироваться. Для QR лучше 1–2 объявления на листе.');
+    hints.push('QR на плотной расклейке может плохо сканироваться. Если QR нужен, используйте мягкую подстройку с сохранением фото и QR или печатайте 1–2 на А4.');
   }
   if(!state.showContact && !state.tearOffs && !(state.showQr && state.qrLink)){
     hints.push('В макете нет контактов, отрывных телефонов и QR. Для расклейки почти всегда нужен канал отклика.');

@@ -21,6 +21,8 @@ const requiredCurrentSnippets = [
   'onePhoto',
   'responseChannel',
   'showContact',
+  'Старые штатные действия `noPhoto`, `onePhoto` и `showContact` удалены из `assets/js/app.js`',
+  'не отключали фото и не включали контакты в обход безопасных прямых действий',
   'assets/js/qrIntentFix.js',
   'пустой QR теперь обрабатывается напрямую в `qualityExtraActions.js`',
   'assets/js/photoIntentFix.js',

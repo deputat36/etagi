@@ -135,6 +135,14 @@ function checkFunctionalBehavior() {
   if (regular.showPhoto || regular.photoMode !== 'none' || regular.showQr) {
     errors.push('applyLayoutMode: обычная автоподстройка должна сохранять прежнее право отключать фото и QR');
   }
+  if (regular === overloadedState) {
+    errors.push('applyLayoutMode: должен вернуть новый объект состояния');
+  }
+
+  const preservedAuto = applyLayoutModePreservingMedia(overloadedState, 'auto');
+  if (preservedAuto === overloadedState) {
+    errors.push('applyLayoutModePreservingMedia: должен вернуть новый объект состояния');
+  }
 
   const autoModeCases = [
     ['private', { ...overloadedState, colorMode: 'private' }, 'private'],
@@ -206,7 +214,7 @@ function checkFunctionalBehavior() {
   }
 
   if (JSON.stringify(overloadedState) !== originalSnapshot) {
-    errors.push('applyLayoutModePreservingMedia: исходное состояние макета не должно мутироваться');
+    errors.push('applyLayoutMode/applyLayoutModePreservingMedia: исходное состояние макета не должно мутироваться');
   }
 
   const fourPhotoHint = getLayoutHints(overloadedState).join('\n');

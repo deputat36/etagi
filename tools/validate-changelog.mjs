@@ -36,6 +36,7 @@ const requiredCurrentSnippets = [
   'Проверка `validate:layout-media-preservation` теперь контролирует, что режимы фото и режимы подстройки в `assets/js/state.js` не имеют повторяющихся ID',
   'Проверка `validate:layout-media-preservation` теперь контролирует, что `defaultState.photoMode` и `defaultState.layoutMode` используют допустимые режимы',
   'Проверка `validate:layout-media-preservation` теперь контролирует, что каждый порядок блоков в `BLOCK_ORDERS` содержит все базовые блоки из `defaultState.blockOrder` без дублей и неизвестных блоков',
+  'Проверка `validate:layout-media-preservation` теперь контролирует, что `DEFAULT_BLOCK_ORDER` в `assets/js/app.js` совпадает с `defaultState.blockOrder` по составу и порядку',
   'Проверка `validate:layout-media-preservation` теперь проверяет реальный результат `applyLayoutMode` и мягкой подстройки: порядок блоков должен оставаться полным, без дублей и неизвестных блоков',
   'Проверка `validate:layout-media-preservation` теперь также проверяет, что `auto` выбирает ожидаемые режимы подстройки: `private`, `economy`, `showcase`, `photo` и `readable`',
   'Проверка `validate:layout-media-preservation` теперь отдельно контролирует, что обычная и мягкая подстройка возвращают новый объект и не мутируют исходное состояние макета',

@@ -81,7 +81,9 @@ forbid(extraActionsSource, 'assets/js/qualityExtraActions.js', [
   'const next = current && !includesText(current, sentence) ? `${current} ${sentence}` : current || sentence',
   "nextLines.slice(0, 4).join('\\n')",
   "button.dataset.fix === 'shortQr'",
-  'function hasPhoneValue()'
+  "button.dataset.fix === 'showContact'",
+  'function hasPhoneValue()',
+  'function hasLikelyPhoneValue()'
 ]);
 
 forbid(qualitySource, 'assets/js/quality.js', [
@@ -93,9 +95,11 @@ forbid(qualitySource, 'assets/js/quality.js', [
 forbid(appSource, 'assets/js/app.js', [
   "noPhoto:'Убрать фото'",
   "onePhoto:'Оставить 1 фото'",
+  "shortQr:'Проверить QR'",
   "showContact:'Вернуть контакты'",
   "if(action === 'noPhoto')",
   "if(action === 'onePhoto')",
+  "if(action === 'shortQr')",
   "if(action === 'showContact') state.showContact = true;"
 ]);
 

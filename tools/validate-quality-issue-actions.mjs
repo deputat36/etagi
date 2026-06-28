@@ -90,6 +90,15 @@ forbid(qualitySource, 'assets/js/quality.js', [
   "action:'onePhoto'"
 ]);
 
+forbid(appSource, 'assets/js/app.js', [
+  "noPhoto:'Убрать фото'",
+  "onePhoto:'Оставить 1 фото'",
+  "showContact:'Вернуть контакты'",
+  "if(action === 'noPhoto')",
+  "if(action === 'onePhoto')",
+  "if(action === 'showContact') state.showContact = true;"
+]);
+
 if (errors.length) {
   console.error('\nОшибки действий замечаний качества:');
   errors.forEach(error => console.error(`- ${error}`));

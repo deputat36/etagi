@@ -6,6 +6,9 @@ const changelogPath = path.join(rootDir, 'docs/changelog.md');
 const errors = [];
 const source = readRequired(changelogPath);
 const requiredHistoricalVersions = ['3.84.0', '3.60.0', '2.0.0', '1.0.0'];
+const requiredHistoricalSnippets = [
+  'Версия состояния и пакета обновлена до `3.60.0`'
+];
 const minimumVersionCount = 35;
 const requiredCurrentSnippets = [
   'assets/js/qualityExtraActions.js',
@@ -98,6 +101,12 @@ if (source) {
   for (const version of requiredHistoricalVersions) {
     if (!versions.includes(version)) {
       errors.push(`docs/changelog.md: отсутствует ключевая историческая версия ${version}`);
+    }
+  }
+
+  for (const snippet of requiredHistoricalSnippets) {
+    if (!source.includes(snippet)) {
+      errors.push(`docs/changelog.md: отсутствует историческая строка ${snippet}`);
     }
   }
 

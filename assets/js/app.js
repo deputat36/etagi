@@ -398,7 +398,7 @@ function runQuality(show){
   return lastQuality;
 }
 function issueHtml(i){
-  const labels = {phone:'Ввести телефон', bigPhone:'Увеличить телефон', shortHeadline:'Сократить заголовок', shortDesc:'Сократить описание', twoOnPage:'Сделать 2 на А4', cleanBrand:'Убрать фирменность', showHeadline:'Вернуть заголовок', showCustomBlock:'Включить доп. блок', showCutLines:'Включить линии реза', showSafeMargins:'Включить безопасные поля', autoFix:'Исправить автоматически'};
+  const labels = {phone:'Ввести телефон', bigPhone:'Увеличить телефон', shortHeadline:'Сократить заголовок', shortDesc:'Сократить описание', twoOnPage:'Сделать 2 на А4', cleanBrand:'Убрать фирменность', showHeadline:'Вернуть заголовок', showCutLines:'Включить линии реза', showSafeMargins:'Включить безопасные поля', autoFix:'Исправить автоматически'};
   const label = labels[i.action];
   const ariaLabel = label ? `Исправить: ${i.title}` : '';
   return `<div class="qitem ${i.level}"><b>${esc(i.title)}</b>${esc(i.text)}${label?`<br><button type="button" class="quality-fix-btn" data-fix="${i.action}" aria-label="${esc(ariaLabel)}">${esc(label)}</button>`:''}</div>`;
@@ -410,7 +410,6 @@ function applyFix(action){
   if(action === 'shortDesc') state.description = shorten(state.description, 190);
   if(action === 'twoOnPage') state.printCount = 2;
   if(action === 'showHeadline') state.showHeadline = true;
-  if(action === 'showCustomBlock') state.showCustomBlock = true;
   if(action === 'showCutLines') state.showCutLines = true;
   if(action === 'showSafeMargins') state.safePrintMargins = true;
   if(action === 'cleanBrand') {

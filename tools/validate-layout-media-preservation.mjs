@@ -11,6 +11,11 @@ const explicitLayoutModes = layoutModes.map(({ id }) => id);
 const allowedDefaultLayoutModes = ['manual', ...explicitLayoutModes];
 const defaultBlockOrder = Array.isArray(defaultState.blockOrder) ? defaultState.blockOrder : [];
 const appDefaultBlockOrder = extractAppDefaultBlockOrder(appSource);
+const appBlockOrderLabelKeys = extractObjectKeys(appSource, 'blockOrderLabels');
+const appBlockVisibilityEntries = extractStringMapEntries(appSource, 'blockVisibilityMap');
+const appBlockVisibilityKeys = appBlockVisibilityEntries.map(([key]) => key);
+const appBlockVisibilityValues = appBlockVisibilityEntries.map(([, value]) => value);
+const appBlockVisibilityControls = extractStringArray(appSource, 'blockVisibility');
 const blockOrderEntries = extractBlockOrderEntries(layoutRulesSource);
 const blockOrdersByMode = Object.fromEntries(blockOrderEntries.map(({ mode, order }) => [mode, order]));
 const blockOrderModes = blockOrderEntries.map(({ mode }) => mode);
@@ -41,6 +46,9 @@ check(appSource, 'assets/js/app.js', [
   'Макет подстроен без отключения включённых фото и QR',
   "if(action === 'autoFix') state = applyLayoutMode(state, 'auto');",
   'const DEFAULT_BLOCK_ORDER = [',
+  'const blockOrderLabels = {',
+  'const blockVisibilityMap = {',
+  'const blockVisibility = [',
   'function normalizeBlockOrder(order)',
   'DEFAULT_BLOCK_ORDER.includes(id)',
   'return [...new Set([...safe, ...DEFAULT_BLOCK_ORDER])]'
@@ -69,6 +77,18 @@ if (!defaultBlockOrder.length) {
 
 if (!appDefaultBlockOrder.length) {
   errors.push('assets/js/app.js: DEFAULT_BLOCK_ORDER должен содержать базовые блоки макета');
+}
+
+if (!appBlockOrderLabelKeys.length) {
+  errors.push('assets/js/app.js: blockOrderLabels должен содержать подписи блоков макета');
+}
+
+if (!appBlockVisibilityKeys.length) {
+  errors.push('assets/js/app.js: blockVisibilityMap должен содержать связи блоков с переключателями видимости');
+}
+
+if (!appBlockVisibilityControls.length) {
+  errors.push('assets/js/app.js: blockVisibility должен содержать переключатели видимости блоков');
 }
 
 if (!photoModeIds.includes(defaultState.photoMode)) {
@@ -102,6 +122,7 @@ if (!handledLayoutModes.length) {
 checkModeCoverage('BLOCK_ORDERS', blockOrderModes);
 checkModeCoverage('applyLayoutMode', handledLayoutModes);
 checkAppDefaultBlockOrder();
+checkAppBlockOrderMetadata();
 checkBlockOrders();
 
 if (errors.length) {
@@ -289,6 +310,47 @@ function checkAppDefaultBlockOrder() {
   }
 }
 
+function checkAppBlockOrderMetadata() {
+  if (!defaultBlockOrder.length) return;
+  const defaultSet = new Set(defaultBlockOrder);
+  const visibilityControlSet = new Set(appBlockVisibilityControls);
+
+  for (const blockId of defaultBlockOrder) {
+    if (!appBlockOrderLabelKeys.includes(blockId)) {
+      errors.push(`assets/js/app.js: blockOrderLabels должен содержать подпись для блока ${blockId}`);
+    }
+    if (!appBlockVisibilityKeys.includes(blockId)) {
+      errors.push(`assets/js/app.js: blockVisibilityMap должен содержать переключатель для блока ${blockId}`);
+    }
+  }
+
+  for (const blockId of appBlockOrderLabelKeys) {
+    if (!defaultSet.has(blockId)) {
+      errors.push(`assets/js/app.js: blockOrderLabels содержит неизвестный блок ${blockId}`);
+    }
+  }
+
+  for (const blockId of appBlockVisibilityKeys) {
+    if (!defaultSet.has(blockId)) {
+      errors.push(`assets/js/app.js: blockVisibilityMap содержит неизвестный блок ${blockId}`);
+    }
+  }
+
+  for (const blockId of findDuplicates(appBlockOrderLabelKeys)) {
+    errors.push(`assets/js/app.js: блок ${blockId} повторяется в blockOrderLabels`);
+  }
+
+  for (const blockId of findDuplicates(appBlockVisibilityKeys)) {
+    errors.push(`assets/js/app.js: блок ${blockId} повторяется в blockVisibilityMap`);
+  }
+
+  for (const visibilityKey of appBlockVisibilityValues) {
+    if (!visibilityControlSet.has(visibilityKey)) {
+      errors.push(`assets/js/app.js: переключатель ${visibilityKey} из blockVisibilityMap должен быть в blockVisibility`);
+    }
+  }
+}
+
 function checkBlockOrders() {
   const defaultSet = new Set(defaultBlockOrder);
   for (const [mode, order] of Object.entries(blockOrdersByMode)) {
@@ -322,6 +384,24 @@ function findDuplicates(values) {
 
 function extractAppDefaultBlockOrder(source) {
   const match = source.match(/const DEFAULT_BLOCK_ORDER\s*=\s*\[([^\]]*)\]/);
+  if (!match) return [];
+  return [...match[1].matchAll(/['"]([^'"]+)['"]/g)].map(item => item[1]);
+}
+
+function extractObjectKeys(source, name) {
+  const block = source.match(new RegExp(`const ${name}\\s*=\\s*\\{([\\s\\S]*?)\\n\\};`));
+  if (!block) return [];
+  return [...block[1].matchAll(/^\s*([a-z][a-z0-9_]*)\s*:/gmi)].map(match => match[1]);
+}
+
+function extractStringMapEntries(source, name) {
+  const block = source.match(new RegExp(`const ${name}\\s*=\\s*\\{([\\s\\S]*?)\\n\\};`));
+  if (!block) return [];
+  return [...block[1].matchAll(/^\s*([a-z][a-z0-9_]*)\s*:\s*['"]([^'"]+)['"]/gmi)].map(match => [match[1], match[2]]);
+}
+
+function extractStringArray(source, name) {
+  const match = source.match(new RegExp(`const ${name}\\s*=\\s*\\[([^\\]]*)\\]`));
   if (!match) return [];
   return [...match[1].matchAll(/['"]([^'"]+)['"]/g)].map(item => item[1]);
 }

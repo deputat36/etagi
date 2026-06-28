@@ -88,14 +88,6 @@ import { cleanPhoneValue, getPhoneInfo } from './phone.js';
       window.setTimeout(focusPhoneField, 180);
       return;
     }
-    if (button.dataset.fix === 'showContact' && !hasLikelyPhoneValue()) {
-      event.preventDefault();
-      event.stopPropagation();
-      event.stopImmediatePropagation?.();
-      focusPhoneField();
-      setStatus('Сначала укажите полный телефон для отклика. После этого контакты можно включить без новой ошибки.');
-      return;
-    }
     if (button.dataset.fix === 'shortHeadline') {
       event.preventDefault();
       event.stopPropagation();
@@ -349,10 +341,6 @@ import { cleanPhoneValue, getPhoneInfo } from './phone.js';
     input.select?.();
     input.scrollIntoView?.({ block: 'center', behavior: 'smooth' });
     setStatus('Введите или проверьте телефон. Для печати лучше полный номер с кодом.');
-  }
-
-  function hasLikelyPhoneValue() {
-    return getPhoneInfo(getPhoneValue()).isLikelyPhone;
   }
 
   function getPhoneValue() {

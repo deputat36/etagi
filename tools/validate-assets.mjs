@@ -8,6 +8,7 @@ const checkedModules = new Set();
 
 checkHtmlReferences();
 checkTemplateDataReferences();
+checkAppDomBindings();
 checkModuleImports(path.join(rootDir, 'assets/js/app.js'));
 
 console.log(`Проверено ссылок на файлы: ${checked.size}`);
@@ -66,6 +67,60 @@ function checkTemplateDataReferences() {
   const source = fs.readFileSync(templatesJsPath, 'utf8');
   const refs = matchAll(source, /['"](data\/templates[^'"]+\.json)['"]/g);
   refs.forEach(ref => checkFile(path.join(rootDir, ref), 'assets/js/templates.js'));
+}
+
+function checkAppDomBindings() {
+  const appPath = path.join(rootDir, 'assets/js/app.js');
+  const indexPath = path.join(rootDir, 'index.html');
+  if (!fs.existsSync(appPath)) {
+    errors.push('assets/js/app.js не найден');
+    return;
+  }
+  if (!fs.existsSync(indexPath)) {
+    errors.push('index.html не найден');
+    return;
+  }
+
+  const appSource = fs.readFileSync(appPath, 'utf8');
+  const html = fs.readFileSync(indexPath, 'utf8');
+  const htmlIds = extractHtmlIds(html);
+  const fields = resolveStringArray(appSource, 'fields');
+  const checks = resolveStringArray(appSource, 'checks');
+  const blockVisibility = resolveStringArray(appSource, 'blockVisibility');
+
+  checkRequiredAppSnippet(appSource, "fields.forEach(id => $(id).addEventListener('input', readFormAndRender));");
+  checkRequiredAppSnippet(appSource, "fields.forEach(id => $(id).addEventListener('change', readFormAndRender));");
+  checkRequiredAppSnippet(appSource, "checks.forEach(id => $(id).addEventListener('change', readFormAndRender));");
+  checkRequiredAppSnippet(appSource, 'checks.forEach(id => { if($(id)) $(id).checked = !!state[id]; });');
+  checkRequiredAppSnippet(appSource, 'checks.forEach(id => { state[id] = $(id).checked; });');
+
+  if (!fields.length) errors.push('assets/js/app.js: массив fields должен содержать DOM-поля формы');
+  if (!checks.length) errors.push('assets/js/app.js: массив checks должен содержать DOM-чекбоксы формы');
+  if (!blockVisibility.length) errors.push('assets/js/app.js: массив blockVisibility должен содержать переключатели блоков');
+
+  for (const id of findDuplicates([...htmlIds])) {
+    errors.push(`index.html: id ${id} повторяется`);
+  }
+
+  for (const id of findDuplicates(fields)) {
+    errors.push(`assets/js/app.js: поле ${id} повторяется в fields`);
+  }
+
+  for (const id of findDuplicates(checks)) {
+    errors.push(`assets/js/app.js: чекбокс ${id} повторяется в checks`);
+  }
+
+  for (const id of [...fields, ...checks]) {
+    if (!htmlIds.has(id)) {
+      errors.push(`assets/js/app.js: элемент ${id} из fields/checks должен существовать в index.html`);
+    }
+  }
+
+  for (const id of blockVisibility) {
+    if (!checks.includes(id)) {
+      errors.push(`assets/js/app.js: переключатель блока ${id} из blockVisibility должен входить в checks`);
+    }
+  }
 }
 
 function checkModuleImports(entryPath) {
@@ -155,6 +210,41 @@ function collectFiles(dir) {
 
 function matchAll(text, regex) {
   return [...text.matchAll(regex)].map(match => match[1]);
+}
+
+function extractHtmlIds(html) {
+  return new Set(matchAll(html, /\bid=["']([^"']+)["']/gi));
+}
+
+function resolveStringArray(source, name, seen = new Set()) {
+  if (seen.has(name)) return [];
+  seen.add(name);
+
+  const match = source.match(new RegExp(`const ${name}\\s*=\\s*\\[([\\s\\S]*?)\\];`));
+  if (!match) return [];
+
+  const values = [];
+  const pattern = /\.\.\.([A-Za-z_$][\w$]*)|['"]([^'"]+)['"]/g;
+  let item;
+  while ((item = pattern.exec(match[1]))) {
+    if (item[1]) values.push(...resolveStringArray(source, item[1], seen));
+    else values.push(item[2]);
+  }
+  return values;
+}
+
+function checkRequiredAppSnippet(source, snippet) {
+  if (!source.includes(snippet)) errors.push(`assets/js/app.js: отсутствует ${snippet}`);
+}
+
+function findDuplicates(values) {
+  const seen = new Set();
+  const duplicates = new Set();
+  for (const value of values) {
+    if (seen.has(value)) duplicates.add(value);
+    seen.add(value);
+  }
+  return [...duplicates];
 }
 
 function shouldCheckReference(ref) {

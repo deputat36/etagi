@@ -16,6 +16,7 @@ const appBlockVisibilityEntries = extractStringMapEntries(appSource, 'blockVisib
 const appBlockVisibilityKeys = appBlockVisibilityEntries.map(([key]) => key);
 const appBlockVisibilityValues = appBlockVisibilityEntries.map(([, value]) => value);
 const appBlockVisibilityControls = extractStringArray(appSource, 'blockVisibility');
+const allowedExtraVisibilityControls = ['showQr'];
 const blockOrderEntries = extractBlockOrderEntries(layoutRulesSource);
 const blockOrdersByMode = Object.fromEntries(blockOrderEntries.map(({ mode, order }) => [mode, order]));
 const blockOrderModes = blockOrderEntries.map(({ mode }) => mode);
@@ -314,6 +315,7 @@ function checkAppBlockOrderMetadata() {
   if (!defaultBlockOrder.length) return;
   const defaultSet = new Set(defaultBlockOrder);
   const visibilityControlSet = new Set(appBlockVisibilityControls);
+  const allowedControlSet = new Set([...appBlockVisibilityValues, ...allowedExtraVisibilityControls]);
 
   for (const blockId of defaultBlockOrder) {
     if (!appBlockOrderLabelKeys.includes(blockId)) {
@@ -344,10 +346,31 @@ function checkAppBlockOrderMetadata() {
     errors.push(`assets/js/app.js: блок ${blockId} повторяется в blockVisibilityMap`);
   }
 
+  for (const visibilityKey of findDuplicates(appBlockVisibilityValues)) {
+    errors.push(`assets/js/app.js: переключатель ${visibilityKey} повторяется в blockVisibilityMap`);
+  }
+
+  for (const visibilityKey of findDuplicates(appBlockVisibilityControls)) {
+    errors.push(`assets/js/app.js: переключатель ${visibilityKey} повторяется в blockVisibility`);
+  }
+
   for (const visibilityKey of appBlockVisibilityValues) {
     if (!visibilityControlSet.has(visibilityKey)) {
       errors.push(`assets/js/app.js: переключатель ${visibilityKey} из blockVisibilityMap должен быть в blockVisibility`);
     }
+  }
+
+  for (const visibilityKey of appBlockVisibilityControls) {
+    if (!Object.hasOwn(defaultState, visibilityKey)) {
+      errors.push(`assets/js/app.js: переключатель ${visibilityKey} из blockVisibility должен существовать в defaultState`);
+    }
+    if (!allowedControlSet.has(visibilityKey)) {
+      errors.push(`assets/js/app.js: переключатель ${visibilityKey} из blockVisibility должен быть связан с блоком или явно разрешён`);
+    }
+  }
+
+  if (!visibilityControlSet.has('showQr')) {
+    errors.push('assets/js/app.js: blockVisibility должен содержать showQr, чтобы QR учитывался в статусе предпросмотра');
   }
 }
 

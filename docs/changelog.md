@@ -10,6 +10,7 @@
 - `assets/js/qualityExtraActions.js` теперь сразу показывает для пустого QR действие «Добавить ссылку» и больше не содержит прямого выключения QR через `disableQr`.
 - `assets/js/qualityExtraActions.js` теперь также ведёт к полям загрузки пустых фото через `focusPhotoOne` и `focusPhotoTwo`, а `quality.js` больше не создаёт старые действия `noPhoto` и `onePhoto`.
 - `assets/js/qualityExtraActions.js` теперь обрабатывает отсутствие канала отклика через прямое действие `responseChannel`, а `quality.js` больше не создаёт старое действие `showContact` для этого замечания.
+- Старые штатные действия `noPhoto`, `onePhoto` и `showContact` удалены из `assets/js/app.js`, чтобы быстрые исправления не отключали фото и не включали контакты в обход безопасных прямых действий.
 - `assets/js/qrIntentFix.js` удалён: временная страховка больше не нужна, потому что пустой QR теперь обрабатывается напрямую в `qualityExtraActions.js`.
 - `assets/js/photoIntentFix.js` удалён: временная страховка больше не нужна, потому что пустые фото теперь обрабатываются напрямую в `qualityExtraActions.js`.
 - `assets/js/responseChannelPhoneGuard.js` удалён: временная страховка больше не нужна, потому что канал отклика теперь обрабатывается напрямую в `qualityExtraActions.js`.

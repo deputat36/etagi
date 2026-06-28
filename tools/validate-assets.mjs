@@ -88,6 +88,12 @@ function checkAppDomBindings() {
   const fields = resolveStringArray(appSource, 'fields');
   const checks = resolveStringArray(appSource, 'checks');
   const blockVisibility = resolveStringArray(appSource, 'blockVisibility');
+  const literalAppIds = extractDollarLiteralIds(appSource);
+  const dynamicAppIds = [
+    'showFavoriteTemplatesOnly',
+    'scenarioFilterRow',
+    'templateCountLine'
+  ];
   const staticAppIds = [
     'templateSearch',
     'templateDensityFilter',
@@ -163,6 +169,10 @@ function checkAppDomBindings() {
     errors.push(`tools/validate-assets.mjs: обязательный DOM-id ${id} повторяется в staticAppIds`);
   }
 
+  for (const id of findDuplicates(dynamicAppIds)) {
+    errors.push(`tools/validate-assets.mjs: динамический DOM-id ${id} повторяется в dynamicAppIds`);
+  }
+
   for (const id of [...fields, ...checks]) {
     if (!htmlIds.has(id)) {
       errors.push(`assets/js/app.js: элемент ${id} из fields/checks должен существовать в index.html`);
@@ -173,6 +183,16 @@ function checkAppDomBindings() {
     if (!htmlIds.has(id)) {
       errors.push(`index.html: обязательный элемент ${id} для assets/js/app.js не найден`);
     }
+  }
+
+  for (const id of literalAppIds) {
+    if (!htmlIds.has(id) && !dynamicAppIds.includes(id)) {
+      errors.push(`assets/js/app.js: прямое обращение $('${id}') должно ссылаться на id в index.html или быть описано в dynamicAppIds`);
+    }
+  }
+
+  for (const id of dynamicAppIds) {
+    checkDynamicAppIdCreation(appSource, id);
   }
 
   for (const id of blockVisibility) {
@@ -275,6 +295,10 @@ function extractHtmlIds(html) {
   return matchAll(html, /\bid=["']([^"']+)["']/gi);
 }
 
+function extractDollarLiteralIds(source) {
+  return matchAll(source, /\$\(\s*['"]([^'"]+)['"]\s*\)/g);
+}
+
 function resolveStringArray(source, name, seen = new Set()) {
   if (seen.has(name)) return [];
   seen.add(name);
@@ -294,6 +318,12 @@ function resolveStringArray(source, name, seen = new Set()) {
 
 function checkRequiredAppSnippet(source, snippet) {
   if (!source.includes(snippet)) errors.push(`assets/js/app.js: отсутствует ${snippet}`);
+}
+
+function checkDynamicAppIdCreation(source, id) {
+  if (!source.includes(`id="${id}"`) && !source.includes(`id='${id}'`)) {
+    errors.push(`assets/js/app.js: динамический элемент ${id} из dynamicAppIds должен явно создаваться в разметке`);
+  }
 }
 
 function findDuplicates(values) {

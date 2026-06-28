@@ -50,6 +50,12 @@ check(appSource, 'assets/js/app.js', [
   'const blockOrderLabels = {',
   'const blockVisibilityMap = {',
   'const blockVisibility = [',
+  "const checks = ['tearOffs','showCutLines','safePrintMargins','printCheckMode','showBrand', ...blockVisibility];",
+  "checks.forEach(id => $(id).addEventListener('change', readFormAndRender));",
+  'checks.forEach(id => { if($(id)) $(id).checked = !!state[id]; });',
+  'checks.forEach(id => { state[id] = $(id).checked; });',
+  'const blocks = blockVisibility.filter(id=>state[id]).length;',
+  'блоков ${blocks}/${blockVisibility.length}',
   'function normalizeBlockOrder(order)',
   'DEFAULT_BLOCK_ORDER.includes(id)',
   'return [...new Set([...safe, ...DEFAULT_BLOCK_ORDER])]'

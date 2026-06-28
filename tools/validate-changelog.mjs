@@ -25,6 +25,8 @@ const requiredCurrentSnippets = [
   'не отключали фото и не включали контакты в обход безопасных прямых действий',
   'Старые штатные действия `shortQr` и guard `showContact` удалены из `assets/js/app.js` и `assets/js/qualityExtraActions.js`',
   'длинный QR и канал отклика исправлялись только прямыми безопасными действиями',
+  'Старое штатное действие `showCustomBlock` удалено из `assets/js/app.js`',
+  'дополнительный блок исправлялся только прямыми действиями сокращения или выключения пустого блока',
   'assets/js/qrIntentFix.js',
   'пустой QR теперь обрабатывается напрямую в `qualityExtraActions.js`',
   'assets/js/photoIntentFix.js',

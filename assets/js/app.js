@@ -398,14 +398,13 @@ function runQuality(show){
   return lastQuality;
 }
 function issueHtml(i){
-  const labels = {phone:'Ввести телефон', bigPhone:'Увеличить телефон', shortHeadline:'Сократить заголовок', shortDesc:'Сократить описание', twoOnPage:'Сделать 2 на А4', shortQr:'Проверить QR', cleanBrand:'Убрать фирменность', showHeadline:'Вернуть заголовок', showCustomBlock:'Включить доп. блок', showCutLines:'Включить линии реза', showSafeMargins:'Включить безопасные поля', autoFix:'Исправить автоматически'};
+  const labels = {phone:'Ввести телефон', bigPhone:'Увеличить телефон', shortHeadline:'Сократить заголовок', shortDesc:'Сократить описание', twoOnPage:'Сделать 2 на А4', cleanBrand:'Убрать фирменность', showHeadline:'Вернуть заголовок', showCustomBlock:'Включить доп. блок', showCutLines:'Включить линии реза', showSafeMargins:'Включить безопасные поля', autoFix:'Исправить автоматически'};
   const label = labels[i.action];
   const ariaLabel = label ? `Исправить: ${i.title}` : '';
   return `<div class="qitem ${i.level}"><b>${esc(i.title)}</b>${esc(i.text)}${label?`<br><button type="button" class="quality-fix-btn" data-fix="${i.action}" aria-label="${esc(ariaLabel)}">${esc(label)}</button>`:''}</div>`;
 }
 function applyFix(action){
   if(action === 'phone') $('agentPhone').focus();
-  if(action === 'shortQr') $('qrLink').focus();
   if(action === 'bigPhone') state.phoneScale = 1.45;
   if(action === 'shortHeadline') state.headline = shorten(state.headline, 44);
   if(action === 'shortDesc') state.description = shorten(state.description, 190);

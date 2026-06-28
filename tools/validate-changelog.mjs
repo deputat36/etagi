@@ -53,6 +53,7 @@ const requiredCurrentSnippets = [
   'Проверки прямых действий QR, фото и канала отклика теперь связывают `action:null` с конкретным замечанием',
   'Проверка package-скриптов теперь точно разбирает общий `npm run validate`',
   'Проверка связей файлов теперь ловит повторное подключение локальных `script` и `stylesheet`-ассетов в HTML',
+  'Проверка связей файлов теперь сверяет DOM-привязки `fields`, `checks` и `blockVisibility` из `assets/js/app.js` с реальными `id` в `index.html`',
   'Добавлена проверка `validate:asset-duplicates`',
   'Проверка README теперь контролирует описание `validate:asset-duplicates`',
   'Добавлена отдельная кнопка «Подстроить, сохранив фото и QR»',

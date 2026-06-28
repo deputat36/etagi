@@ -10,6 +10,7 @@ const enabledPhotoModes = photoModeIds.filter(id => id !== 'none');
 const explicitLayoutModes = layoutModes.map(({ id }) => id);
 const allowedDefaultLayoutModes = ['manual', ...explicitLayoutModes];
 const defaultBlockOrder = Array.isArray(defaultState.blockOrder) ? defaultState.blockOrder : [];
+const appDefaultBlockOrder = extractAppDefaultBlockOrder(appSource);
 const blockOrderEntries = extractBlockOrderEntries(layoutRulesSource);
 const blockOrdersByMode = Object.fromEntries(blockOrderEntries.map(({ mode, order }) => [mode, order]));
 const blockOrderModes = blockOrderEntries.map(({ mode }) => mode);
@@ -38,7 +39,11 @@ check(appSource, 'assets/js/app.js', [
   "if($('preserveMediaLayoutBtn')) $('preserveMediaLayoutBtn').onclick = () => applyModePreservingMedia('auto');",
   'function applyModePreservingMedia(mode)',
   'Макет подстроен без отключения включённых фото и QR',
-  "if(action === 'autoFix') state = applyLayoutMode(state, 'auto');"
+  "if(action === 'autoFix') state = applyLayoutMode(state, 'auto');",
+  'const DEFAULT_BLOCK_ORDER = [',
+  'function normalizeBlockOrder(order)',
+  'DEFAULT_BLOCK_ORDER.includes(id)',
+  'return [...new Set([...safe, ...DEFAULT_BLOCK_ORDER])]'
 ]);
 
 check(indexSource, 'index.html', [
@@ -60,6 +65,10 @@ if (!explicitLayoutModes.length) {
 
 if (!defaultBlockOrder.length) {
   errors.push('assets/js/state.js: defaultState.blockOrder должен содержать базовые блоки макета');
+}
+
+if (!appDefaultBlockOrder.length) {
+  errors.push('assets/js/app.js: DEFAULT_BLOCK_ORDER должен содержать базовые блоки макета');
 }
 
 if (!photoModeIds.includes(defaultState.photoMode)) {
@@ -92,6 +101,7 @@ if (!handledLayoutModes.length) {
 
 checkModeCoverage('BLOCK_ORDERS', blockOrderModes);
 checkModeCoverage('applyLayoutMode', handledLayoutModes);
+checkAppDefaultBlockOrder();
 checkBlockOrders();
 
 if (errors.length) {
@@ -254,6 +264,31 @@ function checkModeCoverage(sourceName, sourceModes) {
   }
 }
 
+function checkAppDefaultBlockOrder() {
+  if (!appDefaultBlockOrder.length || !defaultBlockOrder.length) return;
+
+  const defaultSet = new Set(defaultBlockOrder);
+  for (const blockId of defaultBlockOrder) {
+    if (!appDefaultBlockOrder.includes(blockId)) {
+      errors.push(`assets/js/app.js: DEFAULT_BLOCK_ORDER должен содержать ${blockId} из defaultState.blockOrder`);
+    }
+  }
+
+  for (const blockId of appDefaultBlockOrder) {
+    if (!defaultSet.has(blockId)) {
+      errors.push(`assets/js/app.js: DEFAULT_BLOCK_ORDER содержит неизвестный блок ${blockId}`);
+    }
+  }
+
+  for (const blockId of findDuplicates(appDefaultBlockOrder)) {
+    errors.push(`assets/js/app.js: блок ${blockId} повторяется в DEFAULT_BLOCK_ORDER`);
+  }
+
+  if (JSON.stringify(appDefaultBlockOrder) !== JSON.stringify(defaultBlockOrder)) {
+    errors.push('assets/js/app.js: DEFAULT_BLOCK_ORDER должен совпадать с defaultState.blockOrder по составу и порядку');
+  }
+}
+
 function checkBlockOrders() {
   const defaultSet = new Set(defaultBlockOrder);
   for (const [mode, order] of Object.entries(blockOrdersByMode)) {
@@ -283,6 +318,12 @@ function findDuplicates(values) {
     seen.add(value);
   }
   return [...duplicates];
+}
+
+function extractAppDefaultBlockOrder(source) {
+  const match = source.match(/const DEFAULT_BLOCK_ORDER\s*=\s*\[([^\]]*)\]/);
+  if (!match) return [];
+  return [...match[1].matchAll(/['"]([^'"]+)['"]/g)].map(item => item[1]);
 }
 
 function extractBlockOrderEntries(source) {

@@ -23,6 +23,8 @@ const requiredCurrentSnippets = [
   'showContact',
   'Старые штатные действия `noPhoto`, `onePhoto` и `showContact` удалены из `assets/js/app.js`',
   'не отключали фото и не включали контакты в обход безопасных прямых действий',
+  'Старые штатные действия `shortQr` и guard `showContact` удалены из `assets/js/app.js` и `assets/js/qualityExtraActions.js`',
+  'длинный QR и канал отклика исправлялись только прямыми безопасными действиями',
   'assets/js/qrIntentFix.js',
   'пустой QR теперь обрабатывается напрямую в `qualityExtraActions.js`',
   'assets/js/photoIntentFix.js',

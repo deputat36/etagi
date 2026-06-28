@@ -83,22 +83,71 @@ function checkAppDomBindings() {
 
   const appSource = fs.readFileSync(appPath, 'utf8');
   const html = fs.readFileSync(indexPath, 'utf8');
-  const htmlIds = extractHtmlIds(html);
+  const htmlIdList = extractHtmlIds(html);
+  const htmlIds = new Set(htmlIdList);
   const fields = resolveStringArray(appSource, 'fields');
   const checks = resolveStringArray(appSource, 'checks');
   const blockVisibility = resolveStringArray(appSource, 'blockVisibility');
+  const staticAppIds = [
+    'templateSearch',
+    'templateDensityFilter',
+    'blockOrderList',
+    'resetBlockOrderBtn',
+    'photoOne',
+    'photoTwo',
+    'qualityBtn',
+    'printBtn',
+    'cancelPrintBtn',
+    'printDialog',
+    'confirmPrintBtn',
+    'fitPreviewBtn',
+    'zoom',
+    'makeShortBtn',
+    'makeStrongerBtn',
+    'saveProfileBtn',
+    'loadProfileBtn',
+    'clearObjectBtn',
+    'autoLayoutBtn',
+    'preserveMediaLayoutBtn',
+    'saveNamedLayoutBtn',
+    'loadNamedLayoutBtn',
+    'deleteNamedLayoutBtn',
+    'saveLocalBtn',
+    'loadLocalBtn',
+    'downloadBtn',
+    'uploadBtn',
+    'uploadFile',
+    'goalGrid',
+    'photoModeRow',
+    'printPresetRow',
+    'propertyPresets',
+    'layoutModeGrid',
+    'templateList',
+    'layoutHints',
+    'savedLayouts',
+    'printSheet',
+    'previewStatus',
+    'qualityScore',
+    'qualityList',
+    'sheetScale',
+    'statusLine'
+  ];
 
   checkRequiredAppSnippet(appSource, "fields.forEach(id => $(id).addEventListener('input', readFormAndRender));");
   checkRequiredAppSnippet(appSource, "fields.forEach(id => $(id).addEventListener('change', readFormAndRender));");
   checkRequiredAppSnippet(appSource, "checks.forEach(id => $(id).addEventListener('change', readFormAndRender));");
   checkRequiredAppSnippet(appSource, 'checks.forEach(id => { if($(id)) $(id).checked = !!state[id]; });');
   checkRequiredAppSnippet(appSource, 'checks.forEach(id => { state[id] = $(id).checked; });');
+  checkRequiredAppSnippet(appSource, "$('templateSearch').addEventListener('input', renderTemplates);");
+  checkRequiredAppSnippet(appSource, "$('blockOrderList').addEventListener('click', handleBlockOrderClick);");
+  checkRequiredAppSnippet(appSource, "$('printBtn').onclick = printFlow;");
+  checkRequiredAppSnippet(appSource, "$('printDialog').showModal();");
 
   if (!fields.length) errors.push('assets/js/app.js: массив fields должен содержать DOM-поля формы');
   if (!checks.length) errors.push('assets/js/app.js: массив checks должен содержать DOM-чекбоксы формы');
   if (!blockVisibility.length) errors.push('assets/js/app.js: массив blockVisibility должен содержать переключатели блоков');
 
-  for (const id of findDuplicates([...htmlIds])) {
+  for (const id of findDuplicates(htmlIdList)) {
     errors.push(`index.html: id ${id} повторяется`);
   }
 
@@ -110,9 +159,19 @@ function checkAppDomBindings() {
     errors.push(`assets/js/app.js: чекбокс ${id} повторяется в checks`);
   }
 
+  for (const id of findDuplicates(staticAppIds)) {
+    errors.push(`tools/validate-assets.mjs: обязательный DOM-id ${id} повторяется в staticAppIds`);
+  }
+
   for (const id of [...fields, ...checks]) {
     if (!htmlIds.has(id)) {
       errors.push(`assets/js/app.js: элемент ${id} из fields/checks должен существовать в index.html`);
+    }
+  }
+
+  for (const id of staticAppIds) {
+    if (!htmlIds.has(id)) {
+      errors.push(`index.html: обязательный элемент ${id} для assets/js/app.js не найден`);
     }
   }
 
@@ -213,7 +272,7 @@ function matchAll(text, regex) {
 }
 
 function extractHtmlIds(html) {
-  return new Set(matchAll(html, /\bid=["']([^"']+)["']/gi));
+  return matchAll(html, /\bid=["']([^"']+)["']/gi);
 }
 
 function resolveStringArray(source, name, seen = new Set()) {

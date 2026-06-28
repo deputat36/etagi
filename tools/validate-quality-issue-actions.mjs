@@ -97,10 +97,12 @@ forbid(appSource, 'assets/js/app.js', [
   "onePhoto:'Оставить 1 фото'",
   "shortQr:'Проверить QR'",
   "showContact:'Вернуть контакты'",
+  "showCustomBlock:'Включить доп. блок'",
   "if(action === 'noPhoto')",
   "if(action === 'onePhoto')",
   "if(action === 'shortQr')",
-  "if(action === 'showContact') state.showContact = true;"
+  "if(action === 'showContact') state.showContact = true;",
+  "if(action === 'showCustomBlock')"
 ]);
 
 if (errors.length) {

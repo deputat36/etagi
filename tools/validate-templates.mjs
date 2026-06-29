@@ -38,10 +38,31 @@ const validDensity = new Set(['airy', 'normal', 'dense']);
 const validPhoto = new Set(['none', 'one', 'two', 'plan']);
 const validColor = new Set(['brand', 'economy', 'bw', 'private']);
 const validSplit = new Set(['auto', 'horizontal', 'vertical', 'grid']);
+const tellermanTemplateFile = 'templates_tellerman_sad.json';
+const expectedTellermanIds = new Set([
+  'bgo_newbuild_tellerman_waitlist',
+  'bgo_newbuild_tellerman_family',
+  'bgo_newbuild_tellerman_studio',
+  'bgo_newbuild_tellerman_mortgage',
+  'bgo_newbuild_tellerman_tradein'
+]);
+const tellermanForbiddenSnippets = [
+  'продажи начались',
+  'уже в продаже',
+  'можно забронировать',
+  'бронь квартиры',
+  'фиксируем бронь',
+  'гарантируем ипотеку',
+  'ипотека одобрена',
+  'одобрение гарантировано',
+  'цена от',
+  'точная цена'
+];
 
 const errors = [];
 const warnings = [];
 const seenIds = new Map();
+const tellermanTemplates = [];
 let templateCount = 0;
 
 for (const file of templateFiles) {
@@ -68,6 +89,8 @@ for (const file of templateFiles) {
       errors.push(`${label}: шаблон должен быть объектом`);
       return;
     }
+
+    if (file === tellermanTemplateFile) tellermanTemplates.push({template, label});
 
     for (const field of requiredTopLevelFields) {
       if (!(field in template)) errors.push(`${label}: нет обязательного поля ${field}`);
@@ -113,6 +136,8 @@ for (const file of templateFiles) {
   });
 }
 
+checkTellermanTemplates();
+
 console.log(`Проверено файлов шаблонов: ${templateFiles.length}`);
 console.log(`Проверено шаблонов: ${templateCount}`);
 console.log(`Уникальных id: ${seenIds.size}`);
@@ -129,3 +154,69 @@ if (errors.length) {
 }
 
 console.log('\nПроверка шаблонов пройдена.');
+
+function checkTellermanTemplates() {
+  if (!templateFiles.includes(tellermanTemplateFile)) {
+    errors.push(`${tellermanTemplateFile}: пакет шаблонов ЖК Теллерманов сад не найден`);
+    return;
+  }
+
+  if (tellermanTemplates.length !== expectedTellermanIds.size) {
+    errors.push(`${tellermanTemplateFile}: ожидается ${expectedTellermanIds.size} шаблонов ЖК Теллерманов сад, найдено ${tellermanTemplates.length}`);
+  }
+
+  const actualIds = new Set(tellermanTemplates.map(item => item.template?.id).filter(Boolean));
+  for (const id of expectedTellermanIds) {
+    if (!actualIds.has(id)) errors.push(`${tellermanTemplateFile}: отсутствует обязательный шаблон ${id}`);
+  }
+
+  for (const {template, label} of tellermanTemplates) {
+    const data = template?.data || {};
+    const text = normalizeText([
+      template?.title,
+      template?.note,
+      ...(template?.tags || []),
+      data.price,
+      data.params,
+      data.headline,
+      data.description,
+      data.benefits,
+      data.customBlockTitle,
+      data.customBlockText,
+      data.contactCta,
+      data.tearOffLabel,
+      data.brandSideText
+    ].filter(Boolean).join(' '));
+
+    if (template.goal !== 'newbuild') errors.push(`${label}: шаблон ЖК должен быть в разделе newbuild`);
+    if (!String(template.id || '').startsWith('bgo_newbuild_tellerman_')) errors.push(`${label}: id шаблона ЖК должен начинаться с bgo_newbuild_tellerman_`);
+    if (!text.includes('теллерманов')) errors.push(`${label}: шаблон должен содержать название ЖК Теллерманов сад`);
+    if (!text.includes('просторная') && template.id !== 'bgo_newbuild_tellerman_mortgage') errors.push(`${label}: шаблон должен указывать Просторную 4а или быть ипотечным общим сценарием`);
+    if (!hasEarlyLeadWording(text)) errors.push(`${label}: шаблон должен вести к предварительной заявке или раннему информированию`);
+
+    for (const forbidden of tellermanForbiddenSnippets) {
+      if (text.includes(forbidden)) errors.push(`${label}: опасная рекламная формулировка — ${forbidden}`);
+    }
+  }
+}
+
+function hasEarlyLeadWording(text) {
+  return [
+    'предварительн',
+    'ранн',
+    'после старта продаж',
+    'продажи еще не начались',
+    'продажи ещё не начались',
+    'старт продаж впереди',
+    'цены будут позже',
+    'цены после старта продаж'
+  ].some(snippet => text.includes(snippet));
+}
+
+function normalizeText(value) {
+  return String(value || '')
+    .toLowerCase()
+    .replace(/ё/g, 'е')
+    .replace(/\s+/g, ' ')
+    .trim();
+}

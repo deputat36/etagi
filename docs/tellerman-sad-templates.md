@@ -12,6 +12,8 @@ data/templates_tellerman_sad.json
 assets/js/templates.js
 ```
 
+Подключение пакета в `TEMPLATE_FILES` обязательно: без этого файл будет проходить базовую JSON-проверку, но шаблоны не появятся в интерфейсе.
+
 ## Задача шаблонов
 
 Главная цель — не обещать продажу квартиры сразу, а собрать тёплые предварительные заявки до старта продаж.
@@ -144,6 +146,8 @@ npm run validate:templates
 
 Для пакета `templates_tellerman_sad.json` дополнительно проверяется:
 
+- наличие файла `data/templates_tellerman_sad.json`;
+- подключение файла в `TEMPLATE_FILES` внутри `assets/js/templates.js`;
 - наличие всех обязательных ID;
 - раздел `newbuild`;
 - префикс ID `bgo_newbuild_tellerman_`;

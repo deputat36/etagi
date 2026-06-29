@@ -60,7 +60,11 @@ function getTemplateSearchText(template){
     data.benefits,
     data.customBlockTitle,
     data.customBlockText,
-    data.qrCaption
+    data.qrCaption,
+    data.contactCta,
+    data.tearOffLabel,
+    data.brandName,
+    data.brandSideText
   ].filter(Boolean).join(' '));
 }
 

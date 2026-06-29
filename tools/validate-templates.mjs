@@ -3,6 +3,8 @@ import path from 'node:path';
 
 const rootDir = process.cwd();
 const dataDir = path.join(rootDir, 'data');
+const templatesLoaderPath = path.join(rootDir, 'assets/js/templates.js');
+const templatesLoaderSource = readOptional(templatesLoaderPath);
 const templateFiles = fs
   .readdirSync(dataDir)
   .filter(file => /^templates.*\.json$/.test(file))
@@ -39,6 +41,7 @@ const validPhoto = new Set(['none', 'one', 'two', 'plan']);
 const validColor = new Set(['brand', 'economy', 'bw', 'private']);
 const validSplit = new Set(['auto', 'horizontal', 'vertical', 'grid']);
 const tellermanTemplateFile = 'templates_tellerman_sad.json';
+const tellermanTemplatePath = `data/${tellermanTemplateFile}`;
 const expectedTellermanIds = new Set([
   'bgo_newbuild_tellerman_waitlist',
   'bgo_newbuild_tellerman_family',
@@ -161,6 +164,10 @@ function checkTellermanTemplates() {
     return;
   }
 
+  if (!templatesLoaderSource.includes(`'${tellermanTemplatePath}'`) && !templatesLoaderSource.includes(`"${tellermanTemplatePath}"`)) {
+    errors.push(`assets/js/templates.js: пакет ${tellermanTemplatePath} должен быть подключён в TEMPLATE_FILES`);
+  }
+
   if (tellermanTemplates.length !== expectedTellermanIds.size) {
     errors.push(`${tellermanTemplateFile}: ожидается ${expectedTellermanIds.size} шаблонов ЖК Теллерманов сад, найдено ${tellermanTemplates.length}`);
   }
@@ -219,4 +226,8 @@ function normalizeText(value) {
     .replace(/ё/g, 'е')
     .replace(/\s+/g, ' ')
     .trim();
+}
+
+function readOptional(filePath) {
+  return fs.existsSync(filePath) ? fs.readFileSync(filePath, 'utf8') : '';
 }

@@ -15,6 +15,7 @@ if (pkg) {
   const validateNames = Object.keys(scripts)
     .filter(name => name.startsWith('validate:'));
   const validateCalls = parseValidateCalls(validateScript);
+  const guideValidateCalls = parseMaintenanceGuideValidateCalls(maintenanceGuideSource);
 
   if (!validateScript) {
     errors.push('package.json: отсутствует общий скрипт validate');
@@ -35,6 +36,7 @@ if (pkg) {
   }
 
   const validateCallCounts = countItems(validateCalls);
+  const guideValidateCallCounts = countItems(guideValidateCalls);
   for (const scriptName of validateNames) {
     const command = String(scripts[scriptName] || '').trim();
     const count = validateCallCounts.get(scriptName) || 0;
@@ -62,6 +64,15 @@ if (pkg) {
     if (!maintenanceGuideSource.includes(`npm run ${scriptName}`)) {
       errors.push(`docs/maintenance-guide.md: отсутствует npm run ${scriptName}`);
     }
+    if ((guideValidateCallCounts.get(scriptName) || 0) > 1) {
+      errors.push(`docs/maintenance-guide.md: npm run ${scriptName} повторяется в списке проверок`);
+    }
+  }
+
+  for (const scriptName of guideValidateCalls) {
+    if (!validateNames.includes(scriptName)) {
+      errors.push(`docs/maintenance-guide.md: найден лишний validate-скрипт, которого нет в package.json — npm run ${scriptName}`);
+    }
   }
 
   for (const scriptName of validateCalls) {
@@ -88,6 +99,12 @@ console.log('Проверка validate-скриптов package.json пройд�
 function parseValidateCalls(command) {
   return splitValidateSegments(command)
     .map(segment => segment.match(/^npm run (validate:[^\s]+)$/)?.[1] || '')
+    .filter(Boolean);
+}
+
+function parseMaintenanceGuideValidateCalls(source) {
+  return [...String(source || '').matchAll(/npm run (validate:[^\s`]+)/g)]
+    .map(match => match[1])
     .filter(Boolean);
 }
 

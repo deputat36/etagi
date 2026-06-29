@@ -3,8 +3,10 @@ import path from 'node:path';
 
 const rootDir = process.cwd();
 const packagePath = path.join(rootDir, 'package.json');
+const maintenanceGuidePath = path.join(rootDir, 'docs/maintenance-guide.md');
 const errors = [];
 const packageSource = readRequired(packagePath);
+const maintenanceGuideSource = readRequired(maintenanceGuidePath);
 const pkg = readPackage(packageSource);
 
 if (pkg) {
@@ -55,6 +57,10 @@ if (pkg) {
     }
     if (!fs.existsSync(fullTarget)) {
       errors.push(`package.json: ${scriptName} ссылается на несуществующий файл — ${nodeTarget}`);
+    }
+
+    if (!maintenanceGuideSource.includes(`npm run ${scriptName}`)) {
+      errors.push(`docs/maintenance-guide.md: отсутствует npm run ${scriptName}`);
     }
   }
 

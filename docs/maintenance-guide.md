@@ -52,6 +52,8 @@ npm run validate:layout-extras
 npm run validate:phone-helper
 ```
 
+Список выше контролируется через `validate:package-scripts`: каждая команда `validate:*` из `package.json` должна быть указана в этом блоке без лишних и повторов.
+
 Если локально запустить проверки нельзя, в отчёте нужно честно написать, что локальный `npm run validate` не запускался.
 
 ## Что проверяет проект

@@ -28,6 +28,13 @@ npm run validate:assets
 npm run validate:asset-duplicates
 npm run validate:quality-actions
 npm run validate:quality-issue-actions
+npm run validate:phone-cleanup-action
+npm run validate:headline-placeholder-action
+npm run validate:custom-block-density-action
+npm run validate:contact-cta-density-action
+npm run validate:tear-label-density-action
+npm run validate:brand-density-action
+npm run validate:meta-preservation-action
 npm run validate:photo-intent-action
 npm run validate:response-channel-action
 npm run validate:qr-empty-direct-action
@@ -94,6 +101,7 @@ tools/*.mjs
 
 - быстрые исправления замечаний качества;
 - прямые безопасные действия для QR, фото и канала отклика;
+- отдельные прямые действия для очистки телефона, placeholder заголовка, плотности доп. блока, контактного призыва, подписи отрывных, бренда и сохранения параметров;
 - отсутствие старых fallback-действий, которые могли выключить фото, QR или включить контакты без проверки;
 - подавленные замечания качества;
 - сводка, фильтры, приоритет и печать с учётом подавленных замечаний.

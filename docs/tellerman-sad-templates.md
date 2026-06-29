@@ -14,6 +14,8 @@ assets/js/templates.js
 
 Подключение пакета в `TEMPLATE_FILES` обязательно: без этого файл будет проходить базовую JSON-проверку, но шаблоны не появятся в интерфейсе.
 
+Расширенные поля `contactCta`, `tearOffLabel`, `brandName` и `brandSideText` участвуют в поиске шаблонов. Это важно для запросов вроде «ипотека», «новостройка», «переезд», «раннее информирование» и «Теллерманов сад».
+
 ## Задача шаблонов
 
 Главная цель — не обещать продажу квартиры сразу, а собрать тёплые предварительные заявки до старта продаж.
@@ -148,6 +150,7 @@ npm run validate:templates
 
 - наличие файла `data/templates_tellerman_sad.json`;
 - подключение файла в `TEMPLATE_FILES` внутри `assets/js/templates.js`;
+- индексация расширенных полей `contactCta`, `tearOffLabel`, `brandName` и `brandSideText` в поиске шаблонов;
 - наличие всех обязательных ID;
 - раздел `newbuild`;
 - префикс ID `bgo_newbuild_tellerman_`;

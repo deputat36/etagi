@@ -4,6 +4,7 @@ const TEMPLATE_FILES = [
   'data/templates_sales.json',
   'data/templates_extra.json',
   'data/templates_borisoglebsk.json',
+  'data/templates_tellerman_sad.json',
   'data/templates_entrance.json',
   'data/templates_ab_tests.json',
   'data/templates_trust.json'

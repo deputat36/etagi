@@ -202,6 +202,7 @@ function checkTellermanTemplates() {
       data.customBlockText,
       data.contactCta,
       data.tearOffLabel,
+      data.brandName,
       data.brandSideText
     ].filter(Boolean).join(' '));
 

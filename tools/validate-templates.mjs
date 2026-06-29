@@ -40,6 +40,7 @@ const validDensity = new Set(['airy', 'normal', 'dense']);
 const validPhoto = new Set(['none', 'one', 'two', 'plan']);
 const validColor = new Set(['brand', 'economy', 'bw', 'private']);
 const validSplit = new Set(['auto', 'horizontal', 'vertical', 'grid']);
+const indexedExtraFields = ['contactCta', 'tearOffLabel', 'brandName', 'brandSideText'];
 const tellermanTemplateFile = 'templates_tellerman_sad.json';
 const tellermanTemplatePath = `data/${tellermanTemplateFile}`;
 const expectedTellermanIds = new Set([
@@ -139,6 +140,7 @@ for (const file of templateFiles) {
   });
 }
 
+checkTemplateSearchIndex();
 checkTellermanTemplates();
 
 console.log(`Проверено файлов шаблонов: ${templateFiles.length}`);
@@ -157,6 +159,14 @@ if (errors.length) {
 }
 
 console.log('\nПроверка шаблонов пройдена.');
+
+function checkTemplateSearchIndex() {
+  for (const field of indexedExtraFields) {
+    if (!templatesLoaderSource.includes(`data.${field}`)) {
+      errors.push(`assets/js/templates.js: поиск шаблонов должен индексировать data.${field}`);
+    }
+  }
+}
 
 function checkTellermanTemplates() {
   if (!templateFiles.includes(tellermanTemplateFile)) {

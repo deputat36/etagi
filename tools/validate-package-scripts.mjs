@@ -61,11 +61,11 @@ if (pkg) {
       errors.push(`package.json: ${scriptName} ссылается на несуществующий файл — ${nodeTarget}`);
     }
 
-    if (!maintenanceGuideSource.includes(`npm run ${scriptName}`)) {
-      errors.push(`docs/maintenance-guide.md: отсутствует npm run ${scriptName}`);
+    if (!guideValidateCalls.includes(scriptName)) {
+      errors.push(`docs/maintenance-guide.md: отсутствует npm run ${scriptName} в основном списке проверок`);
     }
     if ((guideValidateCallCounts.get(scriptName) || 0) > 1) {
-      errors.push(`docs/maintenance-guide.md: npm run ${scriptName} повторяется в списке проверок`);
+      errors.push(`docs/maintenance-guide.md: npm run ${scriptName} повторяется в основном списке проверок`);
     }
   }
 
@@ -103,7 +103,8 @@ function parseValidateCalls(command) {
 }
 
 function parseMaintenanceGuideValidateCalls(source) {
-  return [...String(source || '').matchAll(/npm run (validate:[^\s`]+)/g)]
+  const block = String(source || '').match(/Она включает все проверки из `package\.json`, включая:\n\n```bash\n([\s\S]*?)\n```/)?.[1] || '';
+  return [...block.matchAll(/^npm run (validate:[^\s`]+)$/gm)]
     .map(match => match[1])
     .filter(Boolean);
 }

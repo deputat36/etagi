@@ -29,6 +29,7 @@ check(mapSource, 'docs/quality-helper-map.md', [
   '`.github/workflows/validate.yml`',
   '`docs/**` и `README.md`',
   '`tools/validate-changelog.mjs`',
+  '`docs/maintenance-guide.md`',
   '`responseChannelPhoneGuard.js` удалён',
   'канал отклика теперь безопасно обрабатывается напрямую в `qualityExtraActions.js` через действие `responseChannel`',
   '`photoIntentFix.js` удалён',
@@ -37,7 +38,8 @@ check(mapSource, 'docs/quality-helper-map.md', [
   'пустой QR теперь безопасно обрабатывается напрямую в `qualityExtraActions.js`',
   '`qualitySuppressedPriority.js` удалён',
   'data-quality-suppressed',
-  'Файл, который лежит в `assets/js`, но не подключён ожидаемым импортом, считается нерабочим'
+  'Файл, который лежит в `assets/js`, но не подключён ожидаемым импортом, считается нерабочим',
+  'нужно обновить не только эту карту, но и `docs/maintenance-guide.md`'
 ]);
 
 if (mapSource.includes('- `responseChannelPhoneGuard.js` —')) {

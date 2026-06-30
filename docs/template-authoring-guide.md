@@ -6,13 +6,18 @@
 
 Шаблоны хранятся в JSON-файлах в папке `data`.
 
-Сейчас подключены:
+Сейчас используются пакеты:
 
 ```text
  data/templates.json
+ data/templates_custom.json
+ data/templates_sales.json
  data/templates_extra.json
  data/templates_borisoglebsk.json
+ data/templates_tellerman_sad.json
  data/templates_entrance.json
+ data/templates_ab_tests.json
+ data/templates_trust.json
 ```
 
 Подключение файлов находится в `assets/js/templates.js`.
@@ -32,7 +37,7 @@
 ```text
  data/templates_borisoglebsk.json
  data/templates_entrance.json
- data/templates_newbuilds.json
+ data/templates_tellerman_sad.json
 ```
 
 После создания нового файла его нужно добавить в массив `TEMPLATE_FILES` в `assets/js/templates.js`.
@@ -98,7 +103,7 @@ all
 
 `note` — короткая подсказка для СПН.
 
-`tags` — слова для поиска и сценарных фильтров.
+`tags` — слова для поиска, сценарных фильтров и офисных подборок.
 
 `density` — плотность:
 
@@ -118,6 +123,27 @@ plan
 ```
 
 `printCount` — сколько макетов на А4. Обычно 1, 2 или 4.
+
+## Офисные теги
+
+Офисные фильтры работают через обычный поиск по тегам. Чтобы шаблон попадал в нужную подборку, добавьте соответствующие слова в `tags`.
+
+```text
+офис             общий офисный шаблон
+рекомендовано    безопасный шаблон для регулярной работы
+новичку          подходит для первых макетов СПН
+менеджер         лучше проверить перед массовой печатью
+подъезд          подъездная расклейка
+Теллерманов сад  локальная подборка по ЖК
+```
+
+Пример:
+
+```json
+"tags": ["офис", "рекомендовано", "новичку", "подъезд", "собственники"]
+```
+
+Если шаблон связан с ипотекой, новостройкой, юридической темой или нестандартным обещанием, лучше добавить тег `менеджер`.
 
 ## Текстовые поля
 

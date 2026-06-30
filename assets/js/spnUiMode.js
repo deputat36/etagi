@@ -15,6 +15,7 @@ import './spnDistributionReportHelper.js';
 import './spnClarityPanel.js';
 import './spnTemplateMenuCompact.js';
 import './spnOfficeTemplateFilters.js';
+import './spnManagerReview.js';
 import './spnMetaCompactStyle.js';
 
 const MODE_KEY = 'etagi-raskleyka-ui-mode-v1';

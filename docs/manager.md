@@ -1,0 +1,3 @@
+# Manager
+
+Checklist placeholder.

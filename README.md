@@ -57,6 +57,7 @@ docs/report-history-regression-checklist.md ручная проверка ист
 - мягкая автоподстройка, которая сохраняет включённые фото и QR в `auto` и явных режимах подстройки;
 - пошаговый маршрут работы для СПН;
 - быстрый и расширенный режим интерфейса;
+- блок проверки менеджера перед печатью;
 - усиленная проверка плотных макетов 6–8 на А4;
 - проверка телефона перед печатью и в контроле качества;
 - сохранение профиля СПН;
@@ -114,6 +115,7 @@ assets/js/preprintSummary.js            сводка перед печатью
 assets/js/spnClarityPanel.js            пошаговый маршрут работы
 assets/js/spnWizard.js                  быстрый подбор ситуации СПН
 assets/js/spnOfficeTemplateFilters.js   офисные быстрые фильтры шаблонов
+assets/js/spnManagerReview.js           проверка менеджера перед печатью
 assets/js/spnContactEditor.js           редактор контактного блока
 assets/js/spnTearOffEditor.js           настройка отрывных телефонов
 assets/js/spnBrandEditor.js             настройка брендовой строки

@@ -48,6 +48,7 @@ function renderReportHelper(){
     </div>
     <label class="spn-report-notes-label">Что заметили<textarea id="distributionReportNotes" rows="3" maxlength="400" placeholder="где сорвали, где хороший трафик, какие вопросы задавали"></textarea></label>
     <div class="spn-report-metrics" id="distributionReportMetrics"></div>
+    <div class="spn-report-insight" id="distributionReportInsight"></div>
     <div class="spn-report-preview" id="distributionReportPreview"></div>
     <div class="spn-report-history" id="distributionReportHistory"></div>
     <p>Короткий отчёт помогает понять, какой макет работает, а какой нужно изменить перед следующей печатью.</p>
@@ -148,14 +149,16 @@ function fillFromTask(){
 }
 
 function updateReportPreview(){
+  const report = getCurrentReport();
   const preview = document.getElementById('distributionReportPreview');
   const metrics = document.getElementById('distributionReportMetrics');
-  if(preview) preview.textContent = buildReportText();
-  if(metrics) metrics.innerHTML = renderMetrics();
+  const insight = document.getElementById('distributionReportInsight');
+  if(preview) preview.textContent = buildReportText(report);
+  if(metrics) metrics.innerHTML = renderMetrics(report);
+  if(insight) insight.textContent = getReportInsight(report);
 }
 
-function renderMetrics(){
-  const report = getCurrentReport();
+function renderMetrics(report = getCurrentReport()){
   return [
     ['Объявлений', report.totalAds],
     ['Отклик', `${report.callRate}%`],
@@ -174,8 +177,7 @@ async function copyReportText(){
   }
 }
 
-function buildReportText(){
-  const report = getCurrentReport();
+function buildReportText(report = getCurrentReport()){
   const date = report.date || 'дата не указана';
   const place = report.place || value('area') || 'локация не указана';
   const notes = report.notes || 'заметок нет';
@@ -189,13 +191,23 @@ function buildReportText(){
     `Расклеено: ${report.sheets} листов, примерно ${report.totalAds} объявл.`,
     `Отклики: ${report.calls} звонков/сообщений, ${report.leads} целевых обращений`,
     `Примерный отклик: ${report.callRate}%`,
+    `Вывод: ${getReportInsight(report)}`,
     `Заметки: ${notes}`,
     `Следующий шаг: ${next}`
   ].join('\n');
 }
 
+function getReportInsight(report){
+  if(!report.totalAds) return 'Сначала укажите количество листов и формат печати.';
+  if(report.calls <= 0) return 'Откликов нет: проверьте место расклейки, заголовок и читаемость телефона.';
+  if(report.calls > 0 && report.leads <= 0) return 'Отклики есть, но целевых нет: уточните текст и сделайте предложение конкретнее.';
+  if(report.leads >= 2 || report.leadRate >= 1) return 'Связка выглядит рабочей: повторите в похожих домах и сохраните шаблон как рекомендованный.';
+  return 'Есть первые целевые обращения: повторите тест и сравните результат с другой локацией или заголовком.';
+}
+
 function saveReportToHistory(){
   const report = getCurrentReport();
+  report.insight = getReportInsight(report);
   if(!report.date) report.date = new Date().toLocaleDateString('ru-RU');
   if(!report.place && value('area')) report.place = value('area');
   const history = readReportHistory();
@@ -256,8 +268,8 @@ function exportReportHistoryCsv(){
     return;
   }
   const rows = [
-    ['date','place','headline','sheets','ads','calls','leads','call_rate','lead_rate','next_step','notes'],
-    ...history.map(item => [item.date,item.place,item.headline,item.sheets,item.totalAds,item.calls,item.leads,item.callRate,item.leadRate,item.nextStep,item.notes])
+    ['date','place','headline','sheets','ads','calls','leads','call_rate','lead_rate','insight','next_step','notes'],
+    ...history.map(item => [item.date,item.place,item.headline,item.sheets,item.totalAds,item.calls,item.leads,item.callRate,item.leadRate,item.insight || getReportInsight(item),item.nextStep,item.notes])
   ];
   const csv = rows.map(row => row.map(csvCell).join(';')).join('\n');
   downloadText(`raskleyka-report-history-${new Date().toISOString().slice(0,10)}.csv`, csv);
@@ -310,7 +322,7 @@ function injectStyles(){
   if(document.getElementById('spnDistributionReportStyles')) return;
   const style = document.createElement('style');
   style.id = 'spnDistributionReportStyles';
-  style.textContent = `.spn-distribution-report{margin:8px 0 10px;padding:10px;border:1px solid #bfdbfe;border-radius:14px;background:#eff6ff}.spn-report-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px}.spn-report-head b{display:block;font-size:12px;font-weight:900;color:#1e3a8a}.spn-report-head span{display:block;margin-top:2px;font-size:10.5px;line-height:1.2;color:#1d4ed8;font-weight:700}.spn-report-actions{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}.spn-report-actions button{padding:7px 9px;border-radius:10px;border:1px solid #bfdbfe;background:#fff;color:#1d4ed8;font-size:10.5px;font-weight:900;box-shadow:none}.spn-report-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}.spn-report-grid label,.spn-report-notes-label{display:grid;gap:5px;font-size:10.5px;font-weight:900;color:#1e3a8a}.spn-report-grid input,.spn-report-notes-label textarea{background:#fff}.spn-report-notes-label{margin-top:7px}.spn-report-metrics{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-top:8px}.spn-report-metrics div{border:1px solid #bfdbfe;border-radius:11px;background:#fff;padding:7px;text-align:center}.spn-report-metrics b{display:block;font-size:13px;font-weight:900;color:#1e3a8a}.spn-report-metrics span{font-size:9.5px;font-weight:800;color:#64748b}.spn-report-preview{margin-top:8px;white-space:pre-wrap;border:1px dashed #93c5fd;border-radius:12px;background:#fff;padding:8px;color:#172554;font-size:10.5px;line-height:1.32;font-weight:750}.spn-report-history{display:grid;gap:6px;margin-top:8px;border:1px solid #bfdbfe;border-radius:12px;background:#fff;padding:8px}.spn-report-history>b{font-size:11px;font-weight:900;color:#1e3a8a}.spn-report-history>span{font-size:10.5px;color:#64748b;font-weight:700}.spn-report-history-item{display:grid;grid-template-columns:1fr auto;gap:3px 6px;border-top:1px solid #e0f2fe;padding-top:6px}.spn-report-history-item span{font-size:10.5px;font-weight:900;color:#172554}.spn-report-history-item small{font-size:9.5px;line-height:1.2;color:#475569;font-weight:750}.spn-report-history-item button{grid-row:1/3;grid-column:2;padding:6px 8px;border-radius:9px;border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8;font-size:10px;font-weight:900;box-shadow:none}.spn-distribution-report p{margin:7px 0 0;color:#475569;font-size:10.5px;line-height:1.25;font-weight:700}@media(max-width:520px){.spn-report-head{flex-direction:column}.spn-report-grid,.spn-report-metrics{grid-template-columns:1fr}.spn-report-history-item{grid-template-columns:1fr}.spn-report-history-item button{grid-row:auto;grid-column:auto}}@media print{.spn-distribution-report{display:none!important}}`;
+  style.textContent = `.spn-distribution-report{margin:8px 0 10px;padding:10px;border:1px solid #bfdbfe;border-radius:14px;background:#eff6ff}.spn-report-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px}.spn-report-head b{display:block;font-size:12px;font-weight:900;color:#1e3a8a}.spn-report-head span{display:block;margin-top:2px;font-size:10.5px;line-height:1.2;color:#1d4ed8;font-weight:700}.spn-report-actions{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}.spn-report-actions button{padding:7px 9px;border-radius:10px;border:1px solid #bfdbfe;background:#fff;color:#1d4ed8;font-size:10.5px;font-weight:900;box-shadow:none}.spn-report-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}.spn-report-grid label,.spn-report-notes-label{display:grid;gap:5px;font-size:10.5px;font-weight:900;color:#1e3a8a}.spn-report-grid input,.spn-report-notes-label textarea{background:#fff}.spn-report-notes-label{margin-top:7px}.spn-report-metrics{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-top:8px}.spn-report-metrics div{border:1px solid #bfdbfe;border-radius:11px;background:#fff;padding:7px;text-align:center}.spn-report-metrics b{display:block;font-size:13px;font-weight:900;color:#1e3a8a}.spn-report-metrics span{font-size:9.5px;font-weight:800;color:#64748b}.spn-report-insight{margin-top:8px;border:1px solid #bae6fd;border-radius:12px;background:#f8fafc;padding:8px;color:#0f172a;font-size:10.5px;line-height:1.25;font-weight:900}.spn-report-preview{margin-top:8px;white-space:pre-wrap;border:1px dashed #93c5fd;border-radius:12px;background:#fff;padding:8px;color:#172554;font-size:10.5px;line-height:1.32;font-weight:750}.spn-report-history{display:grid;gap:6px;margin-top:8px;border:1px solid #bfdbfe;border-radius:12px;background:#fff;padding:8px}.spn-report-history>b{font-size:11px;font-weight:900;color:#1e3a8a}.spn-report-history>span{font-size:10.5px;color:#64748b;font-weight:700}.spn-report-history-item{display:grid;grid-template-columns:1fr auto;gap:3px 6px;border-top:1px solid #e0f2fe;padding-top:6px}.spn-report-history-item span{font-size:10.5px;font-weight:900;color:#172554}.spn-report-history-item small{font-size:9.5px;line-height:1.2;color:#475569;font-weight:750}.spn-report-history-item button{grid-row:1/3;grid-column:2;padding:6px 8px;border-radius:9px;border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8;font-size:10px;font-weight:900;box-shadow:none}.spn-distribution-report p{margin:7px 0 0;color:#475569;font-size:10.5px;line-height:1.25;font-weight:700}@media(max-width:520px){.spn-report-head{flex-direction:column}.spn-report-grid,.spn-report-metrics{grid-template-columns:1fr}.spn-report-history-item{grid-template-columns:1fr}.spn-report-history-item button{grid-row:auto;grid-column:auto}}@media print{.spn-distribution-report{display:none!important}}`;
   document.head.appendChild(style);
 }
 function escapeHtml(value){

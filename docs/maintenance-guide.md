@@ -37,19 +37,20 @@ npm run validate:brand-density-action
 npm run validate:meta-preservation-action
 npm run validate:photo-intent-action
 npm run validate:response-channel-action
-npm run validate:qr-empty-direct-action
 npm run validate:suppressed-quality-items
 npm run validate:quality-helper-imports
-npm run validate:layout-media-preservation
 npm run validate:quality-regression-checklist
 npm run validate:quality-helper-map
 npm run validate:readme-quality-docs
+npm run validate:qr-empty-direct-action
 npm run validate:storage-safety
 npm run validate:version-sync
 npm run validate:package-scripts
 npm run validate:changelog
 npm run validate:layout-extras
+npm run validate:layout-media-preservation
 npm run validate:phone-helper
+npm run validate:report-history-docs
 ```
 
 Список выше контролируется через `validate:package-scripts`: каждая команда `validate:*` из `package.json` должна быть указана в этом блоке без лишних и повторов.
@@ -119,6 +120,17 @@ tools/*.mjs
 - режимы фото и режимы подстройки из `assets/js/state.js`;
 - порядок блоков, подписи блоков и переключатели видимости.
 
+### История отчётов
+
+Проверяются:
+
+- наличие блока истории в `assets/js/spnDistributionReportHelper.js`;
+- сохранение отчёта в историю;
+- повтор прошлой расклейки;
+- CSV-экспорт;
+- автоматический вывод по результату;
+- описание истории в README и документации.
+
 ## Принципы безопасных исправлений
 
 ### QR
@@ -176,7 +188,7 @@ data/templates_newbuilds.json
 2. Добавить его в `TEMPLATE_FILES` в `assets/js/templates.js`.
 3. Запустить `npm run validate`.
 4. Проверить фильтры в браузере.
-5. Добавить описание релиза в `docs/changelog.md`.
+5. Добавить описание релиза в `docs/changelog.md` или отдельный файл `docs/releases/<version>.md`.
 
 ## Как добавлять новый блок макета
 
@@ -216,6 +228,9 @@ data/templates_newbuilds.json
 12. Фото без файла переводит к загрузке и не выключается.
 13. Канал отклика не включается без корректного телефона.
 14. Мягкая автоподстройка сохраняет фото и QR.
+15. Отчёт после расклейки сохраняется в историю.
+16. Повтор прошлой расклейки сбрасывает свежие отклики на 0.
+17. CSV истории отчётов открывается в таблице.
 
 ## Правило релизов
 

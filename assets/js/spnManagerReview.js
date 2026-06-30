@@ -1,3 +1,5 @@
+import './spnReportSummary.js';
+
 const REVIEW_KEY = 'etagi-raskleyka-manager-review-v1';
 
 const items = [

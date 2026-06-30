@@ -5,8 +5,8 @@ const rootDir = process.cwd();
 const packagePath = path.join(rootDir, 'package.json');
 const statePath = path.join(rootDir, 'assets/js/state.js');
 const changelogPath = path.join(rootDir, 'docs/changelog.md');
+const releaseDir = path.join(rootDir, 'docs/releases');
 const errors = [];
-const warnings = [];
 
 const packageSource = readRequired(packagePath);
 const stateSource = readRequired(statePath);
@@ -15,6 +15,8 @@ const changelogSource = readRequired(changelogPath);
 const packageVersion = readPackageVersion(packageSource);
 const stateVersion = readStateVersion(stateSource);
 const changelogVersion = readChangelogVersion(changelogSource);
+const releaseNotePath = packageVersion ? path.join(releaseDir, `${packageVersion}.md`) : '';
+const releaseNoteVersion = readReleaseNoteVersion(releaseNotePath, packageVersion);
 
 if (!packageVersion) errors.push('package.json: не удалось прочитать version');
 if (!stateVersion) errors.push('assets/js/state.js: не удалось прочитать defaultState.version');
@@ -24,8 +26,12 @@ if (packageVersion && stateVersion && packageVersion !== stateVersion) {
   errors.push(`Версии package.json и state.js не совпадают: ${packageVersion} !== ${stateVersion}`);
 }
 
-if (packageVersion && changelogVersion && packageVersion !== changelogVersion) {
-  warnings.push(`docs/changelog.md пока содержит верхнюю запись ${changelogVersion}, а код имеет версию ${packageVersion}. Это допустимо только для малой UX-итерации, если changelog обновляется отдельным безопасным коммитом.`);
+if (packageVersion && changelogVersion && releaseNoteVersion) {
+  const changelogOk = packageVersion === changelogVersion;
+  const releaseNoteOk = packageVersion === releaseNoteVersion;
+  if (!changelogOk && !releaseNoteOk) {
+    errors.push(`Версия ${packageVersion} должна быть верхней записью docs/changelog.md или отдельной заметкой docs/releases/${packageVersion}.md`);
+  }
 }
 
 if (errors.length) {
@@ -34,12 +40,7 @@ if (errors.length) {
   process.exit(1);
 }
 
-if (warnings.length) {
-  console.warn('\nПредупреждения синхронизации версии:');
-  warnings.forEach(warning => console.warn(`- ${warning}`));
-}
-
-console.log(`Проверка синхронизации версии пройдена: package/state ${packageVersion}, changelog ${changelogVersion}.`);
+console.log(`Проверка синхронизации версии пройдена: package/state ${packageVersion}, changelog ${changelogVersion}, release ${releaseNoteVersion || 'нет'}.`);
 
 function readPackageVersion(source) {
   if (!source) return '';
@@ -63,6 +64,15 @@ function readChangelogVersion(source) {
   if (!source) return '';
   const match = source.match(/^##\s+([0-9]+\.[0-9]+\.[0-9]+)/m);
   return match ? match[1].trim() : '';
+}
+
+function readReleaseNoteVersion(filePath, expectedVersion) {
+  if (!expectedVersion || !filePath || !fs.existsSync(filePath)) return '';
+  const source = fs.readFileSync(filePath, 'utf8');
+  const match = source.match(/^#\s+([0-9]+\.[0-9]+\.[0-9]+)/m);
+  const version = match ? match[1].trim() : '';
+  if (!version) errors.push(`${toProjectPath(filePath)}: заголовок версии не найден`);
+  return version;
 }
 
 function readRequired(filePath) {

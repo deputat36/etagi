@@ -6,11 +6,12 @@ const situations = [
     query: 'продающий собственник цена оценка',
     printCount: 2,
     layoutMode: 'readable',
-    hint: 'Для мягкого захода: человек пока не продаёт, но может захотеть узнать цену.',
+    hint: 'Мягкий заход: человек пока не продаёт, но может захотеть узнать цену.',
     recommendation: {
       format: '2 макета на А4, без фото, крупный телефон и отрывные контакты.',
       message: 'Главный смысл: узнать реальную цену без обязательств и давления.',
-      metric: 'Считать звонки от собственников и вопросы про цену.'
+      metric: 'Считать звонки от собственников и вопросы про цену.',
+      manager: 'Проверить, есть ли район или дом и не звучит ли текст слишком навязчиво.'
     }
   },
   {
@@ -24,7 +25,8 @@ const situations = [
     recommendation: {
       format: '4 макета на А4, подъездный формат, отрывные контакты обязательны.',
       message: 'Главный смысл: есть конкретный спрос, можно обсудить продажу без публикации.',
-      metric: 'Считать звонки с вопросом о покупателе и готовность назвать цену.'
+      metric: 'Считать звонки с вопросом о покупателе и готовность назвать цену.',
+      manager: 'Проверить, чтобы текст не обещал больше, чем реально известно по покупателю.'
     }
   },
   {
@@ -34,11 +36,12 @@ const situations = [
     query: 'продающий подъезд соседи без давления',
     printCount: 4,
     layoutMode: 'entrance',
-    hint: 'Для объявлений в конкретном доме или подъезде.',
+    hint: 'Для объявлений в конкретном доме, подъезде или небольшом районе.',
     recommendation: {
       format: '4 макета на А4, короткий текст, без фото и QR.',
       message: 'Главный смысл: соседям полезно узнать цену и спрос по этому дому.',
-      metric: 'Считать отклики по конкретным домам и подъездам.'
+      metric: 'Считать отклики по конкретным домам и подъездам.',
+      manager: 'Проверить, чтобы был указан дом, улица, район или другой понятный контекст.'
     }
   },
   {
@@ -52,7 +55,38 @@ const situations = [
     recommendation: {
       format: '1 крупный макет на А4 или 2 на А4, фото желательно.',
       message: 'Главный смысл: показать сильную причину посмотреть объект.',
-      metric: 'Считать звонки по объекту и просьбы отправить фото/адрес.'
+      metric: 'Считать звонки по объекту и просьбы отправить фото, адрес или подробности.',
+      manager: 'Проверить фото, цену, параметры и отсутствие перегруза в описании.'
+    }
+  },
+  {
+    id: 'tellerman-sad',
+    title: 'ЖК Теллерманов сад',
+    goal: 'newbuild',
+    query: 'Теллерманов сад новостройка семейная ипотека материнский капитал',
+    printCount: 2,
+    layoutMode: 'readable',
+    hint: 'Для аккуратного продвижения нового ЖК без лишней закрытой информации.',
+    recommendation: {
+      format: '2 макета на А4, можно QR, текст короткий и проверенный.',
+      message: 'Главный смысл: рассказать о старте продаж и собрать заинтересованных покупателей.',
+      metric: 'Считать звонки, вопросы по планировкам, ипотеке и способам покупки.',
+      manager: 'Проверить, что в макете нет непубличных данных и неподтверждённых условий.'
+    }
+  },
+  {
+    id: 'newbuild-mortgage',
+    title: 'Новостройка / ипотека',
+    goal: 'newbuild',
+    query: 'новостройка семейная ипотека маткапитал молодая семья подбор',
+    printCount: 2,
+    layoutMode: 'readable',
+    hint: 'Для покупателей, которым важны условия покупки и помощь с подбором.',
+    recommendation: {
+      format: '2 макета на А4, крупный контакт, QR по необходимости.',
+      message: 'Главный смысл: помочь подобрать квартиру в новом доме и разобраться с условиями.',
+      metric: 'Считать консультации, заявки на подбор и вопросы по ипотеке.',
+      manager: 'Проверить актуальность формулировок перед массовой печатью.'
     }
   },
   {
@@ -66,7 +100,8 @@ const situations = [
     recommendation: {
       format: '2 макета на А4, можно без фото, акцент на подбор и безопасность.',
       message: 'Главный смысл: человеку помогут найти вариант под ситуацию и бюджет.',
-      metric: 'Считать новые заявки покупателей и качество запроса.'
+      metric: 'Считать новые заявки покупателей и качество запроса.',
+      manager: 'Проверить, чтобы текст не был слишком общим и был понятен тип запроса.'
     }
   },
   {
@@ -80,7 +115,23 @@ const situations = [
     recommendation: {
       format: '2 макета на А4, спокойный текст, без перегруза.',
       message: 'Главный смысл: лучше проверить цену, документы и риски до сделки.',
-      metric: 'Считать обращения за консультацией и повторные контакты.'
+      metric: 'Считать обращения за консультацией и повторные контакты.',
+      manager: 'Проверить аккуратность формулировок и отсутствие юридических обещаний.'
+    }
+  },
+  {
+    id: 'brand-district',
+    title: 'Личный бренд СПН',
+    goal: 'brand',
+    query: 'личный бренд специалист район консультация оценка',
+    printCount: 2,
+    layoutMode: 'readable',
+    hint: 'Для регулярного присутствия СПН в районе и доверительного знакомства.',
+    recommendation: {
+      format: '2 макета на А4, короткий текст, крупный телефон, можно без QR.',
+      message: 'Главный смысл: в районе есть понятный специалист, к которому можно обратиться.',
+      metric: 'Считать обращения за консультацией, оценкой и повторные контакты.',
+      manager: 'Проверить, чтобы текст был про пользу клиенту, а не только про самого СПН.'
     }
   },
   {
@@ -94,7 +145,8 @@ const situations = [
     recommendation: {
       format: 'Начните с 2 макетов на А4, потом тестируйте 4 на А4.',
       message: 'Главный смысл: одна задача, один заголовок, один понятный призыв.',
-      metric: 'Сравнить, какая формулировка дала больше качественных откликов.'
+      metric: 'Сравнить, какая формулировка дала больше качественных откликов.',
+      manager: 'Первый нестандартный макет лучше проверить перед печатью.'
     }
   }
 ];
@@ -103,9 +155,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const search = document.getElementById('templateSearch');
   const density = document.getElementById('templateDensityFilter');
   const toolbar = search?.closest('.toolbar-row');
-  if(!search || !toolbar || document.getElementById('spnWizard')) return;
+  const startCard = document.querySelector('.start-card');
+  const anchor = startCard || toolbar;
+  if(!search || !toolbar || !anchor || document.getElementById('spnWizard')) return;
 
-  toolbar.insertAdjacentHTML('afterend', renderWizard());
+  anchor.insertAdjacentHTML('afterend', renderWizard());
   const wizard = document.getElementById('spnWizard');
 
   wizard.addEventListener('click', event => {
@@ -150,7 +204,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if(density) density.dispatchEvent(new Event('change', {bubbles:true}));
       applyRecommendedSettings(item);
       updateRoute();
-      setStatus(`Подобраны шаблоны: ${item.title}. ${item.hint}`);
+      setStatus(`Офисный подбор: ${item.title}. ${item.hint}`);
     }, 90);
   });
 
@@ -160,16 +214,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function renderWizard(){
   return `<div class="spn-wizard" id="spnWizard">
-    <div class="spn-route" id="spnRoute">
-      <div class="spn-route-head">
-        <b>Маршрут СПН</b>
-        <span id="spnRouteProgress">0/5</span>
+    <div class="spn-wizard-head office-head">
+      <div>
+        <b>Что делаем сегодня?</b>
+        <span>Выберите рабочую ситуацию — генератор подберёт шаблоны, формат печати и подскажет, что считать после расклейки.</span>
       </div>
-      <div class="spn-route-steps" id="spnRouteSteps"></div>
-      <div class="spn-route-next" id="spnRouteNext"></div>
-    </div>
-    <div class="spn-wizard-head">
-      <b>Быстрый подбор для СПН</b>
       <button type="button" data-spn-reset>Сбросить</button>
     </div>
     <div class="spn-wizard-grid">
@@ -177,7 +226,15 @@ function renderWizard(){
     </div>
     <div class="spn-recommendation" id="spnRecommendation">
       <b>Выберите ситуацию</b>
-      <span>Подскажу формат печати, главный смысл и что отслеживать после расклейки.</span>
+      <span>Подскажу формат печати, главный смысл, проверку менеджера и метрику после расклейки.</span>
+    </div>
+    <div class="spn-route" id="spnRoute">
+      <div class="spn-route-head">
+        <b>Маршрут до печати</b>
+        <span id="spnRouteProgress">0/5</span>
+      </div>
+      <div class="spn-route-steps" id="spnRouteSteps"></div>
+      <div class="spn-route-next" id="spnRouteNext"></div>
     </div>
   </div>`;
 }
@@ -197,7 +254,7 @@ function bindRouteUpdates(){
 function getRouteState(){
   const text = `${value('headline')} ${value('description')} ${value('benefits')} ${value('customBlockText')}`.toLowerCase().replace(/ё/g, 'е');
   const selectedSituation = Boolean(document.querySelector('[data-spn-situation].active')) || Boolean(value('templateSearch'));
-  const contactReady = Boolean(value('agentPhone')) && checked('showContact');
+  const contactReady = Boolean(value('agentPhone')) && (checked('showContact') || checked('tearOffs'));
   const contextReady = Boolean(value('area') || value('propertyType') || value('price'));
   const contentReady = value('headline').length >= 10 && value('description').length >= 20 && value('benefits').split('\n').filter(Boolean).length >= 2;
   const trustReady = /без давлен|без обязательств|не обязывает|по делу|безопас|провер|документ|простым язык|честн/.test(text);
@@ -230,12 +287,12 @@ function updateRoute(){
 }
 
 function getNextAction(state){
-  if(!state.selectedSituation) return {title:'Начните с ситуации', text:'Выберите реальную задачу: собственник, покупатель, подъезд, объект или консультация.', action:'situation', button:'Выбрать ситуацию'};
-  if(!state.contactReady) return {title:'Заполните контакт', text:'Телефон должен быть виден на макете и на отрывных листочках.', action:'phone', button:'К телефону'};
-  if(!state.contextReady) return {title:'Добавьте контекст', text:'Район, дом, объект или цена помогают человеку понять, что объявление про него.', action:'context', button:'К контексту'};
+  if(!state.selectedSituation) return {title:'Начните с офисной ситуации', text:'Выберите реальную задачу: собственник, покупатель, подъезд, объект, новостройка или консультация.', action:'situation', button:'Выбрать ситуацию'};
+  if(!state.contactReady) return {title:'Заполните контакт', text:'Телефон должен быть виден в контактах, на отрывных листочках или в другом понятном канале отклика.', action:'phone', button:'К телефону'};
+  if(!state.contextReady) return {title:'Добавьте контекст', text:'Район, дом, ЖК, объект или цена помогают человеку понять, что объявление относится к нему.', action:'context', button:'К контексту'};
   if(!state.contentReady) return {title:'Доведите текст', text:'Нужны заголовок, короткое описание и 2–3 причины откликнуться.', action:'text', button:'К тексту'};
-  if(!state.trustReady) return {title:'Снимите опасение', text:'Добавьте мягкую формулировку: без давления, без обязательств, по делу.', action:'trust', button:'Добавить доверие'};
-  return {title:'Макет готов к проверке', text:'Нажмите «Проверить», затем печатайте и запускайте тест расклейки.', action:'quality', button:'Проверить макет'};
+  if(!state.trustReady) return {title:'Добавьте доверие', text:'Добавьте мягкую формулировку: без давления, без обязательств, по делу.', action:'trust', button:'Добавить доверие'};
+  return {title:'Макет готов к проверке', text:'Нажмите «Проверить», затем печатайте, выдавайте задание и фиксируйте результат.', action:'quality', button:'Проверить макет'};
 }
 
 function applyRouteAction(action){
@@ -261,12 +318,13 @@ function renderRecommendation(item){
   const box = document.getElementById('spnRecommendation');
   if(!box) return;
   if(!item){
-    box.innerHTML = '<b>Выберите ситуацию</b><span>Подскажу формат печати, главный смысл и что отслеживать после расклейки.</span>';
+    box.innerHTML = '<b>Выберите ситуацию</b><span>Подскажу формат печати, главный смысл, проверку менеджера и метрику после расклейки.</span>';
     return;
   }
   box.innerHTML = `<b>Рекомендация: ${item.title}</b>
     <span><strong>Формат:</strong> ${item.recommendation.format}</span>
     <span><strong>Смысл:</strong> ${item.recommendation.message}</span>
+    <span><strong>Проверка:</strong> ${item.recommendation.manager}</span>
     <span><strong>Отслеживать:</strong> ${item.recommendation.metric}</span>`;
 }
 

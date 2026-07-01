@@ -21,13 +21,14 @@ import './spnManagerReview.js';
 import './spnMetaCompactStyle.js';
 
 const MODE_KEY = 'etagi-raskleyka-ui-mode-v1';
+const MODES = ['newbie', 'quick', 'advanced'];
 
 document.addEventListener('DOMContentLoaded', () => {
   const header = document.querySelector('.app-header');
   if(!header || document.getElementById('spnUiMode')) return;
   header.insertAdjacentHTML('afterend', renderModePanel());
   const savedMode = localStorage.getItem(MODE_KEY) || 'quick';
-  setMode(['quick', 'advanced'].includes(savedMode) ? savedMode : 'quick');
+  setMode(MODES.includes(savedMode) ? savedMode : 'quick');
   document.getElementById('spnUiMode')?.addEventListener('click', event => {
     const btn = event.target.closest('[data-spn-ui-mode]');
     if(!btn) return;
@@ -39,9 +40,10 @@ function renderModePanel(){
   return `<section class="spn-ui-mode" id="spnUiMode" aria-label="Режим интерфейса">
     <div>
       <b>Режим работы</b>
-      <span id="spnUiModeHint">Аварийно включён стабильный интерфейс без экспериментального режима новичка.</span>
+      <span id="spnUiModeHint">Стабильный интерфейс. Режим новичка возвращается поэтапно.</span>
     </div>
     <div class="spn-ui-mode-actions">
+      <button type="button" data-spn-ui-mode="newbie">Новичок</button>
       <button type="button" data-spn-ui-mode="quick">Быстро</button>
       <button type="button" data-spn-ui-mode="advanced">Расширенно</button>
     </div>
@@ -49,18 +51,24 @@ function renderModePanel(){
 }
 
 function setMode(mode){
-  const next = ['quick', 'advanced'].includes(mode) ? mode : 'quick';
+  const next = MODES.includes(mode) ? mode : 'quick';
   document.body.dataset.spnUiMode = next;
   localStorage.setItem(MODE_KEY, next);
   document.querySelectorAll('[data-spn-ui-mode]').forEach(btn => btn.classList.toggle('active', btn.dataset.spnUiMode === next));
   const hint = document.getElementById('spnUiModeHint');
   if(hint){
-    hint.textContent = next === 'quick'
-      ? 'Быстро: основной стабильный интерфейс для печати расклеек.'
-      : 'Расширенно: все настройки, сохранение, аналитика и инструменты после расклейки.';
+    hint.textContent = next === 'newbie'
+      ? 'Новичок: пока только облегчённый CSS-режим без экспериментальных помощников.'
+      : next === 'quick'
+        ? 'Быстро: основной стабильный интерфейс для печати расклеек.'
+        : 'Расширенно: все настройки, сохранение, аналитика и инструменты после расклейки.';
   }
   const status = document.getElementById('statusLine');
   if(status){
-    status.textContent = next === 'quick' ? 'Включён стабильный быстрый режим.' : 'Включён расширенный режим.';
+    status.textContent = next === 'newbie'
+      ? 'Включён облегчённый режим новичка.'
+      : next === 'quick'
+        ? 'Включён стабильный быстрый режим.'
+        : 'Включён расширенный режим.';
   }
 }

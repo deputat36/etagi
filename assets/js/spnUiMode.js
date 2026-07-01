@@ -17,6 +17,7 @@ import './spnOfficeTemplateFilters.js';
 import './spnOfficeFilterSync.js';
 import './spnTemplateCardBadges.js';
 import './spnTextStepChecklist.js';
+import './spnNewbieModeNotice.js';
 import './spnManagerReview.js';
 import './spnMetaCompactStyle.js';
 
@@ -58,7 +59,7 @@ function setMode(mode){
   const hint = document.getElementById('spnUiModeHint');
   if(hint){
     hint.textContent = next === 'newbie'
-      ? 'Новичок: пока только облегчённый CSS-режим без экспериментальных помощников.'
+      ? 'Новичок: облегчённый режим с пояснением безопасного выбора заготовок.'
       : next === 'quick'
         ? 'Быстро: основной стабильный интерфейс для печати расклеек.'
         : 'Расширенно: все настройки, сохранение, аналитика и инструменты после расклейки.';

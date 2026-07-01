@@ -19,6 +19,7 @@ import './spnTemplateCardBadges.js';
 import './spnTextStepChecklist.js';
 import './spnNewbieMode.js';
 import './spnNewbieModeNotice.js';
+import './spnNewbieEmptyState.js';
 import './spnNewbiePrintGuide.js';
 import './spnManagerReview.js';
 import './spnMetaCompactStyle.js';
@@ -61,7 +62,7 @@ function setMode(mode){
   const hint = document.getElementById('spnUiModeHint');
   if(hint){
     hint.textContent = next === 'newbie'
-      ? 'Новичок: безопасный фильтр и подсказка рекомендуемых настроек печати.'
+      ? 'Новичок: безопасный фильтр, подсказки и помощь при пустом списке.'
       : next === 'quick'
         ? 'Быстро: основной стабильный интерфейс для печати расклеек.'
         : 'Расширенно: все настройки, сохранение, аналитика и инструменты после расклейки.';
@@ -69,7 +70,7 @@ function setMode(mode){
   const status = document.getElementById('statusLine');
   if(status){
     status.textContent = next === 'newbie'
-      ? 'Включён режим новичка с печатной подсказкой.'
+      ? 'Включён режим новичка с безопасным фильтром.'
       : next === 'quick'
         ? 'Включён стабильный быстрый режим.'
         : 'Включён расширенный режим.';

@@ -23,6 +23,7 @@ import './spnNewbieMode.js';
 import './spnNewbieModeNotice.js';
 import './spnNewbieEmptyState.js';
 import './spnNewbieWizardPatch.js';
+import './spnNewbiePrintGuide.js';
 import './spnNewbieFinalCheck.js';
 import './spnManagerReview.js';
 import './spnWizardFlow.js';

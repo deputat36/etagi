@@ -16,6 +16,7 @@ import './spnDistributionReportHelper.js';
 import './spnClarityPanel.js';
 import './spnTemplateMenuCompact.js';
 import './spnOfficeTemplateFilters.js';
+import './spnOfficeFilterSync.js';
 import './spnTemplateCardBadges.js';
 import './spnTextStepChecklist.js';
 import './spnNewbieMode.js';

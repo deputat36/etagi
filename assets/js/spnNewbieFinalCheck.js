@@ -5,6 +5,7 @@ const finalActions = [
   { id: 'phone', title: 'Проверить телефон', hint: 'Сверьте номер до печати', target: '#agentPhone' },
   { id: 'count', title: '2 на А4', hint: 'Самый частый формат для расклейки', target: '[data-count="2"]' },
   { id: 'cut', title: 'Линии реза', hint: 'Удобно разрезать лист после печати', target: '#showCutLines' },
+  { id: 'safe', title: 'Безопасные поля', hint: 'Чтобы текст не обрезался при печати', target: '#safePrintMargins' },
   { id: 'print', title: 'Печать / PDF', hint: 'Печатайте только после проверки', target: '#printBtn' }
 ];
 
@@ -61,8 +62,9 @@ function getItems(){
   const phone = Boolean(String(document.getElementById('agentPhone')?.value || '').trim());
   const countTwo = Boolean(document.querySelector('[data-count="2"].active'));
   const cutLines = Boolean(document.getElementById('showCutLines')?.checked);
-  const printReady = quality >= 70 && phone && countTwo;
-  const state = { quality: quality >= 70, phone, count: countTwo, cut: cutLines, print: printReady };
+  const safeMargins = Boolean(document.getElementById('safePrintMargins')?.checked);
+  const printReady = quality >= 70 && phone && countTwo && cutLines && safeMargins;
+  const state = { quality: quality >= 70, phone, count: countTwo, cut: cutLines, safe: safeMargins, print: printReady };
   return finalActions.map(item => ({ ...item, ok: Boolean(state[item.id]) }));
 }
 

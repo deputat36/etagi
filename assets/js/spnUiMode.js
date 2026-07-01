@@ -19,6 +19,7 @@ import './spnOfficeTemplateFilters.js';
 import './spnTemplateCardBadges.js';
 import './spnTextStepChecklist.js';
 import './spnNewbieMode.js';
+import './spnNewbieWizardPatch.js';
 import './spnManagerReview.js';
 import './spnWizardFlow.js';
 import './spnPhotoLayoutStyle.js';

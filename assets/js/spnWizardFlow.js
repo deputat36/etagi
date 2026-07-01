@@ -2,8 +2,8 @@ const WIZARD_STEP_KEY = 'etagi-raskleyka-wizard-step-v1';
 const WIZARD_ENABLED_KEY = 'etagi-raskleyka-wizard-enabled-v1';
 
 const steps = [
-  { id: 'goal', title: '1. Цель', hint: 'Что делаем и сколько на А4', sections: ['goal'] },
-  { id: 'template', title: '2. Заготовка', hint: 'Категория и макет', sections: ['template'] },
+  { id: 'goal', title: '1. Цель', hint: 'Что делаем и сколько на А4', sections: ['goal', 'situation'] },
+  { id: 'template', title: '2. Заготовка', hint: 'Категория и макет', sections: ['category', 'template'] },
   { id: 'content', title: '3. Текст', hint: 'Контакты и смысл', sections: ['content'] },
   { id: 'media', title: '4. Фото / QR', hint: 'Изображения и ссылка', sections: ['media'] },
   { id: 'check', title: '5. Проверка', hint: 'Качество и печать', sections: ['print', 'quality'] },
@@ -44,6 +44,8 @@ function initWizardFlow(){
 function markSections(){
   const sectionMap = {
     goal: document.querySelector('.start-card'),
+    situation: document.getElementById('spnWizard'),
+    category: document.getElementById('spnOfficeTemplateFilters'),
     template: document.getElementById('templateList')?.closest('.card'),
     content: document.getElementById('agentName')?.closest('.card'),
     media: document.querySelector('.media-card'),

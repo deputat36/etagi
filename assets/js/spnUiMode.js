@@ -9,6 +9,7 @@ import './spnParamsHelper.js';
 import './spnAreaHelper.js';
 import './spnPhoneHelper.js';
 import './spnAgentHelper.js';
+import './spnWizard.js';
 import './spnPrintCampaignHelper.js';
 import './spnDistributionTaskHelper.js';
 import './spnDistributionReportHelper.js';

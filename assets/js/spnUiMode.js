@@ -18,6 +18,7 @@ import './spnTemplateMenuCompact.js';
 import './spnOfficeTemplateFilters.js';
 import './spnTemplateCardBadges.js';
 import './spnTextStepChecklist.js';
+import './spnNewbieMode.js';
 import './spnManagerReview.js';
 import './spnWizardFlow.js';
 import './spnPhotoLayoutStyle.js';
@@ -29,8 +30,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const header = document.querySelector('.app-header');
   if(!header || document.getElementById('spnUiMode')) return;
   header.insertAdjacentHTML('afterend', renderModePanel());
-  const savedMode = localStorage.getItem(MODE_KEY) || 'quick';
-  setMode(savedMode === 'advanced' ? 'advanced' : 'quick');
+  const savedMode = localStorage.getItem(MODE_KEY) || 'newbie';
+  setMode(['newbie', 'quick', 'advanced'].includes(savedMode) ? savedMode : 'newbie');
   document.getElementById('spnUiMode')?.addEventListener('click', event => {
     const btn = event.target.closest('[data-spn-ui-mode]');
     if(!btn) return;
@@ -42,9 +43,10 @@ function renderModePanel(){
   return `<section class="spn-ui-mode" id="spnUiMode" aria-label="Режим интерфейса">
     <div>
       <b>Режим работы</b>
-      <span id="spnUiModeHint">Быстрый режим показывает главное для печати.</span>
+      <span id="spnUiModeHint">Режим новичка показывает безопасный пошаговый сценарий.</span>
     </div>
     <div class="spn-ui-mode-actions">
+      <button type="button" data-spn-ui-mode="newbie">Новичок</button>
       <button type="button" data-spn-ui-mode="quick">Быстро</button>
       <button type="button" data-spn-ui-mode="advanced">Расширенно</button>
     </div>
@@ -52,16 +54,24 @@ function renderModePanel(){
 }
 
 function setMode(mode){
-  const next = mode === 'advanced' ? 'advanced' : 'quick';
+  const next = ['newbie', 'quick', 'advanced'].includes(mode) ? mode : 'newbie';
   document.body.dataset.spnUiMode = next;
   localStorage.setItem(MODE_KEY, next);
   document.querySelectorAll('[data-spn-ui-mode]').forEach(btn => btn.classList.toggle('active', btn.dataset.spnUiMode === next));
   const hint = document.getElementById('spnUiModeHint');
   if(hint){
-    hint.textContent = next === 'quick'
-      ? 'Главное для СПН: ситуация, шаблон, данные, печать и проверка.'
-      : 'Показаны все настройки, сохранение, аналитика и инструменты после расклейки.';
+    hint.textContent = next === 'newbie'
+      ? 'Новичок: безопасные шаблоны, пошаговый сценарий и меньше лишних настроек.'
+      : next === 'quick'
+        ? 'Быстро: главное для СПН, но без жёсткого ограничения шаблонов.'
+        : 'Расширенно: все настройки, сохранение, аналитика и инструменты после расклейки.';
   }
   const status = document.getElementById('statusLine');
-  if(status) status.textContent = next === 'quick' ? 'Включён быстрый режим.' : 'Включён расширенный режим.';
+  if(status){
+    status.textContent = next === 'newbie'
+      ? 'Включён режим новичка.'
+      : next === 'quick'
+        ? 'Включён быстрый режим.'
+        : 'Включён расширенный режим.';
+  }
 }

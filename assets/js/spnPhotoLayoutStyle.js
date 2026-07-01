@@ -1,8 +1,9 @@
 const STYLE_ID = 'spnPhotoLayoutStyle';
+let updateQueued = false;
 
 window.addEventListener('DOMContentLoaded', () => {
   injectStyles();
-  updatePhotoLayoutClasses();
+  schedulePhotoLayoutUpdate();
   observeSheet();
   observePrintControls();
 });
@@ -10,11 +11,9 @@ window.addEventListener('DOMContentLoaded', () => {
 function observeSheet(){
   const sheet = document.getElementById('printSheet');
   if(!sheet) return;
-  new MutationObserver(updatePhotoLayoutClasses).observe(sheet, {
+  new MutationObserver(schedulePhotoLayoutUpdate).observe(sheet, {
     childList: true,
-    subtree: true,
-    attributes: true,
-    attributeFilter: ['class']
+    subtree: true
   });
 }
 
@@ -22,7 +21,16 @@ function observePrintControls(){
   ['printPresetRow', 'photoModeRow', 'layoutModeGrid'].forEach(id => {
     const el = document.getElementById(id);
     if(!el) return;
-    el.addEventListener('click', () => window.setTimeout(updatePhotoLayoutClasses, 80));
+    el.addEventListener('click', () => window.setTimeout(schedulePhotoLayoutUpdate, 80));
+  });
+}
+
+function schedulePhotoLayoutUpdate(){
+  if(updateQueued) return;
+  updateQueued = true;
+  window.requestAnimationFrame(() => {
+    updateQueued = false;
+    updatePhotoLayoutClasses();
   });
 }
 
@@ -35,25 +43,22 @@ function updatePhotoLayoutClasses(){
   const layout = getActiveLayoutMode();
   const photoMode = getActivePhotoMode();
 
-  sheet.classList.forEach(name => {
-    if(name.startsWith('sheet-count-') || name.startsWith('sheet-photo-') || name.startsWith('sheet-layout-')) {
-      sheet.classList.remove(name);
-    }
-  });
-  sheet.classList.add(`sheet-count-${count}`);
-  sheet.classList.add(`sheet-photo-${photoMode}`);
-  sheet.classList.add(`sheet-layout-${layout}`);
+  replacePrefixedClass(sheet, 'sheet-count-', `sheet-count-${count}`);
+  replacePrefixedClass(sheet, 'sheet-photo-', `sheet-photo-${photoMode}`);
+  replacePrefixedClass(sheet, 'sheet-layout-', `sheet-layout-${layout}`);
 
   flyers.forEach(flyer => {
-    flyer.classList.forEach(name => {
-      if(name.startsWith('count-') || name.startsWith('photo-mode-') || name.startsWith('layout-')) {
-        flyer.classList.remove(name);
-      }
-    });
-    flyer.classList.add(`count-${count}`);
-    flyer.classList.add(`photo-mode-${photoMode}`);
-    flyer.classList.add(`layout-${layout}`);
+    replacePrefixedClass(flyer, 'count-', `count-${count}`);
+    replacePrefixedClass(flyer, 'photo-mode-', `photo-mode-${photoMode}`);
+    replacePrefixedClass(flyer, 'layout-', `layout-${layout}`);
   });
+}
+
+function replacePrefixedClass(element, prefix, nextClass){
+  const current = [...element.classList].filter(name => name.startsWith(prefix));
+  if(current.length === 1 && current[0] === nextClass) return;
+  current.forEach(name => element.classList.remove(name));
+  element.classList.add(nextClass);
 }
 
 function getActivePrintCount(){

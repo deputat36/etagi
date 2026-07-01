@@ -38,9 +38,33 @@ export function filterTemplates(templates, goal, query='', density='all'){
   return templates.filter(t => {
     const goalOk = t.goal === goal || t.goal === 'all';
     const densityOk = density === 'all' || t.density === density;
-    const queryOk = !q || getTemplateSearchText(t).includes(q);
+    const queryOk = !q || matchesSearchQuery(getTemplateSearchText(t), q);
     return goalOk && densityOk && queryOk;
   });
+}
+
+function matchesSearchQuery(text, query){
+  const haystack = normalizeSearch(text);
+  const needle = normalizeSearch(query);
+  if(!needle) return true;
+  if(haystack.includes(needle)) return true;
+
+  const tokens = needle.split(' ').filter(Boolean);
+  if(!tokens.length) return true;
+
+  return tokens.every(token => matchesToken(haystack, token));
+}
+
+function matchesToken(text, token){
+  if(text.includes(token)) return true;
+  if(token.length < 6) return false;
+
+  const softStem = token.slice(0, -1);
+  const shortStem = token.slice(0, -2);
+  return Boolean(
+    (softStem.length >= 5 && text.includes(softStem)) ||
+    (shortStem.length >= 5 && text.includes(shortStem))
+  );
 }
 
 function getTemplateSearchText(template){

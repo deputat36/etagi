@@ -20,6 +20,7 @@ import './spnOfficeFilterSync.js';
 import './spnTemplateCardBadges.js';
 import './spnTextStepChecklist.js';
 import './spnNewbieMode.js';
+import './spnNewbieModeNotice.js';
 import './spnNewbieWizardPatch.js';
 import './spnNewbieFinalCheck.js';
 import './spnManagerReview.js';

@@ -1,70 +1,45 @@
-const NEWBIE_QUERY = 'офис новичку';
+const NEWBIE_QUERY = 'новичку';
 const STYLE_ID = 'spnNewbieModeStyle';
+let updateTimer = 0;
 
 window.addEventListener('DOMContentLoaded', () => {
   injectStyles();
-  observeMode();
-  bindTemplateList();
-  bindSearchGuard();
-  bindFilterGuard();
-  applyNewbieMode();
+  observeModeOnly();
+  bindSoftGuards();
+  scheduleNewbieModeUpdate();
 });
 
-function observeMode(){
-  new MutationObserver(applyNewbieMode).observe(document.body, {
+function observeModeOnly(){
+  new MutationObserver(scheduleNewbieModeUpdate).observe(document.body, {
     attributes: true,
     attributeFilter: ['data-spn-ui-mode']
   });
 }
 
-function bindTemplateList(){
-  const list = document.getElementById('templateList');
-  if(!list) return;
-  new MutationObserver(markUnsafeCards).observe(list, { childList: true, subtree: true });
-}
-
-function bindSearchGuard(){
-  const search = document.getElementById('templateSearch');
-  if(!search) return;
-  ['input', 'change'].forEach(eventName => {
-    search.addEventListener(eventName, () => window.setTimeout(guardNewbieSearch, 120));
+function bindSoftGuards(){
+  ['click', 'input', 'change'].forEach(eventName => {
+    document.addEventListener(eventName, scheduleNewbieModeUpdate);
   });
 }
 
-function bindFilterGuard(){
-  const filters = document.getElementById('spnOfficeTemplateFilters');
-  if(!filters) return;
-  new MutationObserver(markUnsafeFilters).observe(filters, { childList: true, subtree: true });
-  filters.addEventListener('click', () => window.setTimeout(() => {
-    markUnsafeFilters();
-    guardNewbieSearch();
-  }, 80));
+function scheduleNewbieModeUpdate(){
+  window.clearTimeout(updateTimer);
+  updateTimer = window.setTimeout(applyNewbieMode, 80);
 }
 
 function applyNewbieMode(){
   const isNewbie = document.body.dataset.spnUiMode === 'newbie';
   document.body.classList.toggle('spn-newbie-mode', isNewbie);
-  markUnsafeFilters();
-  markUnsafeCards();
+  markUnsafeFilters(isNewbie);
+  markUnsafeCards(isNewbie);
   if(!isNewbie) return;
 
   guardNewbieSearch();
-
-  const density = document.getElementById('templateDensityFilter');
-  if(density && density.value !== 'all'){
-    density.value = 'all';
-    density.dispatchEvent(new Event('change', { bubbles: true }));
-  }
-
-  window.setTimeout(() => {
-    markUnsafeFilters();
-    markUnsafeCards();
-    status('Режим новичка: показаны безопасные рекомендованные шаблоны.');
-  }, 100);
+  resetDensityFilter();
+  status('Режим новичка: показаны простые безопасные заготовки.');
 }
 
 function guardNewbieSearch(){
-  if(document.body.dataset.spnUiMode !== 'newbie') return;
   const search = document.getElementById('templateSearch');
   if(!search) return;
   if(isSafeNewbieQuery(search.value)) return;
@@ -73,36 +48,44 @@ function guardNewbieSearch(){
   search.dispatchEvent(new Event('change', { bubbles: true }));
 }
 
-function markUnsafeCards(){
-  const isNewbie = document.body.dataset.spnUiMode === 'newbie';
+function resetDensityFilter(){
+  const density = document.getElementById('templateDensityFilter');
+  if(!density || density.value === 'all') return;
+  density.value = 'all';
+  density.dispatchEvent(new Event('change', { bubbles: true }));
+}
+
+function markUnsafeCards(isNewbie){
   document.querySelectorAll('.tpl-card').forEach(card => {
     const text = normalize(card.textContent);
-    const unsafe = text.includes('менеджер') || text.includes('пустой') || text.includes('с нуля') || text.includes('нестандартный');
-    card.classList.toggle('spn-newbie-hidden-template', isNewbie && unsafe);
+    const unsafe = hasUnsafeText(text);
+    card.classList.toggle('spn-newbie-hidden-template', Boolean(isNewbie && unsafe));
   });
 }
 
-function markUnsafeFilters(){
-  const isNewbie = document.body.dataset.spnUiMode === 'newbie';
+function markUnsafeFilters(isNewbie){
   document.querySelectorAll('[data-office-query]').forEach(button => {
     const query = normalize(button.dataset.officeQuery || button.textContent);
-    const unsafe = query.includes('менеджер') || query.includes('пустой') || query.includes('с нуля') || query.includes('нестандартный');
-    button.classList.toggle('spn-newbie-hidden-filter', isNewbie && unsafe);
+    button.classList.toggle('spn-newbie-hidden-filter', Boolean(isNewbie && hasUnsafeText(query)));
   });
   document.querySelectorAll('[data-office-reset]').forEach(button => {
-    button.classList.toggle('spn-newbie-hidden-filter', isNewbie);
+    button.classList.toggle('spn-newbie-hidden-filter', Boolean(isNewbie));
   });
+}
+
+function hasUnsafeText(text){
+  return text.includes('менеджер') || text.includes('пустой') || text.includes('с нуля') || text.includes('нестандартный');
 }
 
 function isSafeNewbieQuery(value){
   const clean = normalize(value);
   if(!clean) return false;
-  if(clean.includes('менеджер') || clean.includes('пустой') || clean.includes('с нуля') || clean.includes('нестандартный')) return false;
+  if(hasUnsafeText(clean)) return false;
   return clean.includes('новичку') || clean.includes('рекомендовано') || clean.includes('подъезд') || clean.includes('теллерманов сад') || clean.includes('доверие') || clean.includes('новостройка');
 }
 
 function normalize(value){
-  return String(value || '').toLowerCase().replace(/ё/g, 'е').trim();
+  return String(value || '').toLowerCase().replace(/ё/g, 'е').replace(/\s+/g, ' ').trim();
 }
 
 function status(text){

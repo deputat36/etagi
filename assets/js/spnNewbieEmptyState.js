@@ -1,21 +1,16 @@
 const STYLE_ID = 'spnNewbieEmptyStateStyle';
 const EMPTY_ID = 'spnNewbieEmptyState';
+let updateTimer = 0;
 
 window.addEventListener('DOMContentLoaded', () => {
   injectStyles();
   bindEmptyState();
-  updateEmptyState();
+  scheduleEmptyStateUpdate();
 });
 
 function bindEmptyState(){
-  const list = document.getElementById('templateList');
-  if(list){
-    new MutationObserver(updateEmptyState).observe(list, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
-  }
-
-  new MutationObserver(updateEmptyState).observe(document.body, {
-    attributes: true,
-    attributeFilter: ['data-spn-ui-mode']
+  ['click', 'input', 'change'].forEach(eventName => {
+    document.addEventListener(eventName, scheduleEmptyStateUpdate);
   });
 
   document.addEventListener('click', event => {
@@ -26,13 +21,19 @@ function bindEmptyState(){
   });
 }
 
+function scheduleEmptyStateUpdate(){
+  window.clearTimeout(updateTimer);
+  updateTimer = window.setTimeout(updateEmptyState, 120);
+}
+
 function updateEmptyState(){
   const list = document.getElementById('templateList');
   if(!list) return;
 
   const isNewbie = document.body.dataset.spnUiMode === 'newbie';
-  const visibleCards = [...list.querySelectorAll('.tpl-card')].filter(card => getComputedStyle(card).display !== 'none');
-  const shouldShow = isNewbie && visibleCards.length === 0;
+  const cards = [...list.querySelectorAll('.tpl-card')];
+  const visibleCards = cards.filter(card => getComputedStyle(card).display !== 'none');
+  const shouldShow = isNewbie && cards.length > 0 && visibleCards.length === 0;
 
   let box = document.getElementById(EMPTY_ID);
   if(!shouldShow){
@@ -50,8 +51,8 @@ function renderEmptyState(){
     <b>Безопасных заготовок не найдено</b>
     <span>В режиме новичка скрыты пустые, нестандартные и менеджерские макеты. Можно вернуться к безопасному фильтру или открыть больше вариантов.</span>
     <div>
-      <button type="button" data-newbie-empty-search="офис новичку">Показать новичку</button>
-      <button type="button" data-newbie-empty-search="офис рекомендовано">Рекомендовано</button>
+      <button type="button" data-newbie-empty-search="новичку">Показать новичку</button>
+      <button type="button" data-newbie-empty-search="рекомендовано">Рекомендовано</button>
       <button type="button" data-newbie-empty-mode="quick">Открыть больше</button>
     </div>
   </div>`;

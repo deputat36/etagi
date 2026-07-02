@@ -1,17 +1,19 @@
 window.addEventListener('DOMContentLoaded', () => {
-  document.addEventListener('click', handlePrintGuard, true);
+  bindPrintGuard();
 });
 
-function handlePrintGuard(event){
-  if(document.body.dataset.spnUiMode !== 'newbie') return;
+function bindPrintGuard(){
+  const printButton = document.getElementById('printBtn');
+  if(!printButton || printButton.dataset.newbiePrintGuardBound === '1') return;
+  printButton.dataset.newbiePrintGuardBound = '1';
+  printButton.addEventListener('click', handlePrintButtonClick, true);
+}
 
-  const finalButton = event.target.closest('#spnNewbieFinalCheck [data-final-target="#printBtn"]');
-  const printButton = event.target.closest('#printBtn');
-  if(!finalButton && !printButton) return;
+function handlePrintButtonClick(event){
+  if(document.body.dataset.spnUiMode !== 'newbie') return;
   if(isReadyToPrint()) return;
 
   event.preventDefault();
-  event.stopPropagation();
   event.stopImmediatePropagation();
   goToFirstMissing();
   status('Сначала завершите проверку новичка, затем печатайте макет.');
@@ -28,18 +30,18 @@ function isReadyToPrint(){
 
 function goToFirstMissing(){
   const quality = Number(String(document.getElementById('qualityScore')?.textContent || '').replace(/\D/g, '')) || 0;
-  if(quality < 70) return go('#qualityBtn');
+  if(quality < 70) return go('#qualityBtn', { click: true });
   if(!String(document.getElementById('agentPhone')?.value || '').trim()) return go('#agentPhone');
-  if(!document.querySelector('[data-count="2"].active')) return go('[data-count="2"]');
-  if(!document.getElementById('showCutLines')?.checked) return go('#showCutLines');
-  if(!document.getElementById('safePrintMargins')?.checked) return go('#safePrintMargins');
+  if(!document.querySelector('[data-count="2"].active')) return go('[data-count="2"]', { click: true });
+  if(!document.getElementById('showCutLines')?.checked) return go('#showCutLines', { check: true });
+  if(!document.getElementById('safePrintMargins')?.checked) return go('#safePrintMargins', { check: true });
 }
 
-function go(selector){
+function go(selector, options = {}){
   const target = document.querySelector(selector);
   if(!target) return;
-  if(target.matches('button')) target.click();
-  if(target.matches('input[type="checkbox"]') && !target.checked){
+  if(options.click && target.matches('button')) target.click();
+  if(options.check && target.matches('input[type="checkbox"]') && !target.checked){
     target.checked = true;
     target.dispatchEvent(new Event('change', { bubbles: true }));
   }

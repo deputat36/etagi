@@ -1,11 +1,11 @@
 const STYLE_ID = 'spnNewbieFinalCheckStyle';
 
 const finalActions = [
-  { id: 'quality', title: 'Проверить макет', hint: 'Нажмите проверку и исправьте красные замечания', target: '#qualityBtn' },
+  { id: 'quality', title: 'Проверить макет', hint: 'Нажмите проверку и исправьте красные замечания', target: '#qualityBtn', autoClick: true },
   { id: 'phone', title: 'Проверить телефон', hint: 'Сверьте номер до печати', target: '#agentPhone' },
-  { id: 'count', title: '2 на А4', hint: 'Самый частый формат для расклейки', target: '[data-count="2"]' },
-  { id: 'cut', title: 'Линии реза', hint: 'Удобно разрезать лист после печати', target: '#showCutLines' },
-  { id: 'safe', title: 'Безопасные поля', hint: 'Чтобы текст не обрезался при печати', target: '#safePrintMargins' },
+  { id: 'count', title: '2 на А4', hint: 'Самый частый формат для расклейки', target: '[data-count="2"]', autoClick: true },
+  { id: 'cut', title: 'Линии реза', hint: 'Удобно разрезать лист после печати', target: '#showCutLines', autoCheck: true },
+  { id: 'safe', title: 'Безопасные поля', hint: 'Чтобы текст не обрезался при печати', target: '#safePrintMargins', autoCheck: true },
   { id: 'print', title: 'Печать / PDF', hint: 'Печатайте только после проверки', target: '#printBtn' }
 ];
 
@@ -33,9 +33,9 @@ function renderFinalCheck(){
 
 function bindFinalCheck(){
   document.getElementById('spnNewbieFinalCheck')?.addEventListener('click', event => {
-    const item = event.target.closest('[data-final-target]');
+    const item = event.target.closest('[data-final-id]');
     const next = event.target.closest('#spnNewbieFinalNext');
-    if(item) goToTarget(item.dataset.finalTarget);
+    if(item) goToAction(item.dataset.finalId);
     if(next) goToNextTodo();
   });
 
@@ -51,7 +51,7 @@ function updateFinalCheck(){
   const items = getItems();
   const done = items.filter(item => item.ok).length;
   progress.textContent = `${done}/${items.length} пунктов готово`;
-  box.innerHTML = items.map(item => `<button type="button" class="${item.ok ? 'done' : 'todo'}" data-final-target="${item.target}">
+  box.innerHTML = items.map(item => `<button type="button" class="${item.ok ? 'done' : 'todo'}" data-final-id="${item.id}">
     <span>${item.ok ? '✓' : '•'} ${item.title}</span>
     <small>${item.ok ? 'готово' : item.hint}</small>
   </button>`).join('');
@@ -70,17 +70,21 @@ function getItems(){
 
 function goToNextTodo(){
   const next = getItems().find(item => !item.ok) || finalActions.at(-1);
-  goToTarget(next.target);
+  goToAction(next.id);
 }
 
-function goToTarget(selector){
-  const target = document.querySelector(selector);
+function goToAction(id){
+  const action = finalActions.find(item => item.id === id);
+  if(!action) return;
+  const target = document.querySelector(action.target);
   if(!target) return;
-  if(target.matches('button')) target.click();
-  if(target.matches('input[type="checkbox"]') && !target.checked){
+
+  if(action.autoClick && target.matches('button')) target.click();
+  if(action.autoCheck && target.matches('input[type="checkbox"]') && !target.checked){
     target.checked = true;
     target.dispatchEvent(new Event('change', { bubbles: true }));
   }
+
   target.scrollIntoView({ behavior: 'smooth', block: 'center' });
   target.focus?.();
 }

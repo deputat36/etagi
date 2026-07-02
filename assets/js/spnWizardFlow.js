@@ -1,5 +1,7 @@
-const WIZARD_STEP_KEY = 'etagi-raskleyka-wizard-step-v1';
-const WIZARD_ENABLED_KEY = 'etagi-raskleyka-wizard-enabled-v1';
+const WIZARD_STEP_KEY = 'etagi-raskleyka-wizard-step-v2';
+const WIZARD_ENABLED_KEY = 'etagi-raskleyka-wizard-enabled-v2';
+const LEGACY_WIZARD_STEP_KEY = 'etagi-raskleyka-wizard-step-v1';
+const LEGACY_WIZARD_ENABLED_KEY = 'etagi-raskleyka-wizard-enabled-v1';
 
 const steps = [
   { id: 'goal', title: '1. Цель', hint: 'Что делаем и сколько на А4', sections: ['goal', 'situation'] },
@@ -27,6 +29,7 @@ function initWizardFlow(){
   const header = document.querySelector('.app-header');
   if(!sidebar || !header || document.getElementById('spnWizardFlow')) return;
 
+  clearLegacyWizardState();
   markSections();
   injectStyles();
   header.insertAdjacentHTML('afterend', renderWizardPanel());
@@ -38,6 +41,11 @@ function initWizardFlow(){
   setWizardEnabled(enabled);
   setStep(steps.some(step => step.id === savedStep) ? savedStep : 'goal');
   syncPrintCountButtons();
+}
+
+function clearLegacyWizardState(){
+  localStorage.removeItem(LEGACY_WIZARD_ENABLED_KEY);
+  localStorage.removeItem(LEGACY_WIZARD_STEP_KEY);
 }
 
 function markSections(){

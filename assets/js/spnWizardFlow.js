@@ -19,7 +19,7 @@ const printCounts = [
 ];
 
 window.addEventListener('DOMContentLoaded', () => {
-  setTimeout(initWizardFlow, 0);
+  window.setTimeout(initWizardFlow, 0);
 });
 
 function initWizardFlow(){
@@ -33,12 +33,11 @@ function initWizardFlow(){
   bindWizardPanel();
 
   const savedEnabled = localStorage.getItem(WIZARD_ENABLED_KEY);
-  const enabled = savedEnabled === null ? true : savedEnabled === 'on';
+  const enabled = savedEnabled === 'on';
   const savedStep = localStorage.getItem(WIZARD_STEP_KEY) || 'goal';
   setWizardEnabled(enabled);
   setStep(steps.some(step => step.id === savedStep) ? savedStep : 'goal');
   syncPrintCountButtons();
-  observePrintPresets();
 }
 
 function markSections(){
@@ -64,9 +63,9 @@ function renderWizardPanel(){
     <div class="spn-wizard-flow-head">
       <div>
         <b>Мастер расклейки</b>
-        <span id="spnWizardFlowHint">Идите по шагам: цель → заготовка → текст → проверка.</span>
+        <span id="spnWizardFlowHint">Панель шагов не скрывает блоки, пока не включён режим «Пошагово».</span>
       </div>
-      <button type="button" id="spnWizardToggle">Пошагово</button>
+      <button type="button" id="spnWizardToggle">Все блоки</button>
     </div>
     <div class="spn-wizard-print-count" aria-label="Количество объявлений на А4">
       ${printCounts.map(item => `<button type="button" data-wizard-print-count="${item.count}"><b>${item.title}</b>${item.note ? `<span>${item.note}</span>` : ''}</button>`).join('')}
@@ -100,6 +99,9 @@ function bindWizardPanel(){
   document.getElementById('spnWizardToggle')?.addEventListener('click', () => {
     setWizardEnabled(document.body.dataset.wizardFlow !== 'on');
   });
+
+  const row = document.getElementById('printPresetRow');
+  row?.addEventListener('click', () => window.setTimeout(syncPrintCountButtons, 80));
 }
 
 function moveStep(direction){
@@ -145,9 +147,7 @@ function setWizardEnabled(enabled){
 
 function applyPrintCount(count){
   const original = document.querySelector(`#printPresetRow [data-count="${count}"]`);
-  if(original){
-    original.click();
-  }
+  original?.click();
   syncPrintCountButtons(count);
 }
 
@@ -157,12 +157,6 @@ function syncPrintCountButtons(fallbackCount = ''){
   document.querySelectorAll('[data-wizard-print-count]').forEach(button => {
     button.classList.toggle('active', button.dataset.wizardPrintCount === activeCount);
   });
-}
-
-function observePrintPresets(){
-  const row = document.getElementById('printPresetRow');
-  if(!row) return;
-  new MutationObserver(() => syncPrintCountButtons()).observe(row, { attributes: true, subtree: true, attributeFilter: ['class'] });
 }
 
 function injectStyles(){
@@ -186,8 +180,8 @@ function injectStyles(){
     .spn-wizard-steps b{display:block;font-size:11px;line-height:1.1}
     .spn-wizard-steps span{display:block;margin-top:3px;font-size:10px;line-height:1.15;opacity:.72}
     .spn-wizard-nav{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px}
-    body[data-spn-ui-mode="quick"][data-wizard-flow="on"] .sidebar [data-wizard-section]{display:none!important}
-    body[data-spn-ui-mode="quick"][data-wizard-flow="on"] .sidebar [data-wizard-section].spn-wizard-section-active{display:block!important}
+    body[data-wizard-flow="on"] .sidebar [data-wizard-section]{display:none!important}
+    body[data-wizard-flow="on"] .sidebar [data-wizard-section].spn-wizard-section-active{display:block!important}
     @media(max-width:520px){.spn-wizard-print-count{grid-template-columns:1fr 1fr}.spn-wizard-steps{grid-template-columns:1fr}.spn-wizard-flow-head{grid-template-columns:1fr}}
     @media print{.spn-wizard-flow{display:none!important}}
   `;

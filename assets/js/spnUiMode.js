@@ -26,6 +26,7 @@ import './spnNewbiePrintGuardNotice.js';
 import './spnNewbiePrintGuard.js';
 import './spnPhotoLayoutStyle.js';
 import './spnWizardFlow.js';
+import './spnNewbieWizardPatch.js';
 import './spnManagerReview.js';
 import './spnMetaCompactStyle.js';
 
@@ -67,7 +68,7 @@ function setMode(mode){
   const hint = document.getElementById('spnUiModeHint');
   if(hint){
     hint.textContent = next === 'newbie'
-      ? 'Новичок: безопасный фильтр, подсказки печати и защита от преждевременной печати.'
+      ? 'Новичок: безопасный фильтр, мастер шагов, подсказки печати и защита печати.'
       : next === 'quick'
         ? 'Быстро: основной стабильный интерфейс для печати расклеек.'
         : 'Расширенно: все настройки, сохранение, аналитика и инструменты после расклейки.';
@@ -75,7 +76,7 @@ function setMode(mode){
   const status = document.getElementById('statusLine');
   if(status){
     status.textContent = next === 'newbie'
-      ? 'Включён режим новичка с защитой печати.'
+      ? 'Включён режим новичка с мастером шагов.'
       : next === 'quick'
         ? 'Включён стабильный быстрый режим.'
         : 'Включён расширенный режим.';

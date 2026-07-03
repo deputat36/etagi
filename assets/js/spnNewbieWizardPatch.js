@@ -1,20 +1,28 @@
 const STYLE_ID = 'spnNewbieWizardPatchStyle';
+let syncTimer = 0;
+let redirectingFromSave = false;
 
 window.addEventListener('DOMContentLoaded', () => {
   injectStyles();
   bindNewbieWizardGuards();
-  syncNewbieWizardState();
+  scheduleNewbieWizardSync();
 });
 
 function bindNewbieWizardGuards(){
-  new MutationObserver(syncNewbieWizardState).observe(document.body, {
+  new MutationObserver(scheduleNewbieWizardSync).observe(document.body, {
     attributes: true,
     attributeFilter: ['data-spn-ui-mode', 'data-wizard-step', 'data-wizard-flow']
   });
 
-  document.getElementById('spnWizardNext')?.addEventListener('click', () => {
-    window.setTimeout(syncNewbieWizardState, 30);
+  document.addEventListener('click', event => {
+    if(!event.target.closest('#spnWizardFlow')) return;
+    window.setTimeout(scheduleNewbieWizardSync, 40);
   });
+}
+
+function scheduleNewbieWizardSync(){
+  window.clearTimeout(syncTimer);
+  syncTimer = window.setTimeout(syncNewbieWizardState, 60);
 }
 
 function syncNewbieWizardState(){
@@ -24,13 +32,25 @@ function syncNewbieWizardState(){
 
   if(nextBtn){
     nextBtn.textContent = isNewbie && step === 'check' ? 'Готово' : 'Далее';
-    nextBtn.disabled = isNewbie && step === 'check';
+    nextBtn.disabled = Boolean(isNewbie && step === 'check');
   }
 
   if(isNewbie && step === 'save'){
-    const checkStep = document.querySelector('[data-wizard-step="check"]');
-    checkStep?.click();
+    redirectToCheckStep();
   }
+}
+
+function redirectToCheckStep(){
+  if(redirectingFromSave) return;
+  const checkStep = document.querySelector('[data-wizard-step="check"]');
+  if(!checkStep) return;
+
+  redirectingFromSave = true;
+  window.setTimeout(() => {
+    checkStep.click();
+    redirectingFromSave = false;
+    scheduleNewbieWizardSync();
+  }, 30);
 }
 
 function injectStyles(){

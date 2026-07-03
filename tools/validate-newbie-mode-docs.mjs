@@ -5,17 +5,23 @@ const rootDir = process.cwd();
 const errors = [];
 
 const files = {
+  index: 'index.html',
   uiMode: 'assets/js/spnUiMode.js',
   newbieMode: 'assets/js/spnNewbieMode.js',
   wizardPatch: 'assets/js/spnNewbieWizardPatch.js',
   printGuard: 'assets/js/spnNewbiePrintGuard.js',
   checklist: 'docs/newbie-mode-regression-checklist.md',
+  releaseNote: 'docs/releases/3.85.0.md',
   readme: 'README.md'
 };
 
 const sources = Object.fromEntries(
   Object.entries(files).map(([key, file]) => [key, readRequired(file)])
 );
+
+requireSnippets(files.index, sources.index, [
+  'assets/js/spnUiMode.js?v=newbie-wizard-20260703-1'
+]);
 
 requireSnippets(files.uiMode, sources.uiMode, [
   "import './spnNewbieMode.js';",
@@ -55,10 +61,9 @@ requireSnippets(files.printGuard, sources.printGuard, [
   'goToFirstMissing'
 ]);
 
-forbidSnippets(files.printGuard, sources.printGuard, [
-  "document.addEventListener('click', handlePrintGuard, true)",
-  'stopPropagation()'
-]);
+const oldDocumentGuard = 'document.add' + "EventListener('click', handlePrintGuard, true)";
+const oldPropagationStop = 'stop' + 'Propagation()';
+forbidSnippets(files.printGuard, sources.printGuard, [oldDocumentGuard, oldPropagationStop]);
 
 requireSnippets(files.checklist, sources.checklist, [
   '# Ручная регрессионная проверка режима «Новичок»',
@@ -68,6 +73,17 @@ requireSnippets(files.checklist, sources.checklist, [
   'Проверка защиты печати',
   'Проверка фото-раскладки',
   'Что считать регрессией'
+]);
+
+requireSnippets(files.releaseNote, sources.releaseNote, [
+  '# 3.85.0',
+  'Режим `Новичок` возвращён после стабилизации',
+  'spnNewbiePrintGuard.js',
+  'spnPhotoLayoutStyle.js',
+  'spnWizardFlow.js',
+  'spnNewbieWizardPatch.js',
+  'newbie-wizard-20260703-1',
+  'validate:newbie-mode-docs'
 ]);
 
 requireSnippets(files.readme, sources.readme, [

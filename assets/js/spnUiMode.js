@@ -25,6 +25,7 @@ import './spnNewbieFinalCheck.js';
 import './spnNewbiePrintGuardNotice.js';
 import './spnNewbiePrintGuard.js';
 import './spnPhotoLayoutStyle.js';
+import './spnWizardFlow.js';
 import './spnManagerReview.js';
 import './spnMetaCompactStyle.js';
 

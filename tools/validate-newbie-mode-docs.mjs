@@ -11,6 +11,7 @@ const files = {
   wizardPatch: 'assets/js/spnNewbieWizardPatch.js',
   printGuard: 'assets/js/spnNewbiePrintGuard.js',
   checklist: 'docs/newbie-mode-regression-checklist.md',
+  rollbackPlan: 'docs/newbie-mode-rollback-plan.md',
   releaseNote: 'docs/releases/3.85.0.md',
   readme: 'README.md'
 };
@@ -75,6 +76,15 @@ requireSnippets(files.checklist, sources.checklist, [
   'Что считать регрессией'
 ]);
 
+requireSnippets(files.rollbackPlan, sources.rollbackPlan, [
+  '# План аварийного отката режима «Новичок»',
+  'Безопасная базовая конфигурация',
+  'Порядок отключения модулей новичка',
+  'Минимальная проверка после отката',
+  'spnUiMode.js',
+  'spnNewbiePrintGuard.js'
+]);
+
 requireSnippets(files.releaseNote, sources.releaseNote, [
   '# 3.85.0',
   'Режим `Новичок` возвращён после стабилизации',
@@ -88,6 +98,7 @@ requireSnippets(files.releaseNote, sources.releaseNote, [
 
 requireSnippets(files.readme, sources.readme, [
   'docs/newbie-mode-regression-checklist.md',
+  'docs/newbie-mode-rollback-plan.md',
   'режим `Новичок` с безопасным фильтром шаблонов',
   'ручная регрессионная проверка режима «Новичок»'
 ]);

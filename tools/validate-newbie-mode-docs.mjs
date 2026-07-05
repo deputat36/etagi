@@ -93,6 +93,7 @@ requireSnippets(files.releaseNote, sources.releaseNote, [
   'spnWizardFlow.js',
   'spnNewbieWizardPatch.js',
   'newbie-wizard-20260703-1',
+  'docs/newbie-mode-rollback-plan.md',
   'validate:newbie-mode-docs'
 ]);
 

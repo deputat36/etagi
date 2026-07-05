@@ -197,7 +197,9 @@ package.json
 .github/workflows/validate.yml
 ```
 
-Если GitHub Actions не возвращает статусы или workflow-runs через connector, это нужно явно указать в отчёте.
+Workflow должен запускать `npm run validate` на Node.js 20, иметь права только на чтение `contents: read` и ограничение времени выполнения, чтобы зависшая проверка не висела бесконечно.
+
+Если GitHub Actions не возвращает статусы или workflow-runs через connector, это нужно явно указать в отчёте. Для push-коммитов дополнительно проверять combined status. Если и `workflow_runs`, и combined status пустые, считать это ограничением наблюдаемости через connector, а не автоматическим доказательством, что workflow не настроен.
 
 ## Как добавлять новый пакет шаблонов
 

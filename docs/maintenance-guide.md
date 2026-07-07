@@ -19,6 +19,8 @@
 npm run validate
 ```
 
+Общий скрипт `validate` запускает `tools/run-validate.mjs`, который последовательно выполняет все команды `validate:*` из `package.json`.
+
 Она включает все проверки из `package.json`, включая:
 
 ```bash
@@ -52,6 +54,7 @@ npm run validate:layout-media-preservation
 npm run validate:phone-helper
 npm run validate:report-history-docs
 npm run validate:newbie-mode-docs
+npm run validate:ci-config
 ```
 
 Список выше контролируется через `validate:package-scripts`: каждая команда `validate:*` из `package.json` должна быть указана в этом блоке без лишних и повторов.
@@ -144,6 +147,19 @@ tools/*.mjs
 - CSV-экспорт;
 - автоматический вывод по результату;
 - описание истории в README и документации.
+
+### CI workflow
+
+Проверяется файл `.github/workflows/validate.yml`:
+
+- запуск на `push`;
+- запуск на `pull_request`;
+- ручной запуск через `workflow_dispatch`;
+- отслеживаемые пути проекта;
+- права `contents: read`;
+- Node.js 20;
+- `timeout-minutes: 5`;
+- запуск `npm run validate`.
 
 ## Принципы безопасных исправлений
 

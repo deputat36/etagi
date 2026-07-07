@@ -5,8 +5,10 @@ const rootDir = process.cwd();
 const errors = [];
 const workflowPath = path.join(rootDir, '.github/workflows/validate.yml');
 const packagePath = path.join(rootDir, 'package.json');
+const runValidatePath = path.join(rootDir, 'tools/run-validate.mjs');
 const workflowSource = readRequired(workflowPath);
 const packageSource = readRequired(packagePath);
+const runValidateSource = readRequired(runValidatePath);
 const pkg = readPackage(packageSource);
 
 requireSnippets('.github/workflows/validate.yml', workflowSource, [
@@ -31,6 +33,14 @@ requireSnippets('.github/workflows/validate.yml', workflowSource, [
   'uses: actions/setup-node@v4',
   "node-version: '20'",
   'run: npm run validate'
+]);
+
+requireSnippets('tools/run-validate.mjs', runValidateSource, [
+  'startsWith(\'validate:\')',
+  "command === 'npm run validate'",
+  "command === 'node tools/run-validate.mjs'",
+  'Invalid recursive validation script',
+  "spawnSync('npm', ['run', scriptName]"
 ]);
 
 if (pkg) {

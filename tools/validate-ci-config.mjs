@@ -4,9 +4,12 @@ import path from 'node:path';
 const rootDir = process.cwd();
 const errors = [];
 const workflowPath = path.join(rootDir, '.github/workflows/validate.yml');
-const source = readRequired(workflowPath);
+const packagePath = path.join(rootDir, 'package.json');
+const workflowSource = readRequired(workflowPath);
+const packageSource = readRequired(packagePath);
+const pkg = readPackage(packageSource);
 
-requireSnippets('.github/workflows/validate.yml', source, [
+requireSnippets('.github/workflows/validate.yml', workflowSource, [
   'name: Validate project',
   'push:',
   'pull_request:',
@@ -30,6 +33,12 @@ requireSnippets('.github/workflows/validate.yml', source, [
   'run: npm run validate'
 ]);
 
+if (pkg) {
+  const scripts = pkg.scripts || {};
+  requireScript('validate', 'node tools/run-validate.mjs', scripts);
+  requireScript('validate:ci-config', 'node tools/validate-ci-config.mjs', scripts);
+}
+
 if (errors.length) {
   console.error('\nCI config validation errors:');
   errors.forEach(error => console.error(`- ${error}`));
@@ -41,6 +50,24 @@ console.log('CI config validation passed.');
 function requireSnippets(file, text, snippets) {
   for (const snippet of snippets) {
     if (!text.includes(snippet)) errors.push(`${file}: missing required snippet — ${snippet}`);
+  }
+}
+
+function requireScript(scriptName, expectedCommand, scripts) {
+  const actual = String(scripts[scriptName] || '').trim();
+  if (actual !== expectedCommand) {
+    errors.push(`package.json: ${scriptName} должен быть ${expectedCommand}`);
+  }
+}
+
+function readPackage(source) {
+  if (!source) return null;
+  try {
+    return JSON.parse(source);
+  }
+  catch(e) {
+    errors.push('package.json: JSON не читается');
+    return null;
   }
 }
 

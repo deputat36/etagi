@@ -26,12 +26,12 @@ if (packageVersion && stateVersion && packageVersion !== stateVersion) {
   errors.push(`Версии package.json и state.js не совпадают: ${packageVersion} !== ${stateVersion}`);
 }
 
-if (packageVersion && changelogVersion && releaseNoteVersion) {
-  const changelogOk = packageVersion === changelogVersion;
-  const releaseNoteOk = packageVersion === releaseNoteVersion;
-  if (!changelogOk && !releaseNoteOk) {
-    errors.push(`Версия ${packageVersion} должна быть верхней записью docs/changelog.md или отдельной заметкой docs/releases/${packageVersion}.md`);
-  }
+if (packageVersion && changelogVersion && packageVersion !== changelogVersion) {
+  errors.push(`Версии package.json и верхней записи docs/changelog.md не совпадают: ${packageVersion} !== ${changelogVersion}`);
+}
+
+if (packageVersion && releaseNoteVersion && packageVersion !== releaseNoteVersion) {
+  errors.push(`Версии package.json и docs/releases/${packageVersion}.md не совпадают: ${packageVersion} !== ${releaseNoteVersion}`);
 }
 
 if (errors.length) {
@@ -40,7 +40,7 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log(`Проверка синхронизации версии пройдена: package/state ${packageVersion}, changelog ${changelogVersion}, release ${releaseNoteVersion || 'нет'}.`);
+console.log(`Проверка синхронизации версии пройдена: package/state/changelog ${packageVersion}, release ${releaseNoteVersion || 'нет'}.`);
 
 function readPackageVersion(source) {
   if (!source) return '';

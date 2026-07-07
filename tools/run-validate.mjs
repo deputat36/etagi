@@ -14,6 +14,14 @@ if (!validateNames.length) {
 }
 
 for (const scriptName of validateNames) {
+  const command = String(scripts[scriptName] || '').trim();
+  if (!command || command === 'npm run validate' || command === 'node tools/run-validate.mjs') {
+    console.error(`Invalid recursive validation script: ${scriptName}`);
+    process.exit(1);
+  }
+}
+
+for (const scriptName of validateNames) {
   console.log(`\n> npm run ${scriptName}`);
   const result = spawnSync('npm', ['run', scriptName], {
     cwd: rootDir,

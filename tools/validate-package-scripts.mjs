@@ -4,6 +4,8 @@ import path from 'node:path';
 const rootDir = process.cwd();
 const packagePath = path.join(rootDir, 'package.json');
 const maintenanceGuidePath = path.join(rootDir, 'docs/maintenance-guide.md');
+const runValidatePath = path.join(rootDir, 'tools/run-validate.mjs');
+const runValidateCommand = 'node tools/run-validate.mjs';
 const errors = [];
 const packageSource = readRequired(packagePath);
 const maintenanceGuideSource = readRequired(maintenanceGuidePath);
@@ -14,7 +16,8 @@ if (pkg) {
   const validateScript = String(scripts.validate || '').trim();
   const validateNames = Object.keys(scripts)
     .filter(name => name.startsWith('validate:'));
-  const validateCalls = parseValidateCalls(validateScript);
+  const usesRunValidate = validateScript === runValidateCommand;
+  const validateCalls = usesRunValidate ? validateNames : parseValidateCalls(validateScript);
   const guideValidateCalls = parseMaintenanceGuideValidateCalls(maintenanceGuideSource);
 
   if (!validateScript) {
@@ -25,13 +28,19 @@ if (pkg) {
     errors.push('package.json: не найдены отдельные validate:* скрипты');
   }
 
-  if (validateScript && !validateCalls.length) {
-    errors.push('package.json: общий скрипт validate должен состоять из команд npm run validate:* через &&');
+  if (usesRunValidate && !fs.existsSync(runValidatePath)) {
+    errors.push('package.json: общий validate ссылается на отсутствующий tools/run-validate.mjs');
   }
 
-  for (const segment of splitValidateSegments(validateScript)) {
-    if (!/^npm run validate:[^\s]+$/.test(segment)) {
-      errors.push(`package.json: общий validate содержит неподдерживаемую команду — ${segment}`);
+  if (validateScript && !usesRunValidate && !validateCalls.length) {
+    errors.push('package.json: общий скрипт validate должен состоять из команд npm run validate:* через && или запускать node tools/run-validate.mjs');
+  }
+
+  if (!usesRunValidate) {
+    for (const segment of splitValidateSegments(validateScript)) {
+      if (!/^npm run validate:[^\s]+$/.test(segment)) {
+        errors.push(`package.json: общий validate содержит неподдерживаемую команду — ${segment}`);
+      }
     }
   }
 

@@ -41,6 +41,8 @@ const validPhoto = new Set(['none', 'one', 'two', 'plan']);
 const validColor = new Set(['brand', 'economy', 'bw', 'private']);
 const validSplit = new Set(['auto', 'horizontal', 'vertical', 'grid']);
 const indexedExtraFields = ['contactCta', 'tearOffLabel', 'brandName', 'brandSideText'];
+const entranceTemplateFile = 'templates_entrance.json';
+const borisoglebskTemplateFile = 'templates_borisoglebsk.json';
 const tellermanTemplateFile = 'templates_tellerman_sad.json';
 const tellermanTemplatePath = `data/${tellermanTemplateFile}`;
 const expectedTellermanIds = new Set([
@@ -66,6 +68,7 @@ const tellermanForbiddenSnippets = [
 const errors = [];
 const warnings = [];
 const seenIds = new Map();
+const templatesByFile = new Map();
 const tellermanTemplates = [];
 let templateCount = 0;
 
@@ -84,6 +87,8 @@ for (const file of templateFiles) {
     errors.push(`${file}: корень файла должен быть массивом шаблонов`);
     continue;
   }
+
+  templatesByFile.set(file, parsed);
 
   parsed.forEach((template, index) => {
     templateCount += 1;
@@ -142,6 +147,7 @@ for (const file of templateFiles) {
 
 checkTemplateSearchIndex();
 checkTellermanTemplates();
+checkOfficeTemplateTags();
 
 console.log(`Проверено файлов шаблонов: ${templateFiles.length}`);
 console.log(`Проверено шаблонов: ${templateCount}`);
@@ -216,6 +222,71 @@ function checkTellermanTemplates() {
       if (text.includes(forbidden)) errors.push(`${label}: опасная рекламная формулировка — ${forbidden}`);
     }
   }
+}
+
+function checkOfficeTemplateTags() {
+  checkEntranceOfficeTags();
+  checkBorisoglebskOfficeTags();
+  checkTellermanOfficeTags();
+}
+
+function checkEntranceOfficeTags() {
+  const templates = templatesByFile.get(entranceTemplateFile) || [];
+  for (const [index, template] of templates.entries()) {
+    const label = `${entranceTemplateFile}[${index}]${template?.id ? ` (${template.id})` : ''}`;
+    requireTags(label, template, ['офис', 'рекомендовано', 'подъезд']);
+    requireOneOfTags(label, template, ['новичку', 'менеджер']);
+  }
+}
+
+function checkBorisoglebskOfficeTags() {
+  const templates = templatesByFile.get(borisoglebskTemplateFile) || [];
+  for (const [index, template] of templates.entries()) {
+    const label = `${borisoglebskTemplateFile}[${index}]${template?.id ? ` (${template.id})` : ''}`;
+    if (template?.goal === 'private') {
+      requireTags(label, template, ['менеджер']);
+      forbidTags(label, template, ['новичку']);
+      continue;
+    }
+
+    requireTags(label, template, ['офис', 'рекомендовано', 'Борисоглебск']);
+    if (template?.goal === 'object') {
+      requireTags(label, template, ['менеджер']);
+      forbidTags(label, template, ['новичку']);
+    }
+    else {
+      requireTags(label, template, ['новичку']);
+    }
+  }
+}
+
+function checkTellermanOfficeTags() {
+  const templates = templatesByFile.get(tellermanTemplateFile) || [];
+  for (const [index, template] of templates.entries()) {
+    const label = `${tellermanTemplateFile}[${index}]${template?.id ? ` (${template.id})` : ''}`;
+    requireTags(label, template, ['офис', 'Борисоглебск', 'Теллерманов сад']);
+    requireOneOfTags(label, template, ['новичку', 'менеджер']);
+  }
+}
+
+function requireTags(label, template, tags) {
+  for (const tag of tags) {
+    if (!hasTag(template, tag)) errors.push(`${label}: нет офисного тега ${tag}`);
+  }
+}
+
+function requireOneOfTags(label, template, tags) {
+  if (!tags.some(tag => hasTag(template, tag))) errors.push(`${label}: нужен один из офисных тегов — ${tags.join(', ')}`);
+}
+
+function forbidTags(label, template, tags) {
+  for (const tag of tags) {
+    if (hasTag(template, tag)) errors.push(`${label}: недопустимый офисный тег ${tag}`);
+  }
+}
+
+function hasTag(template, tag) {
+  return Array.isArray(template?.tags) && template.tags.includes(tag);
 }
 
 function hasEarlyLeadWording(text) {

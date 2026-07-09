@@ -248,6 +248,7 @@ function checkBorisoglebskOfficeTags() {
   const templates = templatesByFile.get(borisoglebskTemplateFile) || [];
   for (const [index, template] of templates.entries()) {
     const label = `${borisoglebskTemplateFile}[${index}]${template?.id ? ` (${template.id})` : ''}`;
+    requireOfficeMetadata(label, template);
     if (template?.goal === 'private') {
       requireTags(label, template, ['менеджер']);
       forbidTags(label, template, ['новичку']);
@@ -300,7 +301,7 @@ function checkOfficeMetadata(label, template) {
 }
 
 function requireOfficeMetadata(label, template) {
-  if (!template?.office) errors.push(`${label}: для подъездных шаблонов нужен объект office`);
+  if (!template?.office) errors.push(`${label}: для этого офисного пакета нужен объект office`);
 }
 
 function requireTags(label, template, tags) {

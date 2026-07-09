@@ -63,7 +63,13 @@ requireSnippets(files.officeFilters, sources.officeFilters, [
 ]);
 
 requireSnippets(files.templateBadges, sources.templateBadges, [
-  'getTemplateReason',
+  "import { loadTemplates } from './templates.js';",
+  'loadOfficeMetadata',
+  'templateMap = new Map',
+  'template?.office',
+  'office?.managerNote',
+  'office?.recommendedPrintCount',
+  'office?.risk === \'medium\'',
   'tpl-card-office-reason',
   'Подходит новичку: короткий сценарий, меньше настроек и понятный повод для звонка.',
   'Покажите менеджеру: в макете есть риск, цена, фото, QR или нестандартная формулировка.',

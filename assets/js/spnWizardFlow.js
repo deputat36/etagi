@@ -15,11 +15,11 @@ const steps = [
 ];
 
 const printCounts = [
-  { count: 1, title: '1 крупно' },
+  { count: 1, title: '1 крупно', note: 'фото / витрина' },
   { count: 2, title: '2 на А4', note: 'чаще всего' },
-  { count: 4, title: '4 экономно' },
-  { count: 6, title: '6 мелко' },
-  { count: 8, title: '8 мини' }
+  { count: 4, title: '4 экономно', note: 'подъезды' },
+  { count: 6, title: '6 мелко', note: 'очень кратко' },
+  { count: 8, title: '8 мини', note: 'только телефон' }
 ];
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -78,6 +78,9 @@ function renderWizardPanel(){
         <span id="spnWizardFlowHint">Панель шагов не скрывает блоки, пока не включён режим «Пошагово».</span>
       </div>
       <button type="button" id="spnWizardToggle">Все блоки</button>
+    </div>
+    <div class="spn-wizard-print-help">
+      Выберите формат сразу: 2 на А4 — основной офисный вариант, 4 — для подъездов, 1 — для объекта с фото.
     </div>
     <div class="spn-wizard-print-count" aria-label="Количество объявлений на А4">
       ${printCounts.map(item => `<button type="button" data-wizard-print-count="${item.count}"><b>${item.title}</b>${item.note ? `<span>${item.note}</span>` : ''}</button>`).join('')}
@@ -183,6 +186,7 @@ function injectStyles(){
     .spn-wizard-flow button{border:1px solid #dbe3ee;box-shadow:none;transform:none}
     .spn-wizard-flow button:hover{transform:none;box-shadow:none;background:#eef2ff}
     .spn-wizard-flow button.active{background:var(--accent);border-color:var(--accent);color:#fff}
+    .spn-wizard-print-help{margin:-2px 0 8px;padding:7px 8px;border:1px dashed #fdba74;border-radius:12px;background:#fff;color:#9a3412;font-size:10.5px;line-height:1.25;font-weight:800}
     .spn-wizard-print-count{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:8px}
     .spn-wizard-print-count button{padding:8px 6px;font-size:11px;background:#fff;text-align:center}
     .spn-wizard-print-count b{display:block;font-size:11px;line-height:1.05}

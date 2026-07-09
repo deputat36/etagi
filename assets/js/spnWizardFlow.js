@@ -9,7 +9,9 @@ const steps = [
   { id: 'content', title: '3. Текст', hint: 'Контакты и смысл', sections: ['content'] },
   { id: 'media', title: '4. Фото / QR', hint: 'Изображения и ссылка', sections: ['media'] },
   { id: 'check', title: '5. Проверка', hint: 'Качество и печать', sections: ['print', 'quality'] },
-  { id: 'save', title: '6. После', hint: 'Сохранить макет', sections: ['save'] }
+  { id: 'save', title: '6. Сохранить', hint: 'Сохранить макет', sections: ['save'] },
+  { id: 'task', title: '7. Задание', hint: 'Кому, где и сколько клеить', sections: ['task'] },
+  { id: 'report', title: '8. Отчёт', hint: 'Результат после расклейки', sections: ['report'] }
 ];
 
 const printCounts = [
@@ -58,7 +60,9 @@ function markSections(){
     media: document.querySelector('.media-card'),
     print: document.querySelector('.print-card'),
     quality: document.querySelector('.quality-card'),
-    save: document.querySelector('.save-card')
+    save: document.querySelector('.save-card'),
+    task: document.getElementById('spnDistributionTask'),
+    report: document.getElementById('spnDistributionReport')
   };
 
   Object.entries(sectionMap).forEach(([name, el]) => {

@@ -9,6 +9,7 @@ const files = {
   uiMode: 'assets/js/spnUiMode.js',
   newbieMode: 'assets/js/spnNewbieMode.js',
   officeFilters: 'assets/js/spnOfficeTemplateFilters.js',
+  templateBadges: 'assets/js/spnTemplateCardBadges.js',
   wizardFlow: 'assets/js/spnWizardFlow.js',
   wizardPatch: 'assets/js/spnNewbieWizardPatch.js',
   printGuard: 'assets/js/spnNewbiePrintGuard.js',
@@ -59,6 +60,15 @@ requireSnippets(files.officeFilters, sources.officeFilters, [
   "note: 'Не новичку'",
   "kind: 'manager'",
   "kind: 'local'"
+]);
+
+requireSnippets(files.templateBadges, sources.templateBadges, [
+  'getTemplateReason',
+  'tpl-card-office-reason',
+  'Подходит новичку: короткий сценарий, меньше настроек и понятный повод для звонка.',
+  'Покажите менеджеру: в макете есть риск, цена, фото, QR или нестандартная формулировка.',
+  'Подъездный формат: лучше короткий текст, крупный телефон и 4 на А4.',
+  'Новостройки: аккуратно с обещаниями, условиями покупки и ипотекой.'
 ]);
 
 requireSnippets(files.wizardFlow, sources.wizardFlow, [

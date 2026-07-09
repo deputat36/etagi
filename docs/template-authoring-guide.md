@@ -191,7 +191,14 @@ managerNote             короткая заметка, что проверит
 - `scenario` должен быть латиницей, цифрами, `_` или `-`;
 - `managerNote` должен объяснять, что именно проверить.
 
-Сейчас `office`-метаданные обязательны для `data/templates_entrance.json`. В остальных пакетах они будут внедряться постепенно.
+Сейчас `office`-метаданные обязательны для двух пакетов:
+
+```text
+data/templates_entrance.json
+data/templates_borisoglebsk.json
+```
+
+В остальных пакетах они будут внедряться постепенно.
 
 ## Автоматическая проверка офисных тегов
 
@@ -219,12 +226,13 @@ data/templates_tellerman_sad.json
 office-метаданные
 ```
 
-Для `data/templates_borisoglebsk.json` обязательны теги:
+Для `data/templates_borisoglebsk.json` обязательны:
 
 ```text
 офис
 рекомендовано
 Борисоглебск
+office-метаданные
 ```
 
 Исключения:

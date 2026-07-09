@@ -238,12 +238,66 @@ function renderReportHistory(){
     box.innerHTML = '<b>История отчётов</b><span>Пока пусто. Сохраните первый отчёт после расклейки.</span>';
     return;
   }
-  box.innerHTML = `<b>История отчётов</b>${history.slice(0, 6).map(item => `
+  box.innerHTML = `<b>История отчётов</b>${renderHistoryAnalytics(history)}${history.slice(0, 6).map(item => `
     <div class="spn-report-history-item">
       <span>${escapeHtml(item.date || 'без даты')} · ${escapeHtml(item.place || 'локация не указана')}</span>
       <small>${escapeHtml(String(item.headline || '')).replace(/\s+/g, ' ')} · ${Number(item.calls) || 0}/${Number(item.leads) || 0} · ${Number(item.callRate) || 0}%</small>
       <button type="button" data-repeat-report="${escapeHtml(item.id)}">Повторить</button>
     </div>`).join('')}`;
+}
+
+function renderHistoryAnalytics(history){
+  const valid = history.filter(item => Number(item.totalAds) > 0);
+  if(valid.length < 2){
+    return '<div class="spn-report-history-analytics"><b>Аналитика связок</b><span>Сохраните минимум 2 отчёта, чтобы сравнить места, макеты и форматы.</span></div>';
+  }
+
+  const best = [...valid].sort(compareBestReport)[0];
+  const weak = [...valid].sort(compareWeakReport)[0];
+  const totals = valid.reduce((acc, item) => {
+    acc.ads += Number(item.totalAds) || 0;
+    acc.calls += Number(item.calls) || 0;
+    acc.leads += Number(item.leads) || 0;
+    return acc;
+  }, {ads:0, calls:0, leads:0});
+  const callRate = totals.ads ? Math.round((totals.calls / totals.ads) * 1000) / 10 : 0;
+  const leadRate = totals.ads ? Math.round((totals.leads / totals.ads) * 1000) / 10 : 0;
+
+  return `<div class="spn-report-history-analytics">
+    <b>Аналитика связок</b>
+    <span>Всего: ${totals.ads} объявл. · ${totals.calls} откл. · ${totals.leads} целевых · ${callRate}% / ${leadRate}%</span>
+    ${renderAnalyticsRow('Лучше повторить', best, 'best')}
+    ${renderAnalyticsRow('Нужно изменить', weak, 'weak')}
+  </div>`;
+}
+
+function renderAnalyticsRow(title, item, type){
+  if(!item) return '';
+  const headline = String(item.headline || 'макет без заголовка').replace(/\s+/g, ' ');
+  const place = item.place || 'локация не указана';
+  const format = `${Number(item.perSheet) || 2} на А4`;
+  const rates = `${Number(item.callRate) || 0}% отклик · ${Number(item.leadRate) || 0}% целевые`;
+  return `<div class="spn-report-history-analytics-row spn-report-history-analytics-${type}">
+    <strong>${escapeHtml(title)}</strong>
+    <span>${escapeHtml(headline)} · ${escapeHtml(place)} · ${escapeHtml(format)}</span>
+    <small>${escapeHtml(rates)}</small>
+  </div>`;
+}
+
+function compareBestReport(a, b){
+  return (scoreReport(b) - scoreReport(a)) || ((Number(b.leadRate) || 0) - (Number(a.leadRate) || 0)) || ((Number(b.callRate) || 0) - (Number(a.callRate) || 0));
+}
+
+function compareWeakReport(a, b){
+  return (scoreReport(a) - scoreReport(b)) || ((Number(a.callRate) || 0) - (Number(b.callRate) || 0));
+}
+
+function scoreReport(item){
+  const leads = Number(item.leads) || 0;
+  const calls = Number(item.calls) || 0;
+  const leadRate = Number(item.leadRate) || 0;
+  const callRate = Number(item.callRate) || 0;
+  return leads * 100 + leadRate * 10 + calls * 3 + callRate;
 }
 
 function repeatHistoryReport(id){
@@ -322,7 +376,7 @@ function injectStyles(){
   if(document.getElementById('spnDistributionReportStyles')) return;
   const style = document.createElement('style');
   style.id = 'spnDistributionReportStyles';
-  style.textContent = `.spn-distribution-report{margin:8px 0 10px;padding:10px;border:1px solid #bfdbfe;border-radius:14px;background:#eff6ff}.spn-report-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px}.spn-report-head b{display:block;font-size:12px;font-weight:900;color:#1e3a8a}.spn-report-head span{display:block;margin-top:2px;font-size:10.5px;line-height:1.2;color:#1d4ed8;font-weight:700}.spn-report-actions{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}.spn-report-actions button{padding:7px 9px;border-radius:10px;border:1px solid #bfdbfe;background:#fff;color:#1d4ed8;font-size:10.5px;font-weight:900;box-shadow:none}.spn-report-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}.spn-report-grid label,.spn-report-notes-label{display:grid;gap:5px;font-size:10.5px;font-weight:900;color:#1e3a8a}.spn-report-grid input,.spn-report-notes-label textarea{background:#fff}.spn-report-notes-label{margin-top:7px}.spn-report-metrics{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-top:8px}.spn-report-metrics div{border:1px solid #bfdbfe;border-radius:11px;background:#fff;padding:7px;text-align:center}.spn-report-metrics b{display:block;font-size:13px;font-weight:900;color:#1e3a8a}.spn-report-metrics span{font-size:9.5px;font-weight:800;color:#64748b}.spn-report-insight{margin-top:8px;border:1px solid #bae6fd;border-radius:12px;background:#f8fafc;padding:8px;color:#0f172a;font-size:10.5px;line-height:1.25;font-weight:900}.spn-report-preview{margin-top:8px;white-space:pre-wrap;border:1px dashed #93c5fd;border-radius:12px;background:#fff;padding:8px;color:#172554;font-size:10.5px;line-height:1.32;font-weight:750}.spn-report-history{display:grid;gap:6px;margin-top:8px;border:1px solid #bfdbfe;border-radius:12px;background:#fff;padding:8px}.spn-report-history>b{font-size:11px;font-weight:900;color:#1e3a8a}.spn-report-history>span{font-size:10.5px;color:#64748b;font-weight:700}.spn-report-history-item{display:grid;grid-template-columns:1fr auto;gap:3px 6px;border-top:1px solid #e0f2fe;padding-top:6px}.spn-report-history-item span{font-size:10.5px;font-weight:900;color:#172554}.spn-report-history-item small{font-size:9.5px;line-height:1.2;color:#475569;font-weight:750}.spn-report-history-item button{grid-row:1/3;grid-column:2;padding:6px 8px;border-radius:9px;border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8;font-size:10px;font-weight:900;box-shadow:none}.spn-distribution-report p{margin:7px 0 0;color:#475569;font-size:10.5px;line-height:1.25;font-weight:700}@media(max-width:520px){.spn-report-head{flex-direction:column}.spn-report-grid,.spn-report-metrics{grid-template-columns:1fr}.spn-report-history-item{grid-template-columns:1fr}.spn-report-history-item button{grid-row:auto;grid-column:auto}}@media print{.spn-distribution-report{display:none!important}}`;
+  style.textContent = `.spn-distribution-report{margin:8px 0 10px;padding:10px;border:1px solid #bfdbfe;border-radius:14px;background:#eff6ff}.spn-report-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px}.spn-report-head b{display:block;font-size:12px;font-weight:900;color:#1e3a8a}.spn-report-head span{display:block;margin-top:2px;font-size:10.5px;line-height:1.2;color:#1d4ed8;font-weight:700}.spn-report-actions{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}.spn-report-actions button{padding:7px 9px;border-radius:10px;border:1px solid #bfdbfe;background:#fff;color:#1d4ed8;font-size:10.5px;font-weight:900;box-shadow:none}.spn-report-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}.spn-report-grid label,.spn-report-notes-label{display:grid;gap:5px;font-size:10.5px;font-weight:900;color:#1e3a8a}.spn-report-grid input,.spn-report-notes-label textarea{background:#fff}.spn-report-notes-label{margin-top:7px}.spn-report-metrics{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-top:8px}.spn-report-metrics div{border:1px solid #bfdbfe;border-radius:11px;background:#fff;padding:7px;text-align:center}.spn-report-metrics b{display:block;font-size:13px;font-weight:900;color:#1e3a8a}.spn-report-metrics span{font-size:9.5px;font-weight:800;color:#64748b}.spn-report-insight{margin-top:8px;border:1px solid #bae6fd;border-radius:12px;background:#f8fafc;padding:8px;color:#0f172a;font-size:10.5px;line-height:1.25;font-weight:900}.spn-report-preview{margin-top:8px;white-space:pre-wrap;border:1px dashed #93c5fd;border-radius:12px;background:#fff;padding:8px;color:#172554;font-size:10.5px;line-height:1.32;font-weight:750}.spn-report-history{display:grid;gap:6px;margin-top:8px;border:1px solid #bfdbfe;border-radius:12px;background:#fff;padding:8px}.spn-report-history>b{font-size:11px;font-weight:900;color:#1e3a8a}.spn-report-history>span{font-size:10.5px;color:#64748b;font-weight:700}.spn-report-history-analytics{display:grid;gap:6px;margin:2px 0 4px;padding:8px;border:1px solid #bae6fd;border-radius:12px;background:#f8fafc}.spn-report-history-analytics>b{font-size:11px;font-weight:900;color:#0f172a}.spn-report-history-analytics>span{font-size:10px;line-height:1.2;color:#475569;font-weight:800}.spn-report-history-analytics-row{display:grid;gap:2px;padding:6px;border-radius:10px;border:1px solid #e2e8f0;background:#fff}.spn-report-history-analytics-row strong{font-size:10.5px;font-weight:900;color:#172554}.spn-report-history-analytics-row span{font-size:9.8px;line-height:1.2;color:#334155;font-weight:800}.spn-report-history-analytics-row small{font-size:9.3px;color:#64748b;font-weight:800}.spn-report-history-analytics-best{border-color:#bbf7d0;background:#f0fdf4}.spn-report-history-analytics-weak{border-color:#fed7aa;background:#fff7ed}.spn-report-history-item{display:grid;grid-template-columns:1fr auto;gap:3px 6px;border-top:1px solid #e0f2fe;padding-top:6px}.spn-report-history-item span{font-size:10.5px;font-weight:900;color:#172554}.spn-report-history-item small{font-size:9.5px;line-height:1.2;color:#475569;font-weight:750}.spn-report-history-item button{grid-row:1/3;grid-column:2;padding:6px 8px;border-radius:9px;border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8;font-size:10px;font-weight:900;box-shadow:none}.spn-distribution-report p{margin:7px 0 0;color:#475569;font-size:10.5px;line-height:1.25;font-weight:700}@media(max-width:520px){.spn-report-head{flex-direction:column}.spn-report-grid,.spn-report-metrics{grid-template-columns:1fr}.spn-report-history-item{grid-template-columns:1fr}.spn-report-history-item button{grid-row:auto;grid-column:auto}}@media print{.spn-distribution-report{display:none!important}}`;
   document.head.appendChild(style);
 }
 function escapeHtml(value){

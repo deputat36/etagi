@@ -5,6 +5,14 @@
     "title": "Подъезд: куплю у соседей",
     "note": "Короткий шаблон для расклейки внутри конкретного дома.",
     "tags": ["офис", "рекомендовано", "новичку", "подъезд", "соседи", "куплю", "экономно"],
+    "office": {
+      "recommended": true,
+      "level": "newbie",
+      "scenario": "entrance_owner_buy",
+      "risk": "low",
+      "recommendedPrintCount": 4,
+      "managerNote": "Подходит новичку: проверить телефон, дом/район и отсутствие завышенных обещаний."
+    },
     "density": "dense",
     "photo": "none",
     "printCount": 4,
@@ -42,6 +50,14 @@
     "title": "Подъезд: ищем верхний этаж",
     "note": "Для покупателя с точным запросом по этажу.",
     "tags": ["офис", "рекомендовано", "новичку", "подъезд", "куплю", "этаж", "точечный запрос"],
+    "office": {
+      "recommended": true,
+      "level": "newbie",
+      "scenario": "entrance_owner_specific_floor",
+      "risk": "low",
+      "recommendedPrintCount": 4,
+      "managerNote": "Подходит новичку: перед печатью уточнить, что запрос по этажу действительно актуален."
+    },
     "density": "dense",
     "photo": "none",
     "printCount": 4,
@@ -78,6 +94,14 @@
     "title": "Подъезд: ищем первый этаж",
     "note": "Для покупателей, которым нужен низкий этаж.",
     "tags": ["офис", "рекомендовано", "новичку", "подъезд", "куплю", "первый этаж", "точечный запрос"],
+    "office": {
+      "recommended": true,
+      "level": "newbie",
+      "scenario": "entrance_owner_specific_floor",
+      "risk": "low",
+      "recommendedPrintCount": 4,
+      "managerNote": "Подходит новичку: проверить район и не обещать покупателя без подтверждённого запроса."
+    },
     "density": "dense",
     "photo": "none",
     "printCount": 4,
@@ -114,6 +138,14 @@
     "title": "Подъезд: после звонка соседа",
     "note": "Для ситуации, когда в доме уже появился интерес или обращение.",
     "tags": ["офис", "рекомендовано", "новичку", "подъезд", "соседи", "спрос", "куплю"],
+    "office": {
+      "recommended": true,
+      "level": "newbie",
+      "scenario": "entrance_owner_existing_demand",
+      "risk": "medium",
+      "recommendedPrintCount": 4,
+      "managerNote": "Можно новичку, но желательно подтвердить реальный спрос по дому, чтобы формулировка не звучала как пустое обещание."
+    },
     "density": "dense",
     "photo": "none",
     "printCount": 4,
@@ -150,6 +182,14 @@
     "title": "Подъезд: хочу жить в этом доме",
     "note": "Для покупателя, который выбирает конкретный дом или двор.",
     "tags": ["офис", "рекомендовано", "новичку", "подъезд", "покупатели", "конкретный дом"],
+    "office": {
+      "recommended": true,
+      "level": "newbie",
+      "scenario": "entrance_buyer_specific_house",
+      "risk": "low",
+      "recommendedPrintCount": 2,
+      "managerNote": "Подходит новичку: важно указать конкретный дом, двор или район, чтобы объявление не было слишком общим."
+    },
     "density": "normal",
     "photo": "none",
     "printCount": 2,
@@ -186,6 +226,14 @@
     "title": "Подъезд: продаётся квартира в доме",
     "note": "Для соседей и знакомых, которые могут знать покупателя.",
     "tags": ["офис", "рекомендовано", "менеджер", "подъезд", "объект", "продам", "соседи"],
+    "office": {
+      "recommended": true,
+      "level": "manager",
+      "scenario": "entrance_object_same_house",
+      "risk": "medium",
+      "recommendedPrintCount": 2,
+      "managerNote": "Требуется проверка менеджера: цена, объект, фото, QR и формулировка про документы должны соответствовать реальной ситуации."
+    },
     "density": "normal",
     "photo": "one",
     "printCount": 2,
@@ -223,6 +271,14 @@
     "title": "Подъезд: сдаётся квартира",
     "note": "Для поиска арендатора через соседей и знакомых.",
     "tags": ["офис", "рекомендовано", "новичку", "подъезд", "аренда", "соседи"],
+    "office": {
+      "recommended": true,
+      "level": "newbie",
+      "scenario": "entrance_rent_neighbors",
+      "risk": "medium",
+      "recommendedPrintCount": 4,
+      "managerNote": "Можно новичку после проверки условий аренды: цена, срок, комиссия и требования собственника не должны быть скрыты."
+    },
     "density": "dense",
     "photo": "one",
     "printCount": 4,
@@ -259,6 +315,14 @@
     "title": "Подъезд: узнать цену квартиры",
     "note": "Для мягкого сбора собственников через оценку.",
     "tags": ["офис", "рекомендовано", "новичку", "подъезд", "оценка", "собственники"],
+    "office": {
+      "recommended": true,
+      "level": "newbie",
+      "scenario": "entrance_service_price_check",
+      "risk": "low",
+      "recommendedPrintCount": 4,
+      "managerNote": "Подходит новичку: мягкий сценарий оценки без обещания конкретной цены до консультации."
+    },
     "density": "dense",
     "photo": "none",
     "printCount": 4,

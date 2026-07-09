@@ -8,6 +8,7 @@ const files = {
   index: 'index.html',
   uiMode: 'assets/js/spnUiMode.js',
   newbieMode: 'assets/js/spnNewbieMode.js',
+  wizardFlow: 'assets/js/spnWizardFlow.js',
   wizardPatch: 'assets/js/spnNewbieWizardPatch.js',
   printGuard: 'assets/js/spnNewbiePrintGuard.js',
   checklist: 'docs/newbie-mode-regression-checklist.md',
@@ -44,6 +45,17 @@ requireSnippets(files.newbieMode, sources.newbieMode, [
   'guardNewbieSearch',
   'hasUnsafeText',
   'spn-newbie-hidden-template'
+]);
+
+requireSnippets(files.wizardFlow, sources.wizardFlow, [
+  "id: 'task'",
+  "title: '7. Задание'",
+  "sections: ['task']",
+  "id: 'report'",
+  "title: '8. Отчёт'",
+  "sections: ['report']",
+  "task: document.getElementById('spnDistributionTask')",
+  "report: document.getElementById('spnDistributionReport')"
 ]);
 
 requireSnippets(files.wizardPatch, sources.wizardPatch, [

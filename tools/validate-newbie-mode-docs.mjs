@@ -10,6 +10,7 @@ const files = {
   newbieMode: 'assets/js/spnNewbieMode.js',
   officeFilters: 'assets/js/spnOfficeTemplateFilters.js',
   templateBadges: 'assets/js/spnTemplateCardBadges.js',
+  managerReview: 'assets/js/spnManagerReview.js',
   wizardFlow: 'assets/js/spnWizardFlow.js',
   wizardPatch: 'assets/js/spnNewbieWizardPatch.js',
   printGuard: 'assets/js/spnNewbiePrintGuard.js',
@@ -75,6 +76,20 @@ requireSnippets(files.templateBadges, sources.templateBadges, [
   'Покажите менеджеру: в макете есть риск, цена, фото, QR или нестандартная формулировка.',
   'Подъездный формат: лучше короткий текст, крупный телефон и 4 на А4.',
   'Новостройки: аккуратно с обещаниями, условиями покупки и ипотекой.'
+]);
+
+requireSnippets(files.managerReview, sources.managerReview, [
+  "import { loadTemplates } from './templates.js';",
+  'managerReviewOfficeSummary',
+  'loadOfficeMetadata',
+  'updateOfficeSummary',
+  'getActiveTemplate',
+  'office?.level === \'manager\'',
+  'office?.risk === \'medium\'',
+  'office.recommendedPrintCount',
+  'office.managerNote',
+  'Office-метаданные пока не заданы',
+  'Этот шаблон требует проверки менеджера перед массовой печатью.'
 ]);
 
 requireSnippets(files.wizardFlow, sources.wizardFlow, [

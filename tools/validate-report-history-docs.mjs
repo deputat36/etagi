@@ -22,6 +22,12 @@ requireSnippets(files.helper, sources.helper, [
   'exportDistributionReportHistoryBtn',
   'distributionReportHistory',
   'getReportInsight',
+  'renderHistoryAnalytics',
+  'compareBestReport',
+  'compareWeakReport',
+  'scoreReport',
+  'Лучше повторить',
+  'Нужно изменить',
   'data-repeat-report',
   'insight',
   'downloadText'

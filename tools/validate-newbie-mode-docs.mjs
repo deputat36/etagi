@@ -8,6 +8,7 @@ const files = {
   index: 'index.html',
   uiMode: 'assets/js/spnUiMode.js',
   newbieMode: 'assets/js/spnNewbieMode.js',
+  officeFilters: 'assets/js/spnOfficeTemplateFilters.js',
   wizardFlow: 'assets/js/spnWizardFlow.js',
   wizardPatch: 'assets/js/spnNewbieWizardPatch.js',
   printGuard: 'assets/js/spnNewbiePrintGuard.js',
@@ -46,6 +47,18 @@ requireSnippets(files.newbieMode, sources.newbieMode, [
   'guardNewbieSearch',
   'hasUnsafeText',
   'spn-newbie-hidden-template'
+]);
+
+requireSnippets(files.officeFilters, sources.officeFilters, [
+  'spn-office-template-card',
+  'spn-office-template-card-note',
+  'Выберите рабочий сценарий. Это быстрее и безопаснее, чем искать шаблон вручную.',
+  "note: 'Начните отсюда'",
+  "note: 'Минимум риска'",
+  "note: '4 на А4'",
+  "note: 'Не новичку'",
+  "kind: 'manager'",
+  "kind: 'local'"
 ]);
 
 requireSnippets(files.wizardFlow, sources.wizardFlow, [

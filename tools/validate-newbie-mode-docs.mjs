@@ -56,7 +56,12 @@ requireSnippets(files.wizardFlow, sources.wizardFlow, [
   "title: '8. Отчёт'",
   "sections: ['report']",
   "task: document.getElementById('spnDistributionTask')",
-  "report: document.getElementById('spnDistributionReport')"
+  "report: document.getElementById('spnDistributionReport')",
+  'spn-wizard-print-help',
+  '2 на А4 — основной офисный вариант',
+  "{ count: 1, title: '1 крупно', note: 'фото / витрина' }",
+  "{ count: 4, title: '4 экономно', note: 'подъезды' }",
+  "{ count: 8, title: '8 мини', note: 'только телефон' }"
 ]);
 
 requireSnippets(files.wizardPatch, sources.wizardPatch, [

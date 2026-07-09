@@ -1,32 +1,60 @@
+import { loadTemplates } from './templates.js';
+
 const STYLE_ID = 'spnTemplateCardBadgesStyle';
+let templateMap = new Map();
 
 window.addEventListener('DOMContentLoaded', () => {
   injectStyles();
   enhanceTemplateCards();
   observeTemplateList();
+  loadOfficeMetadata();
 });
+
+async function loadOfficeMetadata(){
+  try{
+    const templates = await loadTemplates();
+    templateMap = new Map(templates.map(template => [template.id, template]));
+    enhanceTemplateCards(true);
+  }
+  catch(error){
+    // Бейджи остаются рабочими по тексту карточки. Ошибка загрузки office-метаданных не должна ломать интерфейс.
+  }
+}
 
 function observeTemplateList(){
   const list = document.getElementById('templateList');
   if(!list) return;
-  new MutationObserver(enhanceTemplateCards).observe(list, { childList: true, subtree: true });
+  new MutationObserver(() => enhanceTemplateCards()).observe(list, { childList: true, subtree: true });
 }
 
-function enhanceTemplateCards(){
+function enhanceTemplateCards(force = false){
   document.querySelectorAll('.tpl-card').forEach(card => {
+    if(force){
+      card.querySelector('.tpl-card-office-badges')?.remove();
+      card.querySelector('.tpl-card-office-reason')?.remove();
+    }
     if(card.querySelector('.tpl-card-office-badges')) return;
     const content = card.querySelector('div:last-child');
     if(!content) return;
-    const badges = getBadges(card);
+    const template = templateMap.get(card.dataset.template);
+    const badges = getBadges(card, template);
     if(!badges.length) return;
-    const reason = getTemplateReason(card, badges);
+    const reason = getTemplateReason(card, badges, template);
     content.insertAdjacentHTML('afterbegin', `${reason ? renderReason(reason) : ''}<div class="tpl-card-office-badges">${badges.map(renderBadge).join('')}</div>`);
   });
 }
 
-function getBadges(card){
+function getBadges(card, template){
   const text = card.textContent.toLowerCase().replace(/ё/g, 'е');
   const badges = [];
+  const office = template?.office;
+
+  if(office?.level === 'newbie') badges.push(['newbie', 'Новичку']);
+  if(office?.level === 'manager') badges.push(['manager', 'Проверка']);
+  if(office?.recommended) badges.push(['safe', 'Рекомендовано']);
+  if(office?.risk === 'medium') badges.push(['risk', 'Риск средний']);
+  if(office?.risk === 'high') badges.push(['risk', 'Риск высокий']);
+  if(office?.recommendedPrintCount) badges.push(['print', `${office.recommendedPrintCount} на А4`]);
 
   if(text.includes('новичку')) badges.push(['newbie', 'Новичку']);
   if(text.includes('менеджер')) badges.push(['manager', 'Проверка']);
@@ -39,12 +67,19 @@ function getBadges(card){
   const mini = card.querySelector('.tpl-mini');
   if(mini?.classList.contains('has-photo') || mini?.classList.contains('two-photo')) badges.push(['photo', 'Фото']);
 
-  return uniqueBadges(badges).slice(0, 4);
+  return uniqueBadges(badges).slice(0, 5);
 }
 
-function getTemplateReason(card, badges){
+function getTemplateReason(card, badges, template){
   const text = card.textContent.toLowerCase().replace(/ё/g, 'е');
   const badgeTypes = new Set(badges.map(([type]) => type));
+  const office = template?.office;
+
+  if(office?.managerNote){
+    if(office.level === 'manager') return ['manager', office.managerNote];
+    if(office.level === 'newbie') return ['newbie', office.managerNote];
+    return [office.risk === 'high' || office.risk === 'medium' ? 'manager' : 'safe', office.managerNote];
+  }
 
   if(badgeTypes.has('manager')) return ['manager', 'Покажите менеджеру: в макете есть риск, цена, фото, QR или нестандартная формулировка.'];
   if(badgeTypes.has('blank')) return ['manager', 'Пустой макет подходит только для опытного СПН или после проверки менеджером.'];
@@ -83,6 +118,8 @@ function injectStyles(){
     .tpl-office-badge-newbie{background:#ecfdf5;border-color:#bbf7d0;color:#047857}
     .tpl-office-badge-manager{background:#fff7ed;border-color:#fed7aa;color:#c2410c}
     .tpl-office-badge-safe{background:#eff6ff;border-color:#bfdbfe;color:#1d4ed8}
+    .tpl-office-badge-risk{background:#fef3c7;border-color:#fde68a;color:#92400e}
+    .tpl-office-badge-print{background:#f5f3ff;border-color:#ddd6fe;color:#5b21b6}
     .tpl-office-badge-entrance{background:#f8fafc;border-color:#cbd5e1;color:#334155}
     .tpl-office-badge-newbuild{background:#fdf2f8;border-color:#fbcfe8;color:#be185d}
     .tpl-office-badge-trust{background:#f0fdf4;border-color:#bbf7d0;color:#166534}

@@ -40,6 +40,8 @@ const validDensity = new Set(['airy', 'normal', 'dense']);
 const validPhoto = new Set(['none', 'one', 'two', 'plan']);
 const validColor = new Set(['brand', 'economy', 'bw', 'private']);
 const validSplit = new Set(['auto', 'horizontal', 'vertical', 'grid']);
+const validOfficeLevels = new Set(['newbie', 'experienced', 'manager']);
+const validOfficeRisks = new Set(['low', 'medium', 'high']);
 const indexedExtraFields = ['contactCta', 'tearOffLabel', 'brandName', 'brandSideText'];
 const entranceTemplateFile = 'templates_entrance.json';
 const borisoglebskTemplateFile = 'templates_borisoglebsk.json';
@@ -122,6 +124,8 @@ for (const file of templateFiles) {
       errors.push(`${label}: printCount должен быть целым числом от 1 до 12`);
     }
     if (!Array.isArray(template.tags)) errors.push(`${label}: tags должен быть массивом`);
+
+    checkOfficeMetadata(label, template);
 
     if (!template.data || typeof template.data !== 'object') {
       errors.push(`${label}: data должен быть объектом`);
@@ -234,6 +238,7 @@ function checkEntranceOfficeTags() {
   const templates = templatesByFile.get(entranceTemplateFile) || [];
   for (const [index, template] of templates.entries()) {
     const label = `${entranceTemplateFile}[${index}]${template?.id ? ` (${template.id})` : ''}`;
+    requireOfficeMetadata(label, template);
     requireTags(label, template, ['офис', 'рекомендовано', 'подъезд']);
     requireOneOfTags(label, template, ['новичку', 'менеджер']);
   }
@@ -267,6 +272,35 @@ function checkTellermanOfficeTags() {
     requireTags(label, template, ['офис', 'Борисоглебск', 'Теллерманов сад']);
     requireOneOfTags(label, template, ['новичку', 'менеджер']);
   }
+}
+
+function checkOfficeMetadata(label, template) {
+  if (!('office' in template)) return;
+  if (!template.office || typeof template.office !== 'object' || Array.isArray(template.office)) {
+    errors.push(`${label}: office должен быть объектом`);
+    return;
+  }
+
+  const office = template.office;
+  if (typeof office.recommended !== 'boolean') errors.push(`${label}: office.recommended должен быть boolean`);
+  if (!validOfficeLevels.has(office.level)) errors.push(`${label}: неизвестный office.level ${office.level}`);
+  if (!validOfficeRisks.has(office.risk)) errors.push(`${label}: неизвестный office.risk ${office.risk}`);
+  if (typeof office.scenario !== 'string' || !office.scenario.trim()) errors.push(`${label}: office.scenario должен быть непустой строкой`);
+  if (office.scenario && !/^[a-z0-9_\-]+$/i.test(office.scenario)) errors.push(`${label}: office.scenario должен быть латиницей, цифрами, _ или -`);
+  if (!Number.isInteger(office.recommendedPrintCount) || office.recommendedPrintCount < 1 || office.recommendedPrintCount > 12) {
+    errors.push(`${label}: office.recommendedPrintCount должен быть целым числом от 1 до 12`);
+  }
+  if (typeof office.managerNote !== 'string' || office.managerNote.trim().length < 12) {
+    errors.push(`${label}: office.managerNote должен быть понятной строкой минимум 12 символов`);
+  }
+
+  if (office.level === 'newbie' && !hasTag(template, 'новичку')) errors.push(`${label}: office.level newbie требует тег новичку`);
+  if (office.level === 'manager' && !hasTag(template, 'менеджер')) errors.push(`${label}: office.level manager требует тег менеджер`);
+  if (office.recommended === true && !hasTag(template, 'рекомендовано')) errors.push(`${label}: office.recommended=true требует тег рекомендовано`);
+}
+
+function requireOfficeMetadata(label, template) {
+  if (!template?.office) errors.push(`${label}: для подъездных шаблонов нужен объект office`);
 }
 
 function requireTags(label, template, tags) {

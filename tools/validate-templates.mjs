@@ -221,6 +221,7 @@ function checkTellermanTemplates() {
     if (!text.includes('теллерманов')) errors.push(`${label}: шаблон должен содержать название ЖК Теллерманов сад`);
     if (!text.includes('просторная') && template.id !== 'bgo_newbuild_tellerman_mortgage') errors.push(`${label}: шаблон должен указывать Просторную 4а или быть ипотечным общим сценарием`);
     if (!hasEarlyLeadWording(text)) errors.push(`${label}: шаблон должен вести к предварительной заявке или раннему информированию`);
+    if (template.id === 'bgo_newbuild_tellerman_mortgage' && template.office?.level !== 'manager') errors.push(`${label}: ипотечный шаблон ЖК должен быть только уровня manager`);
 
     for (const forbidden of tellermanForbiddenSnippets) {
       if (text.includes(forbidden)) errors.push(`${label}: опасная рекламная формулировка — ${forbidden}`);
@@ -270,6 +271,7 @@ function checkTellermanOfficeTags() {
   const templates = templatesByFile.get(tellermanTemplateFile) || [];
   for (const [index, template] of templates.entries()) {
     const label = `${tellermanTemplateFile}[${index}]${template?.id ? ` (${template.id})` : ''}`;
+    requireOfficeMetadata(label, template);
     requireTags(label, template, ['офис', 'Борисоглебск', 'Теллерманов сад']);
     requireOneOfTags(label, template, ['новичку', 'менеджер']);
   }

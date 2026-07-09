@@ -50,6 +50,14 @@ function renderReportHelper(){
     <div class="spn-report-metrics" id="distributionReportMetrics"></div>
     <div class="spn-report-insight" id="distributionReportInsight"></div>
     <div class="spn-report-preview" id="distributionReportPreview"></div>
+    <div class="spn-report-history-filter" id="distributionReportHistoryFilter">
+      <input id="distributionReportHistorySearch" type="search" maxlength="80" placeholder="найти по месту, макету или заметке">
+      <div>
+        <button type="button" data-report-history-filter="all" class="active">Все</button>
+        <button type="button" data-report-history-filter="best">Рабочие</button>
+        <button type="button" data-report-history-filter="weak">Слабые</button>
+      </div>
+    </div>
     <div class="spn-report-history" id="distributionReportHistory"></div>
     <p>Короткий отчёт помогает понять, какой макет работает, а какой нужно изменить перед следующей печатью.</p>
   </div>`;
@@ -72,6 +80,13 @@ function bindReportHelper(){
   document.getElementById('copyDistributionReportBtn')?.addEventListener('click', copyReportText);
   document.getElementById('saveDistributionReportHistoryBtn')?.addEventListener('click', saveReportToHistory);
   document.getElementById('exportDistributionReportHistoryBtn')?.addEventListener('click', exportReportHistoryCsv);
+  document.getElementById('distributionReportHistorySearch')?.addEventListener('input', renderReportHistory);
+  document.getElementById('distributionReportHistoryFilter')?.addEventListener('click', event => {
+    const filter = event.target.closest('[data-report-history-filter]');
+    if(!filter) return;
+    document.querySelectorAll('[data-report-history-filter]').forEach(button => button.classList.toggle('active', button === filter));
+    renderReportHistory();
+  });
   document.getElementById('distributionReportHistory')?.addEventListener('click', event => {
     const repeat = event.target.closest('[data-repeat-report]');
     if(!repeat) return;
@@ -238,12 +253,40 @@ function renderReportHistory(){
     box.innerHTML = '<b>История отчётов</b><span>Пока пусто. Сохраните первый отчёт после расклейки.</span>';
     return;
   }
-  box.innerHTML = `<b>История отчётов</b>${renderHistoryAnalytics(history)}${history.slice(0, 6).map(item => `
+
+  const filteredHistory = filterReportHistory(history);
+  if(!filteredHistory.length){
+    box.innerHTML = '<b>История отчётов</b><span>По текущему фильтру ничего не найдено.</span>';
+    return;
+  }
+
+  box.innerHTML = `<b>История отчётов</b>${renderHistoryAnalytics(filteredHistory)}${filteredHistory.slice(0, 6).map(item => `
     <div class="spn-report-history-item">
       <span>${escapeHtml(item.date || 'без даты')} · ${escapeHtml(item.place || 'локация не указана')}</span>
       <small>${escapeHtml(String(item.headline || '')).replace(/\s+/g, ' ')} · ${Number(item.calls) || 0}/${Number(item.leads) || 0} · ${Number(item.callRate) || 0}%</small>
       <button type="button" data-repeat-report="${escapeHtml(item.id)}">Повторить</button>
     </div>`).join('')}`;
+}
+
+function filterReportHistory(history){
+  const search = normalizeText(document.getElementById('distributionReportHistorySearch')?.value || '');
+  const filter = document.querySelector('[data-report-history-filter].active')?.dataset.reportHistoryFilter || 'all';
+  return history.filter(item => {
+    const text = normalizeText([item.date, item.place, item.headline, item.notes, item.nextStep, item.insight].filter(Boolean).join(' '));
+    if(search && !text.includes(search)) return false;
+    if(filter === 'best') return classifyReport(item) === 'best';
+    if(filter === 'weak') return classifyReport(item) === 'weak';
+    return true;
+  });
+}
+
+function classifyReport(item){
+  const leads = Number(item.leads) || 0;
+  const calls = Number(item.calls) || 0;
+  const leadRate = Number(item.leadRate) || 0;
+  if(leads >= 2 || leadRate >= 1) return 'best';
+  if(calls <= 0 || leads <= 0) return 'weak';
+  return 'neutral';
 }
 
 function renderHistoryAnalytics(history){
@@ -372,11 +415,14 @@ function setStatus(text){
   const status = document.getElementById('statusLine');
   if(status) status.textContent = text;
 }
+function normalizeText(value){
+  return String(value || '').toLowerCase().replace(/ё/g, 'е').replace(/\s+/g, ' ').trim();
+}
 function injectStyles(){
   if(document.getElementById('spnDistributionReportStyles')) return;
   const style = document.createElement('style');
   style.id = 'spnDistributionReportStyles';
-  style.textContent = `.spn-distribution-report{margin:8px 0 10px;padding:10px;border:1px solid #bfdbfe;border-radius:14px;background:#eff6ff}.spn-report-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px}.spn-report-head b{display:block;font-size:12px;font-weight:900;color:#1e3a8a}.spn-report-head span{display:block;margin-top:2px;font-size:10.5px;line-height:1.2;color:#1d4ed8;font-weight:700}.spn-report-actions{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}.spn-report-actions button{padding:7px 9px;border-radius:10px;border:1px solid #bfdbfe;background:#fff;color:#1d4ed8;font-size:10.5px;font-weight:900;box-shadow:none}.spn-report-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}.spn-report-grid label,.spn-report-notes-label{display:grid;gap:5px;font-size:10.5px;font-weight:900;color:#1e3a8a}.spn-report-grid input,.spn-report-notes-label textarea{background:#fff}.spn-report-notes-label{margin-top:7px}.spn-report-metrics{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-top:8px}.spn-report-metrics div{border:1px solid #bfdbfe;border-radius:11px;background:#fff;padding:7px;text-align:center}.spn-report-metrics b{display:block;font-size:13px;font-weight:900;color:#1e3a8a}.spn-report-metrics span{font-size:9.5px;font-weight:800;color:#64748b}.spn-report-insight{margin-top:8px;border:1px solid #bae6fd;border-radius:12px;background:#f8fafc;padding:8px;color:#0f172a;font-size:10.5px;line-height:1.25;font-weight:900}.spn-report-preview{margin-top:8px;white-space:pre-wrap;border:1px dashed #93c5fd;border-radius:12px;background:#fff;padding:8px;color:#172554;font-size:10.5px;line-height:1.32;font-weight:750}.spn-report-history{display:grid;gap:6px;margin-top:8px;border:1px solid #bfdbfe;border-radius:12px;background:#fff;padding:8px}.spn-report-history>b{font-size:11px;font-weight:900;color:#1e3a8a}.spn-report-history>span{font-size:10.5px;color:#64748b;font-weight:700}.spn-report-history-analytics{display:grid;gap:6px;margin:2px 0 4px;padding:8px;border:1px solid #bae6fd;border-radius:12px;background:#f8fafc}.spn-report-history-analytics>b{font-size:11px;font-weight:900;color:#0f172a}.spn-report-history-analytics>span{font-size:10px;line-height:1.2;color:#475569;font-weight:800}.spn-report-history-analytics-row{display:grid;gap:2px;padding:6px;border-radius:10px;border:1px solid #e2e8f0;background:#fff}.spn-report-history-analytics-row strong{font-size:10.5px;font-weight:900;color:#172554}.spn-report-history-analytics-row span{font-size:9.8px;line-height:1.2;color:#334155;font-weight:800}.spn-report-history-analytics-row small{font-size:9.3px;color:#64748b;font-weight:800}.spn-report-history-analytics-best{border-color:#bbf7d0;background:#f0fdf4}.spn-report-history-analytics-weak{border-color:#fed7aa;background:#fff7ed}.spn-report-history-item{display:grid;grid-template-columns:1fr auto;gap:3px 6px;border-top:1px solid #e0f2fe;padding-top:6px}.spn-report-history-item span{font-size:10.5px;font-weight:900;color:#172554}.spn-report-history-item small{font-size:9.5px;line-height:1.2;color:#475569;font-weight:750}.spn-report-history-item button{grid-row:1/3;grid-column:2;padding:6px 8px;border-radius:9px;border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8;font-size:10px;font-weight:900;box-shadow:none}.spn-distribution-report p{margin:7px 0 0;color:#475569;font-size:10.5px;line-height:1.25;font-weight:700}@media(max-width:520px){.spn-report-head{flex-direction:column}.spn-report-grid,.spn-report-metrics{grid-template-columns:1fr}.spn-report-history-item{grid-template-columns:1fr}.spn-report-history-item button{grid-row:auto;grid-column:auto}}@media print{.spn-distribution-report{display:none!important}}`;
+  style.textContent = `.spn-distribution-report{margin:8px 0 10px;padding:10px;border:1px solid #bfdbfe;border-radius:14px;background:#eff6ff}.spn-report-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px}.spn-report-head b{display:block;font-size:12px;font-weight:900;color:#1e3a8a}.spn-report-head span{display:block;margin-top:2px;font-size:10.5px;line-height:1.2;color:#1d4ed8;font-weight:700}.spn-report-actions{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}.spn-report-actions button{padding:7px 9px;border-radius:10px;border:1px solid #bfdbfe;background:#fff;color:#1d4ed8;font-size:10.5px;font-weight:900;box-shadow:none}.spn-report-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}.spn-report-grid label,.spn-report-notes-label{display:grid;gap:5px;font-size:10.5px;font-weight:900;color:#1e3a8a}.spn-report-grid input,.spn-report-notes-label textarea{background:#fff}.spn-report-notes-label{margin-top:7px}.spn-report-metrics{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-top:8px}.spn-report-metrics div{border:1px solid #bfdbfe;border-radius:11px;background:#fff;padding:7px;text-align:center}.spn-report-metrics b{display:block;font-size:13px;font-weight:900;color:#1e3a8a}.spn-report-metrics span{font-size:9.5px;font-weight:800;color:#64748b}.spn-report-insight{margin-top:8px;border:1px solid #bae6fd;border-radius:12px;background:#f8fafc;padding:8px;color:#0f172a;font-size:10.5px;line-height:1.25;font-weight:900}.spn-report-preview{margin-top:8px;white-space:pre-wrap;border:1px dashed #93c5fd;border-radius:12px;background:#fff;padding:8px;color:#172554;font-size:10.5px;line-height:1.32;font-weight:750}.spn-report-history-filter{display:grid;grid-template-columns:1fr auto;gap:6px;align-items:center;margin-top:8px}.spn-report-history-filter input{background:#fff;border:1px solid #bfdbfe;border-radius:10px;padding:8px;font-size:10.5px;font-weight:800}.spn-report-history-filter div{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}.spn-report-history-filter button{padding:7px 8px;border-radius:10px;border:1px solid #bfdbfe;background:#fff;color:#1d4ed8;font-size:10px;font-weight:900;box-shadow:none}.spn-report-history-filter button.active{background:#1d4ed8;border-color:#1d4ed8;color:#fff}.spn-report-history{display:grid;gap:6px;margin-top:8px;border:1px solid #bfdbfe;border-radius:12px;background:#fff;padding:8px}.spn-report-history>b{font-size:11px;font-weight:900;color:#1e3a8a}.spn-report-history>span{font-size:10.5px;color:#64748b;font-weight:700}.spn-report-history-analytics{display:grid;gap:6px;margin:2px 0 4px;padding:8px;border:1px solid #bae6fd;border-radius:12px;background:#f8fafc}.spn-report-history-analytics>b{font-size:11px;font-weight:900;color:#0f172a}.spn-report-history-analytics>span{font-size:10px;line-height:1.2;color:#475569;font-weight:800}.spn-report-history-analytics-row{display:grid;gap:2px;padding:6px;border-radius:10px;border:1px solid #e2e8f0;background:#fff}.spn-report-history-analytics-row strong{font-size:10.5px;font-weight:900;color:#172554}.spn-report-history-analytics-row span{font-size:9.8px;line-height:1.2;color:#334155;font-weight:800}.spn-report-history-analytics-row small{font-size:9.3px;color:#64748b;font-weight:800}.spn-report-history-analytics-best{border-color:#bbf7d0;background:#f0fdf4}.spn-report-history-analytics-weak{border-color:#fed7aa;background:#fff7ed}.spn-report-history-item{display:grid;grid-template-columns:1fr auto;gap:3px 6px;border-top:1px solid #e0f2fe;padding-top:6px}.spn-report-history-item span{font-size:10.5px;font-weight:900;color:#172554}.spn-report-history-item small{font-size:9.5px;line-height:1.2;color:#475569;font-weight:750}.spn-report-history-item button{grid-row:1/3;grid-column:2;padding:6px 8px;border-radius:9px;border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8;font-size:10px;font-weight:900;box-shadow:none}.spn-distribution-report p{margin:7px 0 0;color:#475569;font-size:10.5px;line-height:1.25;font-weight:700}@media(max-width:520px){.spn-report-head{flex-direction:column}.spn-report-grid,.spn-report-metrics,.spn-report-history-filter{grid-template-columns:1fr}.spn-report-history-filter div{justify-content:stretch}.spn-report-history-filter button{flex:1}.spn-report-history-item{grid-template-columns:1fr}.spn-report-history-item button{grid-row:auto;grid-column:auto}}@media print{.spn-distribution-report{display:none!important}}`;
   document.head.appendChild(style);
 }
 function escapeHtml(value){

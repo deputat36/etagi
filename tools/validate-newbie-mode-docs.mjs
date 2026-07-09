@@ -12,6 +12,7 @@ const files = {
   wizardPatch: 'assets/js/spnNewbieWizardPatch.js',
   printGuard: 'assets/js/spnNewbiePrintGuard.js',
   checklist: 'docs/newbie-mode-regression-checklist.md',
+  fullScenarioChecklist: 'docs/full-scenario-regression-checklist.md',
   rollbackPlan: 'docs/newbie-mode-rollback-plan.md',
   releaseNote: 'docs/releases/3.85.0.md',
   readme: 'README.md'
@@ -85,6 +86,17 @@ requireSnippets(files.checklist, sources.checklist, [
   'Проверка мастера шагов',
   'Проверка защиты печати',
   'Проверка фото-раскладки',
+  'Что считать регрессией'
+]);
+
+requireSnippets(files.fullScenarioChecklist, sources.fullScenarioChecklist, [
+  '# Ручная проверка полного сценария генератора расклеек',
+  'Новичок → 2 на А4 → безопасный шаблон → телефон → проверка → печать → задание → отчёт',
+  'Проверка 3. Wizard Flow',
+  'Проверка 8. Защита печати в режиме `Новичок`',
+  'Проверка 10. Задание на расклейку',
+  'Проверка 11. Отчёт после расклейки',
+  'Проверка 12. Повтор и CSV',
   'Что считать регрессией'
 ]);
 

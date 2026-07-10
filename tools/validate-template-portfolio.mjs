@@ -14,6 +14,7 @@ const templateFiles = fs.readdirSync(dataDir)
   .sort();
 const templates = templateFiles.flatMap(readTemplateFile);
 const templateIds = new Set(templates.map(template => template.id).filter(Boolean));
+const templateFileById = new Map(templates.map(template => [template.id, template.__file]));
 const registry = readRegistry();
 const loaderSource = readRequired(loaderPath);
 const badgesSource = readRequired(badgesPath);
@@ -38,13 +39,19 @@ for(const [id, rule] of Object.entries(registry.templates || {})){
     if(normalized.replacementId && !templateIds.has(normalized.replacementId)) {
       errors.push(`templates.${id}: replacementId ${normalized.replacementId} не найден в библиотеке`);
     }
+    if(normalized.replacementId && templateIds.has(normalized.replacementId)){
+      const replacementStatus = resolveStatus(normalized.replacementId);
+      if(replacementStatus !== 'working') {
+        errors.push(`templates.${id}: replacementId ${normalized.replacementId} должен быть working, сейчас ${replacementStatus}`);
+      }
+    }
   }
   else if(normalized.replacementId){
     errors.push(`templates.${id}: replacementId допускается только для статуса deprecated`);
   }
 }
 
-checkReplacementChains(registry.templates || {});
+checkReplacementCycles(registry.templates || {});
 
 requireSnippets('assets/js/templates.js', loaderSource, [
   "const TEMPLATE_PORTFOLIO_FILE = 'data/template_portfolio_status.json';",
@@ -63,6 +70,8 @@ requireSnippets('assets/js/spnTemplateCardBadges.js', badgesSource, [
   "['deprecated', 'Устарел']",
   "['test', 'Тест']",
   'portfolio.replacementId',
+  'escapeHtml(title)',
+  'escapeHtml(text)',
   'tpl-office-badge-deprecated',
   'tpl-office-badge-test',
   'tpl-card-office-reason-deprecated',
@@ -108,8 +117,8 @@ function readRegistry(){
     if(parsed.version !== 1) errors.push(`template_portfolio_status.json: ожидается version=1, найдено ${parsed.version}`);
     return {
       defaultStatus: parsed.defaultStatus || 'working',
-      packageDefaults: parsed.packageDefaults && typeof parsed.packageDefaults === 'object' ? parsed.packageDefaults : {},
-      templates: parsed.templates && typeof parsed.templates === 'object' ? parsed.templates : {}
+      packageDefaults: parsed.packageDefaults && typeof parsed.packageDefaults === 'object' && !Array.isArray(parsed.packageDefaults) ? parsed.packageDefaults : {},
+      templates: parsed.templates && typeof parsed.templates === 'object' && !Array.isArray(parsed.templates) ? parsed.templates : {}
     };
   } catch(error){
     errors.push(`template_portfolio_status.json: JSON не читается — ${error.message}`);
@@ -134,7 +143,14 @@ function normalizeRule(rule){
   };
 }
 
-function checkReplacementChains(rules){
+function resolveStatus(id){
+  const file = templateFileById.get(id);
+  const packageRule = normalizeRule(registry.packageDefaults?.[file]);
+  const templateRule = normalizeRule(registry.templates?.[id]);
+  return templateRule.status || packageRule.status || registry.defaultStatus || 'working';
+}
+
+function checkReplacementCycles(rules){
   for(const id of Object.keys(rules)){
     const visited = new Set([id]);
     let current = id;
@@ -146,10 +162,6 @@ function checkReplacementChains(rules){
         break;
       }
       visited.add(rule.replacementId);
-      const replacementRule = normalizeRule(rules[rule.replacementId]);
-      if(replacementRule.status === 'deprecated'){
-        errors.push(`templates.${id}: replacementId ${rule.replacementId} тоже устарел; укажите конечный рабочий шаблон`);
-      }
       current = rule.replacementId;
     }
   }

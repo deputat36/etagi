@@ -2,6 +2,8 @@ const STYLE_ID = 'spnNewbieWizardPatchStyle';
 let syncTimer = 0;
 let redirectingHiddenStep = false;
 let lastMode = '';
+let pendingNewbieAutoEnable = false;
+let autoEnableAttempts = 0;
 
 window.addEventListener('DOMContentLoaded', () => {
   injectStyles();
@@ -57,17 +59,38 @@ function syncNewbieWizardState(){
   const enteredNewbie = isNewbie && lastMode !== 'newbie';
   const step = document.body.dataset.wizardStep;
 
-  if(enteredNewbie) enableWizardForNewbie();
+  if(enteredNewbie){
+    pendingNewbieAutoEnable = true;
+    autoEnableAttempts = 0;
+  }
+
+  if(!isNewbie){
+    pendingNewbieAutoEnable = false;
+    autoEnableAttempts = 0;
+  }
+
+  if(isNewbie && pendingNewbieAutoEnable) tryEnableWizardForNewbie();
   if(isNewbie && step === 'save') redirectHiddenSaveStep();
 
   lastMode = mode;
 }
 
-function enableWizardForNewbie(){
-  if(document.body.dataset.wizardFlow === 'on') return;
+function tryEnableWizardForNewbie(){
+  if(document.body.dataset.wizardFlow === 'on'){
+    pendingNewbieAutoEnable = false;
+    return;
+  }
+
   const toggle = document.getElementById('spnWizardToggle');
-  if(!toggle) return scheduleNewbieWizardSync();
-  toggle.click();
+  if(toggle){
+    toggle.click();
+    pendingNewbieAutoEnable = false;
+    return;
+  }
+
+  autoEnableAttempts += 1;
+  if(autoEnableAttempts < 10) scheduleNewbieWizardSync();
+  else pendingNewbieAutoEnable = false;
 }
 
 function redirectHiddenSaveStep(){

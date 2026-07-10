@@ -19,23 +19,27 @@ const sources = Object.fromEntries(
 requireSnippets(files.state, sources.state, [
   "{ id:'photo_left', title:'Фото слева', hint:'фото и текст в две колонки' }",
   "{ id:'photo_card', title:'Фото-карточка', hint:'заголовок поверх фотографии' }",
-  "{ id:'newbuild_visual', title:'Новостройка', hint:'фасад и планировка без обрезки' }"
+  "{ id:'newbuild_visual', title:'Новостройка', hint:'фасад и планировка без обрезки' }",
+  "{ id:'agent_brand_photo', title:'Фото СПН', hint:'портрет, имя и крупный телефон' }"
 ]);
 
 requireSnippets(files.rules, sources.rules, [
   "photo_left: ['photo','headline','price','description','meta','benefits','customBlock','contact']",
   "photo_card: ['photo','headline','price','description','meta','benefits','customBlock','contact']",
   "newbuild_visual: ['photo','headline','price','meta','description','benefits','customBlock','contact']",
+  "agent_brand_photo: ['photo','headline','description','benefits','customBlock','price','meta','contact']",
   "if(effectiveMode === 'photo_left') applyPhotoLeft(next);",
   "if(effectiveMode === 'photo_card') applyPhotoCard(next);",
   "if(effectiveMode === 'newbuild_visual') applyNewbuildVisual(next);",
+  "if(effectiveMode === 'agent_brand_photo') applyAgentBrandPhoto(next);",
   'function applyPhotoLeft(state)',
   'function applyPhotoCard(state)',
   'function applyNewbuildVisual(state)',
+  'function applyAgentBrandPhoto(state)',
   "state.printCount = Number(state.printCount) === 1 ? 1 : 2;",
   "if(state.photoMode === 'none') state.photoMode = 'one';",
   'state.showQr = Boolean(state.qrLink);',
-  "['photo_left','photo_card','newbuild_visual'].includes(state.layoutMode)",
+  "['photo_left','photo_card','newbuild_visual','agent_brand_photo'].includes(state.layoutMode)",
   "state.layoutMode === 'photo_card' && state.photoMode === 'plan'"
 ]);
 
@@ -51,13 +55,15 @@ requireSnippets(files.styles, sources.styles, [
   '.flyer.has-photo.layout-photo_card.photo-mode-plan .photo-box img{object-fit:contain',
   '.flyer.has-photo.layout-newbuild_visual.count-1',
   '.flyer.has-photo.layout-newbuild_visual .photos.two .photo-box:nth-child(2) img{object-fit:contain',
+  '.flyer.has-photo.layout-agent_brand_photo.count-1',
+  '.flyer.has-photo.layout-agent_brand_photo .photo-box img{object-fit:contain',
   '@media print',
   '.flyer.has-photo.layout-photo_left.count-1 .photos{height:150mm}',
   '.flyer.has-photo.layout-photo_card.count-1 .photos{height:124mm}'
 ]);
 
 requireSnippets(files.quality, sources.quality, [
-  "const isPhotoLayout = ['photo_left','photo_card','newbuild_visual'].includes(state.layoutMode);",
+  "const isPhotoLayout = ['photo_left','photo_card','newbuild_visual','agent_brand_photo'].includes(state.layoutMode);",
   "title:'Фото-компоновка без фото'",
   "title:'Фото-компоновка слишком мелкая'",
   "title:'Текст перегружает фото-компоновку'",
@@ -71,6 +77,8 @@ requireSnippets(files.actions, sources.actions, [
   "title === 'Фото-компоновка без фото'",
   "title === 'Отрывные перегружают фотокарточку'",
   "title === 'Отрывные перегружают макет новостройки'",
+  "title === 'Брендовый макет без имени СПН'",
+  "title === 'Отрывные перегружают брендовый макет'",
   "appendAction(item, 'focus-photo', 'Загрузить фото')",
   "appendAction(item, 'disable-tears', 'Выключить отрывные')",
   "document.getElementById('photoOne')",
@@ -88,6 +96,7 @@ requireSnippets(files.guide, sources.guide, [
   '## Фото слева',
   '## Фото-карточка',
   '## Визуальный макет новостройки',
+  '## Личный бренд СПН с фотографией',
   '1–2 макета на А4',
   'Планировка',
   '## Ручная проверка',

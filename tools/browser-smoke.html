@@ -70,6 +70,20 @@
         await waitFor(() => doc.querySelector('.flyer.has-photo.layout-newbuild_visual.count-2'), 3000, 'newbuild_visual не ограничил результат до 2 на А4');
         pass('newbuild_visual: ограничение до 2 на А4');
 
+        setField(win, doc, '#agentName', 'Анна Качкина');
+        click(doc, '[data-photo="one"]');
+        click(doc, '[data-count="1"]');
+        click(doc, '[data-layout-mode="agent_brand_photo"]');
+        await waitFor(() => doc.querySelector('.flyer.has-photo.layout-agent_brand_photo.count-1 .agent-brand-identity strong')?.textContent.includes('Анна Качкина'), 3000, 'agent_brand_photo не показал имя СПН');
+        const agentImage = doc.querySelector('.flyer.layout-agent_brand_photo .photo-box img');
+        assert(agentImage && win.getComputedStyle(agentImage).objectFit === 'contain', 'портрет agent_brand_photo может обрезаться');
+        pass('agent_brand_photo: 1 на А4, имя и портрет без обрезки');
+
+        click(doc, '[data-count="4"]');
+        click(doc, '[data-layout-mode="agent_brand_photo"]');
+        await waitFor(() => doc.querySelector('.flyer.has-photo.layout-agent_brand_photo.count-2'), 3000, 'agent_brand_photo не ограничил результат до 2 на А4');
+        pass('agent_brand_photo: ограничение до 2 на А4');
+
         assert(!doc.querySelector('#spnWizardNext:disabled') || doc.body.dataset.wizardStep === 'report', 'кнопка Далее неожиданно заблокирована');
         if(runtimeErrors.length) throw new Error(`runtime errors: ${runtimeErrors.join(' | ')}`);
 
@@ -106,6 +120,13 @@
       input.files = transfer.files;
       input.dispatchEvent(new win.Event('change', {bubbles:true}));
       await waitFor(() => input.files?.length === 1, 1000, `не удалось загрузить ${name}`);
+    }
+    function setField(win, doc, selector, value){
+      const input = doc.querySelector(selector);
+      assert(input, `не найден элемент ${selector}`);
+      input.value = value;
+      input.dispatchEvent(new win.Event('input', {bubbles:true}));
+      input.dispatchEvent(new win.Event('change', {bubbles:true}));
     }
     async function waitFor(predicate, timeout, message){
       const started = Date.now();

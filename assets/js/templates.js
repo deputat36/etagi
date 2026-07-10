@@ -10,7 +10,14 @@ const TEMPLATE_FILES = [
   'data/templates_trust.json'
 ];
 
-export async function loadTemplates(){
+let templateLoadPromise = null;
+
+export function loadTemplates(){
+  if(!templateLoadPromise) templateLoadPromise = loadTemplateFiles();
+  return templateLoadPromise;
+}
+
+async function loadTemplateFiles(){
   const loaded = await Promise.all(TEMPLATE_FILES.map(loadTemplateFile));
   const byId = new Map();
   for(const list of loaded){

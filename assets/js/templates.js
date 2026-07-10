@@ -11,6 +11,7 @@ const TEMPLATE_FILES = [
   'data/templates_trust.json'
 ];
 const TEMPLATE_PORTFOLIO_FILE = 'data/template_portfolio_status.json';
+const TEMPLATE_OFFICE_OVERRIDES_FILE = 'data/template_office_overrides.json';
 
 let templateLoadPromise = null;
 
@@ -20,9 +21,10 @@ export function loadTemplates(){
 }
 
 async function loadTemplateFiles(){
-  const [loadedPackages, portfolioRegistry] = await Promise.all([
+  const [loadedPackages, portfolioRegistry, officeOverrides] = await Promise.all([
     Promise.all(TEMPLATE_FILES.map(async file => ({file, templates: await loadTemplateFile(file)}))),
-    loadTemplatePortfolioRegistry()
+    loadTemplatePortfolioRegistry(),
+    loadTemplateOfficeOverrides()
   ]);
   const byId = new Map();
 
@@ -30,7 +32,8 @@ async function loadTemplateFiles(){
     const packageName = file.split('/').pop();
     for(const item of templates){
       if(!item?.id) continue;
-      byId.set(item.id, enrichTemplatePortfolio(item, packageName, portfolioRegistry));
+      const withPortfolio = enrichTemplatePortfolio(item, packageName, portfolioRegistry);
+      byId.set(item.id, enrichTemplateOffice(withPortfolio, officeOverrides));
     }
   }
   return [...byId.values()];
@@ -53,6 +56,21 @@ async function loadTemplatePortfolioRegistry(){
   }
 }
 
+async function loadTemplateOfficeOverrides(){
+  try{
+    const res = await fetch(TEMPLATE_OFFICE_OVERRIDES_FILE, {cache:'no-store'});
+    if(!res.ok) return emptyOfficeOverrides();
+    const data = await res.json();
+    if(!data || typeof data !== 'object' || Array.isArray(data)) return emptyOfficeOverrides();
+    return {
+      templates: data.templates && typeof data.templates === 'object' ? data.templates : {}
+    };
+  } catch(e){
+    console.warn(`Не удалось загрузить реестр office-разметки: ${TEMPLATE_OFFICE_OVERRIDES_FILE}`, e);
+    return emptyOfficeOverrides();
+  }
+}
+
 function enrichTemplatePortfolio(template, packageName, registry){
   const packageRule = normalizePortfolioRule(registry.packageDefaults?.[packageName]);
   const templateRule = normalizePortfolioRule(registry.templates?.[template.id]);
@@ -66,6 +84,16 @@ function enrichTemplatePortfolio(template, packageName, registry){
   };
 }
 
+function enrichTemplateOffice(template, registry){
+  const override = normalizeOfficeOverride(registry.templates?.[template.id]);
+  if(!override.tags.length && !override.office) return template;
+  return {
+    ...template,
+    tags: [...new Set([...(Array.isArray(template.tags) ? template.tags : []), ...override.tags])],
+    office: override.office ? {...(template.office || {}), ...override.office} : template.office
+  };
+}
+
 function normalizePortfolioRule(rule){
   if(typeof rule === 'string') return {status:rule, reason:'', replacementId:''};
   if(!rule || typeof rule !== 'object' || Array.isArray(rule)) return {status:'', reason:'', replacementId:''};
@@ -76,8 +104,21 @@ function normalizePortfolioRule(rule){
   };
 }
 
+function normalizeOfficeOverride(rule){
+  if(!rule || typeof rule !== 'object' || Array.isArray(rule)) return {tags:[], office:null};
+  const office = rule.office && typeof rule.office === 'object' && !Array.isArray(rule.office) ? rule.office : null;
+  return {
+    tags: Array.isArray(rule.tags) ? rule.tags.map(tag => String(tag || '').trim()).filter(Boolean) : [],
+    office
+  };
+}
+
 function emptyPortfolioRegistry(){
   return {defaultStatus:'working', packageDefaults:{}, templates:{}};
+}
+
+function emptyOfficeOverrides(){
+  return {templates:{}};
 }
 
 async function loadTemplateFile(path){
@@ -128,6 +169,7 @@ function matchesToken(text, token){
 
 function getTemplateSearchText(template){
   const data = template?.data || {};
+  const office = template?.office || {};
   return normalizeSearch([
     template?.id,
     template?.goal,
@@ -137,6 +179,10 @@ function getTemplateSearchText(template){
     template?.portfolio?.status,
     template?.portfolio?.reason,
     template?.portfolio?.replacementId,
+    office.scenario,
+    office.level,
+    office.risk,
+    office.managerNote,
     data.area,
     data.propertyType,
     data.price,

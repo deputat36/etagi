@@ -1,6 +1,7 @@
 const STYLE_ID = 'spnNewbieWizardPatchStyle';
 let syncTimer = 0;
-let redirectingFromSave = false;
+let redirectingHiddenStep = false;
+let lastMode = '';
 
 window.addEventListener('DOMContentLoaded', () => {
   injectStyles();
@@ -13,11 +14,34 @@ function bindNewbieWizardGuards(){
     attributes: true,
     attributeFilter: ['data-spn-ui-mode', 'data-wizard-step', 'data-wizard-flow']
   });
+}
 
-  document.addEventListener('click', event => {
-    if(!event.target.closest('#spnWizardFlow')) return;
-    window.setTimeout(scheduleNewbieWizardSync, 40);
-  });
+function bindWizardNavigationPatch(){
+  const flow = document.getElementById('spnWizardFlow');
+  if(!flow || flow.dataset.newbieNavigationPatchBound === '1') return;
+  flow.dataset.newbieNavigationPatchBound = '1';
+  flow.addEventListener('click', handleNewbieWizardNavigation, true);
+}
+
+function handleNewbieWizardNavigation(event){
+  if(document.body.dataset.spnUiMode !== 'newbie') return;
+
+  const currentStep = document.body.dataset.wizardStep || 'goal';
+  const next = event.target.closest('#spnWizardNext');
+  const prev = event.target.closest('#spnWizardPrev');
+
+  if(next && currentStep === 'check'){
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    goToWizardStep('task');
+    return;
+  }
+
+  if(prev && currentStep === 'task'){
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    goToWizardStep('check');
+  }
 }
 
 function scheduleNewbieWizardSync(){
@@ -26,31 +50,39 @@ function scheduleNewbieWizardSync(){
 }
 
 function syncNewbieWizardState(){
-  const isNewbie = document.body.dataset.spnUiMode === 'newbie';
+  bindWizardNavigationPatch();
+
+  const mode = document.body.dataset.spnUiMode || '';
+  const isNewbie = mode === 'newbie';
+  const enteredNewbie = isNewbie && lastMode !== 'newbie';
   const step = document.body.dataset.wizardStep;
-  const nextBtn = document.getElementById('spnWizardNext');
 
-  if(nextBtn){
-    nextBtn.textContent = isNewbie && step === 'check' ? 'Готово' : 'Далее';
-    nextBtn.disabled = Boolean(isNewbie && step === 'check');
-  }
+  if(enteredNewbie) enableWizardForNewbie();
+  if(isNewbie && step === 'save') redirectHiddenSaveStep();
 
-  if(isNewbie && step === 'save'){
-    redirectToCheckStep();
-  }
+  lastMode = mode;
 }
 
-function redirectToCheckStep(){
-  if(redirectingFromSave) return;
-  const checkStep = document.querySelector('[data-wizard-step="check"]');
-  if(!checkStep) return;
+function enableWizardForNewbie(){
+  if(document.body.dataset.wizardFlow === 'on') return;
+  const toggle = document.getElementById('spnWizardToggle');
+  if(!toggle) return scheduleNewbieWizardSync();
+  toggle.click();
+}
 
-  redirectingFromSave = true;
+function redirectHiddenSaveStep(){
+  if(redirectingHiddenStep) return;
+  redirectingHiddenStep = true;
   window.setTimeout(() => {
-    checkStep.click();
-    redirectingFromSave = false;
+    goToWizardStep('task');
+    redirectingHiddenStep = false;
     scheduleNewbieWizardSync();
   }, 30);
+}
+
+function goToWizardStep(stepId){
+  const button = document.querySelector(`[data-wizard-step="${stepId}"]`);
+  button?.click();
 }
 
 function injectStyles(){
@@ -64,7 +96,6 @@ function injectStyles(){
     body[data-spn-ui-mode="newbie"] #spnWizardFlow .spn-wizard-flow-head b::after{content:' для новичка';color:#047857}
     body[data-spn-ui-mode="newbie"] #spnWizardFlow [data-wizard-step="save"]{display:none}
     body[data-spn-ui-mode="newbie"] #spnWizardFlow .spn-wizard-steps{grid-template-columns:1fr 1fr}
-    body[data-spn-ui-mode="newbie"][data-wizard-step="check"] #spnWizardNext{background:#ecfdf5;border-color:#86efac;color:#047857;cursor:default}
     @media(max-width:520px){body[data-spn-ui-mode="newbie"] #spnWizardFlow .spn-wizard-steps{grid-template-columns:1fr}}
   `;
   document.head.appendChild(style);

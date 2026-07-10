@@ -6,9 +6,13 @@ const errors = [];
 const workflowPath = path.join(rootDir, '.github/workflows/validate.yml');
 const packagePath = path.join(rootDir, 'package.json');
 const runValidatePath = path.join(rootDir, 'tools/run-validate.mjs');
+const browserSmokeRunnerPath = path.join(rootDir, 'tools/run-browser-smoke.mjs');
+const browserSmokePagePath = path.join(rootDir, 'tools/browser-smoke.html');
 const workflowSource = readRequired(workflowPath);
 const packageSource = readRequired(packagePath);
 const runValidateSource = readRequired(runValidatePath);
+const browserSmokeRunnerSource = readRequired(browserSmokeRunnerPath);
+const browserSmokePageSource = readRequired(browserSmokePagePath);
 const pkg = readPackage(packageSource);
 
 requireSnippets('.github/workflows/validate.yml', workflowSource, [
@@ -27,12 +31,16 @@ requireSnippets('.github/workflows/validate.yml', workflowSource, [
   "- '.github/workflows/validate.yml'",
   'permissions:',
   'contents: read',
+  'validate:',
+  'browser-smoke:',
+  'needs: validate',
   'runs-on: ubuntu-latest',
   'timeout-minutes: 5',
   'uses: actions/checkout@v4',
   'uses: actions/setup-node@v4',
   "node-version: '20'",
-  'run: npm run validate'
+  'run: npm run validate',
+  'run: npm run smoke:browser'
 ]);
 
 requireSnippets('tools/run-validate.mjs', runValidateSource, [
@@ -43,10 +51,31 @@ requireSnippets('tools/run-validate.mjs', runValidateSource, [
   "spawnSync('npm', ['run', scriptName]"
 ]);
 
+requireSnippets('tools/run-browser-smoke.mjs', browserSmokeRunnerSource, [
+  'findChrome()',
+  'createStaticServer(rootDir)',
+  "'--headless=new'",
+  "'--virtual-time-budget=22000'",
+  "'--dump-dom'",
+  'data-status="passed"'
+]);
+
+requireSnippets('tools/browser-smoke.html', browserSmokePageSource, [
+  'id="browserSmokeResult"',
+  'data-status="pending"',
+  '[data-spn-ui-mode="newbie"]',
+  'dataset.wizardFlow === \'on\'',
+  'Проверка → Задание',
+  'Задание → Отчёт',
+  '[data-spn-ui-mode="quick"]',
+  '[data-spn-ui-mode="advanced"]'
+]);
+
 if (pkg) {
   const scripts = pkg.scripts || {};
   requireScript('validate', 'node tools/run-validate.mjs', scripts);
   requireScript('validate:ci-config', 'node tools/validate-ci-config.mjs', scripts);
+  requireScript('smoke:browser', 'node tools/run-browser-smoke.mjs', scripts);
 }
 
 if (errors.length) {

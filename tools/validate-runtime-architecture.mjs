@@ -9,6 +9,7 @@ const files = {
   uiMode: 'assets/js/spnUiMode.js',
   templates: 'assets/js/templates.js',
   reportEnhancements: 'assets/js/spnReportHistoryEnhancements.js',
+  managerSummary: 'assets/js/spnManagerPeriodSummary.js',
   wizardCss: 'assets/css/spn-wizard.css',
   audit: 'docs/full-project-audit-and-roadmap-2026-07-10.md'
 };
@@ -31,7 +32,8 @@ const helperEntries = [
   'spnBrandEditor.js',
   'spnDistributionTaskHelper.js',
   'spnDistributionReportHelper.js',
-  'spnReportHistoryEnhancements.js'
+  'spnReportHistoryEnhancements.js',
+  'spnManagerPeriodSummary.js'
 ];
 
 for (const file of helperEntries) {
@@ -49,6 +51,19 @@ requireSnippets(files.reportEnhancements, sources.reportEnhancements, [
   'Стабильно слабее',
   'window.confirm',
   "localStorage.setItem(REPORT_HISTORY_KEY"
+]);
+
+requireSnippets(files.managerSummary, sources.managerSummary, [
+  "{id:'7', title:'7 дней', days:7}",
+  "{id:'30', title:'30 дней', days:30}",
+  "{id:'all', title:'Вся история', days:0}",
+  'copyManagerPeriodSummaryBtn',
+  'buildPeriodSummary',
+  'managerReviewed',
+  'riskyReports',
+  'notChecked',
+  'Лучшая устойчивая связка',
+  'СВОДКА ПО РАСКЛЕЙКЕ'
 ]);
 
 requireSnippets(files.uiMode, sources.uiMode, [

@@ -26,6 +26,7 @@ npm run validate:borisoglebsk-coverage
 npm run validate:template-portfolio
 npm run validate:template-office-overrides
 npm run validate:photo-layout-modes
+npm run validate:newbuild-visual-layout
 npm run validate:js
 npm run validate:assets
 npm run validate:asset-duplicates
@@ -162,9 +163,9 @@ deprecated   сохранённый для совместимости устар
 
 ## Фото-компоновки
 
-Режимы `photo_left` и `photo_card` определены в `state.js`, применяются через `layoutRules.js` и оформляются модулем `spnPhotoLayoutStyle.js`.
+Режимы `photo_left`, `photo_card` и `newbuild_visual` определены в `state.js`, применяются через `layoutRules.js` и оформляются модулем `spnPhotoLayoutStyle.js`.
 
-Оба режима:
+Все три режима:
 
 - ограничивают результат 1–2 макетами на А4;
 - сохраняют заполненный QR;
@@ -174,6 +175,8 @@ deprecated   сохранённый для совместимости устар
 - проверяются командой `validate:photo-layout-modes`.
 
 `photo_left` размещает изображение слева и текст справа. `photo_card` накладывает заголовок на обычное фото, но не накладывает его на планировку.
+
+`newbuild_visual` размещает крупный фасад и необрезанную планировку, сохраняет 1–2 макета на А4 и отдельно проверяется командой `validate:newbuild-visual-layout`.
 
 ## Что контролируют проверки
 

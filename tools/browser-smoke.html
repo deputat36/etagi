@@ -54,6 +54,22 @@
         await waitFor(() => doc.body.dataset.spnUiMode === 'advanced', 2000, 'режим Расширенно не включился');
         pass('режимы Быстро и Расширенно переключаются');
 
+        await attachImage(win, doc, '#photoOne', 'newbuild-facade.svg', '<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="700"><rect width="1200" height="700" fill="#cbd5e1"/><rect x="140" y="120" width="920" height="480" fill="#e30613"/></svg>');
+        await attachImage(win, doc, '#photoTwo', 'newbuild-plan.svg', '<svg xmlns="http://www.w3.org/2000/svg" width="800" height="800"><rect width="800" height="800" fill="white"/><path d="M80 80h640v640H80zM80 400h640M400 80v640" fill="none" stroke="#111827" stroke-width="24"/></svg>');
+        await waitFor(() => doc.querySelector('#photoModeRow [data-photo="two"].active'), 3000, 'режим двух изображений не включился');
+
+        click(doc, '[data-count="1"]');
+        click(doc, '[data-layout-mode="newbuild_visual"]');
+        await waitFor(() => doc.querySelector('.flyer.has-photo.layout-newbuild_visual.count-1 .photos.two'), 3000, 'newbuild_visual не построил 1 макет на А4');
+        const planImage = doc.querySelector('.flyer.layout-newbuild_visual .photos.two .photo-box:nth-child(2) img');
+        assert(planImage && win.getComputedStyle(planImage).objectFit === 'contain', 'планировка newbuild_visual может обрезаться');
+        pass('newbuild_visual: 1 на А4 и планировка без обрезки');
+
+        click(doc, '[data-count="4"]');
+        click(doc, '[data-layout-mode="newbuild_visual"]');
+        await waitFor(() => doc.querySelector('.flyer.has-photo.layout-newbuild_visual.count-2'), 3000, 'newbuild_visual не ограничил результат до 2 на А4');
+        pass('newbuild_visual: ограничение до 2 на А4');
+
         assert(!doc.querySelector('#spnWizardNext:disabled') || doc.body.dataset.wizardStep === 'report', 'кнопка Далее неожиданно заблокирована');
         if(runtimeErrors.length) throw new Error(`runtime errors: ${runtimeErrors.join(' | ')}`);
 
@@ -81,6 +97,15 @@
       const element = doc.querySelector(selector);
       assert(element, `не найден элемент ${selector}`);
       element.click();
+    }
+    async function attachImage(win, doc, selector, name, source){
+      const input = doc.querySelector(selector);
+      assert(input, `не найден элемент ${selector}`);
+      const transfer = new win.DataTransfer();
+      transfer.items.add(new win.File([source], name, {type:'image/svg+xml'}));
+      input.files = transfer.files;
+      input.dispatchEvent(new win.Event('change', {bubbles:true}));
+      await waitFor(() => input.files?.length === 1, 1000, `не удалось загрузить ${name}`);
     }
     async function waitFor(predicate, timeout, message){
       const started = Date.now();

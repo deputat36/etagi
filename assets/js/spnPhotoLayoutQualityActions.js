@@ -18,7 +18,7 @@ function enhancePhotoLayoutIssues(list){
     if(title === 'Фото-компоновка без фото'){
       appendAction(item, 'focus-photo', 'Загрузить фото');
     }
-    if(title === 'Отрывные перегружают фотокарточку'){
+    if(title === 'Отрывные перегружают фотокарточку' || title === 'Отрывные перегружают макет новостройки'){
       appendAction(item, 'disable-tears', 'Выключить отрывные');
     }
   });

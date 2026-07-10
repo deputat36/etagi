@@ -11,6 +11,7 @@
     "validate:template-portfolio": "node tools/validate-template-portfolio.mjs",
     "validate:template-office-overrides": "node tools/validate-template-office-overrides.mjs",
     "validate:photo-layout-modes": "node tools/validate-photo-layout-modes.mjs",
+    "validate:newbuild-visual-layout": "node tools/validate-newbuild-visual-layout.mjs",
     "validate:js": "node tools/validate-js.mjs",
     "validate:assets": "node tools/validate-assets.mjs",
     "validate:asset-duplicates": "node tools/validate-asset-duplicates.mjs",

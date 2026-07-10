@@ -18,20 +18,24 @@ const sources = Object.fromEntries(
 
 requireSnippets(files.state, sources.state, [
   "{ id:'photo_left', title:'Фото слева', hint:'фото и текст в две колонки' }",
-  "{ id:'photo_card', title:'Фото-карточка', hint:'заголовок поверх фотографии' }"
+  "{ id:'photo_card', title:'Фото-карточка', hint:'заголовок поверх фотографии' }",
+  "{ id:'newbuild_visual', title:'Новостройка', hint:'фасад и планировка без обрезки' }"
 ]);
 
 requireSnippets(files.rules, sources.rules, [
   "photo_left: ['photo','headline','price','description','meta','benefits','customBlock','contact']",
   "photo_card: ['photo','headline','price','description','meta','benefits','customBlock','contact']",
+  "newbuild_visual: ['photo','headline','price','meta','description','benefits','customBlock','contact']",
   "if(effectiveMode === 'photo_left') applyPhotoLeft(next);",
   "if(effectiveMode === 'photo_card') applyPhotoCard(next);",
+  "if(effectiveMode === 'newbuild_visual') applyNewbuildVisual(next);",
   'function applyPhotoLeft(state)',
   'function applyPhotoCard(state)',
+  'function applyNewbuildVisual(state)',
   "state.printCount = Number(state.printCount) === 1 ? 1 : 2;",
   "if(state.photoMode === 'none') state.photoMode = 'one';",
   'state.showQr = Boolean(state.qrLink);',
-  "state.layoutMode === 'photo_left' || state.layoutMode === 'photo_card'",
+  "['photo_left','photo_card','newbuild_visual'].includes(state.layoutMode)",
   "state.layoutMode === 'photo_card' && state.photoMode === 'plan'"
 ]);
 
@@ -45,13 +49,15 @@ requireSnippets(files.styles, sources.styles, [
   'background:linear-gradient(180deg,rgba(15,23,42,.68),rgba(15,23,42,.9))',
   '.flyer.has-photo.layout-photo_card.photo-mode-plan .headline',
   '.flyer.has-photo.layout-photo_card.photo-mode-plan .photo-box img{object-fit:contain',
+  '.flyer.has-photo.layout-newbuild_visual.count-1',
+  '.flyer.has-photo.layout-newbuild_visual .photos.two .photo-box:nth-child(2) img{object-fit:contain',
   '@media print',
   '.flyer.has-photo.layout-photo_left.count-1 .photos{height:150mm}',
   '.flyer.has-photo.layout-photo_card.count-1 .photos{height:124mm}'
 ]);
 
 requireSnippets(files.quality, sources.quality, [
-  "const isPhotoLayout = state.layoutMode === 'photo_left' || state.layoutMode === 'photo_card';",
+  "const isPhotoLayout = ['photo_left','photo_card','newbuild_visual'].includes(state.layoutMode);",
   "title:'Фото-компоновка без фото'",
   "title:'Фото-компоновка слишком мелкая'",
   "title:'Текст перегружает фото-компоновку'",
@@ -64,6 +70,7 @@ requireSnippets(files.actions, sources.actions, [
   'data-photo-layout-quality-action',
   "title === 'Фото-компоновка без фото'",
   "title === 'Отрывные перегружают фотокарточку'",
+  "title === 'Отрывные перегружают макет новостройки'",
   "appendAction(item, 'focus-photo', 'Загрузить фото')",
   "appendAction(item, 'disable-tears', 'Выключить отрывные')",
   "document.getElementById('photoOne')",
@@ -80,6 +87,7 @@ requireSnippets(files.guide, sources.guide, [
   '# Фото-компоновки генератора',
   '## Фото слева',
   '## Фото-карточка',
+  '## Визуальный макет новостройки',
   '1–2 макета на А4',
   'Планировка',
   '## Ручная проверка',

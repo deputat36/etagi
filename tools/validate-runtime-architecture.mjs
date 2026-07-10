@@ -24,7 +24,16 @@ requireSnippets(files.templates, sources.templates, [
   'export function loadTemplates()',
   'if(!templateLoadPromise) templateLoadPromise = loadTemplateFiles();',
   'return templateLoadPromise;',
-  'async function loadTemplateFiles()'
+  'async function loadTemplateFiles()',
+  "const TEMPLATE_PORTFOLIO_FILE = 'data/template_portfolio_status.json';",
+  "const TEMPLATE_OFFICE_OVERRIDES_FILE = 'data/template_office_overrides.json';",
+  'loadTemplatePortfolioRegistry()',
+  'loadTemplateOfficeOverrides()',
+  'enrichTemplatePortfolio',
+  'enrichTemplateOffice',
+  '...override.tags',
+  'office.scenario',
+  'office.managerNote'
 ]);
 
 const helperEntries = [

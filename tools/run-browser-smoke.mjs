@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import http from 'node:http';
 import os from 'node:os';
 import path from 'node:path';
-import { spawnSync } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 
 const rootDir = process.cwd();
 const chrome = findChrome();
@@ -17,7 +17,7 @@ const profileDir = fs.mkdtempSync(path.join(os.tmpdir(), 'etagi-browser-smoke-')
 const url = `http://127.0.0.1:${port}/tools/browser-smoke.html`;
 
 try {
-  const result = spawnSync(chrome, [
+  const result = await runChrome(chrome, [
     '--headless=new',
     '--no-sandbox',
     '--disable-gpu',
@@ -35,31 +35,77 @@ try {
     maxBuffer: 12 * 1024 * 1024
   });
 
-  if (result.error) {
-    console.error(`Browser smoke: не удалось запустить браузер — ${result.error.message}`);
-    process.exit(1);
-  }
+  if (result.timedOut) fail('Browser smoke: Chrome не завершил smoke-сценарий за 35 секунд.', result.stderr);
+  if (result.overflow) fail('Browser smoke: вывод Chrome превысил безопасный лимит 12 МБ.', result.stderr);
+  if (result.error) fail(`Browser smoke: не удалось запустить браузер — ${result.error.message}`);
 
   if (result.status !== 0) {
-    console.error(`Browser smoke: Chrome завершился с кодом ${result.status}.`);
-    if (result.stderr) console.error(result.stderr.slice(-4000));
-    process.exit(result.status || 1);
+    fail(`Browser smoke: Chrome завершился с кодом ${result.status}.`, result.stderr);
   }
 
   const dom = String(result.stdout || '');
   const summary = extractResult(dom);
   if (!dom.includes('id="browserSmokeResult"') || !dom.includes('data-status="passed"')) {
-    console.error('Browser smoke failed.');
-    console.error(summary || 'Результат smoke-сценария не найден в DOM.');
-    if (result.stderr) console.error(result.stderr.slice(-2000));
-    process.exit(1);
+    fail('Browser smoke failed.', summary || result.stderr || 'Результат smoke-сценария не найден в DOM.');
   }
 
   console.log(summary || 'Browser smoke passed.');
 }
+catch(error) {
+  console.error(error.message || error);
+  process.exitCode = 1;
+}
 finally {
   await closeServer(server);
   fs.rmSync(profileDir, {recursive:true, force:true});
+}
+
+function runChrome(command, args, options){
+  return new Promise(resolve => {
+    let stdout = '';
+    let stderr = '';
+    let settled = false;
+    let timedOut = false;
+    let overflow = false;
+    let timer;
+
+    const child = spawn(command, args, {
+      cwd: options.cwd,
+      stdio: ['ignore', 'pipe', 'pipe']
+    });
+
+    const finish = result => {
+      if(settled) return;
+      settled = true;
+      clearTimeout(timer);
+      resolve({stdout, stderr, timedOut, overflow, ...result});
+    };
+
+    const append = (current, chunk) => {
+      const next = current + chunk;
+      if(Buffer.byteLength(next, 'utf8') <= options.maxBuffer) return next;
+      overflow = true;
+      child.kill('SIGKILL');
+      return current;
+    };
+
+    child.stdout.setEncoding('utf8');
+    child.stderr.setEncoding('utf8');
+    child.stdout.on('data', chunk => { stdout = append(stdout, chunk); });
+    child.stderr.on('data', chunk => { stderr = append(stderr, chunk); });
+    child.once('error', error => finish({error, status:null, signal:null}));
+    child.once('close', (status, signal) => finish({error:null, status, signal}));
+
+    timer = setTimeout(() => {
+      timedOut = true;
+      child.kill('SIGKILL');
+    }, options.timeout);
+  });
+}
+
+function fail(message, details = ''){
+  const suffix = String(details || '').trim().slice(-4000);
+  throw new Error(suffix ? `${message}\n${suffix}` : message);
 }
 
 function findChrome(){

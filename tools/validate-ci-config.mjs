@@ -52,13 +52,21 @@ requireSnippets('tools/run-validate.mjs', runValidateSource, [
 ]);
 
 requireSnippets('tools/run-browser-smoke.mjs', browserSmokeRunnerSource, [
+  "import { spawn, spawnSync } from 'node:child_process';",
   'findChrome()',
   'createStaticServer(rootDir)',
+  'const result = await runChrome(chrome, [',
+  'function runChrome(command, args, options)',
+  "child.kill('SIGKILL')",
   "'--headless=new'",
   "'--virtual-time-budget=22000'",
   "'--dump-dom'",
   'data-status="passed"'
 ]);
+
+if (browserSmokeRunnerSource.includes('spawnSync(chrome,')) {
+  errors.push('tools/run-browser-smoke.mjs: Chrome нельзя запускать через spawnSync — он блокирует локальный HTTP-сервер');
+}
 
 requireSnippets('tools/browser-smoke.html', browserSmokePageSource, [
   'id="browserSmokeResult"',

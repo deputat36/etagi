@@ -113,11 +113,21 @@ function uniqueBadges(items){
 }
 
 function renderBadge([type, title]){
-  return `<span class="tpl-office-badge tpl-office-badge-${type}">${title}</span>`;
+  return `<span class="tpl-office-badge tpl-office-badge-${escapeHtml(type)}">${escapeHtml(title)}</span>`;
 }
 
 function renderReason([type, text]){
-  return `<div class="tpl-card-office-reason tpl-card-office-reason-${type}">${text}</div>`;
+  return `<div class="tpl-card-office-reason tpl-card-office-reason-${escapeHtml(type)}">${escapeHtml(text)}</div>`;
+}
+
+function escapeHtml(value=''){
+  return String(value).replace(/[&<>"']/g, character => ({
+    '&':'&amp;',
+    '<':'&lt;',
+    '>':'&gt;',
+    '"':'&quot;',
+    "'":'&#039;'
+  }[character]));
 }
 
 function injectStyles(){

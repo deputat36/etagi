@@ -8,6 +8,7 @@
     "smoke:browser": "node tools/run-browser-smoke.mjs",
     "validate:templates": "node tools/validate-templates.mjs",
     "validate:borisoglebsk-coverage": "node tools/validate-borisoglebsk-coverage.mjs",
+    "validate:template-portfolio": "node tools/validate-template-portfolio.mjs",
     "validate:js": "node tools/validate-js.mjs",
     "validate:assets": "node tools/validate-assets.mjs",
     "validate:asset-duplicates": "node tools/validate-asset-duplicates.mjs",

@@ -13,6 +13,10 @@
       "replacementId": "sales_seller_owner_price_hook",
       "reason": "Смысловой дубль. Продающий вариант имеет office-метаданные, понятный уровень риска и более крупный телефон."
     },
+    "seller_empty_flat": {
+      "status": "test",
+      "reason": "Сценарий пустующей квартиры полезен, но заголовок «Куплю» допустим только при подтверждённом спросе и после проверки менеджером."
+    },
     "seller_inherited_flat": {
       "status": "deprecated",
       "replacementId": "bgo_service_inheritance_sale_plan",

@@ -10,6 +10,7 @@ const files = {
   newbieMode: 'assets/js/spnNewbieMode.js',
   officeFilters: 'assets/js/spnOfficeTemplateFilters.js',
   templateBadges: 'assets/js/spnTemplateCardBadges.js',
+  managerNotice: 'assets/js/spnManagerTemplateNotice.js',
   managerReview: 'assets/js/spnManagerReview.js',
   wizardFlow: 'assets/js/spnWizardFlow.js',
   wizardPatch: 'assets/js/spnNewbieWizardPatch.js',
@@ -40,6 +41,7 @@ requireSnippets(files.uiMode, sources.uiMode, [
   "import './spnWizardFlow.js';",
   "import './spnNewbieWizardPatch.js';",
   "import './spnPhotoLayoutStyle.js';",
+  "import './spnManagerTemplateNotice.js';",
   "'newbie'"
 ]);
 
@@ -76,6 +78,18 @@ requireSnippets(files.templateBadges, sources.templateBadges, [
   'Покажите менеджеру: в макете есть риск, цена, фото, QR или нестандартная формулировка.',
   'Подъездный формат: лучше короткий текст, крупный телефон и 4 на А4.',
   'Новостройки: аккуратно с обещаниями, условиями покупки и ипотекой.'
+]);
+
+requireSnippets(files.managerNotice, sources.managerNotice, [
+  "import { loadTemplates } from './templates.js';",
+  'spnManagerTemplateNotice',
+  'needsManagerAttention',
+  "office.level === 'manager'",
+  "office.risk === 'high'",
+  'Перед печатью покажите макет менеджеру',
+  'Высокий риск формулировок',
+  'office.managerNote',
+  'office.recommendedPrintCount'
 ]);
 
 requireSnippets(files.managerReview, sources.managerReview, [

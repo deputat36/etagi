@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "templates:inventory": "node tools/template-portfolio-inventory.mjs",
     "smoke:browser": "node tools/run-browser-smoke.mjs",
     "validate:templates": "node tools/validate-templates.mjs",
     "validate:borisoglebsk-coverage": "node tools/validate-borisoglebsk-coverage.mjs",

@@ -1,0 +1,115 @@
+{
+  "version": 1,
+  "templates": {
+    "seller_empty_flat": {
+      "tags": ["офис", "менеджер", "тестовый"],
+      "office": {
+        "recommended": false,
+        "level": "manager",
+        "scenario": "extra_empty_flat_options",
+        "risk": "high",
+        "recommendedPrintCount": 4,
+        "managerNote": "Использовать только после проверки: заголовок «Куплю» допустим при подтверждённом спросе; иначе заменить его на предложение оценки и вариантов использования квартиры."
+      }
+    },
+    "buyer_first_flat": {
+      "tags": ["офис", "рекомендовано", "новичку"],
+      "office": {
+        "recommended": true,
+        "level": "newbie",
+        "scenario": "extra_buyer_first_flat",
+        "risk": "low",
+        "recommendedPrintCount": 2,
+        "managerNote": "Подходит новичку: уточнить бюджет, район и способ оплаты, не обещать одобрение ипотеки или наличие конкретного объекта."
+      }
+    },
+    "buyer_maternity_capital": {
+      "tags": ["офис", "менеджер", "тестовый"],
+      "office": {
+        "recommended": false,
+        "level": "manager",
+        "scenario": "extra_buyer_maternity_capital",
+        "risk": "high",
+        "recommendedPrintCount": 2,
+        "managerNote": "Перед печатью проверить актуальные правила использования материнского капитала, требования банка и отсутствие обещаний гарантированного одобрения."
+      }
+    },
+    "buyer_low_budget": {
+      "tags": ["офис", "рекомендовано", "новичку"],
+      "office": {
+        "recommended": true,
+        "level": "newbie",
+        "scenario": "extra_buyer_low_budget",
+        "risk": "low",
+        "recommendedPrintCount": 4,
+        "managerNote": "Подходит новичку: говорить о подборе и сравнении расходов, не обещать объект по заранее заданной цене без проверки рынка."
+      }
+    },
+    "object_ready_move_in": {
+      "tags": ["офис", "рекомендовано", "менеджер"],
+      "office": {
+        "recommended": true,
+        "level": "manager",
+        "scenario": "extra_object_ready_move_in",
+        "risk": "medium",
+        "recommendedPrintCount": 2,
+        "managerNote": "Проверить соответствие фотографий и текста фактическому ремонту, мебели, технике, этажу, цене и готовности объекта к проживанию."
+      }
+    },
+    "object_no_repair_sale": {
+      "tags": ["офис", "рекомендовано", "менеджер"],
+      "office": {
+        "recommended": true,
+        "level": "manager",
+        "scenario": "extra_object_no_repair_sale",
+        "risk": "medium",
+        "recommendedPrintCount": 2,
+        "managerNote": "Проверить цену, состояние, фотографии, возможность торга и формулировки об ипотеке; недостатки объекта не скрывать."
+      }
+    },
+    "newbuild_family_mortgage": {
+      "tags": ["офис", "менеджер", "тестовый"],
+      "office": {
+        "recommended": false,
+        "level": "manager",
+        "scenario": "extra_newbuild_family_mortgage",
+        "risk": "high",
+        "recommendedPrintCount": 2,
+        "managerNote": "Перед каждым тиражом проверить актуальные условия семейной ипотеки, доступные проекты, сроки сдачи и отсутствие гарантий одобрения."
+      }
+    },
+    "newbuild_layout_choice": {
+      "tags": ["офис", "рекомендовано", "менеджер"],
+      "office": {
+        "recommended": true,
+        "level": "manager",
+        "scenario": "extra_newbuild_layout_choice",
+        "risk": "medium",
+        "recommendedPrintCount": 1,
+        "managerNote": "Проверить конкретный проект, актуальные планировки, площади, сроки, цены и QR-ссылку; не показывать недоступные варианты."
+      }
+    },
+    "private_buy_flat": {
+      "tags": ["офис", "менеджер", "тестовый"],
+      "office": {
+        "recommended": false,
+        "level": "manager",
+        "scenario": "extra_private_buy_flat",
+        "risk": "high",
+        "recommendedPrintCount": 4,
+        "managerNote": "Частный макет без бренда использовать только по согласованной задаче и при реальном спросе; проверить соответствие офисной политике."
+      }
+    },
+    "private_sell_flat": {
+      "tags": ["офис", "менеджер", "тестовый"],
+      "office": {
+        "recommended": false,
+        "level": "manager",
+        "scenario": "extra_private_sell_flat",
+        "risk": "high",
+        "recommendedPrintCount": 2,
+        "managerNote": "Частный объектный макет без бренда требует проверки цены, характеристик, фото, документов и соответствия офисной политике."
+      }
+    }
+  }
+}

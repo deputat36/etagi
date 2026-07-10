@@ -4,14 +4,62 @@ const LEGACY_WIZARD_STEP_KEY = 'etagi-raskleyka-wizard-step-v1';
 const LEGACY_WIZARD_ENABLED_KEY = 'etagi-raskleyka-wizard-enabled-v1';
 
 const steps = [
-  { id: 'goal', title: '1. Цель', hint: 'Что делаем и сколько на А4', sections: ['goal', 'situation'] },
-  { id: 'template', title: '2. Заготовка', hint: 'Категория и макет', sections: ['category', 'template'] },
-  { id: 'content', title: '3. Текст', hint: 'Контакты и смысл', sections: ['content'] },
-  { id: 'media', title: '4. Фото / QR', hint: 'Изображения и ссылка', sections: ['media'] },
-  { id: 'check', title: '5. Проверка', hint: 'Качество и печать', sections: ['print', 'quality'] },
-  { id: 'save', title: '6. Сохранить', hint: 'Сохранить макет', sections: ['save'] },
-  { id: 'task', title: '7. Задание', hint: 'Кому, где и сколько клеить', sections: ['task'] },
-  { id: 'report', title: '8. Отчёт', hint: 'Результат после расклейки', sections: ['report'] }
+  {
+    id: 'goal',
+    title: '1. Цель',
+    hint: 'Что делаем и сколько на А4',
+    help: 'Выберите задачу расклейки и формат листа. Для офиса чаще всего подходит 2 на А4, для подъездов — 4 на А4, для объекта с фото — 1 на А4.',
+    sections: ['goal', 'situation']
+  },
+  {
+    id: 'template',
+    title: '2. Заготовка',
+    hint: 'Категория и макет',
+    help: 'Начните с карточек категорий. Новичку лучше брать «Рекомендовано» или «Новичку». Шаблоны с пометкой «Проверка» покажите менеджеру до массовой печати.',
+    sections: ['category', 'template']
+  },
+  {
+    id: 'content',
+    title: '3. Текст',
+    hint: 'Контакты и смысл',
+    help: 'Проверьте имя, телефон, район, тип объекта, заголовок и основной текст. Текст должен быть коротким: человек должен понять смысл за 2–3 секунды.',
+    sections: ['content']
+  },
+  {
+    id: 'media',
+    title: '4. Фото / QR',
+    hint: 'Изображения и ссылка',
+    help: 'Фото и QR нужны не всегда. Для подъездной расклейки важнее крупный телефон. Для объекта, витрины или ЖК проверьте качество изображения и читаемость QR.',
+    sections: ['media']
+  },
+  {
+    id: 'check',
+    title: '5. Проверка',
+    hint: 'Качество и печать',
+    help: 'Нажмите «Проверить», посмотрите ошибки качества, безопасные поля, линии реза и отрывные телефоны. Если выбран менеджерский шаблон — сначала согласуйте макет.',
+    sections: ['print', 'quality']
+  },
+  {
+    id: 'save',
+    title: '6. Сохранить',
+    hint: 'Сохранить макет',
+    help: 'Сохраните удачный макет с понятным названием: район, цель, формат А4. Это поможет быстро повторить рабочую связку позже.',
+    sections: ['save']
+  },
+  {
+    id: 'task',
+    title: '7. Задание',
+    hint: 'Кому, где и сколько клеить',
+    help: 'Сформируйте задание: место, количество листов, ответственный и срок. Скопируйте текст задания тому, кто будет расклеивать.',
+    sections: ['task']
+  },
+  {
+    id: 'report',
+    title: '8. Отчёт',
+    hint: 'Результат после расклейки',
+    help: 'После расклейки внесите листы, звонки, целевые обращения и заметки. Сохраните отчёт в историю, чтобы аналитика показала рабочие и слабые связки.',
+    sections: ['report']
+  }
 ];
 
 const printCounts = [
@@ -88,6 +136,7 @@ function renderWizardPanel(){
     <div class="spn-wizard-steps">
       ${steps.map(step => `<button type="button" data-wizard-step="${step.id}"><b>${step.title}</b><span>${step.hint}</span></button>`).join('')}
     </div>
+    <div class="spn-wizard-step-help" id="spnWizardStepHelp" aria-live="polite"></div>
     <div class="spn-wizard-nav">
       <button type="button" id="spnWizardPrev">Назад</button>
       <button type="button" id="spnWizardNext">Далее</button>
@@ -147,6 +196,13 @@ function setStep(stepId){
 
   const hint = document.getElementById('spnWizardFlowHint');
   if(hint) hint.textContent = active.hint;
+  updateStepHelp(active);
+}
+
+function updateStepHelp(step){
+  const box = document.getElementById('spnWizardStepHelp');
+  if(!box) return;
+  box.innerHTML = `<b>Что сделать сейчас</b><span>${escapeHtml(step.help || step.hint || '')}</span>`;
 }
 
 function setWizardEnabled(enabled){
@@ -195,6 +251,9 @@ function injectStyles(){
     .spn-wizard-steps button{text-align:left;background:#fff;padding:8px}
     .spn-wizard-steps b{display:block;font-size:11px;line-height:1.1}
     .spn-wizard-steps span{display:block;margin-top:3px;font-size:10px;line-height:1.15;opacity:.72}
+    .spn-wizard-step-help{margin-top:8px;padding:8px 9px;border:1px solid #fed7aa;border-radius:12px;background:#fff;color:#9a3412}
+    .spn-wizard-step-help b{display:block;font-size:11px;font-weight:900;line-height:1.15}
+    .spn-wizard-step-help span{display:block;margin-top:4px;font-size:10.5px;line-height:1.28;font-weight:800}
     .spn-wizard-nav{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px}
     body[data-wizard-flow="on"] .sidebar [data-wizard-section]{display:none!important}
     body[data-wizard-flow="on"] .sidebar [data-wizard-section].spn-wizard-section-active{display:block!important}
@@ -202,4 +261,8 @@ function injectStyles(){
     @media print{.spn-wizard-flow{display:none!important}}
   `;
   document.head.appendChild(style);
+}
+
+function escapeHtml(value=''){
+  return String(value).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]));
 }

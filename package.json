@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "smoke:browser": "node tools/run-browser-smoke.mjs",
     "validate:templates": "node tools/validate-templates.mjs",
     "validate:js": "node tools/validate-js.mjs",
     "validate:assets": "node tools/validate-assets.mjs",

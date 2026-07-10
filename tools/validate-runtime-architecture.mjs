@@ -8,6 +8,7 @@ const files = {
   index: 'index.html',
   uiMode: 'assets/js/spnUiMode.js',
   templates: 'assets/js/templates.js',
+  wizardCss: 'assets/css/spn-wizard.css',
   audit: 'docs/full-project-audit-and-roadmap-2026-07-10.md'
 };
 
@@ -44,6 +45,13 @@ requireSnippets(files.uiMode, sources.uiMode, [
 
 forbidSnippets(files.uiMode, sources.uiMode, [
   'Режим новичка возвращается поэтапно.'
+]);
+
+requireSnippets(files.wizardCss, sources.wizardCss, [
+  'data-wizard-step="goal"',
+  "content:'1А · Цель расклейки'",
+  "content:'1Б · Формат листа'",
+  'data-wizard-print-count="2"'
 ]);
 
 requireSnippets(files.audit, sources.audit, [

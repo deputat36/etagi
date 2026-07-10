@@ -45,6 +45,8 @@ const validOfficeRisks = new Set(['low', 'medium', 'high']);
 const indexedExtraFields = ['contactCta', 'tearOffLabel', 'brandName', 'brandSideText'];
 const entranceTemplateFile = 'templates_entrance.json';
 const borisoglebskTemplateFile = 'templates_borisoglebsk.json';
+const borisoglebskExpandedTemplateFile = 'templates_borisoglebsk_expanded.json';
+const salesTemplateFile = 'templates_sales.json';
 const tellermanTemplateFile = 'templates_tellerman_sad.json';
 const tellermanTemplatePath = `data/${tellermanTemplateFile}`;
 const expectedTellermanIds = new Set([
@@ -231,7 +233,9 @@ function checkTellermanTemplates() {
 
 function checkOfficeTemplateTags() {
   checkEntranceOfficeTags();
-  checkBorisoglebskOfficeTags();
+  checkBorisoglebskOfficeTags(borisoglebskTemplateFile);
+  checkBorisoglebskOfficeTags(borisoglebskExpandedTemplateFile);
+  checkSalesOfficeTags();
   checkTellermanOfficeTags();
 }
 
@@ -245,10 +249,10 @@ function checkEntranceOfficeTags() {
   }
 }
 
-function checkBorisoglebskOfficeTags() {
-  const templates = templatesByFile.get(borisoglebskTemplateFile) || [];
+function checkBorisoglebskOfficeTags(file) {
+  const templates = templatesByFile.get(file) || [];
   for (const [index, template] of templates.entries()) {
-    const label = `${borisoglebskTemplateFile}[${index}]${template?.id ? ` (${template.id})` : ''}`;
+    const label = `${file}[${index}]${template?.id ? ` (${template.id})` : ''}`;
     requireOfficeMetadata(label, template);
     if (template?.goal === 'private') {
       requireTags(label, template, ['менеджер']);
@@ -257,12 +261,27 @@ function checkBorisoglebskOfficeTags() {
     }
 
     requireTags(label, template, ['офис', 'рекомендовано', 'Борисоглебск']);
-    if (template?.goal === 'object') {
+    if (template?.office?.level === 'manager') {
       requireTags(label, template, ['менеджер']);
       forbidTags(label, template, ['новичку']);
     }
-    else {
+    else if (template?.office?.level === 'newbie') {
       requireTags(label, template, ['новичку']);
+    }
+  }
+}
+
+function checkSalesOfficeTags() {
+  const templates = templatesByFile.get(salesTemplateFile) || [];
+  for (const [index, template] of templates.entries()) {
+    const label = `${salesTemplateFile}[${index}]${template?.id ? ` (${template.id})` : ''}`;
+    requireOfficeMetadata(label, template);
+    requireTags(label, template, ['офис']);
+    if (template?.office?.recommended) requireTags(label, template, ['рекомендовано']);
+    if (template?.office?.level === 'newbie') requireTags(label, template, ['новичку']);
+    if (template?.office?.level === 'manager') requireTags(label, template, ['менеджер']);
+    if (template?.office?.risk === 'high' && template?.office?.level !== 'manager') {
+      errors.push(`${label}: высокий риск допускается только для уровня manager`);
     }
   }
 }

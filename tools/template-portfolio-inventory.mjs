@@ -4,12 +4,14 @@ import path from 'node:path';
 const rootDir = process.cwd();
 const dataDir = path.join(rootDir, 'data');
 const outputPath = path.join(rootDir, 'docs/template-portfolio-inventory.generated.md');
+const registryPath = path.join(dataDir, 'template_portfolio_status.json');
 const files = fs.readdirSync(dataDir)
   .filter(file => /^templates.*\.json$/.test(file))
   .sort();
 
 const templates = [];
 const errors = [];
+const registry = readPortfolioRegistry();
 
 for(const file of files){
   const fullPath = path.join(dataDir, file);
@@ -19,7 +21,7 @@ for(const file of files){
       errors.push(`${file}: корень файла должен быть массивом`);
       continue;
     }
-    parsed.forEach((template, index) => templates.push({...template, __file:file, __index:index}));
+    parsed.forEach((template, index) => templates.push(enrichPortfolio({...template, __file:file, __index:index})));
   } catch(error){
     errors.push(`${file}: ${error.message}`);
   }
@@ -35,6 +37,7 @@ const byFile = countBy(templates, template => template.__file);
 const byGoal = countBy(templates, template => template.goal || 'unknown');
 const byLevel = countBy(templates.filter(template => template.office), template => template.office?.level || 'unknown');
 const byRisk = countBy(templates.filter(template => template.office), template => template.office?.risk || 'unknown');
+const byPortfolioStatus = countBy(templates, template => template.portfolio?.status || 'working');
 const officeCount = templates.filter(template => template.office).length;
 const recommendedCount = templates.filter(template => template.office?.recommended === true).length;
 const duplicateIds = duplicateGroups(templates, template => String(template.id || '').trim()).filter(group => group.key);
@@ -43,6 +46,8 @@ const duplicateHeadlines = duplicateGroups(templates, template => normalizeText(
 const nearDuplicates = findNearDuplicates(templates);
 const missingOffice = templates.filter(template => !template.office);
 const missingScenario = templates.filter(template => template.office && !template.office.scenario);
+const deprecatedTemplates = templates.filter(template => template.portfolio?.status === 'deprecated');
+const testTemplates = templates.filter(template => template.portfolio?.status === 'test');
 
 const markdown = [
   '# Автоматическая инвентаризация библиотеки шаблонов',
@@ -56,6 +61,9 @@ const markdown = [
   `- с office-метаданными: ${officeCount} (${percent(officeCount, templates.length)}%);`,
   `- office-рекомендованных: ${recommendedCount};`,
   `- без office-метаданных: ${missingOffice.length};`,
+  `- рабочих: ${statusCount('working')};`,
+  `- тестовых: ${statusCount('test')};`,
+  `- устаревших: ${statusCount('deprecated')};`,
   `- повторяющихся id: ${duplicateIds.length};`,
   `- повторяющихся office-сценариев: ${duplicateScenarios.length};`,
   `- одинаковых нормализованных заголовков: ${duplicateHeadlines.length};`,
@@ -65,6 +73,8 @@ const markdown = [
   '',
   renderCountTable('## По целям', 'Цель', byGoal),
   '',
+  renderCountTable('## Жизненный цикл', 'Статус', byPortfolioStatus),
+  '',
   renderCountTable('## Office-уровни', 'Уровень', byLevel),
   '',
   renderCountTable('## Office-риски', 'Риск', byRisk),
@@ -72,6 +82,14 @@ const markdown = [
   '## Пакеты без полного office-покрытия',
   '',
   renderOfficeCoverageTable(files, templates),
+  '',
+  '## Устаревшие шаблоны и замены',
+  '',
+  renderLifecycleList(deprecatedTemplates, true),
+  '',
+  '## Тестовые шаблоны',
+  '',
+  renderLifecycleList(testTemplates, false),
   '',
   '## Вероятные смысловые дубли',
   '',
@@ -97,15 +115,54 @@ const markdown = [
   '',
   '1. Не удалять шаблон только из-за сходства: сначала проверить реальную рабочую задачу.',
   '2. Для вероятного дубля определить основной рабочий вариант, тестовый вариант или устаревший вариант.',
-  '3. Office-метаданные добавлять сначала в пакеты с реальным офисным использованием.',
-  '4. Повторяющиеся заголовки допустимы только при разных целях, аудиториях или форматах.',
-  '5. После осознанных изменений повторно запустить `npm run templates:inventory`.',
+  '3. Устаревший шаблон должен ссылаться на конечную рабочую замену.',
+  '4. Office-метаданные добавлять сначала в пакеты с реальным офисным использованием.',
+  '5. Повторяющиеся заголовки допустимы только при разных целях, аудиториях или форматах.',
+  '6. После осознанных изменений повторно запустить `npm run templates:inventory`.',
   ''
 ].join('\n');
 
 fs.writeFileSync(outputPath, markdown, 'utf8');
 console.log(`Инвентаризация создана: ${path.relative(rootDir, outputPath).replaceAll('\\', '/')}`);
-console.log(`Шаблонов: ${templates.length}; office: ${officeCount}; вероятных дублей: ${nearDuplicates.length}.`);
+console.log(`Шаблонов: ${templates.length}; office: ${officeCount}; working: ${statusCount('working')}; test: ${statusCount('test')}; deprecated: ${statusCount('deprecated')}.`);
+console.log(`Вероятных смысловых дублей: ${nearDuplicates.length}.`);
+
+function readPortfolioRegistry(){
+  try{
+    const parsed = JSON.parse(fs.readFileSync(registryPath, 'utf8'));
+    return {
+      defaultStatus: parsed.defaultStatus || 'working',
+      packageDefaults: parsed.packageDefaults && typeof parsed.packageDefaults === 'object' ? parsed.packageDefaults : {},
+      templates: parsed.templates && typeof parsed.templates === 'object' ? parsed.templates : {}
+    };
+  } catch(error){
+    errors.push(`template_portfolio_status.json: ${error.message}`);
+    return {defaultStatus:'working', packageDefaults:{}, templates:{}};
+  }
+}
+
+function enrichPortfolio(template){
+  const packageRule = normalizeRule(registry.packageDefaults?.[template.__file]);
+  const templateRule = normalizeRule(registry.templates?.[template.id]);
+  return {
+    ...template,
+    portfolio: {
+      status: templateRule.status || packageRule.status || registry.defaultStatus || 'working',
+      reason: templateRule.reason || packageRule.reason || '',
+      replacementId: templateRule.replacementId || ''
+    }
+  };
+}
+
+function normalizeRule(rule){
+  if(typeof rule === 'string') return {status:rule, reason:'', replacementId:''};
+  if(!rule || typeof rule !== 'object' || Array.isArray(rule)) return {status:'', reason:'', replacementId:''};
+  return {
+    status: String(rule.status || '').trim(),
+    reason: String(rule.reason || '').trim(),
+    replacementId: String(rule.replacementId || '').trim()
+  };
+}
 
 function findNearDuplicates(items){
   const result = [];
@@ -177,6 +234,10 @@ function countBy(items, keyFn){
   return [...counts.entries()].sort((a, b) => b[1] - a[1] || String(a[0]).localeCompare(String(b[0]), 'ru'));
 }
 
+function statusCount(status){
+  return byPortfolioStatus.find(([key]) => key === status)?.[1] || 0;
+}
+
 function renderCountTable(title, firstColumn, rows){
   return [
     title,
@@ -191,21 +252,34 @@ function renderOfficeCoverageTable(templateFiles, items){
   const rows = templateFiles.map(file => {
     const packageItems = items.filter(item => item.__file === file);
     const withOffice = packageItems.filter(item => item.office).length;
-    return `| ${escapeCell(file)} | ${packageItems.length} | ${withOffice} | ${percent(withOffice, packageItems.length)}% |`;
+    const deprecated = packageItems.filter(item => item.portfolio?.status === 'deprecated').length;
+    const test = packageItems.filter(item => item.portfolio?.status === 'test').length;
+    return `| ${escapeCell(file)} | ${packageItems.length} | ${withOffice} | ${percent(withOffice, packageItems.length)}% | ${test} | ${deprecated} |`;
   });
   return [
-    '| Пакет | Всего | С office | Покрытие |',
-    '|---|---:|---:|---:|',
+    '| Пакет | Всего | С office | Покрытие | Тест | Устарело |',
+    '|---|---:|---:|---:|---:|---:|',
     ...rows
+  ].join('\n');
+}
+
+function renderLifecycleList(items, showReplacement){
+  if(!items.length) return 'Нет.';
+  return [
+    '| Шаблон | Пакет | Причина | Замена |',
+    '|---|---|---|---|',
+    ...items
+      .sort((a, b) => String(a.__file).localeCompare(String(b.__file), 'ru') || String(a.id).localeCompare(String(b.id), 'ru'))
+      .map(item => `| ${escapeCell(item.id)} — ${escapeCell(item.title)} | ${escapeCell(item.__file)} | ${escapeCell(item.portfolio.reason)} | ${showReplacement ? escapeCell(item.portfolio.replacementId || '—') : '—'} |`)
   ].join('\n');
 }
 
 function renderNearDuplicates(groups){
   if(!groups.length) return 'Вероятные смысловые дубли не найдены.';
   return [
-    '| Сходство | Первый шаблон | Второй шаблон |',
-    '|---:|---|---|',
-    ...groups.map(group => `| ${(group.similarity * 100).toFixed(0)}% | ${templateRef(group.left)} | ${templateRef(group.right)} |`)
+    '| Сходство | Первый шаблон | Второй шаблон | Статусы |',
+    '|---:|---|---|---|',
+    ...groups.map(group => `| ${(group.similarity * 100).toFixed(0)}% | ${templateRef(group.left)} | ${templateRef(group.right)} | ${escapeCell(group.left.portfolio.status)} / ${escapeCell(group.right.portfolio.status)} |`)
   ].join('\n');
 }
 
@@ -227,7 +301,7 @@ function renderTemplateList(items){
 }
 
 function templateRef(template){
-  return `${escapeCell(template.id || 'без id')} — ${escapeCell(template.title || 'без названия')} (${escapeCell(template.__file)})`;
+  return `${escapeCell(template.id || 'без id')} — ${escapeCell(template.title || 'без названия')} (${escapeCell(template.__file)}, ${escapeCell(template.portfolio?.status || 'working')})`;
 }
 
 function normalizeText(value){

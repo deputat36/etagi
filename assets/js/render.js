@@ -66,10 +66,16 @@ function renderFlyer(state){
 
   return `<article class="${classes.join(' ')}">
     ${state.showBrand && state.colorMode !== 'private' ? renderBrandRow(state) : ''}
+    ${state.layoutMode === 'agent_brand_photo' ? renderAgentBrandIdentity(state) : ''}
     ${blocks}
     ${state.showQr ? renderQr(state) : ''}
     ${state.tearOffs ? renderTears(state) : ''}
   </article>`;
+}
+
+function renderAgentBrandIdentity(state){
+  const name = String(state.agentName || '').trim() || 'ИМЯ СПЕЦИАЛИСТА';
+  return `<div class="agent-brand-identity"><strong>${esc(name)}</strong><span>Специалист по недвижимости</span></div>`;
 }
 
 function renderBrandRow(state){

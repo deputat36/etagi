@@ -18,7 +18,10 @@ function enhancePhotoLayoutIssues(list){
     if(title === 'Фото-компоновка без фото'){
       appendAction(item, 'focus-photo', 'Загрузить фото');
     }
-    if(title === 'Отрывные перегружают фотокарточку' || title === 'Отрывные перегружают макет новостройки'){
+    if(title === 'Брендовый макет без имени СПН'){
+      appendAction(item, 'focus-agent-name', 'Указать имя');
+    }
+    if(title === 'Отрывные перегружают фотокарточку' || title === 'Отрывные перегружают макет новостройки' || title === 'Отрывные перегружают брендовый макет'){
       appendAction(item, 'disable-tears', 'Выключить отрывные');
     }
   });
@@ -44,6 +47,15 @@ function handlePhotoLayoutAction(event){
     input.scrollIntoView?.({block:'center', behavior:'smooth'});
     input.focus?.();
     setStatus('Фото-компоновка сохранена. Выберите файл в поле Фото 1.');
+  }
+
+  if(button.dataset.photoLayoutQualityAction === 'focus-agent-name'){
+    const input = document.getElementById('agentName');
+    if(!input) return;
+    input.scrollIntoView?.({block:'center', behavior:'smooth'});
+    input.focus?.();
+    input.select?.();
+    setStatus('Брендовая компоновка сохранена. Укажите имя специалиста.');
   }
 
   if(button.dataset.photoLayoutQualityAction === 'disable-tears'){

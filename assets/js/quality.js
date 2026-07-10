@@ -23,8 +23,9 @@ export function checkQuality(state, sheet){
   const benefitsCount = String(state.benefits || '').split('\n').filter(Boolean).length;
   const metaCount = [state.area, state.propertyType, state.params].filter(Boolean).length;
   const visibleBlocks = getVisibleBlockCount(state);
-  const isPhotoLayout = ['photo_left','photo_card','newbuild_visual'].includes(state.layoutMode);
+  const isPhotoLayout = ['photo_left','photo_card','newbuild_visual','agent_brand_photo'].includes(state.layoutMode);
   const isNewbuildVisual = state.layoutMode === 'newbuild_visual';
+  const isAgentBrandPhoto = state.layoutMode === 'agent_brand_photo';
   const sellingText = normalizeText(`${state.headline} ${state.description} ${state.benefits} ${state.customBlockTitle} ${state.customBlockText} ${state.price} ${state.area} ${state.propertyType} ${contactCta}`);
 
   if(!state.showContact && !state.tearOffs && !(state.showQr && state.qrLink)) issues.push({level:'warn', title:'Нет канала отклика', text:'В макете нет контактов, отрывных телефонов и QR. Добавьте канал отклика: контакты, отрывные листки или QR.', action:null});
@@ -63,10 +64,14 @@ export function checkQuality(state, sheet){
   if(state.showPhoto && state.photoMode !== 'none' && count >= 6) issues.push({level:'warn', title:'Фото при плотной печати', text:'На 6+ макетах фото ухудшает читаемость.', action:'twoOnPage'});
   if(isPhotoLayout && (!state.showPhoto || state.photoMode === 'none' || !state.photoOne)) issues.push({level:'error', title:'Фото-компоновка без фото', text:'Этот режим строится вокруг изображения. Загрузите Фото 1 или выберите обычную компоновку.', action:null});
   if(isPhotoLayout && count > 2) issues.push({level:'error', title:'Фото-компоновка слишком мелкая', text:'Режимы с крупным изображением рассчитаны только на 1–2 макета на А4.', action:'twoOnPage'});
-  if(isPhotoLayout && !isNewbuildVisual && count === 2 && state.showDescription && descLen > 190) issues.push({level:'warn', title:'Текст перегружает фото-компоновку', text:'Для двух макетов на А4 сократите описание примерно до 1–2 предложений.', action:'shortDesc'});
+  if(isPhotoLayout && !isNewbuildVisual && !isAgentBrandPhoto && count === 2 && state.showDescription && descLen > 190) issues.push({level:'warn', title:'Текст перегружает фото-компоновку', text:'Для двух макетов на А4 сократите описание примерно до 1–2 предложений.', action:'shortDesc'});
   if(isNewbuildVisual && count === 2 && state.showDescription && descLen > 170) issues.push({level:'warn', title:'Текст перегружает макет новостройки', text:'Для двух макетов на А4 оставьте короткое описание дома и главный призыв.', action:'shortDesc'});
   if(isNewbuildVisual && state.showHeadline && headlineLen > 42) issues.push({level:'warn', title:'Длинный заголовок новостройки', text:'Оставьте название ЖК и один короткий смысл, чтобы визуализация и телефон оставались крупными.', action:'shortHeadline'});
   if(isNewbuildVisual && state.tearOffs) issues.push({level:'warn', title:'Отрывные перегружают макет новостройки', text:'Для визуального макета новостройки лучше использовать крупный контактный блок без отрывных полос.', action:null});
+  if(isAgentBrandPhoto && !String(state.agentName || '').trim()) issues.push({level:'error', title:'Брендовый макет без имени СПН', text:'Укажите имя специалиста: оно должно быть рядом с фотографией и телефоном.', action:null});
+  if(isAgentBrandPhoto && count === 2 && state.showDescription && descLen > 160) issues.push({level:'warn', title:'Текст перегружает брендовый макет', text:'Для двух макетов на А4 оставьте короткое знакомство и одну понятную пользу для клиента.', action:'shortDesc'});
+  if(isAgentBrandPhoto && state.showHeadline && headlineLen > 38) issues.push({level:'warn', title:'Длинный заголовок личного бренда', text:'Оставьте короткую специализацию или понятную пользу, чтобы имя и телефон читались крупно.', action:'shortHeadline'});
+  if(isAgentBrandPhoto && state.tearOffs) issues.push({level:'warn', title:'Отрывные перегружают брендовый макет', text:'Для знакомства со специалистом лучше крупный контактный блок, а отрывные оставить только по явной необходимости.', action:null});
   if(state.layoutMode === 'photo_card' && state.showHeadline && headlineLen > 36) issues.push({level:'warn', title:'Длинный заголовок на фотографии', text:'В фотокарточке заголовок накладывается на изображение. Оставьте 2–4 коротких слова или несколько коротких строк.', action:'shortHeadline'});
   if(state.layoutMode === 'photo_card' && state.tearOffs) issues.push({level:'warn', title:'Отрывные перегружают фотокарточку', text:'Для фотокарточки лучше отдельный контактный блок без отрывных полос.', action:null});
 

@@ -32,6 +32,7 @@ export const layoutModes = [
   { id:'photo_left', title:'Фото слева', hint:'фото и текст в две колонки' },
   { id:'photo_card', title:'Фото-карточка', hint:'заголовок поверх фотографии' },
   { id:'newbuild_visual', title:'Новостройка', hint:'фасад и планировка без обрезки' },
+  { id:'agent_brand_photo', title:'Фото СПН', hint:'портрет, имя и крупный телефон' },
   { id:'showcase', title:'Витрина', hint:'1 крупный макет' },
   { id:'entrance', title:'Подъезд', hint:'отрывные телефоны' },
   { id:'private', title:'Частное', hint:'без бренда' }

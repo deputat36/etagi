@@ -5,6 +5,7 @@ const BLOCK_ORDERS = {
   photo_left: ['photo','headline','price','description','meta','benefits','customBlock','contact'],
   photo_card: ['photo','headline','price','description','meta','benefits','customBlock','contact'],
   newbuild_visual: ['photo','headline','price','meta','description','benefits','customBlock','contact'],
+  agent_brand_photo: ['photo','headline','description','benefits','customBlock','price','meta','contact'],
   showcase: ['headline','photo','price','description','benefits','meta','customBlock','contact'],
   entrance: ['headline','description','customBlock','benefits','contact','price','meta','photo'],
   private: ['headline','description','price','customBlock','benefits','contact','meta','photo']
@@ -20,6 +21,7 @@ export function applyLayoutMode(state, mode = 'auto'){
   if(effectiveMode === 'photo_left') applyPhotoLeft(next);
   if(effectiveMode === 'photo_card') applyPhotoCard(next);
   if(effectiveMode === 'newbuild_visual') applyNewbuildVisual(next);
+  if(effectiveMode === 'agent_brand_photo') applyAgentBrandPhoto(next);
   if(effectiveMode === 'showcase') applyShowcase(next);
   if(effectiveMode === 'entrance') applyEntrance(next);
   if(effectiveMode === 'private') applyPrivate(next);
@@ -61,7 +63,7 @@ export function getLayoutHints(state){
   if(state.showQr && state.qrLink && count >= 4){
     hints.push('QR на плотной расклейке может плохо сканироваться. Если QR нужен, используйте мягкую подстройку с сохранением фото и QR или печатайте 1–2 на А4.');
   }
-  if(['photo_left','photo_card','newbuild_visual'].includes(state.layoutMode) && count > 2){
+  if(['photo_left','photo_card','newbuild_visual','agent_brand_photo'].includes(state.layoutMode) && count > 2){
     hints.push('Фото-компоновки рассчитаны только на 1–2 макета на А4. Повторно примените выбранный режим.');
   }
   if(state.layoutMode === 'photo_card' && state.photoMode === 'plan'){
@@ -216,6 +218,23 @@ function applyNewbuildVisual(state){
   if(state.photoMode === 'none') state.photoMode = 'one';
   state.headlineScale = Number(state.printCount) === 1 ? 1.14 : 1;
   state.phoneScale = Number(state.printCount) === 1 ? 1.5 : 1.35;
+  state.flyerPadding = Number(state.printCount) === 1 ? 7 : 5;
+  state.pageMargin = 7;
+  state.pageGap = 4;
+}
+
+function applyAgentBrandPhoto(state){
+  state.printCount = Number(state.printCount) === 1 ? 1 : 2;
+  state.splitMode = 'auto';
+  state.layoutDensity = 'airy';
+  state.showBrand = true;
+  state.showHeadline = true;
+  state.showDescription = true;
+  state.showBenefits = true;
+  state.showPhoto = true;
+  if(state.photoMode === 'none') state.photoMode = 'one';
+  state.headlineScale = Number(state.printCount) === 1 ? 1.12 : 1;
+  state.phoneScale = Number(state.printCount) === 1 ? 1.55 : 1.4;
   state.flyerPadding = Number(state.printCount) === 1 ? 7 : 5;
   state.pageMargin = 7;
   state.pageGap = 4;

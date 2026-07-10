@@ -86,31 +86,65 @@ function injectStyles(){
   style.id = STYLE_ID;
   style.textContent = `
     .flyer.has-photo.count-1 .photo-box{height:86mm}
-    .flyer.has-photo.count-1.layout-showcase .photo-box,
-    .flyer.has-photo.count-1.layout-photo .photo-box{height:104mm}
     .flyer.has-photo.count-2 .photo-box{height:45mm}
-    .flyer.has-photo.count-2.layout-showcase .photo-box,
-    .flyer.has-photo.count-2.layout-photo .photo-box{height:52mm}
     .flyer.has-photo.count-3 .photo-box{height:34mm}
     .flyer.has-photo.count-4 .photo-box{height:26mm}
     .flyer.has-photo.count-6 .photo-box,
     .flyer.has-photo.count-8 .photo-box{height:18mm}
+
     .flyer.has-photo.photo-mode-two.count-1 .photo-box{height:72mm}
     .flyer.has-photo.photo-mode-two.count-2 .photo-box{height:38mm}
     .flyer.has-photo.photo-mode-plan.count-1 .photo-box{height:112mm;background:#fff}
     .flyer.has-photo.photo-mode-plan.count-2 .photo-box{height:56mm;background:#fff}
-    .flyer.has-photo.layout-showcase .photos,
-    .flyer.has-photo.layout-photo .photos{order:-1}
+
+    .flyer.has-photo.count-1.layout-showcase:not(.photo-mode-plan) .photos,
+    .flyer.has-photo.count-1.layout-photo:not(.photo-mode-plan) .photos,
+    .flyer.has-photo.count-2.layout-showcase:not(.photo-mode-plan) .photos,
+    .flyer.has-photo.count-2.layout-photo:not(.photo-mode-plan) .photos{
+      order:-2;
+      width:calc(100% + var(--flyer-pad) + var(--flyer-pad));
+      margin:calc(0mm - var(--flyer-pad)) calc(0mm - var(--flyer-pad)) 1.5mm;
+      gap:1px;
+      overflow:hidden;
+      border-radius:var(--radius) var(--radius) 10px 10px;
+      background:#e2e8f0;
+    }
+    .flyer.has-photo.count-1.layout-showcase:not(.photo-mode-plan) .photo-box,
+    .flyer.has-photo.count-1.layout-photo:not(.photo-mode-plan) .photo-box,
+    .flyer.has-photo.count-2.layout-showcase:not(.photo-mode-plan) .photo-box,
+    .flyer.has-photo.count-2.layout-photo:not(.photo-mode-plan) .photo-box{
+      border:0;
+      border-radius:0;
+    }
+    .flyer.has-photo.count-1.layout-showcase:not(.photo-mode-plan) .photo-box{height:112mm}
+    .flyer.has-photo.count-1.layout-photo:not(.photo-mode-plan) .photo-box{height:96mm}
+    .flyer.has-photo.count-2.layout-showcase:not(.photo-mode-plan) .photo-box{height:58mm}
+    .flyer.has-photo.count-2.layout-photo:not(.photo-mode-plan) .photo-box{height:50mm}
+    .flyer.has-photo.photo-mode-two.count-1.layout-showcase .photo-box{height:92mm}
+    .flyer.has-photo.photo-mode-two.count-1.layout-photo .photo-box{height:82mm}
+    .flyer.has-photo.photo-mode-two.count-2.layout-showcase .photo-box{height:50mm}
+    .flyer.has-photo.photo-mode-two.count-2.layout-photo .photo-box{height:44mm}
+
+    .flyer.has-photo.layout-showcase .brand-row,
+    .flyer.has-photo.layout-photo .brand-row{margin-top:.5mm}
     .flyer.has-photo.layout-showcase .headline,
     .flyer.has-photo.layout-photo .headline{margin-top:1mm}
-    .flyer.has-photo.count-1 .photos.two{grid-template-columns:1fr 1fr}
+    .flyer.has-photo.count-1.layout-showcase .headline{font-size:calc(25pt * var(--headline-scale));line-height:.92}
+    .flyer.has-photo.count-1.layout-photo .headline{font-size:calc(23pt * var(--headline-scale));line-height:.93}
+
+    .flyer.has-photo.count-1 .photos.two,
     .flyer.has-photo.count-2 .photos.two{grid-template-columns:1fr 1fr}
     .flyer.has-photo.count-4 .photos.two,
     .flyer.has-photo.count-6 .photos.two,
     .flyer.has-photo.count-8 .photos.two{grid-template-columns:1fr}
+
     @media print{
       .flyer.has-photo.count-1 .photo-box{height:86mm}
       .flyer.has-photo.count-2 .photo-box{height:45mm}
+      .flyer.has-photo.count-1.layout-showcase:not(.photo-mode-plan) .photo-box{height:112mm}
+      .flyer.has-photo.count-1.layout-photo:not(.photo-mode-plan) .photo-box{height:96mm}
+      .flyer.has-photo.count-2.layout-showcase:not(.photo-mode-plan) .photo-box{height:58mm}
+      .flyer.has-photo.count-2.layout-photo:not(.photo-mode-plan) .photo-box{height:50mm}
     }
   `;
   document.head.appendChild(style);

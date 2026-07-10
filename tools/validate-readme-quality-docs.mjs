@@ -4,18 +4,26 @@ const readmeSource = read('README.md');
 const packageSource = read('package.json');
 const workflowSource = read('.github/workflows/validate.yml');
 const errors = [];
+const pkg = readPackage(packageSource);
 
 check(readmeSource, 'README.md', [
-  'прямые безопасные действия для пустого QR, фото и отсутствующего канала отклика',
-  'выбранные блоки не выключаются автоматически, а пользователь переходит к нужному полю или включает контакты только при корректном телефоне',
+  '# Генератор расклеек СПН «Этажи»',
+  '## Актуальный аудит и план',
+  'docs/full-project-audit-and-roadmap-2026-07-10.md',
+  '### Контроль качества',
+  'безопасные прямые действия без самовольного отключения фото и QR',
   'подавление дублирующих QR-замечаний',
-  'дублей HTML-ассетов',
-  'автоматической сверки DOM-id приложения',
-  'tools/validate-assets.mjs               проверка связей файлов и DOM-id приложения',
-  'мягкая автоподстройка, которая сохраняет включённые фото и QR в `auto` и явных режимах подстройки',
-  'assets/js/qrSizeHint.js',
+  'мягкая автоподстройка с сохранением фото и QR',
+  '## Автоматические проверки',
+  'npm run validate',
+  'assets/js/quality.js',
+  'tools/validate-runtime-architecture.mjs'
+]);
+
+for (const file of [
+  'assets/js/qualityExtraActions.js',
   'assets/js/qualityQrDeduplicate.js',
-  'assets/js/qualityExtraActions.js        быстрые исправления контроля качества, включая канал отклика, пустые QR и фото',
+  'assets/js/qrSizeHint.js',
   'docs/quality-helper-map.md',
   'docs/quality-regression-checklist.md',
   'tools/validate-asset-duplicates.mjs',
@@ -26,56 +34,45 @@ check(readmeSource, 'README.md', [
   'tools/validate-quality-helper-imports.mjs',
   'tools/validate-quality-regression-checklist.mjs',
   'tools/validate-quality-helper-map.mjs',
-  'tools/validate-readme-quality-docs.mjs',
-  'tools/validate-qr-empty-direct-action.mjs',
-  'npm run validate:asset-duplicates',
-  'npm run validate:layout-media-preservation',
-  'npm run validate:photo-intent-action',
-  'npm run validate:response-channel-action',
-  'npm run validate:suppressed-quality-items',
-  'npm run validate:quality-helper-imports',
-  'npm run validate:quality-regression-checklist',
-  'npm run validate:quality-helper-map',
-  'npm run validate:readme-quality-docs',
-  'npm run validate:qr-empty-direct-action'
-]);
-
-if (readmeSource.includes('tools/validate-assets.mjs               проверка связей файлов\n')) {
-  errors.push('README.md: описание validate-assets должно упоминать DOM-id приложения');
+  'tools/validate-qr-empty-direct-action.mjs'
+]) {
+  if (!fs.existsSync(file)) errors.push(`${file}: файл не найден`);
 }
 
-if (readmeSource.includes('мягкая автоподстройка, которая сохраняет включённые фото и QR;')) {
-  errors.push('README.md: описание мягкой автоподстройки должно уточнять auto и явные режимы');
-}
+if (pkg) {
+  const expectedScripts = {
+    'validate:asset-duplicates': 'node tools/validate-asset-duplicates.mjs',
+    'validate:layout-media-preservation': 'node tools/validate-layout-media-preservation.mjs',
+    'validate:photo-intent-action': 'node tools/validate-photo-intent-action.mjs',
+    'validate:response-channel-action': 'node tools/validate-response-channel-action.mjs',
+    'validate:suppressed-quality-items': 'node tools/validate-suppressed-quality-items.mjs',
+    'validate:quality-helper-imports': 'node tools/validate-quality-helper-imports.mjs',
+    'validate:quality-regression-checklist': 'node tools/validate-quality-regression-checklist.mjs',
+    'validate:quality-helper-map': 'node tools/validate-quality-helper-map.mjs',
+    'validate:readme-quality-docs': 'node tools/validate-readme-quality-docs.mjs',
+    'validate:qr-empty-direct-action': 'node tools/validate-qr-empty-direct-action.mjs'
+  };
 
-if (readmeSource.includes('assets/js/qrIntentFix.js')) {
-  errors.push('README.md: удалённый qrIntentFix.js не должен оставаться в структуре проекта');
+  for (const [name, command] of Object.entries(expectedScripts)) {
+    if (String(pkg.scripts?.[name] || '').trim() !== command) {
+      errors.push(`package.json: ${name} должен быть ${command}`);
+    }
+  }
 }
-
-if (readmeSource.includes('assets/js/photoIntentFix.js')) {
-  errors.push('README.md: удалённый photoIntentFix.js не должен оставаться в структуре проекта');
-}
-
-if (readmeSource.includes('assets/js/responseChannelPhoneGuard.js')) {
-  errors.push('README.md: удалённый responseChannelPhoneGuard.js не должен оставаться в структуре проекта');
-}
-
-check(packageSource, 'package.json', [
-  '"validate:asset-duplicates": "node tools/validate-asset-duplicates.mjs"',
-  '"validate:layout-media-preservation": "node tools/validate-layout-media-preservation.mjs"',
-  '"validate:readme-quality-docs": "node tools/validate-readme-quality-docs.mjs"',
-  '"validate:qr-empty-direct-action": "node tools/validate-qr-empty-direct-action.mjs"',
-  'npm run validate:asset-duplicates',
-  'npm run validate:layout-media-preservation',
-  'npm run validate:readme-quality-docs',
-  'npm run validate:qr-empty-direct-action'
-]);
 
 check(workflowSource, '.github/workflows/validate.yml', [
   "- 'docs/**'",
   "- 'README.md'",
   'run: npm run validate'
 ]);
+
+for (const removed of [
+  'assets/js/qrIntentFix.js',
+  'assets/js/photoIntentFix.js',
+  'assets/js/responseChannelPhoneGuard.js'
+]) {
+  if (readmeSource.includes(removed)) errors.push(`README.md: удалённый модуль не должен упоминаться — ${removed}`);
+}
 
 if (errors.length) {
   console.error('\nОшибки README, документации и workflow по helper-модулям качества:');
@@ -88,6 +85,14 @@ console.log('README, документация и workflow по helper-модул
 function check(source, file, snippets) {
   for (const snippet of snippets) {
     if (!source.includes(snippet)) errors.push(`${file}: отсутствует ${snippet}`);
+  }
+}
+
+function readPackage(source) {
+  try { return JSON.parse(source || '{}'); }
+  catch(e) {
+    errors.push('package.json: JSON не читается');
+    return null;
   }
 }
 

@@ -16,6 +16,7 @@ import './spnTemplateMenuCompact.js';
 import './spnOfficeTemplateFilters.js';
 import './spnOfficeFilterSync.js';
 import './spnTemplateCardBadges.js';
+import './spnManagerTemplateNotice.js';
 import './spnTextStepChecklist.js';
 import './spnNewbieMode.js';
 import './spnNewbieModeNotice.js';
@@ -64,21 +65,26 @@ function setMode(mode){
   const next = MODES.includes(mode) ? mode : 'quick';
   document.body.dataset.spnUiMode = next;
   localStorage.setItem(MODE_KEY, next);
-  document.querySelectorAll('[data-spn-ui-mode]').forEach(btn => btn.classList.toggle('active', btn.dataset.spnUiMode === next));
+  document.querySelectorAll('[data-spn-ui-mode]').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.spnUiMode === next);
+  });
+  document.body.classList.toggle('spn-mode-newbie', next === 'newbie');
+  document.body.classList.toggle('spn-mode-quick', next === 'quick');
+  document.body.classList.toggle('spn-mode-advanced', next === 'advanced');
   const hint = document.getElementById('spnUiModeHint');
-  if(hint){
-    hint.textContent = next === 'newbie'
-      ? 'Новичок: безопасный фильтр, мастер шагов, подсказки печати и защита печати.'
-      : next === 'quick'
-        ? 'Быстро: основной стабильный интерфейс для печати расклеек.'
-        : 'Расширенно: все настройки, сохранение, аналитика и инструменты после расклейки.';
-  }
+  if(hint) hint.textContent = hintText(next);
   const status = document.getElementById('statusLine');
-  if(status){
-    status.textContent = next === 'newbie'
-      ? 'Включён режим новичка с мастером шагов.'
-      : next === 'quick'
-        ? 'Включён стабильный быстрый режим.'
-        : 'Включён расширенный режим.';
-  }
+  if(status) status.textContent = `Режим: ${modeTitle(next)}.`;
+}
+
+function hintText(mode){
+  if(mode === 'newbie') return 'Новичок: безопасные шаблоны, подсказки и проверка перед печатью.';
+  if(mode === 'advanced') return 'Расширенно: все настройки, сохранение, отчёты и контроль качества.';
+  return 'Быстро: основные настройки без лишних блоков.';
+}
+
+function modeTitle(mode){
+  if(mode === 'newbie') return 'Новичок';
+  if(mode === 'advanced') return 'Расширенно';
+  return 'Быстро';
 }

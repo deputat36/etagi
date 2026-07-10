@@ -26,4 +26,15 @@
 .spn-recommendation b{font-size:12px;line-height:1.2;font-weight:900;color:#fff}
 .spn-recommendation span{display:block;font-size:11px;line-height:1.28;color:#dbeafe;font-weight:700}
 .spn-recommendation strong{color:#fff;font-weight:900}
-@media(max-width:520px){.spn-wizard-grid{grid-template-columns:1fr}.spn-wizard-grid button{min-height:auto}.spn-route-steps{gap:4px}.spn-route-steps span{font-size:10px}}
+
+body[data-wizard-flow="on"][data-wizard-step="goal"] .start-card{position:relative;border:2px solid #bfdbfe;background:linear-gradient(180deg,#fff,#eff6ff);box-shadow:0 8px 20px rgba(37,99,235,.08)}
+body[data-wizard-flow="on"][data-wizard-step="goal"] .start-card::before{content:'1А · Цель расклейки';display:inline-flex;margin-bottom:8px;padding:4px 8px;border-radius:999px;background:#1d4ed8;color:#fff;font-size:10px;line-height:1;font-weight:900;letter-spacing:.02em}
+body[data-wizard-flow="on"][data-wizard-step="goal"] .start-card .step-title{margin-bottom:8px}
+.spn-wizard-flow .spn-wizard-print-help{position:relative;margin:0!important;padding:29px 10px 8px!important;border:1px solid #bfdbfe!important;border-bottom:0!important;border-radius:14px 14px 0 0!important;background:#eff6ff!important;color:#1e3a8a!important}
+.spn-wizard-flow .spn-wizard-print-help::before{content:'1Б · Формат листа';position:absolute;top:8px;left:9px;display:inline-flex;padding:4px 8px;border-radius:999px;background:#1d4ed8;color:#fff;font-size:10px;line-height:1;font-weight:900;letter-spacing:.02em}
+.spn-wizard-flow .spn-wizard-print-count{margin:0 0 10px!important;padding:0 8px 8px;border:1px solid #bfdbfe;border-top:0;border-radius:0 0 14px 14px;background:#eff6ff}
+.spn-wizard-flow .spn-wizard-print-count button{min-height:54px;background:#fff}
+.spn-wizard-flow .spn-wizard-print-count button[data-wizard-print-count="2"]{border-color:#93c5fd;box-shadow:inset 0 0 0 1px #bfdbfe}
+.spn-wizard-flow .spn-wizard-print-count button[data-wizard-print-count="2"] span{color:#1d4ed8;opacity:1}
+
+@media(max-width:520px){.spn-wizard-grid{grid-template-columns:1fr}.spn-wizard-grid button{min-height:auto}.spn-route-steps{gap:4px}.spn-route-steps span{font-size:10px}.spn-wizard-flow .spn-wizard-print-count button{min-height:48px}}

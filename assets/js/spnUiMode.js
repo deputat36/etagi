@@ -51,7 +51,7 @@ function renderModePanel(){
   return `<section class="spn-ui-mode" id="spnUiMode" aria-label="Режим интерфейса">
     <div>
       <b>Режим работы</b>
-      <span id="spnUiModeHint">Стабильный интерфейс. Режим новичка возвращается поэтапно.</span>
+      <span id="spnUiModeHint">Выберите режим под свой опыт и текущую задачу.</span>
     </div>
     <div class="spn-ui-mode-actions">
       <button type="button" data-spn-ui-mode="newbie">Новичок</button>
@@ -78,9 +78,9 @@ function setMode(mode){
 }
 
 function hintText(mode){
-  if(mode === 'newbie') return 'Новичок: безопасные шаблоны, подсказки и проверка перед печатью.';
+  if(mode === 'newbie') return 'Новичок: пошаговый мастер, безопасные шаблоны и проверка перед печатью.';
   if(mode === 'advanced') return 'Расширенно: все настройки, сохранение, отчёты и контроль качества.';
-  return 'Быстро: основные настройки без лишних блоков.';
+  return 'Быстро: основные настройки и готовые сценарии без перегрузки.';
 }
 
 function modeTitle(mode){

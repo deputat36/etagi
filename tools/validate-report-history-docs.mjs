@@ -16,54 +16,71 @@ const sources = Object.fromEntries(
 );
 
 requireSnippets(files.helper, sources.helper, [
+  "import { loadTemplates } from './templates.js';",
   'REPORT_HISTORY_KEY',
   'REPORT_HISTORY_LIMIT',
+  'loadReportTemplateMetadata',
+  'templateMap = new Map',
+  'getReportContext',
+  'templateId',
+  'templateTitle',
+  'officeScenario',
+  'officeLevel',
+  'officeRisk',
+  'officeRecommended',
+  'qualityScore',
+  'qualityStatus',
+  'qualityWarnings',
+  'managerReviewProgress',
+  'managerReviewed',
+  'uiMode',
   'saveDistributionReportHistoryBtn',
   'exportDistributionReportHistoryBtn',
-  'distributionReportHistory',
   'distributionReportHistorySearch',
   'data-report-history-filter',
   'filterReportHistory',
-  'classifyReport',
-  'getReportInsight',
   'renderHistoryAnalytics',
-  'compareBestReport',
-  'compareWeakReport',
-  'scoreReport',
   'Лучше повторить',
   'Нужно изменить',
+  "'template_id'",
+  "'office_scenario'",
+  "'quality_score'",
+  "'manager_reviewed'",
   'data-repeat-report',
-  'insight',
   'downloadText'
 ]);
 
 requireSnippets(files.guide, sources.guide, [
   '# История отчётов после расклейки',
   'Что сохраняется',
-  'Автоматический вывод',
+  '`templateId`',
+  'Оценка качества',
+  'Office-контекст',
+  'Совместимость',
   'Аналитика связок',
   'Фильтр истории',
   'Все / Рабочие / Слабые',
   'Лучше повторить',
   'Нужно изменить',
-  'заголовок макета + место расклейки + формат А4 + отклик + целевые обращения',
-  'CSV',
+  'template_id',
+  'quality_score',
+  'manager_reviewed',
   'localStorage'
 ]);
 
 requireSnippets(files.checklist, sources.checklist, [
   '# Чек-лист проверки истории отчётов',
   'Базовый сценарий',
+  'Контекст шаблона',
+  'Совместимость старых записей',
   'Аналитика связок',
   'Фильтр истории',
-  'Все / Рабочие / Слабые',
-  'Лучше повторить',
-  'Нужно изменить',
-  'Убедиться, что связка включает макет, место и формат А4',
-  'Повтор расклейки',
+  'templateId',
+  'office-сценарию',
+  'quality_score',
+  'manager_reviewed',
   'CSV-экспорт',
-  'Автоматический вывод',
-  'insight'
+  'Автоматический вывод'
 ]);
 
 requireSnippets(files.readme, sources.readme, [

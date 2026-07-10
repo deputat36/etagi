@@ -23,6 +23,7 @@ export function checkQuality(state, sheet){
   const benefitsCount = String(state.benefits || '').split('\n').filter(Boolean).length;
   const metaCount = [state.area, state.propertyType, state.params].filter(Boolean).length;
   const visibleBlocks = getVisibleBlockCount(state);
+  const isPhotoLayout = state.layoutMode === 'photo_left' || state.layoutMode === 'photo_card';
   const sellingText = normalizeText(`${state.headline} ${state.description} ${state.benefits} ${state.customBlockTitle} ${state.customBlockText} ${state.price} ${state.area} ${state.propertyType} ${contactCta}`);
 
   if(!state.showContact && !state.tearOffs && !(state.showQr && state.qrLink)) issues.push({level:'warn', title:'Нет канала отклика', text:'В макете нет контактов, отрывных телефонов и QR. Добавьте канал отклика: контакты, отрывные листки или QR.', action:null});
@@ -59,6 +60,11 @@ export function checkQuality(state, sheet){
   if(state.showPhoto && state.photoMode !== 'none' && !state.photoOne) issues.push({level:'warn', title:'Фото включено, но не загружено', text:'Загрузите фото в поле Фото 1 или выключите блок фото вручную, если он не нужен.', action:null});
   if(state.showPhoto && state.photoMode === 'two' && !state.photoTwo) issues.push({level:'warn', title:'Второе фото не загружено', text:'Для шаблона с двумя фото загрузите второе изображение или переключите режим на одно фото.', action:null});
   if(state.showPhoto && state.photoMode !== 'none' && count >= 6) issues.push({level:'warn', title:'Фото при плотной печати', text:'На 6+ макетах фото ухудшает читаемость.', action:'twoOnPage'});
+  if(isPhotoLayout && (!state.showPhoto || state.photoMode === 'none' || !state.photoOne)) issues.push({level:'error', title:'Фото-компоновка без фото', text:'Этот режим строится вокруг изображения. Загрузите Фото 1 или выберите обычную компоновку.', action:null});
+  if(isPhotoLayout && count > 2) issues.push({level:'error', title:'Фото-компоновка слишком мелкая', text:'Режимы «Фото слева» и «Фото-карточка» рассчитаны только на 1–2 макета на А4.', action:'twoOnPage'});
+  if(isPhotoLayout && count === 2 && state.showDescription && descLen > 190) issues.push({level:'warn', title:'Текст перегружает фото-компоновку', text:'Для двух макетов на А4 сократите описание примерно до 1–2 предложений.', action:'shortDesc'});
+  if(state.layoutMode === 'photo_card' && state.showHeadline && headlineLen > 36) issues.push({level:'warn', title:'Длинный заголовок на фотографии', text:'В фотокарточке заголовок накладывается на изображение. Оставьте 2–4 коротких слова или несколько коротких строк.', action:'shortHeadline'});
+  if(state.layoutMode === 'photo_card' && state.tearOffs) issues.push({level:'warn', title:'Отрывные перегружают фотокарточку', text:'Для фотокарточки лучше отдельный контактный блок без отрывных полос.', action:null});
 
   if(!state.showCutLines && count > 1) issues.push({level:'tip', title:'Линии реза выключены', text:'При нескольких макетах на А4 линии реза помогут ровно разрезать лист.', action:'showCutLines'});
   if(!state.safePrintMargins && Number(state.pageMargin) < 7) issues.push({level:'tip', title:'Безопасные поля выключены', text:'Включите безопасные поля, чтобы важный текст не оказался близко к краю печати.', action:'showSafeMargins'});

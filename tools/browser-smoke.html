@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Etagi browser smoke</title>
+  <style>
+    body{font-family:Arial,sans-serif;margin:16px}
+    #appFrame{width:1280px;height:900px;border:1px solid #cbd5e1}
+    #browserSmokeResult{white-space:pre-wrap;padding:12px;border:1px solid #cbd5e1;border-radius:8px;background:#f8fafc}
+  </style>
+</head>
+<body>
+  <pre id="browserSmokeResult" data-status="pending">Browser smoke is running…</pre>
+  <iframe id="appFrame" title="Генератор расклеек"></iframe>
+  <script>
+    const result = document.getElementById('browserSmokeResult');
+    const frame = document.getElementById('appFrame');
+    const checks = [];
+    const runtimeErrors = [];
+
+    frame.addEventListener('load', async () => {
+      const win = frame.contentWindow;
+      const doc = frame.contentDocument;
+      win.addEventListener('error', event => runtimeErrors.push(event.message || 'window error'));
+      win.addEventListener('unhandledrejection', event => runtimeErrors.push(String(event.reason || 'unhandled rejection')));
+
+      try {
+        await waitFor(() => doc.querySelectorAll('.tpl-card').length > 0, 12000, 'шаблоны не появились');
+        await waitFor(() => doc.querySelector('#printSheet .flyer'), 12000, 'предпросмотр А4 не появился');
+        pass(`шаблонов: ${doc.querySelectorAll('.tpl-card').length}`);
+        pass('предпросмотр А4 загружен');
+
+        click(doc, '[data-spn-ui-mode="newbie"]');
+        await waitFor(() => doc.body.dataset.spnUiMode === 'newbie', 3000, 'режим Новичок не включился');
+        await waitFor(() => doc.body.dataset.wizardFlow === 'on', 5000, 'Wizard Flow не включился автоматически');
+        pass('режим Новичок включён');
+        pass('Wizard Flow включён автоматически');
+
+        click(doc, '[data-wizard-step="check"]');
+        await waitFor(() => doc.body.dataset.wizardStep === 'check', 2000, 'шаг Проверка не открылся');
+        click(doc, '#spnWizardNext');
+        await waitFor(() => doc.body.dataset.wizardStep === 'task', 3000, 'переход Проверка → Задание не выполнен');
+        pass('Проверка → Задание');
+
+        click(doc, '#spnWizardNext');
+        await waitFor(() => doc.body.dataset.wizardStep === 'report', 3000, 'переход Задание → Отчёт не выполнен');
+        pass('Задание → Отчёт');
+        assert(doc.getElementById('spnDistributionTask'), 'блок задания отсутствует');
+        assert(doc.getElementById('spnDistributionReport'), 'блок отчёта отсутствует');
+
+        click(doc, '[data-spn-ui-mode="quick"]');
+        await waitFor(() => doc.body.dataset.spnUiMode === 'quick', 2000, 'режим Быстро не включился');
+        click(doc, '[data-spn-ui-mode="advanced"]');
+        await waitFor(() => doc.body.dataset.spnUiMode === 'advanced', 2000, 'режим Расширенно не включился');
+        pass('режимы Быстро и Расширенно переключаются');
+
+        assert(!doc.querySelector('#spnWizardNext:disabled') || doc.body.dataset.wizardStep === 'report', 'кнопка Далее неожиданно заблокирована');
+        if(runtimeErrors.length) throw new Error(`runtime errors: ${runtimeErrors.join(' | ')}`);
+
+        result.dataset.status = 'passed';
+        result.textContent = `PASSED\n${checks.map(item => `✓ ${item}`).join('\n')}`;
+      }
+      catch(error) {
+        result.dataset.status = 'failed';
+        result.textContent = `FAILED\n${checks.map(item => `✓ ${item}`).join('\n')}\n✗ ${error.message || error}`;
+      }
+    }, {once:true});
+
+    frame.src = '/index.html?smoke=1';
+
+    window.setTimeout(() => {
+      if(result.dataset.status === 'pending'){
+        result.dataset.status = 'failed';
+        result.textContent = `FAILED\n${checks.map(item => `✓ ${item}`).join('\n')}\n✗ общий timeout smoke-теста`;
+      }
+    }, 18000);
+
+    function pass(message){ checks.push(message); }
+    function assert(condition, message){ if(!condition) throw new Error(message); }
+    function click(doc, selector){
+      const element = doc.querySelector(selector);
+      assert(element, `не найден элемент ${selector}`);
+      element.click();
+    }
+    async function waitFor(predicate, timeout, message){
+      const started = Date.now();
+      while(Date.now() - started < timeout){
+        if(predicate()) return;
+        await new Promise(resolve => setTimeout(resolve, 80));
+      }
+      throw new Error(message);
+    }
+  </script>
+</body>
+</html>

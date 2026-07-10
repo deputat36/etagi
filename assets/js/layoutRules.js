@@ -2,6 +2,8 @@ const BLOCK_ORDERS = {
   readable: ['headline','description','benefits','price','meta','customBlock','contact','photo'],
   economy: ['headline','price','description','benefits','customBlock','contact','meta','photo'],
   photo: ['headline','price','photo','description','benefits','meta','customBlock','contact'],
+  photo_left: ['photo','headline','price','description','meta','benefits','customBlock','contact'],
+  photo_card: ['photo','headline','price','description','meta','benefits','customBlock','contact'],
   showcase: ['headline','photo','price','description','benefits','meta','customBlock','contact'],
   entrance: ['headline','description','customBlock','benefits','contact','price','meta','photo'],
   private: ['headline','description','price','customBlock','benefits','contact','meta','photo']
@@ -14,6 +16,8 @@ export function applyLayoutMode(state, mode = 'auto'){
   if(effectiveMode === 'readable') applyReadable(next);
   if(effectiveMode === 'economy') applyEconomy(next);
   if(effectiveMode === 'photo') applyPhoto(next);
+  if(effectiveMode === 'photo_left') applyPhotoLeft(next);
+  if(effectiveMode === 'photo_card') applyPhotoCard(next);
   if(effectiveMode === 'showcase') applyShowcase(next);
   if(effectiveMode === 'entrance') applyEntrance(next);
   if(effectiveMode === 'private') applyPrivate(next);
@@ -54,6 +58,12 @@ export function getLayoutHints(state){
   }
   if(state.showQr && state.qrLink && count >= 4){
     hints.push('QR на плотной расклейке может плохо сканироваться. Если QR нужен, используйте мягкую подстройку с сохранением фото и QR или печатайте 1–2 на А4.');
+  }
+  if((state.layoutMode === 'photo_left' || state.layoutMode === 'photo_card') && count > 2){
+    hints.push('Фото-компоновки рассчитаны только на 1–2 макета на А4. Повторно примените выбранный режим.');
+  }
+  if(state.layoutMode === 'photo_card' && state.photoMode === 'plan'){
+    hints.push('Для планировки лучше использовать обычный режим «С фото»: наложение заголовка на схему ухудшает читаемость.');
   }
   if(!state.showContact && !state.tearOffs && !(state.showQr && state.qrLink)){
     hints.push('В макете нет контактов, отрывных телефонов и QR. Для расклейки почти всегда нужен канал отклика.');
@@ -145,6 +155,48 @@ function applyPhoto(state){
   state.headlineScale = 1;
   state.phoneScale = 1.25;
   state.flyerPadding = 5;
+  state.pageMargin = 7;
+  state.pageGap = 4;
+}
+
+function applyPhotoLeft(state){
+  state.printCount = Number(state.printCount) === 1 ? 1 : 2;
+  state.splitMode = 'auto';
+  state.layoutDensity = 'normal';
+  state.showHeadline = true;
+  state.showPrice = true;
+  state.showDescription = true;
+  state.showMeta = true;
+  state.showBenefits = true;
+  state.showPhoto = true;
+  if(state.photoMode === 'none') state.photoMode = 'one';
+  state.showQr = Boolean(state.qrLink);
+  state.showContact = true;
+  state.tearOffs = Number(state.printCount) === 2;
+  state.headlineScale = Number(state.printCount) === 1 ? 1.08 : 0.98;
+  state.phoneScale = Number(state.printCount) === 1 ? 1.4 : 1.25;
+  state.flyerPadding = Number(state.printCount) === 1 ? 7 : 5;
+  state.pageMargin = 7;
+  state.pageGap = 4;
+}
+
+function applyPhotoCard(state){
+  state.printCount = Number(state.printCount) === 1 ? 1 : 2;
+  state.splitMode = 'auto';
+  state.layoutDensity = 'airy';
+  state.showHeadline = true;
+  state.showPrice = true;
+  state.showDescription = true;
+  state.showMeta = true;
+  state.showBenefits = true;
+  state.showPhoto = true;
+  if(state.photoMode === 'none') state.photoMode = 'one';
+  state.showQr = Boolean(state.qrLink);
+  state.showContact = true;
+  state.tearOffs = false;
+  state.headlineScale = Number(state.printCount) === 1 ? 1.18 : 1.02;
+  state.phoneScale = Number(state.printCount) === 1 ? 1.45 : 1.3;
+  state.flyerPadding = Number(state.printCount) === 1 ? 7 : 5;
   state.pageMargin = 7;
   state.pageGap = 4;
 }

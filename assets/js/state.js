@@ -28,7 +28,9 @@ export const printPresets = [
 export const layoutModes = [
   { id:'readable', title:'Читаемо', hint:'крупный телефон, мало лишнего' },
   { id:'economy', title:'Экономно', hint:'4 на А4 без фото' },
-  { id:'photo', title:'С фото', hint:'для объекта или витрины' },
+  { id:'photo', title:'С фото', hint:'крупная верхняя фотография' },
+  { id:'photo_left', title:'Фото слева', hint:'фото и текст в две колонки' },
+  { id:'photo_card', title:'Фото-карточка', hint:'заголовок поверх фотографии' },
   { id:'showcase', title:'Витрина', hint:'1 крупный макет' },
   { id:'entrance', title:'Подъезд', hint:'отрывные телефоны' },
   { id:'private', title:'Частное', hint:'без бренда' }

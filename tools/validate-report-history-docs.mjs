@@ -6,6 +6,8 @@ const errors = [];
 
 const files = {
   helper: 'assets/js/spnDistributionReportHelper.js',
+  enhancements: 'assets/js/spnReportHistoryEnhancements.js',
+  uiMode: 'assets/js/spnUiMode.js',
   guide: 'docs/report-history.md',
   checklist: 'docs/report-history-regression-checklist.md',
   readme: 'README.md'
@@ -50,6 +52,24 @@ requireSnippets(files.helper, sources.helper, [
   'downloadText'
 ]);
 
+requireSnippets(files.enhancements, sources.enhancements, [
+  'MIN_GROUP_REPORTS = 2',
+  'data-delete-report',
+  'Удалить ошибочный отчёт?',
+  'writeReportHistory(history.filter',
+  'groupHistory',
+  'normalizePlace',
+  'Стабильно лучше',
+  'Стабильно слабее',
+  'Устойчивость связок',
+  'reportCount >= MIN_GROUP_REPORTS'
+]);
+
+requireSnippets(files.uiMode, sources.uiMode, [
+  "import './spnDistributionReportHelper.js';",
+  "import './spnReportHistoryEnhancements.js';"
+]);
+
 requireSnippets(files.guide, sources.guide, [
   '# История отчётов после расклейки',
   'Что сохраняется',
@@ -58,6 +78,9 @@ requireSnippets(files.guide, sources.guide, [
   'Office-контекст',
   'Совместимость',
   'Аналитика связок',
+  'Устойчивость связок',
+  'Удаление ошибочного отчёта',
+  'минимум 2 отчёта',
   'Фильтр истории',
   'Все / Рабочие / Слабые',
   'Лучше повторить',
@@ -74,6 +97,10 @@ requireSnippets(files.checklist, sources.checklist, [
   'Контекст шаблона',
   'Совместимость старых записей',
   'Аналитика связок',
+  'Устойчивые связки',
+  'Удаление ошибочного отчёта',
+  'Стабильно лучше',
+  'Стабильно слабее',
   'Фильтр истории',
   'templateId',
   'office-сценарию',

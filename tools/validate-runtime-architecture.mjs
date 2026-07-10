@@ -43,7 +43,8 @@ const helperEntries = [
   'spnDistributionTaskHelper.js',
   'spnDistributionReportHelper.js',
   'spnReportHistoryEnhancements.js',
-  'spnManagerPeriodSummary.js'
+  'spnManagerPeriodSummary.js',
+  'spnPhotoLayoutQualityActions.js'
 ];
 
 for (const file of helperEntries) {

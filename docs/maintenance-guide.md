@@ -25,6 +25,7 @@ npm run validate:templates
 npm run validate:borisoglebsk-coverage
 npm run validate:template-portfolio
 npm run validate:template-office-overrides
+npm run validate:photo-layout-modes
 npm run validate:js
 npm run validate:assets
 npm run validate:asset-duplicates
@@ -111,7 +112,13 @@ docs/newbie-mode-regression-checklist.md
 docs/full-scenario-regression-checklist.md
 ```
 
-Ручной проход обязателен после изменений старта, выбора шаблона, печати, задания, отчётов, CSV, качества и навигации мастера.
+Для фото-компоновок:
+
+```text
+docs/photo-layout-modes.md
+```
+
+Ручной проход обязателен после изменений старта, выбора шаблона, печати, задания, отчётов, CSV, качества, фото-компоновок и навигации мастера.
 
 ## Система шаблонов
 
@@ -150,6 +157,21 @@ deprecated   сохранённый для совместимости устар
 - заметку менеджера.
 
 Разметку нельзя добавлять устаревшему шаблону. Высокий риск разрешён только уровню `manager`. Тестовый шаблон должен иметь тег `тестовый`.
+
+## Фото-компоновки
+
+Режимы `photo_left` и `photo_card` определены в `state.js`, применяются через `layoutRules.js` и оформляются модулем `spnPhotoLayoutStyle.js`.
+
+Оба режима:
+
+- ограничивают результат 1–2 макетами на А4;
+- сохраняют заполненный QR;
+- не подставляют отсутствующее фото;
+- оставляют телефон и основные характеристики;
+- имеют отдельные печатные правила;
+- проверяются командой `validate:photo-layout-modes`.
+
+`photo_left` размещает изображение слева и текст справа. `photo_card` накладывает заголовок на обычное фото, но не накладывает его на планировку.
 
 ## Что контролируют проверки
 

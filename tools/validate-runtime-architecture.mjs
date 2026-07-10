@@ -10,6 +10,7 @@ const files = {
   templates: 'assets/js/templates.js',
   reportEnhancements: 'assets/js/spnReportHistoryEnhancements.js',
   managerSummary: 'assets/js/spnManagerPeriodSummary.js',
+  managerReview: 'assets/js/spnManagerReview.js',
   wizardCss: 'assets/css/spn-wizard.css',
   audit: 'docs/full-project-audit-and-roadmap-2026-07-10.md'
 };
@@ -64,6 +65,21 @@ requireSnippets(files.managerSummary, sources.managerSummary, [
   'notChecked',
   'Лучшая устойчивая связка',
   'СВОДКА ПО РАСКЛЕЙКЕ'
+]);
+
+requireSnippets(files.managerReview, sources.managerReview, [
+  'let reviewUpdateFrame = 0;',
+  'scheduleReviewUpdate',
+  'window.cancelAnimationFrame(reviewUpdateFrame);',
+  'window.requestAnimationFrame',
+  'new MutationObserver(scheduleReviewUpdate)',
+  'scheduleReviewUpdate();',
+  'updateReviewStatus();',
+  'Этот шаблон требует проверки менеджера перед массовой печатью.'
+]);
+
+forbidSnippets(files.managerReview, sources.managerReview, [
+  'new MutationObserver(updateOfficeSummary)'
 ]);
 
 requireSnippets(files.uiMode, sources.uiMode, [

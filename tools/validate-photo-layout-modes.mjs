@@ -7,6 +7,9 @@ const files = {
   state: 'assets/js/state.js',
   rules: 'assets/js/layoutRules.js',
   styles: 'assets/js/spnPhotoLayoutStyle.js',
+  quality: 'assets/js/quality.js',
+  actions: 'assets/js/spnPhotoLayoutQualityActions.js',
+  uiMode: 'assets/js/spnUiMode.js',
   guide: 'docs/photo-layout-modes.md'
 };
 const sources = Object.fromEntries(
@@ -45,6 +48,32 @@ requireSnippets(files.styles, sources.styles, [
   '@media print',
   '.flyer.has-photo.layout-photo_left.count-1 .photos{height:150mm}',
   '.flyer.has-photo.layout-photo_card.count-1 .photos{height:124mm}'
+]);
+
+requireSnippets(files.quality, sources.quality, [
+  "const isPhotoLayout = state.layoutMode === 'photo_left' || state.layoutMode === 'photo_card';",
+  "title:'Фото-компоновка без фото'",
+  "title:'Фото-компоновка слишком мелкая'",
+  "title:'Текст перегружает фото-компоновку'",
+  "title:'Длинный заголовок на фотографии'",
+  "title:'Отрывные перегружают фотокарточку'",
+  "state.layoutMode === 'photo_card'"
+]);
+
+requireSnippets(files.actions, sources.actions, [
+  'data-photo-layout-quality-action',
+  "title === 'Фото-компоновка без фото'",
+  "title === 'Отрывные перегружают фотокарточку'",
+  "appendAction(item, 'focus-photo', 'Загрузить фото')",
+  "appendAction(item, 'disable-tears', 'Выключить отрывные')",
+  "document.getElementById('photoOne')",
+  "document.getElementById('tearOffs')",
+  "checkbox.dispatchEvent(new Event('change', {bubbles:true}))"
+]);
+
+requireSnippets(files.uiMode, sources.uiMode, [
+  "import './spnPhotoLayoutStyle.js';",
+  "import './spnPhotoLayoutQualityActions.js';"
 ]);
 
 requireSnippets(files.guide, sources.guide, [

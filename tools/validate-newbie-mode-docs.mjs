@@ -138,10 +138,23 @@ requireSnippets(files.wizardFlow, sources.wizardFlow, [
 
 requireSnippets(files.wizardPatch, sources.wizardPatch, [
   'scheduleNewbieWizardSync',
+  'bindWizardNavigationPatch',
+  'handleNewbieWizardNavigation',
+  'pendingNewbieAutoEnable',
+  'tryEnableWizardForNewbie',
+  'redirectHiddenSaveStep',
+  "currentStep === 'check'",
+  "goToWizardStep('task')",
+  "currentStep === 'task'",
+  "goToWizardStep('check')",
+  'data-wizard-step="save"'
+]);
+
+forbidSnippets(files.wizardPatch, sources.wizardPatch, [
+  "nextBtn.textContent = isNewbie && step === 'check' ? 'Готово' : 'Далее'",
+  "nextBtn.disabled = Boolean(isNewbie && step === 'check')",
   'redirectToCheckStep',
-  'redirectingFromSave',
-  'data-wizard-step="save"',
-  'data-wizard-step="check"'
+  'redirectingFromSave'
 ]);
 
 requireSnippets(files.printGuard, sources.printGuard, [
@@ -170,6 +183,9 @@ requireSnippets(files.fullScenarioChecklist, sources.fullScenarioChecklist, [
   '# Ручная проверка полного сценария генератора расклеек',
   'Новичок → 2 на А4 → безопасный шаблон → телефон → проверка → печать → задание → отчёт',
   'Проверка 3. Wizard Flow',
+  'режим `Пошагово` включается автоматически при входе в `Новичок`',
+  'шаг `Сохранить` скрыт в режиме `Новичок`',
+  '`Проверка → Задание` без зацикливания на скрытом шаге',
   'текст кнопки показывает следующий шаг, например `Далее: Заготовка`',
   'Переход выполнен. Желательно вернуться и проверить',
   'при пропущенных данных переход всё равно выполняется',

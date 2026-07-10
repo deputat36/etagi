@@ -70,9 +70,7 @@ const requiredDirectResponseActionSnippets = [
   'function setResponseChannel()',
   'getPhoneInfo(getPhoneValue())',
   "enableCheckbox('showContact');",
-  'Контакты включены',
-  "button.dataset.fix === 'showContact' && !hasLikelyPhoneValue()",
-  'function hasLikelyPhoneValue()'
+  'Контакты включены'
 ];
 
 for (const snippet of requiredDirectResponseActionSnippets) {
@@ -121,7 +119,9 @@ const forbiddenActionSnippets = [
   "setLayoutExtra('brandSideText', DEFAULT_BRAND_SIDE)",
   "{ title: 'QR включён, но ссылки нет', action: 'disableQr'",
   'function disableQr()',
-  'function hasPhoneValue()'
+  'function hasPhoneValue()',
+  "button.dataset.fix === 'showContact'",
+  'function hasLikelyPhoneValue()'
 ];
 
 for (const snippet of forbiddenActionSnippets) {

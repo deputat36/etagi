@@ -53,7 +53,7 @@
     "office": {
       "recommended": true,
       "level": "newbie",
-      "scenario": "entrance_owner_specific_floor",
+      "scenario": "entrance_owner_top_floor",
       "risk": "low",
       "recommendedPrintCount": 4,
       "managerNote": "Подходит новичку: перед печатью уточнить, что запрос по этажу действительно актуален."
@@ -97,7 +97,7 @@
     "office": {
       "recommended": true,
       "level": "newbie",
-      "scenario": "entrance_owner_specific_floor",
+      "scenario": "entrance_owner_first_floor",
       "risk": "low",
       "recommendedPrintCount": 4,
       "managerNote": "Подходит новичку: проверить район и не обещать покупателя без подтверждённого запроса."

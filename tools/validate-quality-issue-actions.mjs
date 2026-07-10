@@ -123,7 +123,7 @@ function checkIssueAction(title, expectedAction, forbiddenAction, message) {
 }
 
 function hasIssueAction(title, actionValue) {
-  const pattern = new RegExp(`issues\\.push\\(\\{[^}]*title\\s*:\\s*['\"]${escapeRegExp(title)}['\"][^}]*action\\s*:\\s*${escapeRegExp(actionValue)}[^}]*\\}\\)`);
+  const pattern = new RegExp(`issues\\.push\\(\\{[^\\n]*title\\s*:\\s*['\"]${escapeRegExp(title)}['\"][^\\n]*action\\s*:\\s*${escapeRegExp(actionValue)}[^\\n]*\\}\\)`);
   return pattern.test(qualitySource);
 }
 

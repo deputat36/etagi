@@ -12,6 +12,7 @@ import './spnAgentHelper.js';
 import './spnPrintCampaignHelper.js';
 import './spnDistributionTaskHelper.js';
 import './spnDistributionReportHelper.js';
+import './spnReportHistoryEnhancements.js';
 import './spnTemplateMenuCompact.js';
 import './spnOfficeTemplateFilters.js';
 import './spnOfficeFilterSync.js';

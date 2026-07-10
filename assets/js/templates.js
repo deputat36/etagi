@@ -10,6 +10,7 @@ const TEMPLATE_FILES = [
   'data/templates_ab_tests.json',
   'data/templates_trust.json'
 ];
+const TEMPLATE_PORTFOLIO_FILE = 'data/template_portfolio_status.json';
 
 let templateLoadPromise = null;
 
@@ -19,14 +20,64 @@ export function loadTemplates(){
 }
 
 async function loadTemplateFiles(){
-  const loaded = await Promise.all(TEMPLATE_FILES.map(loadTemplateFile));
+  const [loadedPackages, portfolioRegistry] = await Promise.all([
+    Promise.all(TEMPLATE_FILES.map(async file => ({file, templates: await loadTemplateFile(file)}))),
+    loadTemplatePortfolioRegistry()
+  ]);
   const byId = new Map();
-  for(const list of loaded){
-    for(const item of list){
-      if(item?.id) byId.set(item.id, item);
+
+  for(const {file, templates} of loadedPackages){
+    const packageName = file.split('/').pop();
+    for(const item of templates){
+      if(!item?.id) continue;
+      byId.set(item.id, enrichTemplatePortfolio(item, packageName, portfolioRegistry));
     }
   }
   return [...byId.values()];
+}
+
+async function loadTemplatePortfolioRegistry(){
+  try{
+    const res = await fetch(TEMPLATE_PORTFOLIO_FILE, {cache:'no-store'});
+    if(!res.ok) return emptyPortfolioRegistry();
+    const data = await res.json();
+    if(!data || typeof data !== 'object' || Array.isArray(data)) return emptyPortfolioRegistry();
+    return {
+      defaultStatus: data.defaultStatus || 'working',
+      packageDefaults: data.packageDefaults && typeof data.packageDefaults === 'object' ? data.packageDefaults : {},
+      templates: data.templates && typeof data.templates === 'object' ? data.templates : {}
+    };
+  } catch(e){
+    console.warn(`Не удалось загрузить реестр статусов шаблонов: ${TEMPLATE_PORTFOLIO_FILE}`, e);
+    return emptyPortfolioRegistry();
+  }
+}
+
+function enrichTemplatePortfolio(template, packageName, registry){
+  const packageRule = normalizePortfolioRule(registry.packageDefaults?.[packageName]);
+  const templateRule = normalizePortfolioRule(registry.templates?.[template.id]);
+  return {
+    ...template,
+    portfolio: {
+      status: templateRule.status || packageRule.status || registry.defaultStatus || 'working',
+      reason: templateRule.reason || packageRule.reason || '',
+      replacementId: templateRule.replacementId || ''
+    }
+  };
+}
+
+function normalizePortfolioRule(rule){
+  if(typeof rule === 'string') return {status:rule, reason:'', replacementId:''};
+  if(!rule || typeof rule !== 'object' || Array.isArray(rule)) return {status:'', reason:'', replacementId:''};
+  return {
+    status: String(rule.status || '').trim(),
+    reason: String(rule.reason || '').trim(),
+    replacementId: String(rule.replacementId || '').trim()
+  };
+}
+
+function emptyPortfolioRegistry(){
+  return {defaultStatus:'working', packageDefaults:{}, templates:{}};
 }
 
 async function loadTemplateFile(path){
@@ -83,6 +134,9 @@ function getTemplateSearchText(template){
     template?.title,
     template?.note,
     ...(template?.tags || []),
+    template?.portfolio?.status,
+    template?.portfolio?.reason,
+    template?.portfolio?.replacementId,
     data.area,
     data.propertyType,
     data.price,

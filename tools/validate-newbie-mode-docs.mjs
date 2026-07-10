@@ -12,6 +12,7 @@ const files = {
   templateBadges: 'assets/js/spnTemplateCardBadges.js',
   managerNotice: 'assets/js/spnManagerTemplateNotice.js',
   managerReview: 'assets/js/spnManagerReview.js',
+  photoLayout: 'assets/js/spnPhotoLayoutStyle.js',
   wizardFlow: 'assets/js/spnWizardFlow.js',
   wizardPatch: 'assets/js/spnNewbieWizardPatch.js',
   printGuard: 'assets/js/spnNewbiePrintGuard.js',
@@ -106,6 +107,21 @@ requireSnippets(files.managerReview, sources.managerReview, [
   'Этот шаблон требует проверки менеджера перед массовой печатью.'
 ]);
 
+requireSnippets(files.photoLayout, sources.photoLayout, [
+  'schedulePhotoLayoutUpdate',
+  'updatePhotoLayoutClasses',
+  'layout-showcase:not(.photo-mode-plan)',
+  'layout-photo:not(.photo-mode-plan)',
+  'width:calc(100% + var(--flyer-pad) + var(--flyer-pad))',
+  'margin:calc(0mm - var(--flyer-pad))',
+  'count-1.layout-showcase:not(.photo-mode-plan) .photo-box{height:112mm}',
+  'count-1.layout-photo:not(.photo-mode-plan) .photo-box{height:96mm}',
+  'count-2.layout-showcase:not(.photo-mode-plan) .photo-box{height:58mm}',
+  'count-2.layout-photo:not(.photo-mode-plan) .photo-box{height:50mm}',
+  'photo-mode-two.count-1.layout-showcase .photo-box{height:92mm}',
+  '@media print'
+]);
+
 requireSnippets(files.wizardFlow, sources.wizardFlow, [
   "id: 'task'",
   "title: '7. Задание'",
@@ -176,6 +192,10 @@ requireSnippets(files.checklist, sources.checklist, [
   'Проверка мастера шагов',
   'Проверка защиты печати',
   'Проверка фото-раскладки',
+  'фото стало крупной верхней hero-зоной на всю ширину карточки',
+  'Витрина',
+  'Планировка',
+  'Узкая полоса вместо крупного фото',
   'Что считать регрессией'
 ]);
 

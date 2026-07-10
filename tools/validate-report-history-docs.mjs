@@ -69,8 +69,10 @@ requireSnippets(files.checklist, sources.checklist, [
 requireSnippets(files.readme, sources.readme, [
   'docs/report-history.md',
   'docs/report-history-regression-checklist.md',
-  'assets/js/spnDistributionReportHelper.js отчёт после расклейки, история и CSV',
-  'история отчётов, повтор прошлой расклейки, CSV-экспорт и автоматический вывод'
+  '### Задание и отчёты',
+  'assets/js/spnDistributionReportHelper.js',
+  'отчёт, история, фильтр и аналитика',
+  'аналитика связок `Лучше повторить / Нужно изменить`'
 ]);
 
 if (errors.length) {

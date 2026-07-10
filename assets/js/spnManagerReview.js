@@ -13,6 +13,7 @@ const items = [
 ];
 
 let templateMap = new Map();
+let reviewUpdateFrame = 0;
 
 window.addEventListener('DOMContentLoaded', () => {
   injectStyles();
@@ -30,11 +31,11 @@ async function loadOfficeMetadata(){
   try{
     const templates = await loadTemplates();
     templateMap = new Map(templates.map(template => [template.id, template]));
-    updateOfficeSummary();
   }
   catch(error){
-    updateOfficeSummary();
+    templateMap = new Map();
   }
+  scheduleReviewUpdate();
 }
 
 function renderReview(){
@@ -72,7 +73,15 @@ function bindReview(){
 function observeActiveTemplate(){
   const list = document.getElementById('templateList');
   if(!list) return;
-  new MutationObserver(updateOfficeSummary).observe(list, {childList:true, subtree:true, attributes:true, attributeFilter:['class']});
+  new MutationObserver(scheduleReviewUpdate).observe(list, {childList:true, subtree:true, attributes:true, attributeFilter:['class']});
+}
+
+function scheduleReviewUpdate(){
+  window.cancelAnimationFrame(reviewUpdateFrame);
+  reviewUpdateFrame = window.requestAnimationFrame(() => {
+    reviewUpdateFrame = 0;
+    updateReviewStatus();
+  });
 }
 
 function restoreReview(){

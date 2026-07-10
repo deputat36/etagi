@@ -14,9 +14,7 @@ check(actionsSource, 'qualityExtraActions.js', [
   'getPhoneInfo(getPhoneValue())',
   "enableCheckbox('showContact');",
   'Контакты включены',
-  'Сначала укажите полный телефон для отклика',
-  "button.dataset.fix === 'showContact' && !hasLikelyPhoneValue()",
-  'function hasLikelyPhoneValue()'
+  'Сначала укажите полный телефон для отклика'
 ]);
 
 check(qualitySource, 'quality.js', [
@@ -26,7 +24,11 @@ check(qualitySource, 'quality.js', [
 
 checkIssueAction('Нет канала отклика', 'null', "'showContact'", 'замечание без канала отклика должно исправляться прямой кнопкой responseChannel, а не старым showContact');
 forbid(layoutSyncSource, 'layoutExtrasSync.js', ["import './responseChannelPhoneGuard.js';"]);
-forbid(actionsSource, 'qualityExtraActions.js', ['function hasPhoneValue()']);
+forbid(actionsSource, 'qualityExtraActions.js', [
+  'function hasPhoneValue()',
+  "button.dataset.fix === 'showContact'",
+  'function hasLikelyPhoneValue()'
+]);
 
 if (guardSource) {
   errors.push('assets/js/responseChannelPhoneGuard.js: файл должен быть удалён после переноса логики в qualityExtraActions.js');

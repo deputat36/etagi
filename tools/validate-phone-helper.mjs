@@ -48,7 +48,10 @@ for (const relativePath of requiredConsumers) {
   if (relativePath !== 'assets/js/qualityExtraActions.js' && !source.includes("import { getPhoneInfo } from './phone.js';")) {
     errors.push(`${relativePath}: getPhoneInfo должен импортироваться из assets/js/phone.js`);
   }
-  if (relativePath === 'assets/js/qualityExtraActions.js' && !source.includes("import { cleanPhoneValue } from './phone.js';")) {
+  if (
+    relativePath === 'assets/js/qualityExtraActions.js'
+    && !/import\s*\{[^}]*\bcleanPhoneValue\b[^}]*\}\s*from\s*['"]\.\/phone\.js['"]/.test(source)
+  ) {
     errors.push('assets/js/qualityExtraActions.js: cleanPhoneValue должен импортироваться из assets/js/phone.js');
   }
 }

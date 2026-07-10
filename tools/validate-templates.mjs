@@ -205,6 +205,7 @@ function checkTellermanTemplates() {
       template?.title,
       template?.note,
       ...(template?.tags || []),
+      data.area,
       data.price,
       data.params,
       data.headline,

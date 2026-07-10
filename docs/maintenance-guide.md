@@ -28,6 +28,7 @@ npm run validate:templates
 npm run validate:js
 npm run validate:assets
 npm run validate:asset-duplicates
+npm run validate:runtime-architecture
 npm run validate:quality-actions
 npm run validate:quality-issue-actions
 npm run validate:phone-cleanup-action
@@ -119,6 +120,17 @@ tools/*.mjs
 - DOM-привязки формы из `fields`, `checks` и `blockVisibility` в `assets/js/app.js`;
 - прямые обращения `$('...')` из `assets/js/app.js` к элементам страницы;
 - динамически создаваемые элементы, которые не должны требоваться в исходном HTML.
+
+### Runtime-архитектура
+
+Проверяются:
+
+- единый Promise-кеш `loadTemplates()`;
+- отсутствие повторных сетевых загрузок шаблонов разными helper-модулями;
+- отсутствие прямых `<script>` для helper-модулей, которые уже входят в `spnUiMode.js`;
+- обязательные импорты постоянных SPN-helper-ов;
+- актуальные тексты режимов интерфейса;
+- наличие актуального master-аудита и runtime-плана.
 
 ### Контроль качества
 
@@ -212,6 +224,12 @@ tools/*.mjs
 
 Если меняются Wizard Flow, печать, задание, отчёт или история отчётов, после автоматической проверки нужно пройти полный сценарий `docs/full-scenario-regression-checklist.md`.
 
+### Runtime-модули
+
+Нельзя одновременно подключать один helper отдельным `<script type="module">` и импортировать его через `spnUiMode.js`.
+
+Общие данные, которые используют несколько helper-модулей, должны загружаться через общий кеш или единый runtime-контракт. Нельзя запускать повторные запросы только потому, что каждый helper инициализируется отдельно.
+
 ## GitHub Actions
 
 Workflow находится здесь:
@@ -237,25 +255,3 @@ package.json
 Workflow должен запускать `npm run validate` на Node.js 20, иметь права только на чтение `contents: read` и ограничение времени выполнения, чтобы зависшая проверка не висела бесконечно.
 
 Если GitHub Actions не возвращает статусы или workflow-runs через connector, это нужно явно указать в отчёте. Для push-коммитов дополнительно проверять combined status. Если и `workflow_runs`, и combined status пустые, считать это ограничением наблюдаемости через connector, а не автоматическим доказательством, что workflow не настроен.
-
-## Как добавлять новый пакет шаблонов
-
-1. Создать файл в `data`, например:
-
-```text
-data/templates_newbuilds.json
-```
-
-2. Добавить его в `TEMPLATE_FILES` в `assets/js/templates.js`.
-3. Запустить `npm run validate`.
-4. Проверить фильтры в браузере.
-5. Добавить описание релиза в `docs/changelog.md` или отдельный файл `docs/releases/<version>.md`.
-
-## Как добавлять новый блок макета
-
-1. Добавить состояние блока в `assets/js/state.js`.
-2. Добавить блок в `defaultState.blockOrder`.
-3. Добавить подпись в `blockOrderLabels`.
-4. Добавить связь с переключателем в `blockVisibilityMap`.
-5. Добавить переключатель в `blockVisibility` и HTML, если блок включается пользователем.
-6. Проверить `BLOCK_ORDERS` в `assets/js/layoutRules.js`.

@@ -237,6 +237,50 @@ function injectStyles(){
     .flyer.has-photo.layout-photo_card.count-2 .desc{font-size:8pt}
     .flyer.has-photo.layout-photo_card.count-2 .benefit{font-size:7.2pt}
 
+    .flyer.has-photo.layout-newbuild_visual.count-1,
+    .flyer.has-photo.layout-newbuild_visual.count-2{
+      display:grid;
+      grid-template-columns:minmax(0,1fr);
+      grid-auto-rows:min-content;
+      align-content:start;
+      row-gap:1.7mm;
+      border-top:1.2mm solid var(--accent);
+    }
+    .flyer.has-photo.layout-newbuild_visual .brand-row{grid-column:1;grid-row:1}
+    .flyer.has-photo.layout-newbuild_visual .photos{
+      grid-column:1;
+      grid-row:2;
+      width:100%;
+      margin:0;
+      padding:1.2mm;
+      gap:1.2mm;
+      overflow:hidden;
+      border:1px solid #cbd5e1;
+      border-radius:14px;
+      background:#f8fafc;
+      box-shadow:0 1.5mm 4mm rgba(15,23,42,.12);
+    }
+    .flyer.has-photo.layout-newbuild_visual.count-1 .photos{height:112mm}
+    .flyer.has-photo.layout-newbuild_visual.count-2 .photos{height:50mm}
+    .flyer.has-photo.layout-newbuild_visual .photos.two{grid-template-columns:minmax(0,2.1fr) minmax(0,1fr)}
+    .flyer.has-photo.layout-newbuild_visual .photo-box{height:100%;min-height:0;border:0;border-radius:10px;background:#e2e8f0}
+    .flyer.has-photo.layout-newbuild_visual.photo-mode-plan .photo-box img,
+    .flyer.has-photo.layout-newbuild_visual .photos.two .photo-box:nth-child(2) img{object-fit:contain;background:#fff}
+    .flyer.has-photo.layout-newbuild_visual .headline{grid-column:1;grid-row:3;margin:0}
+    .flyer.has-photo.layout-newbuild_visual .subline{grid-column:1;grid-row:4}
+    .flyer.has-photo.layout-newbuild_visual .meta{grid-column:1;grid-row:5;grid-template-columns:repeat(3,minmax(0,1fr))}
+    .flyer.has-photo.layout-newbuild_visual .desc{grid-column:1;grid-row:6}
+    .flyer.has-photo.layout-newbuild_visual .benefits{grid-column:1;grid-row:7}
+    .flyer.has-photo.layout-newbuild_visual .custom-block{grid-column:1;grid-row:8}
+    .flyer.has-photo.layout-newbuild_visual .contact{grid-column:1;grid-row:9;margin-top:0}
+    .flyer.has-photo.layout-newbuild_visual .qr-row{grid-column:1;grid-row:10}
+    .flyer.has-photo.layout-newbuild_visual .tears{grid-column:1;grid-row:11}
+    .flyer.has-photo.layout-newbuild_visual.count-1 .headline{font-size:calc(25pt * var(--headline-scale));line-height:.92}
+    .flyer.has-photo.layout-newbuild_visual.count-2 .headline{font-size:calc(16pt * var(--headline-scale));line-height:.94}
+    .flyer.has-photo.layout-newbuild_visual.count-2 .desc{font-size:8pt}
+    .flyer.has-photo.layout-newbuild_visual.count-2 .benefit{font-size:7.2pt}
+    .flyer.has-photo.layout-newbuild_visual.count-2 .meta div{padding:1.5mm;font-size:7pt}
+
     @media print{
       .flyer.has-photo.count-1 .photo-box{height:86mm}
       .flyer.has-photo.count-2 .photo-box{height:45mm}
@@ -247,11 +291,15 @@ function injectStyles(){
       .flyer.has-photo.layout-photo_left.count-1 .photo-box,
       .flyer.has-photo.layout-photo_left.count-2 .photo-box,
       .flyer.has-photo.layout-photo_card.count-1 .photo-box,
-      .flyer.has-photo.layout-photo_card.count-2 .photo-box{height:100%}
+      .flyer.has-photo.layout-photo_card.count-2 .photo-box,
+      .flyer.has-photo.layout-newbuild_visual.count-1 .photo-box,
+      .flyer.has-photo.layout-newbuild_visual.count-2 .photo-box{height:100%}
       .flyer.has-photo.layout-photo_left.count-1 .photos{height:150mm}
       .flyer.has-photo.layout-photo_left.count-2 .photos{height:66mm}
       .flyer.has-photo.layout-photo_card.count-1 .photos{height:124mm}
       .flyer.has-photo.layout-photo_card.count-2 .photos{height:58mm}
+      .flyer.has-photo.layout-newbuild_visual.count-1 .photos{height:112mm}
+      .flyer.has-photo.layout-newbuild_visual.count-2 .photos{height:50mm}
     }
   `;
   document.head.appendChild(style);

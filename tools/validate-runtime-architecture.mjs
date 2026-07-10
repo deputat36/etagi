@@ -8,6 +8,7 @@ const files = {
   index: 'index.html',
   uiMode: 'assets/js/spnUiMode.js',
   templates: 'assets/js/templates.js',
+  reportEnhancements: 'assets/js/spnReportHistoryEnhancements.js',
   wizardCss: 'assets/css/spn-wizard.css',
   audit: 'docs/full-project-audit-and-roadmap-2026-07-10.md'
 };
@@ -29,13 +30,26 @@ const helperEntries = [
   'spnTearOffEditor.js',
   'spnBrandEditor.js',
   'spnDistributionTaskHelper.js',
-  'spnDistributionReportHelper.js'
+  'spnDistributionReportHelper.js',
+  'spnReportHistoryEnhancements.js'
 ];
 
 for (const file of helperEntries) {
   requireSnippets(files.uiMode, sources.uiMode, [`import './${file}';`]);
   forbidSnippets(files.index, sources.index, [`src="assets/js/${file}"`, `src='assets/js/${file}'`]);
 }
+
+requireSnippets(files.reportEnhancements, sources.reportEnhancements, [
+  'MIN_GROUP_REPORTS = 2',
+  'data-delete-report',
+  'Удалить ошибочный отчёт?',
+  'groupHistory',
+  'normalizePlace',
+  'Стабильно лучше',
+  'Стабильно слабее',
+  'window.confirm',
+  "localStorage.setItem(REPORT_HISTORY_KEY"
+]);
 
 requireSnippets(files.uiMode, sources.uiMode, [
   'Выберите режим под свой опыт и текущую задачу.',

@@ -7,6 +7,7 @@ const errors = [];
 const files = {
   helper: 'assets/js/spnDistributionReportHelper.js',
   enhancements: 'assets/js/spnReportHistoryEnhancements.js',
+  managerSummary: 'assets/js/spnManagerPeriodSummary.js',
   uiMode: 'assets/js/spnUiMode.js',
   guide: 'docs/report-history.md',
   checklist: 'docs/report-history-regression-checklist.md',
@@ -65,9 +66,26 @@ requireSnippets(files.enhancements, sources.enhancements, [
   'reportCount >= MIN_GROUP_REPORTS'
 ]);
 
+requireSnippets(files.managerSummary, sources.managerSummary, [
+  'Сводка менеджеру',
+  "{id:'7', title:'7 дней', days:7}",
+  "{id:'30', title:'30 дней', days:30}",
+  "{id:'all', title:'Вся история', days:0}",
+  'copyManagerPeriodSummaryBtn',
+  'buildPeriodSummary',
+  'getPeriodReports',
+  'managerReviewed',
+  'riskyReports',
+  'notChecked',
+  'Лучшая устойчивая связка',
+  'Слабая устойчивая связка',
+  'СВОДКА ПО РАСКЛЕЙКЕ'
+]);
+
 requireSnippets(files.uiMode, sources.uiMode, [
   "import './spnDistributionReportHelper.js';",
-  "import './spnReportHistoryEnhancements.js';"
+  "import './spnReportHistoryEnhancements.js';",
+  "import './spnManagerPeriodSummary.js';"
 ]);
 
 requireSnippets(files.guide, sources.guide, [
@@ -80,6 +98,10 @@ requireSnippets(files.guide, sources.guide, [
   'Аналитика связок',
   'Устойчивость связок',
   'Удаление ошибочного отчёта',
+  'Сводка менеджеру',
+  '7 дней',
+  '30 дней',
+  'Вся история',
   'минимум 2 отчёта',
   'Фильтр истории',
   'Все / Рабочие / Слабые',
@@ -99,8 +121,12 @@ requireSnippets(files.checklist, sources.checklist, [
   'Аналитика связок',
   'Устойчивые связки',
   'Удаление ошибочного отчёта',
+  'Сводка менеджеру по периоду',
   'Стабильно лучше',
   'Стабильно слабее',
+  '7 дней',
+  '30 дней',
+  'Вся история',
   'Фильтр истории',
   'templateId',
   'office-сценарию',

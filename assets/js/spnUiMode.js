@@ -28,6 +28,7 @@ import './spnNewbieFinalCheck.js';
 import './spnNewbiePrintGuardNotice.js';
 import './spnNewbiePrintGuard.js';
 import './spnPhotoLayoutStyle.js';
+import './spnPhotoLayoutQualityActions.js';
 import './spnWizardFlow.js';
 import './spnNewbieWizardPatch.js';
 import './spnManagerReview.js';

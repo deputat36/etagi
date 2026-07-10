@@ -137,6 +137,7 @@ function renderWizardPanel(){
       ${steps.map(step => `<button type="button" data-wizard-step="${step.id}"><b>${step.title}</b><span>${step.hint}</span></button>`).join('')}
     </div>
     <div class="spn-wizard-step-help" id="spnWizardStepHelp" aria-live="polite"></div>
+    <div class="spn-wizard-next-notice" id="spnWizardNextNotice" aria-live="polite" hidden></div>
     <div class="spn-wizard-nav">
       <button type="button" id="spnWizardPrev">Назад</button>
       <button type="button" id="spnWizardNext">Далее</button>
@@ -148,6 +149,7 @@ function bindWizardPanel(){
   document.getElementById('spnWizardFlow')?.addEventListener('click', event => {
     const stepButton = event.target.closest('[data-wizard-step]');
     if(stepButton){
+      clearNextNotice();
       setStep(stepButton.dataset.wizardStep);
       return;
     }
@@ -158,8 +160,11 @@ function bindWizardPanel(){
     }
   });
 
-  document.getElementById('spnWizardPrev')?.addEventListener('click', () => moveStep(-1));
-  document.getElementById('spnWizardNext')?.addEventListener('click', () => moveStep(1));
+  document.getElementById('spnWizardPrev')?.addEventListener('click', () => {
+    clearNextNotice();
+    moveStep(-1);
+  });
+  document.getElementById('spnWizardNext')?.addEventListener('click', () => moveStep(1, {showRecommendation:true}));
   document.getElementById('spnWizardToggle')?.addEventListener('click', () => {
     setWizardEnabled(document.body.dataset.wizardFlow !== 'on');
   });
@@ -168,10 +173,13 @@ function bindWizardPanel(){
   row?.addEventListener('click', () => window.setTimeout(syncPrintCountButtons, 80));
 }
 
-function moveStep(direction){
+function moveStep(direction, options = {}){
   const current = document.body.dataset.wizardStep || 'goal';
   const index = steps.findIndex(step => step.id === current);
   const nextIndex = Math.max(0, Math.min(steps.length - 1, index + direction));
+  if(direction > 0 && options.showRecommendation){
+    showNextRecommendation(current);
+  }
   setStep(steps[nextIndex].id);
 }
 
@@ -192,7 +200,11 @@ function setStep(stepId){
   const prev = document.getElementById('spnWizardPrev');
   const next = document.getElementById('spnWizardNext');
   if(prev) prev.disabled = index === 0;
-  if(next) next.disabled = index === steps.length - 1;
+  if(next){
+    const nextStep = steps[index + 1];
+    next.disabled = !nextStep;
+    next.textContent = nextStep ? `Далее: ${stripStepNumber(nextStep.title)}` : 'Готово';
+  }
 
   const hint = document.getElementById('spnWizardFlowHint');
   if(hint) hint.textContent = active.hint;
@@ -203,6 +215,62 @@ function updateStepHelp(step){
   const box = document.getElementById('spnWizardStepHelp');
   if(!box) return;
   box.innerHTML = `<b>Что сделать сейчас</b><span>${escapeHtml(step.help || step.hint || '')}</span>`;
+}
+
+function showNextRecommendation(stepId){
+  const notice = document.getElementById('spnWizardNextNotice');
+  if(!notice) return;
+  const recommendations = getStepRecommendations(stepId);
+  if(!recommendations.length){
+    clearNextNotice();
+    return;
+  }
+  notice.hidden = false;
+  notice.innerHTML = `<b>Переход выполнен. Желательно вернуться и проверить</b><span>${escapeHtml(recommendations.join(' · '))}</span>`;
+  setStatus(`Можно продолжить, но желательно: ${recommendations.join('; ')}.`);
+}
+
+function clearNextNotice(){
+  const notice = document.getElementById('spnWizardNextNotice');
+  if(!notice) return;
+  notice.hidden = true;
+  notice.innerHTML = '';
+}
+
+function getStepRecommendations(stepId){
+  const recommendations = [];
+
+  if(stepId === 'goal'){
+    if(!document.querySelector('[data-wizard-print-count].active')) recommendations.push('выбрать количество объявлений на А4');
+  }
+
+  if(stepId === 'template'){
+    if(!document.querySelector('.tpl-card.active')) recommendations.push('выбрать конкретный шаблон');
+  }
+
+  if(stepId === 'content'){
+    if(!fieldValue('agentPhone')) recommendations.push('заполнить телефон');
+    if(!fieldValue('headline')) recommendations.push('проверить заголовок');
+    if(!fieldValue('description')) recommendations.push('добавить короткий основной текст');
+  }
+
+  if(stepId === 'media'){
+    if(fieldValue('qrLink') && !fieldValue('qrCaption')) recommendations.push('добавить понятную подпись к QR');
+  }
+
+  if(stepId === 'check'){
+    const quality = Number(String(document.getElementById('qualityScore')?.textContent || '').replace(/\D/g, '')) || 0;
+    if(quality < 70) recommendations.push('запустить проверку качества и получить не меньше 70 баллов');
+    if(!document.getElementById('showCutLines')?.checked) recommendations.push('включить линии реза');
+    if(!document.getElementById('safePrintMargins')?.checked) recommendations.push('включить безопасные поля');
+  }
+
+  if(stepId === 'task'){
+    if(!fieldValue('distributionPlace')) recommendations.push('указать место расклейки');
+    if((Number(fieldValue('distributionSheets')) || 0) <= 0) recommendations.push('указать количество листов');
+  }
+
+  return recommendations;
 }
 
 function setWizardEnabled(enabled){
@@ -230,6 +298,19 @@ function syncPrintCountButtons(fallbackCount = ''){
   });
 }
 
+function fieldValue(id){
+  return String(document.getElementById(id)?.value || '').trim();
+}
+
+function stripStepNumber(title){
+  return String(title || '').replace(/^\d+\.\s*/, '');
+}
+
+function setStatus(text){
+  const status = document.getElementById('statusLine');
+  if(status) status.textContent = text;
+}
+
 function injectStyles(){
   if(document.getElementById('spnWizardFlowStyles')) return;
   const style = document.createElement('style');
@@ -254,6 +335,9 @@ function injectStyles(){
     .spn-wizard-step-help{margin-top:8px;padding:8px 9px;border:1px solid #fed7aa;border-radius:12px;background:#fff;color:#9a3412}
     .spn-wizard-step-help b{display:block;font-size:11px;font-weight:900;line-height:1.15}
     .spn-wizard-step-help span{display:block;margin-top:4px;font-size:10.5px;line-height:1.28;font-weight:800}
+    .spn-wizard-next-notice{margin-top:8px;padding:8px 9px;border:1px solid #fde68a;border-radius:12px;background:#fffbeb;color:#92400e}
+    .spn-wizard-next-notice b{display:block;font-size:10.8px;font-weight:900;line-height:1.2}
+    .spn-wizard-next-notice span{display:block;margin-top:4px;font-size:10.3px;line-height:1.25;font-weight:800}
     .spn-wizard-nav{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px}
     body[data-wizard-flow="on"] .sidebar [data-wizard-section]{display:none!important}
     body[data-wizard-flow="on"] .sidebar [data-wizard-section].spn-wizard-section-active{display:block!important}

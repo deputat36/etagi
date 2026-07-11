@@ -5,11 +5,13 @@ const rootDir = process.cwd();
 const errors = [];
 const workflowPath = path.join(rootDir, '.github/workflows/validate.yml');
 const packagePath = path.join(rootDir, 'package.json');
+const indexPath = path.join(rootDir, 'index.html');
 const runValidatePath = path.join(rootDir, 'tools/run-validate.mjs');
 const browserSmokeRunnerPath = path.join(rootDir, 'tools/run-browser-smoke.mjs');
 const browserSmokePagePath = path.join(rootDir, 'tools/browser-smoke.html');
 const workflowSource = readRequired(workflowPath);
 const packageSource = readRequired(packagePath);
+const indexSource = readRequired(indexPath);
 const runValidateSource = readRequired(runValidatePath);
 const browserSmokeRunnerSource = readRequired(browserSmokeRunnerPath);
 const browserSmokePageSource = readRequired(browserSmokePagePath);
@@ -43,6 +45,13 @@ requireSnippets('.github/workflows/validate.yml', workflowSource, [
   'run: npm run smoke:browser'
 ]);
 
+requireSnippets('index.html', indexSource, [
+  "new URLSearchParams(window.location.search).has('smoke')",
+  'window.__ETAGI_EARLY_ERRORS__ = errors;',
+  "window.addEventListener('error'",
+  "window.addEventListener('unhandledrejection'"
+]);
+
 requireSnippets('tools/run-validate.mjs', runValidateSource, [
   'startsWith(\'validate:\')',
   "command === 'npm run validate'",
@@ -71,12 +80,18 @@ if (browserSmokeRunnerSource.includes('spawnSync(chrome,')) {
 requireSnippets('tools/browser-smoke.html', browserSmokePageSource, [
   'id="browserSmokeResult"',
   'data-status="pending"',
+  'win.__ETAGI_EARLY_ERRORS__',
+  'ранние runtime errors',
+  'ранние runtime-ошибки не обнаружены',
   '[data-spn-ui-mode="newbie"]',
-  'dataset.wizardFlow === \'on\'',
+  "dataset.wizardFlow === 'on'",
   'Проверка → Задание',
   'Задание → Отчёт',
   '[data-spn-ui-mode="quick"]',
-  '[data-spn-ui-mode="advanced"]'
+  '[data-spn-ui-mode="advanced"]',
+  '[data-layout-mode="private"]',
+  '[data-layout-mode="agent_brand_photo"]',
+  'private → agent_brand_photo: фирменность восстановлена'
 ]);
 
 if (pkg) {

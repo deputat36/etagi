@@ -79,7 +79,8 @@ async function importWorkspaceBackup(event){
   }
 
   const mode = document.getElementById('workspaceBackupImportMode')?.value === 'replace' ? 'replace' : 'merge';
-  const currentCount = Object.keys(collectWorkspaceEntries()).length;
+  const previousEntries = collectWorkspaceEntries();
+  const currentCount = Object.keys(previousEntries).length;
   const nextCount = Object.keys(validation.entries).length;
   const action = mode === 'replace'
     ? `Удалить ${currentCount} текущих разделов и восстановить ${nextCount} из backup?`
@@ -92,11 +93,14 @@ async function importWorkspaceBackup(event){
 
   try{
     if(mode === 'replace') removeWorkspaceEntries();
-    for(const [key, value] of Object.entries(validation.entries)) localStorage.setItem(key, value);
+    writeWorkspaceEntries(validation.entries);
     setStatus(`Backup восстановлен: ${nextCount} разделов. Перезагрузка…`);
     window.setTimeout(() => window.location.reload(), 120);
   } catch(error){
-    setStatus('Не удалось восстановить backup: возможно, в браузере закончилось место.');
+    const rolledBack = rollbackWorkspace(previousEntries);
+    setStatus(rolledBack
+      ? 'Восстановление не выполнено. Предыдущие данные возвращены без изменений.'
+      : 'Ошибка восстановления и отката. Не закрывайте вкладку: исходный backup лучше сохранить отдельно.');
   }
 }
 
@@ -111,6 +115,10 @@ function collectWorkspaceEntries(){
   return entries;
 }
 
+function writeWorkspaceEntries(entries){
+  for(const [key, value] of Object.entries(entries)) localStorage.setItem(key, value);
+}
+
 function removeWorkspaceEntries(){
   const keys = [];
   for(let index = 0; index < localStorage.length; index += 1){
@@ -118,6 +126,16 @@ function removeWorkspaceEntries(){
     if(key?.startsWith(STORAGE_PREFIX)) keys.push(key);
   }
   keys.forEach(key => localStorage.removeItem(key));
+}
+
+function rollbackWorkspace(previousEntries){
+  try{
+    removeWorkspaceEntries();
+    writeWorkspaceEntries(previousEntries);
+    return true;
+  } catch(error){
+    return false;
+  }
 }
 
 function validateBackup(value){

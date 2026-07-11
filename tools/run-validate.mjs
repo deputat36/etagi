@@ -21,6 +21,8 @@ for (const scriptName of validateNames) {
   }
 }
 
+let passedCount = 0;
+
 for (const scriptName of validateNames) {
   const result = spawnSync('npm', ['run', scriptName], {
     cwd: rootDir,
@@ -36,13 +38,13 @@ for (const scriptName of validateNames) {
   }
 
   if (result.status !== 0) {
-    console.error(`\n✗ npm run ${scriptName}`);
+    console.error(`\n✗ npm run ${scriptName} (после ${passedCount} успешных проверок)`);
     if (result.stdout?.trim()) console.error(result.stdout.trim());
     if (result.stderr?.trim()) console.error(result.stderr.trim());
     process.exit(result.status || 1);
   }
 
-  console.log(`✓ ${scriptName}`);
+  passedCount += 1;
 }
 
-console.log(`All ${validateNames.length} validation scripts passed.`);
+console.log(`All ${passedCount} validation scripts passed.`);

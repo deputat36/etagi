@@ -30,6 +30,7 @@ import './spnNewbiePrintGuard.js';
 import './spnPhotoLayoutStyle.js';
 import './spnPhotoLayoutQualityActions.js';
 import './spnAgentBrandModeGuard.js';
+import './spnLayoutModeAccessibility.js';
 import './spnWizardFlow.js';
 import './spnNewbieWizardPatch.js';
 import './spnManagerReview.js';

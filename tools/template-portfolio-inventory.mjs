@@ -6,6 +6,7 @@ const dataDir = path.join(rootDir, 'data');
 const outputPath = path.join(rootDir, 'docs/template-portfolio-inventory.generated.md');
 const registryPath = path.join(dataDir, 'template_portfolio_status.json');
 const officeOverridesPath = path.join(dataDir, 'template_office_overrides.json');
+const idAliasesPath = path.join(dataDir, 'template_id_aliases.json');
 const files = fs.readdirSync(dataDir)
   .filter(file => /^templates.*\.json$/.test(file))
   .sort();
@@ -14,6 +15,7 @@ const templates = [];
 const errors = [];
 const registry = readPortfolioRegistry();
 const officeOverrides = readOfficeOverrides();
+const idAliases = readIdAliases();
 
 for(const file of files){
   const fullPath = path.join(dataDir, file);
@@ -42,8 +44,10 @@ const byRisk = countBy(templates.filter(template => template.office), template =
 const byPortfolioStatus = countBy(templates, template => template.portfolio?.status || 'working');
 const officeCount = templates.filter(template => template.office).length;
 const officeOverrideCount = templates.filter(template => template.__officeOverride === true).length;
+const idAliasCount = templates.filter(template => template.__idAlias === true).length;
 const recommendedCount = templates.filter(template => template.office?.recommended === true).length;
 const duplicateIds = duplicateGroups(templates, template => String(template.id || '').trim()).filter(group => group.key);
+const rawDuplicateIds = duplicateGroups(templates, template => String(template.__sourceId || template.id || '').trim()).filter(group => group.key);
 const duplicateScenarios = duplicateGroups(templates.filter(template => template.office?.scenario), template => template.office.scenario);
 const duplicateHeadlines = duplicateGroups(templates, template => normalizeText(template.data?.headline)).filter(group => group.key.length >= 8);
 const nearDuplicates = findNearDuplicates(templates);
@@ -51,6 +55,7 @@ const missingOffice = templates.filter(template => !template.office);
 const missingScenario = templates.filter(template => template.office && !template.office.scenario);
 const deprecatedTemplates = templates.filter(template => template.portfolio?.status === 'deprecated');
 const testTemplates = templates.filter(template => template.portfolio?.status === 'test');
+const aliasedTemplates = templates.filter(template => template.__idAlias === true);
 
 const markdown = [
   '# Автоматическая инвентаризация библиотеки шаблонов',
@@ -63,12 +68,14 @@ const markdown = [
   `- шаблонов: ${templates.length};`,
   `- с office-метаданными: ${officeCount} (${percent(officeCount, templates.length)}%);`,
   `- получили office через overrides: ${officeOverrideCount};`,
+  `- получили уникальный ID через aliases: ${idAliasCount};`,
   `- office-рекомендованных: ${recommendedCount};`,
   `- без office-метаданных: ${missingOffice.length};`,
   `- рабочих: ${statusCount('working')};`,
   `- тестовых: ${statusCount('test')};`,
   `- устаревших: ${statusCount('deprecated')};`,
-  `- повторяющихся id: ${duplicateIds.length};`,
+  `- исходных повторяющихся id: ${rawDuplicateIds.length};`,
+  `- неразрешённых итоговых id: ${duplicateIds.length};`,
   `- повторяющихся office-сценариев: ${duplicateScenarios.length};`,
   `- одинаковых нормализованных заголовков: ${duplicateHeadlines.length};`,
   `- вероятных смысловых дублей: ${nearDuplicates.length}.`,
@@ -82,6 +89,18 @@ const markdown = [
   renderCountTable('## Office-уровни', 'Уровень', byLevel),
   '',
   renderCountTable('## Office-риски', 'Риск', byRisk),
+  '',
+  '## Пакетные алиасы ID',
+  '',
+  renderAliasList(aliasedTemplates),
+  '',
+  '## Исходные повторяющиеся ID',
+  '',
+  renderDuplicateGroups(rawDuplicateIds),
+  '',
+  '## Неразрешённые итоговые ID',
+  '',
+  renderDuplicateGroups(duplicateIds),
   '',
   '## Пакеты без полного office-покрытия',
   '',
@@ -121,14 +140,17 @@ const markdown = [
   '2. Для вероятного дубля определить основной рабочий вариант, тестовый вариант или устаревший вариант.',
   '3. Устаревший шаблон должен ссылаться на конечную рабочую замену.',
   '4. Office-метаданные учитывать вместе с `data/template_office_overrides.json`.',
-  '5. Повторяющиеся заголовки допустимы только при разных целях, аудиториях или форматах.',
-  '6. После осознанных изменений повторно запустить `npm run templates:inventory`.',
+  '5. Исходные повторы ID разрешать только через `data/template_id_aliases.json`.',
+  '6. Неразрешённых итоговых ID всегда должно быть 0.',
+  '7. Повторяющиеся заголовки допустимы только при разных целях, аудиториях или форматах.',
+  '8. После осознанных изменений повторно запустить `npm run templates:inventory`.',
   ''
 ].join('\n');
 
 fs.writeFileSync(outputPath, markdown, 'utf8');
 console.log(`Инвентаризация создана: ${path.relative(rootDir, outputPath).replaceAll('\\', '/')}`);
-console.log(`Шаблонов: ${templates.length}; office: ${officeCount}; overrides: ${officeOverrideCount}; working: ${statusCount('working')}; test: ${statusCount('test')}; deprecated: ${statusCount('deprecated')}.`);
+console.log(`Шаблонов: ${templates.length}; office: ${officeCount}; overrides: ${officeOverrideCount}; aliases: ${idAliasCount}; working: ${statusCount('working')}; test: ${statusCount('test')}; deprecated: ${statusCount('deprecated')}.`);
+console.log(`Исходных повторов ID: ${rawDuplicateIds.length}; неразрешённых итоговых ID: ${duplicateIds.length}.`);
 console.log(`Вероятных смысловых дублей: ${nearDuplicates.length}.`);
 
 function readPortfolioRegistry(){
@@ -157,8 +179,20 @@ function readOfficeOverrides(){
   }
 }
 
+function readIdAliases(){
+  try{
+    const parsed = JSON.parse(fs.readFileSync(idAliasesPath, 'utf8'));
+    return {
+      packages: parsed.packages && typeof parsed.packages === 'object' && !Array.isArray(parsed.packages) ? parsed.packages : {}
+    };
+  } catch(error){
+    errors.push(`template_id_aliases.json: ${error.message}`);
+    return {packages:{}};
+  }
+}
+
 function enrichMetadata(template){
-  return enrichOffice(enrichPortfolio(template));
+  return applyIdAlias(enrichOffice(enrichPortfolio(template)));
 }
 
 function enrichPortfolio(template){
@@ -188,6 +222,18 @@ function enrichOffice(template){
   };
 }
 
+function applyIdAlias(template){
+  const sourceId = String(template.id || '').trim();
+  const alias = String(idAliases.packages?.[template.__file]?.[sourceId] || '').trim();
+  if(!alias) return template;
+  return {
+    ...template,
+    id: alias,
+    __sourceId: sourceId,
+    __idAlias: true
+  };
+}
+
 function normalizeRule(rule){
   if(typeof rule === 'string') return {status:rule, reason:'', replacementId:''};
   if(!rule || typeof rule !== 'object' || Array.isArray(rule)) return {status:'', reason:'', replacementId:''};
@@ -205,6 +251,7 @@ function findNearDuplicates(items){
     for(let rightIndex = leftIndex + 1; rightIndex < items.length; rightIndex += 1){
       const right = items[rightIndex];
       if(left.id === right.id) continue;
+      if(sourceIdentity(left) === sourceIdentity(right)) continue;
       const leftText = templateMeaningText(left);
       const rightText = templateMeaningText(right);
       if(!leftText || !rightText) continue;
@@ -216,6 +263,10 @@ function findNearDuplicates(items){
     }
   }
   return result.sort((a, b) => b.similarity - a.similarity);
+}
+
+function sourceIdentity(template){
+  return `${template.__sourceId || template.id}::${normalizeText(template.data?.headline)}`;
 }
 
 function templateMeaningText(template){
@@ -282,6 +333,17 @@ function renderCountTable(title, firstColumn, rows){
   ].join('\n');
 }
 
+function renderAliasList(items){
+  if(!items.length) return 'Алиасы не используются.';
+  return [
+    '| Итоговый ID | Исходный ID | Пакет |',
+    '|---|---|---|',
+    ...items
+      .sort((a, b) => String(a.__file).localeCompare(String(b.__file), 'ru') || String(a.id).localeCompare(String(b.id), 'ru'))
+      .map(item => `| ${escapeCell(item.id)} | ${escapeCell(item.__sourceId)} | ${escapeCell(item.__file)} |`)
+  ].join('\n');
+}
+
 function renderOfficeCoverageTable(templateFiles, items){
   const rows = templateFiles.map(file => {
     const packageItems = items.filter(item => item.__file === file);
@@ -336,8 +398,9 @@ function renderTemplateList(items){
 }
 
 function templateRef(template){
-  const source = template.__officeOverride ? ', office override' : '';
-  return `${escapeCell(template.id || 'без id')} — ${escapeCell(template.title || 'без названия')} (${escapeCell(template.__file)}, ${escapeCell(template.portfolio?.status || 'working')}${source})`;
+  const officeSource = template.__officeOverride ? ', office override' : '';
+  const aliasSource = template.__idAlias ? `, alias ${template.__sourceId} → ${template.id}` : '';
+  return `${escapeCell(template.id || 'без id')} — ${escapeCell(template.title || 'без названия')} (${escapeCell(template.__file)}, ${escapeCell(template.portfolio?.status || 'working')}${officeSource}${aliasSource})`;
 }
 
 function normalizeText(value){

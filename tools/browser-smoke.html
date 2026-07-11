@@ -21,6 +21,8 @@
     frame.addEventListener('load', async () => {
       const win = frame.contentWindow;
       const doc = frame.contentDocument;
+      const earlyErrors = Array.isArray(win.__ETAGI_EARLY_ERRORS__) ? [...win.__ETAGI_EARLY_ERRORS__] : [];
+      runtimeErrors.push(...earlyErrors);
       win.addEventListener('error', event => runtimeErrors.push(event.message || 'window error'));
       win.addEventListener('unhandledrejection', event => runtimeErrors.push(String(event.reason || 'unhandled rejection')));
 
@@ -29,6 +31,8 @@
         await waitFor(() => doc.querySelector('#printSheet .flyer'), 12000, 'предпросмотр А4 не появился');
         pass(`шаблонов: ${doc.querySelectorAll('.tpl-card').length}`);
         pass('предпросмотр А4 загружен');
+        if(earlyErrors.length) throw new Error(`ранние runtime errors: ${earlyErrors.join(' | ')}`);
+        pass('ранние runtime-ошибки не обнаружены');
 
         click(doc, '[data-spn-ui-mode="newbie"]');
         await waitFor(() => doc.body.dataset.spnUiMode === 'newbie', 3000, 'режим Новичок не включился');

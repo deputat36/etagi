@@ -57,6 +57,8 @@
         click(doc, '[data-spn-ui-mode="advanced"]');
         await waitFor(() => doc.body.dataset.spnUiMode === 'advanced', 2000, 'режим Расширенно не включился');
         pass('режимы Быстро и Расширенно переключаются');
+        await waitFor(() => doc.getElementById('spnWorkspaceBackup'), 3000, 'блок backup рабочего пространства не появился');
+        pass('backup рабочего пространства доступен');
 
         await waitFor(() => {
           const buttons = [...doc.querySelectorAll('#layoutModeGrid [data-layout-mode]')];

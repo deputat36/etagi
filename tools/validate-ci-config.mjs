@@ -46,6 +46,9 @@ requireSnippets('.github/workflows/validate.yml', workflowSource, [
   'uses: actions/upload-artifact@v4',
   'name: validation-failure',
   'path: validation-failure.log',
+  'name: browser-smoke-failure',
+  'path: browser-smoke-failure.log',
+  'if-no-files-found: warn',
   'retention-days: 3',
   'run: npm run smoke:browser'
 ]);
@@ -70,6 +73,9 @@ requireSnippets('tools/run-validate.mjs', runValidateSource, [
 
 requireSnippets('tools/run-browser-smoke.mjs', browserSmokeRunnerSource, [
   "import { spawn, spawnSync } from 'node:child_process';",
+  "const failureLogPath = path.join(rootDir, 'browser-smoke-failure.log')",
+  'writeFailureLog(message)',
+  'fs.writeFileSync(failureLogPath',
   'findChrome()',
   'createStaticServer(rootDir)',
   'const result = await runChrome(chrome, [',

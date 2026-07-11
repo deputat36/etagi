@@ -30,6 +30,7 @@ npm run validate:photo-layout-modes
 npm run validate:newbuild-visual-layout
 npm run validate:agent-brand-photo-layout
 npm run validate:agent-brand-mode-guard
+npm run validate:layout-mode-accessibility
 npm run validate:js
 npm run validate:assets
 npm run validate:asset-duplicates
@@ -101,6 +102,7 @@ Smoke-тест:
 - переключает режимы `Новичок`, `Быстро`, `Расширенно`;
 - проверяет автозапуск Wizard Flow;
 - проходит маршрут `Проверка → Задание → Отчёт`;
+- проверяет клавиатурный выбор компоновки через `End`, `Home` и `ArrowRight`;
 - проверяет переход `Частное → Фото СПН`;
 - не вызывает системную печать.
 
@@ -126,6 +128,12 @@ docs/full-scenario-regression-checklist.md
 
 ```text
 docs/photo-layout-modes.md
+```
+
+Для keyboard/focus выбора компоновки:
+
+```text
+docs/layout-mode-accessibility-checklist.md
 ```
 
 Ручной проход обязателен после изменений старта, выбора шаблона, печати, задания, отчётов, CSV, качества, фото-компоновок и навигации мастера.
@@ -203,6 +211,21 @@ deprecated   сохранённый для совместимости устар
 
 При переходе из режима `private` в `agent_brand_photo` scoped-helper `spnAgentBrandModeGuard.js` возвращает фирменный цвет и логотип. Он не меняет фото, QR, телефон, текст или количество макетов. Контракт проверяется `validate:agent-brand-mode-guard` и browser smoke.
 
+## Доступность выбора компоновки
+
+`spnLayoutModeAccessibility.js` работает только внутри `#layoutModeGrid`.
+
+Он добавляет:
+
+- `role="radiogroup"` для сетки;
+- `role="radio"` и `aria-checked` для кнопок;
+- roving `tabindex` — в Tab-порядке остаётся только выбранная компоновка;
+- стрелки, `Home` и `End`;
+- заметный `focus-visible`;
+- увеличенные подписи и минимальную высоту кнопки на мобильном экране.
+
+Helper не добавляет глобальный `keydown` на `document` или `window`. Контракт проверяется `validate:layout-mode-accessibility`, browser smoke и ручным чек-листом.
+
 ## Что контролируют проверки
 
 ### Шаблоны
@@ -225,7 +248,8 @@ deprecated   сохранённый для совместимости устар
 - существование импортов, CSS, JSON и DOM-id;
 - актуальные режимы интерфейса;
 - безопасное объединение метаданных шаблонов;
-- восстановление фирменности брендового фото-режима после частного макета.
+- восстановление фирменности брендового фото-режима после частного макета;
+- keyboard/focus и ARIA-состояние выбора компоновки.
 
 ### Контроль качества
 

@@ -11,8 +11,9 @@ const files = {
   reportEnhancements: 'assets/js/spnReportHistoryEnhancements.js',
   managerSummary: 'assets/js/spnManagerPeriodSummary.js',
   managerReview: 'assets/js/spnManagerReview.js',
+  agentBrandGuard: 'assets/js/spnAgentBrandModeGuard.js',
   wizardCss: 'assets/css/spn-wizard.css',
-  audit: 'docs/full-project-audit-and-roadmap-2026-07-10.md'
+  audit: 'docs/full-project-audit-and-roadmap-2026-07-11.md'
 };
 
 const sources = Object.fromEntries(
@@ -27,10 +28,15 @@ requireSnippets(files.templates, sources.templates, [
   'async function loadTemplateFiles()',
   "const TEMPLATE_PORTFOLIO_FILE = 'data/template_portfolio_status.json';",
   "const TEMPLATE_OFFICE_OVERRIDES_FILE = 'data/template_office_overrides.json';",
+  "const TEMPLATE_ID_ALIASES_FILE = 'data/template_id_aliases.json';",
   'loadTemplatePortfolioRegistry()',
   'loadTemplateOfficeOverrides()',
+  'loadTemplateIdAliases()',
   'enrichTemplatePortfolio',
   'enrichTemplateOffice',
+  'applyTemplateIdAlias',
+  'sourcePackage: packageName',
+  'if(byId.has(resolved.id))',
   '...override.tags',
   'office.scenario',
   'office.managerNote'
@@ -44,13 +50,29 @@ const helperEntries = [
   'spnDistributionReportHelper.js',
   'spnReportHistoryEnhancements.js',
   'spnManagerPeriodSummary.js',
-  'spnPhotoLayoutQualityActions.js'
+  'spnPhotoLayoutQualityActions.js',
+  'spnAgentBrandModeGuard.js'
 ];
 
 for (const file of helperEntries) {
   requireSnippets(files.uiMode, sources.uiMode, [`import './${file}';`]);
   forbidSnippets(files.index, sources.index, [`src="assets/js/${file}"`, `src='assets/js/${file}'`]);
 }
+
+requireSnippets(files.agentBrandGuard, sources.agentBrandGuard, [
+  '[data-layout-mode="agent_brand_photo"]',
+  'window.requestAnimationFrame(normalizeAgentBrandMode)',
+  "colorMode.value === 'private'",
+  "colorMode.value = 'brand'",
+  'showBrand.checked = true'
+]);
+
+requireSnippets(files.index, sources.index, [
+  "new URLSearchParams(window.location.search).has('smoke')",
+  'window.__ETAGI_EARLY_ERRORS__ = errors;',
+  "window.addEventListener('error'",
+  "window.addEventListener('unhandledrejection'"
+]);
 
 requireSnippets(files.reportEnhancements, sources.reportEnhancements, [
   'MIN_GROUP_REPORTS = 2',
@@ -110,11 +132,12 @@ requireSnippets(files.wizardCss, sources.wizardCss, [
 ]);
 
 requireSnippets(files.audit, sources.audit, [
-  '# Полный аудит и автономный план развития генератора расклеек',
-  'Этап 1. Стабилизация runtime',
-  'Повторная загрузка шаблонов',
-  'Дублирование точек входа',
-  'Браузерная проверка'
+  '# Многосторонний аудит и автономный план развития генератора расклеек',
+  'Насколько проект решает задачи пользователя',
+  'Повторяющиеся templateId',
+  'Ранние runtime-ошибки не попадают в smoke',
+  'Полевое выполнение',
+  'Сохранность рабочего пространства'
 ]);
 
 if (errors.length) {

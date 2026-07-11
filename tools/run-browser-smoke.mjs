@@ -5,9 +5,14 @@ import path from 'node:path';
 import { spawn, spawnSync } from 'node:child_process';
 
 const rootDir = process.cwd();
+const failureLogPath = path.join(rootDir, 'browser-smoke-failure.log');
+try { fs.rmSync(failureLogPath, {force:true}); } catch(error){}
+
 const chrome = findChrome();
 if (!chrome) {
-  console.error('Browser smoke: Chrome/Chromium не найден. Укажите CHROME_BIN или установите системный браузер.');
+  const message = 'Browser smoke: Chrome/Chromium не найден. Укажите CHROME_BIN или установите системный браузер.';
+  writeFailureLog(message);
+  console.error(message);
   process.exit(1);
 }
 
@@ -52,7 +57,9 @@ try {
   console.log(summary || 'Browser smoke passed.');
 }
 catch(error) {
-  console.error(error.message || error);
+  const message = String(error?.message || error || 'Browser smoke failed.').trim();
+  writeFailureLog(message);
+  console.error(message);
   process.exitCode = 1;
 }
 finally {
@@ -104,8 +111,12 @@ function runChrome(command, args, options){
 }
 
 function fail(message, details = ''){
-  const suffix = String(details || '').trim().slice(-4000);
+  const suffix = String(details || '').trim().slice(-8000);
   throw new Error(suffix ? `${message}\n${suffix}` : message);
+}
+
+function writeFailureLog(message){
+  try { fs.writeFileSync(failureLogPath, `${String(message || '').trim()}\n`, 'utf8'); } catch(error){}
 }
 
 function findChrome(){

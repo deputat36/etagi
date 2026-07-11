@@ -12,6 +12,7 @@ const files = {
   managerSummary: 'assets/js/spnManagerPeriodSummary.js',
   managerReview: 'assets/js/spnManagerReview.js',
   agentBrandGuard: 'assets/js/spnAgentBrandModeGuard.js',
+  layoutAccessibility: 'assets/js/spnLayoutModeAccessibility.js',
   wizardCss: 'assets/css/spn-wizard.css',
   audit: 'docs/full-project-audit-and-roadmap-2026-07-11.md'
 };
@@ -51,7 +52,8 @@ const helperEntries = [
   'spnReportHistoryEnhancements.js',
   'spnManagerPeriodSummary.js',
   'spnPhotoLayoutQualityActions.js',
-  'spnAgentBrandModeGuard.js'
+  'spnAgentBrandModeGuard.js',
+  'spnLayoutModeAccessibility.js'
 ];
 
 for (const file of helperEntries) {
@@ -65,6 +67,23 @@ requireSnippets(files.agentBrandGuard, sources.agentBrandGuard, [
   "colorMode.value === 'private'",
   "colorMode.value = 'brand'",
   'showBrand.checked = true'
+]);
+
+requireSnippets(files.layoutAccessibility, sources.layoutAccessibility, [
+  "grid.setAttribute('role', 'radiogroup')",
+  "button.setAttribute('role', 'radio')",
+  "button.setAttribute('aria-checked'",
+  'button.tabIndex = selected ? 0 : -1',
+  "event.key === 'ArrowRight'",
+  "event.key === 'Home'",
+  "event.key === 'End'",
+  'new MutationObserver(() => scheduleSync(grid)).observe(grid',
+  ':focus-visible'
+]);
+
+forbidSnippets(files.layoutAccessibility, sources.layoutAccessibility, [
+  "document.addEventListener('keydown'",
+  "window.addEventListener('keydown'"
 ]);
 
 requireSnippets(files.index, sources.index, [

@@ -22,16 +22,27 @@ for (const scriptName of validateNames) {
 }
 
 for (const scriptName of validateNames) {
-  console.log(`\n> npm run ${scriptName}`);
   const result = spawnSync('npm', ['run', scriptName], {
     cwd: rootDir,
-    stdio: 'inherit',
+    encoding: 'utf8',
+    stdio: 'pipe',
+    maxBuffer: 8 * 1024 * 1024,
     shell: process.platform === 'win32'
   });
 
+  if (result.error) {
+    console.error(`\n✗ ${scriptName}: ${result.error.message}`);
+    process.exit(1);
+  }
+
   if (result.status !== 0) {
+    console.error(`\n✗ npm run ${scriptName}`);
+    if (result.stdout?.trim()) console.error(result.stdout.trim());
+    if (result.stderr?.trim()) console.error(result.stderr.trim());
     process.exit(result.status || 1);
   }
+
+  console.log(`✓ ${scriptName}`);
 }
 
-console.log('\nAll validation scripts passed.');
+console.log(`All ${validateNames.length} validation scripts passed.`);

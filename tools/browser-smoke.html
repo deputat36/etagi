@@ -60,6 +60,16 @@
         await waitFor(() => doc.getElementById('spnWorkspaceBackup'), 3000, 'блок backup рабочего пространства не появился');
         pass('backup рабочего пространства доступен');
 
+        const openFieldMode = doc.getElementById('openDistributionFieldModeBtn');
+        const fieldDialog = doc.getElementById('spnDistributionFieldDialog');
+        assert(openFieldMode, 'кнопка режима исполнителя отсутствует');
+        assert(fieldDialog, 'диалог режима исполнителя отсутствует');
+        openFieldMode.click();
+        await waitFor(() => fieldDialog.open || fieldDialog.hasAttribute('open'), 2000, 'мобильный режим исполнителя не открылся');
+        doc.getElementById('closeDistributionFieldModeBtn')?.click();
+        await waitFor(() => !fieldDialog.open && !fieldDialog.hasAttribute('open'), 2000, 'мобильный режим исполнителя не закрылся');
+        pass('мобильный режим исполнителя открывается');
+
         await waitFor(() => {
           const buttons = [...doc.querySelectorAll('#layoutModeGrid [data-layout-mode]')];
           return buttons.length >= 10 && buttons.some(button => button.getAttribute('aria-checked') === 'true');

@@ -12,6 +12,7 @@ const TEMPLATE_FILES = [
 ];
 const TEMPLATE_PORTFOLIO_FILE = 'data/template_portfolio_status.json';
 const TEMPLATE_OFFICE_OVERRIDES_FILE = 'data/template_office_overrides.json';
+const TEMPLATE_ID_ALIASES_FILE = 'data/template_id_aliases.json';
 
 let templateLoadPromise = null;
 
@@ -21,10 +22,11 @@ export function loadTemplates(){
 }
 
 async function loadTemplateFiles(){
-  const [loadedPackages, portfolioRegistry, officeOverrides] = await Promise.all([
+  const [loadedPackages, portfolioRegistry, officeOverrides, idAliases] = await Promise.all([
     Promise.all(TEMPLATE_FILES.map(async file => ({file, templates: await loadTemplateFile(file)}))),
     loadTemplatePortfolioRegistry(),
-    loadTemplateOfficeOverrides()
+    loadTemplateOfficeOverrides(),
+    loadTemplateIdAliases()
   ]);
   const byId = new Map();
 
@@ -33,7 +35,13 @@ async function loadTemplateFiles(){
     for(const item of templates){
       if(!item?.id) continue;
       const withPortfolio = enrichTemplatePortfolio(item, packageName, portfolioRegistry);
-      byId.set(item.id, enrichTemplateOffice(withPortfolio, officeOverrides));
+      const withOffice = enrichTemplateOffice(withPortfolio, officeOverrides);
+      const resolved = applyTemplateIdAlias(withOffice, packageName, idAliases);
+      if(byId.has(resolved.id)){
+        console.warn(`Повторяющийся templateId пропущен: ${resolved.id} (${packageName}). Добавьте алиас в ${TEMPLATE_ID_ALIASES_FILE}.`);
+        continue;
+      }
+      byId.set(resolved.id, resolved);
     }
   }
   return [...byId.values()];
@@ -71,6 +79,21 @@ async function loadTemplateOfficeOverrides(){
   }
 }
 
+async function loadTemplateIdAliases(){
+  try{
+    const res = await fetch(TEMPLATE_ID_ALIASES_FILE, {cache:'no-store'});
+    if(!res.ok) return emptyIdAliases();
+    const data = await res.json();
+    if(!data || typeof data !== 'object' || Array.isArray(data)) return emptyIdAliases();
+    return {
+      packages: data.packages && typeof data.packages === 'object' ? data.packages : {}
+    };
+  } catch(e){
+    console.warn(`Не удалось загрузить реестр алиасов шаблонов: ${TEMPLATE_ID_ALIASES_FILE}`, e);
+    return emptyIdAliases();
+  }
+}
+
 function enrichTemplatePortfolio(template, packageName, registry){
   const packageRule = normalizePortfolioRule(registry.packageDefaults?.[packageName]);
   const templateRule = normalizePortfolioRule(registry.templates?.[template.id]);
@@ -91,6 +114,17 @@ function enrichTemplateOffice(template, registry){
     ...template,
     tags: [...new Set([...(Array.isArray(template.tags) ? template.tags : []), ...override.tags])],
     office: override.office ? {...(template.office || {}), ...override.office} : template.office
+  };
+}
+
+function applyTemplateIdAlias(template, packageName, registry){
+  const sourceId = String(template.id || '').trim();
+  const alias = String(registry.packages?.[packageName]?.[sourceId] || '').trim();
+  return {
+    ...template,
+    id: alias || sourceId,
+    sourceId: alias ? sourceId : '',
+    sourcePackage: packageName
   };
 }
 
@@ -119,6 +153,10 @@ function emptyPortfolioRegistry(){
 
 function emptyOfficeOverrides(){
   return {templates:{}};
+}
+
+function emptyIdAliases(){
+  return {packages:{}};
 }
 
 async function loadTemplateFile(path){
@@ -172,6 +210,8 @@ function getTemplateSearchText(template){
   const office = template?.office || {};
   return normalizeSearch([
     template?.id,
+    template?.sourceId,
+    template?.sourcePackage,
     template?.goal,
     template?.title,
     template?.note,

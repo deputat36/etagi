@@ -44,6 +44,15 @@ jobs:
       - name: Validate project
         run: npm run validate
 
+      - name: Upload validation failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: validation-failure
+          path: validation-failure.log
+          if-no-files-found: warn
+          retention-days: 3
+
   browser-smoke:
     needs: validate
     runs-on: ubuntu-latest

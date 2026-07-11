@@ -13,6 +13,7 @@ const files = {
   managerReview: 'assets/js/spnManagerReview.js',
   agentBrandGuard: 'assets/js/spnAgentBrandModeGuard.js',
   layoutAccessibility: 'assets/js/spnLayoutModeAccessibility.js',
+  workspaceBackup: 'assets/js/spnWorkspaceBackup.js',
   wizardCss: 'assets/css/spn-wizard.css',
   audit: 'docs/full-project-audit-and-roadmap-2026-07-11.md'
 };
@@ -51,6 +52,7 @@ const helperEntries = [
   'spnDistributionReportHelper.js',
   'spnReportHistoryEnhancements.js',
   'spnManagerPeriodSummary.js',
+  'spnWorkspaceBackup.js',
   'spnPhotoLayoutQualityActions.js',
   'spnAgentBrandModeGuard.js',
   'spnLayoutModeAccessibility.js'
@@ -84,6 +86,23 @@ requireSnippets(files.layoutAccessibility, sources.layoutAccessibility, [
 forbidSnippets(files.layoutAccessibility, sources.layoutAccessibility, [
   "document.addEventListener('keydown'",
   "window.addEventListener('keydown'"
+]);
+
+requireSnippets(files.workspaceBackup, sources.workspaceBackup, [
+  "const STORAGE_PREFIX = 'etagi-raskleyka-'",
+  "const BACKUP_SCHEMA = 'etagi-raskleyka-workspace-backup'",
+  'collectWorkspaceEntries',
+  'const previousEntries = collectWorkspaceEntries()',
+  'rollbackWorkspace(previousEntries)',
+  'window.confirm',
+  "key.startsWith(STORAGE_PREFIX)"
+]);
+
+forbidSnippets(files.workspaceBackup, sources.workspaceBackup, [
+  'localStorage.clear(',
+  'fetch(',
+  'XMLHttpRequest',
+  'navigator.sendBeacon'
 ]);
 
 requireSnippets(files.index, sources.index, [

@@ -5,6 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Генератор расклеек СПН — Этажи</title>
   <meta name="description" content="Удобный генератор печатных макетов для специалистов по недвижимости: куплю, продам, услуги, новостройки, аренда, личный бренд.">
+  <script>
+    (() => {
+      if(!new URLSearchParams(window.location.search).has('smoke')) return;
+      const errors = [];
+      window.__ETAGI_EARLY_ERRORS__ = errors;
+      window.addEventListener('error', event => {
+        const location = event.filename ? ` (${event.filename}:${event.lineno || 0})` : '';
+        errors.push(`${event.message || 'window error'}${location}`);
+      }, true);
+      window.addEventListener('unhandledrejection', event => {
+        errors.push(String(event.reason?.stack || event.reason || 'unhandled rejection'));
+      });
+    })();
+  </script>
   <link rel="stylesheet" href="assets/css/app.css">
   <link rel="stylesheet" href="assets/css/meta-compact.css">
   <link rel="stylesheet" href="assets/css/ui-improvements.css">

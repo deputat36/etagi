@@ -58,6 +58,26 @@
         await waitFor(() => doc.body.dataset.spnUiMode === 'advanced', 2000, 'режим Расширенно не включился');
         pass('режимы Быстро и Расширенно переключаются');
 
+        await waitFor(() => {
+          const buttons = [...doc.querySelectorAll('#layoutModeGrid [data-layout-mode]')];
+          return buttons.length >= 10 && buttons.some(button => button.getAttribute('aria-checked') === 'true');
+        }, 3000, 'ARIA-состояние компоновок не настроено');
+        const layoutButtons = [...doc.querySelectorAll('#layoutModeGrid [data-layout-mode]')];
+        const firstLayout = layoutButtons[0];
+        const secondLayout = layoutButtons[1];
+        const lastLayout = layoutButtons[layoutButtons.length - 1];
+        firstLayout.focus();
+        pressKey(win, firstLayout, 'End');
+        await waitFor(() => lastLayout.classList.contains('active') && lastLayout.getAttribute('aria-checked') === 'true', 3000, 'End не выбрал последнюю компоновку');
+        pass('keyboard: End выбрал последнюю компоновку');
+        pressKey(win, lastLayout, 'Home');
+        await waitFor(() => firstLayout.classList.contains('active') && firstLayout.getAttribute('aria-checked') === 'true', 3000, 'Home не вернул первую компоновку');
+        assert(firstLayout.tabIndex === 0, 'выбранная компоновка должна иметь tabindex=0 и aria-checked="true"');
+        pass('keyboard: Home вернул первую компоновку');
+        pressKey(win, firstLayout, 'ArrowRight');
+        await waitFor(() => secondLayout.classList.contains('active') && secondLayout.getAttribute('aria-checked') === 'true', 3000, 'ArrowRight не выбрал следующую компоновку');
+        pass('keyboard: ArrowRight выбрал следующую компоновку');
+
         await attachImage(win, doc, '#photoOne', 'newbuild-facade.svg', '<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="700"><rect width="1200" height="700" fill="#cbd5e1"/><rect x="140" y="120" width="920" height="480" fill="#e30613"/></svg>');
         await attachImage(win, doc, '#photoTwo', 'newbuild-plan.svg', '<svg xmlns="http://www.w3.org/2000/svg" width="800" height="800"><rect width="800" height="800" fill="white"/><path d="M80 80h640v640H80zM80 400h640M400 80v640" fill="none" stroke="#111827" stroke-width="24"/></svg>');
         await waitFor(() => doc.querySelector('#photoModeRow [data-photo="two"].active'), 3000, 'режим двух изображений не включился');
@@ -120,6 +140,9 @@
       const element = doc.querySelector(selector);
       assert(element, `не найден элемент ${selector}`);
       element.click();
+    }
+    function pressKey(win, element, key){
+      element.dispatchEvent(new win.KeyboardEvent('keydown', {key, bubbles:true, cancelable:true}));
     }
     async function attachImage(win, doc, selector, name, source){
       const input = doc.querySelector(selector);

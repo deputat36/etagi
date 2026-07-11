@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "packages": {
+    "templates_extra.json": {
+      "brand_area_expert": "extra_brand_area_expert",
+      "service_safe_deal": "extra_service_safe_deal",
+      "private_buy_flat": "extra_private_buy_flat",
+      "private_sell_flat": "extra_private_sell_flat"
+    }
+  }
+}

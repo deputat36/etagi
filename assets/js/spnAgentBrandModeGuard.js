@@ -28,7 +28,12 @@ function normalizeAgentBrandMode(){
     changed = true;
   }
 
-  if(changed) setStatus('Режим «Фото СПН»: фирменное оформление восстановлено после частного макета.');
+  const agentName = document.getElementById('agentName');
+if(agentName && agentName.value.trim()){
+  agentName.dispatchEvent(new Event('input', {bubbles:true}));
+}
+
+if(changed) setStatus('Режим «Фото СПН»: фирменное оформление восстановлено после частного макета.');
 }
 
 function setStatus(text){

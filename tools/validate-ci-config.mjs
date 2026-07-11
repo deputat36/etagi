@@ -42,6 +42,11 @@ requireSnippets('.github/workflows/validate.yml', workflowSource, [
   'uses: actions/setup-node@v4',
   "node-version: '20'",
   'run: npm run validate',
+  'if: failure()',
+  'uses: actions/upload-artifact@v4',
+  'name: validation-failure',
+  'path: validation-failure.log',
+  'retention-days: 3',
   'run: npm run smoke:browser'
 ]);
 
@@ -53,11 +58,14 @@ requireSnippets('index.html', indexSource, [
 ]);
 
 requireSnippets('tools/run-validate.mjs', runValidateSource, [
-  'startsWith(\'validate:\')',
+  "startsWith('validate:')",
   "command === 'npm run validate'",
   "command === 'node tools/run-validate.mjs'",
   'Invalid recursive validation script',
-  "spawnSync('npm', ['run', scriptName]"
+  "spawnSync('npm', ['run', scriptName]",
+  "const failureLogPath = path.join(rootDir, 'validation-failure.log')",
+  'fs.writeFileSync(failureLogPath',
+  'failValidation(details'
 ]);
 
 requireSnippets('tools/run-browser-smoke.mjs', browserSmokeRunnerSource, [
@@ -89,6 +97,9 @@ requireSnippets('tools/browser-smoke.html', browserSmokePageSource, [
   'Задание → Отчёт',
   '[data-spn-ui-mode="quick"]',
   '[data-spn-ui-mode="advanced"]',
+  'backup рабочего пространства доступен',
+  'мобильный режим исполнителя открывается',
+  'keyboard: End выбрал последнюю компоновку',
   '[data-layout-mode="private"]',
   '[data-layout-mode="agent_brand_photo"]',
   'private → agent_brand_photo: фирменность восстановлена'

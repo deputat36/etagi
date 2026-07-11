@@ -53,7 +53,7 @@ requireSnippets(files.checklist, sources.checklist, [
   'End',
   'tabindex="0"',
   'aria-checked="true"',
-  'Глобальные сочетания клавиш вне'
+  'глобальные сочетания клавиш вне'
 ]);
 
 if(errors.length){

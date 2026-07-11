@@ -14,6 +14,7 @@ const files = {
   agentBrandGuard: 'assets/js/spnAgentBrandModeGuard.js',
   layoutAccessibility: 'assets/js/spnLayoutModeAccessibility.js',
   workspaceBackup: 'assets/js/spnWorkspaceBackup.js',
+  distributionFieldMode: 'assets/js/spnDistributionFieldMode.js',
   wizardCss: 'assets/css/spn-wizard.css',
   audit: 'docs/full-project-audit-and-roadmap-2026-07-11.md'
 };
@@ -53,6 +54,7 @@ const helperEntries = [
   'spnReportHistoryEnhancements.js',
   'spnManagerPeriodSummary.js',
   'spnWorkspaceBackup.js',
+  'spnDistributionFieldMode.js',
   'spnPhotoLayoutQualityActions.js',
   'spnAgentBrandModeGuard.js',
   'spnLayoutModeAccessibility.js'
@@ -61,6 +63,13 @@ const helperEntries = [
 for (const file of helperEntries) {
   requireSnippets(files.uiMode, sources.uiMode, [`import './${file}';`]);
   forbidSnippets(files.index, sources.index, [`src="assets/js/${file}"`, `src='assets/js/${file}'`]);
+}
+
+const taskImportIndex = sources.uiMode.indexOf("import './spnDistributionTaskHelper.js';");
+const reportImportIndex = sources.uiMode.indexOf("import './spnDistributionReportHelper.js';");
+const fieldImportIndex = sources.uiMode.indexOf("import './spnDistributionFieldMode.js';");
+if(!(taskImportIndex >= 0 && reportImportIndex > taskImportIndex && fieldImportIndex > reportImportIndex)){
+  errors.push('assets/js/spnUiMode.js: мобильный полевой режим должен подключаться после задания и отчёта');
 }
 
 requireSnippets(files.agentBrandGuard, sources.agentBrandGuard, [
@@ -103,6 +112,24 @@ forbidSnippets(files.workspaceBackup, sources.workspaceBackup, [
   'fetch(',
   'XMLHttpRequest',
   'navigator.sendBeacon'
+]);
+
+requireSnippets(files.distributionFieldMode, sources.distributionFieldMode, [
+  "const FIELD_KEY = 'etagi-raskleyka-field-task-v1'",
+  'spnDistributionFieldDialog',
+  'completedPointKeys',
+  'actualSheets <= 0',
+  'buildFieldResultText',
+  'sendToReport',
+  "reportNotes.value = [reportNotes.value.trim(), note]",
+  '@media(max-width:640px)'
+]);
+
+forbidSnippets(files.distributionFieldMode, sources.distributionFieldMode, [
+  'type="file"',
+  'data:image',
+  'fetch(',
+  'XMLHttpRequest'
 ]);
 
 requireSnippets(files.index, sources.index, [

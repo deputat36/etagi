@@ -14,6 +14,7 @@ import './spnDistributionTaskHelper.js';
 import './spnDistributionReportHelper.js';
 import './spnReportHistoryEnhancements.js';
 import './spnManagerPeriodSummary.js';
+import './spnWorkspaceBackup.js';
 import './spnTemplateMenuCompact.js';
 import './spnOfficeTemplateFilters.js';
 import './spnOfficeFilterSync.js';

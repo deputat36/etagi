@@ -6,6 +6,7 @@ const errors = [];
 const files = {
   harness: 'tools/print-screenshot.html',
   runner: 'tools/run-print-screenshots.mjs',
+  collector: 'tools/collect-print-screenshots.mjs',
   workflow: '.github/workflows/validate.yml',
   package: 'package.json',
   guide: 'docs/print-screenshot-regression.md',
@@ -27,9 +28,8 @@ requireSnippets(files.harness, sources.harness, [
   "flyer.classList.contains('overflow')",
   'контакты выходят за границы макета',
   "status.dataset.status = 'passed'",
-  'prepareCaptureView(doc)',
-  'фактически смены'
-].filter(snippet => snippet !== 'фактически смены'));
+  'prepareCaptureView(doc)'
+]);
 
 forbidSnippets(files.harness, sources.harness, [
   'fetch(',
@@ -46,29 +46,57 @@ requireSnippets(files.runner, sources.runner, [
   "{id:'one-showcase'",
   "{id:'two-photo'",
   "{id:'four-contacts'",
+  'PRINT_SCREENSHOT_SCENARIO',
+  "process.argv.indexOf('--scenario')",
+  'selectedScenarios',
+  "fs.writeFileSync(path.join(outputDir, `${scenario.id}.json`) ",
   "'--window-size=794,1123'",
   "'--dump-dom'",
   '`--screenshot=${screenshotPath}`',
   "dom.includes('data-status=\"passed\"')",
-  "path.join(outputDir, 'manifest.json')",
   'sizeBytes < 10000',
-  'fs.writeFileSync(failureLogPath'
+  'fs.writeFileSync(failureLogPath',
+  'server.keepAliveTimeout = 1',
+  "'Connection':'close'"
+]);
+
+requireSnippets(files.collector, sources.collector, [
+  "'one-no-photo'",
+  "'two-big-phone'",
+  "'one-showcase'",
+  "'two-photo'",
+  "'four-contacts'",
+  'Не найден ${id}.png после matrix job.',
+  'Не найден ${id}.json после matrix job.',
+  "path.join(outputDir, 'manifest.json')",
+  'Print screenshot artifacts collected'
 ]);
 
 requireSnippets(files.workflow, sources.workflow, [
-  'print-screenshots:',
+  'print-screenshot:',
+  'collect-print-screenshots:',
   'needs: browser-smoke',
+  'needs: print-screenshot',
+  'fail-fast: false',
+  'matrix:',
+  'scenario:',
+  'PRINT_SCREENSHOT_SCENARIO: ${{ matrix.scenario }}',
   'run: npm run screenshots:print',
+  'name: print-screenshot-${{ matrix.scenario }}',
+  'name: print-screenshot-failure-${{ matrix.scenario }}',
+  'uses: actions/download-artifact@v4',
+  'pattern: print-screenshot-*',
+  'merge-multiple: true',
+  'run: npm run screenshots:manifest',
   'name: print-screenshots',
   'path: artifacts/print-screenshots/',
-  'retention-days: 7',
-  'name: print-screenshots-failure',
-  'path: print-screenshots-failure.log'
+  'retention-days: 7'
 ]);
 
 const pkg = readPackage(sources.package);
 if(pkg){
   requireScript('screenshots:print', 'node tools/run-print-screenshots.mjs', pkg.scripts || {});
+  requireScript('screenshots:manifest', 'node tools/collect-print-screenshots.mjs', pkg.scripts || {});
   requireScript('validate:print-screenshots', 'node tools/validate-print-screenshots.mjs', pkg.scripts || {});
 }
 
@@ -87,7 +115,8 @@ requireSnippets(files.guide, sources.guide, [
 requireSnippets(files.maintenance, sources.maintenance, [
   'npm run validate:print-screenshots',
   'npm run screenshots:print',
-  'print-screenshots'
+  'print-screenshots',
+  'изолирован'
 ]);
 
 if(errors.length){

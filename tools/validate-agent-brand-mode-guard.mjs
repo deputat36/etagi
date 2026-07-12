@@ -15,11 +15,13 @@ const sources = Object.fromEntries(
 
 requireSnippets(files.guard, sources.guard, [
   "[data-layout-mode=\"agent_brand_photo\"]",
-  'window.requestAnimationFrame(normalizeAgentBrandMode)',
+  'window.requestAnimationFrame(() => normalizeAgentBrandMode(button))',
+  'function normalizeAgentBrandMode(button)',
   "colorMode.value === 'private'",
   "colorMode.value = 'brand'",
   'showBrand.checked = true',
-  "dispatchEvent(new Event('change', {bubbles:true}))"
+  "dispatchEvent(new Event('change', {bubbles:true}))",
+  'window.requestAnimationFrame(() => button.click())'
 ]);
 
 requireSnippets(files.entry, sources.entry, [

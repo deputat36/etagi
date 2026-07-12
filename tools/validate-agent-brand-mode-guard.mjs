@@ -14,17 +14,20 @@ const sources = Object.fromEntries(
 );
 
 requireSnippets(files.guard, sources.guard, [
-  "[data-layout-mode=\"agent_brand_photo\"]",
-  'let pendingButton = null;',
-  'pendingButton = button;',
-  'window.requestAnimationFrame(normalizeAgentBrandMode)',
-  'const button = pendingButton;',
-  'pendingButton = null;',
+  '[data-layout-mode="agent_brand_photo"]',
+  "grid.addEventListener('click', prepareAgentBrandMode, true)",
   "colorMode.value === 'private'",
   "colorMode.value = 'brand'",
   'showBrand.checked = true',
+  'const syncTarget = colorMode || showBrand;',
   "dispatchEvent(new Event('change', {bubbles:true}))",
-  'window.requestAnimationFrame(() => button.click())'
+  'до применения компоновки'
+]);
+
+forbidSnippets(files.guard, sources.guard, [
+  'requestAnimationFrame',
+  'button.click()',
+  'pendingButton'
 ]);
 
 requireSnippets(files.entry, sources.entry, [
@@ -51,6 +54,12 @@ console.log('Проверка перехода Частное → Фото СП�
 function requireSnippets(file, source, snippets){
   for(const snippet of snippets){
     if(!source.includes(snippet)) errors.push(`${file}: отсутствует обязательный контракт — ${snippet}`);
+  }
+}
+
+function forbidSnippets(file, source, snippets){
+  for(const snippet of snippets){
+    if(source.includes(snippet)) errors.push(`${file}: найден запрещённый фрагмент — ${snippet}`);
   }
 }
 

@@ -33,6 +33,7 @@ npm run validate:agent-brand-photo-layout
 npm run validate:agent-brand-mode-guard
 npm run validate:layout-mode-accessibility
 npm run validate:preview-quickbar
+npm run validate:advanced-workbench
 npm run validate:js
 npm run validate:assets
 npm run validate:asset-duplicates
@@ -115,6 +116,34 @@ npm run validate:preview-quickbar
 ```
 
 Ручной сценарий: `docs/preview-quickbar.md`.
+
+## Рабочий блок после печати
+
+`spnAdvancedWorkbench.js` объединяет три крупные операционные секции:
+
+```text
+План расклейки
+Квалификация отклика
+Итог теста расклейки
+```
+
+Модуль переносит существующие DOM-узлы внутрь одного `<details>`, а не создаёт копии. Поэтому обработчики, поля и журналы сохраняются.
+
+Правила:
+
+- в режиме `Расширенно` блок виден и по умолчанию закрыт;
+- в режимах `Быстро` и `Новичок` контейнер полностью скрыт;
+- состояние раскрытия хранится под проектным ключом и входит в backup;
+- MutationObserver отключается после сборки или не позднее пяти секунд;
+- запрещены `cloneNode`, бесконечные таймеры и глобальные click-перехваты.
+
+После изменений выполнять:
+
+```bash
+npm run validate:advanced-workbench
+```
+
+Ручной сценарий: `docs/advanced-workbench.md`.
 
 ## Screenshot-регрессия печати
 
@@ -249,6 +278,7 @@ docs/newbie-mode-regression-checklist.md
 docs/photo-layout-modes.md
 docs/layout-mode-accessibility-checklist.md
 docs/preview-quickbar.md
+docs/advanced-workbench.md
 docs/workspace-backup-regression-checklist.md
 docs/distribution-field-mode-regression-checklist.md
 docs/print-screenshot-regression.md

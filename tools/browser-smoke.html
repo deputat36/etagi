@@ -90,8 +90,12 @@
         await waitFor(() => secondLayout.classList.contains('active') && secondLayout.getAttribute('aria-checked') === 'true', 3000, 'ArrowRight не выбрал следующую компоновку');
         pass('keyboard: ArrowRight выбрал следующую компоновку');
 
-        await attachImage(win, doc, '#photoOne', 'newbuild-facade.svg', '<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="700"><rect width="1200" height="700" fill="#cbd5e1"/><rect x="140" y="120" width="920" height="480" fill="#e30613"/></svg>');
-        await attachImage(win, doc, '#photoTwo', 'newbuild-plan.svg', '<svg xmlns="http://www.w3.org/2000/svg" width="800" height="800"><rect width="800" height="800" fill="white"/><path d="M80 80h640v640H80zM80 400h640M400 80v640" fill="none" stroke="#111827" stroke-width="24"/></svg>');
+        const facadeSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="700"><rect width="1200" height="700" fill="#cbd5e1"/><rect x="140" y="120" width="920" height="480" fill="#e30613"/></svg>';
+        const planSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="800" height="800"><rect width="800" height="800" fill="white"/><path d="M80 80h640v640H80zM80 400h640M400 80v640" fill="none" stroke="#111827" stroke-width="24"/></svg>';
+        const portraitSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="700" height="1100"><rect width="700" height="1100" fill="#e2e8f0"/><circle cx="350" cy="290" r="150" fill="#cbd5e1"/><path d="M120 1050c30-330 430-330 460 0" fill="#e30613"/></svg>';
+
+        await attachImage(win, doc, '#photoOne', 'newbuild-facade.svg', facadeSvg);
+        await attachImage(win, doc, '#photoTwo', 'newbuild-plan.svg', planSvg);
         await waitFor(() => doc.querySelector('#photoModeRow [data-photo="two"].active'), 3000, 'режим двух изображений не включился');
 
         click(doc, '[data-count="1"]');
@@ -106,6 +110,46 @@
         await waitFor(() => doc.querySelector('.flyer.has-photo.layout-newbuild_visual.count-2'), 3000, 'newbuild_visual не ограничил результат до 2 на А4');
         pass('newbuild_visual: ограничение до 2 на А4');
 
+        click(doc, '[data-photo="two"]');
+        click(doc, '[data-count="1"]');
+        click(doc, '[data-layout-mode="photo_left"]');
+        const photoLeftFlyer = await waitForElement(doc, '.flyer.has-photo.layout-photo_left.count-1 .photos.two', 3000, 'photo_left не построил двухколоночный макет');
+        const photoLeftStyle = win.getComputedStyle(photoLeftFlyer.closest('.flyer'));
+        assert(photoLeftStyle.display === 'grid', 'photo_left должен использовать CSS grid');
+        assert(photoLeftStyle.gridTemplateColumns.split(' ').length >= 2, 'photo_left не разделил фото и текст на две колонки');
+        pass('photo_left: фото слева и текст справа');
+
+        click(doc, '[data-count="4"]');
+        click(doc, '[data-layout-mode="photo_left"]');
+        await waitFor(() => doc.querySelector('.flyer.has-photo.layout-photo_left.count-2'), 3000, 'photo_left не ограничил результат до 2 на А4');
+        pass('photo_left: ограничение до 2 на А4');
+
+        click(doc, '[data-photo="one"]');
+        click(doc, '[data-count="1"]');
+        click(doc, '[data-layout-mode="photo_card"]');
+        const photoCardHeadline = await waitForElement(doc, '.flyer.has-photo.layout-photo_card.count-1:not(.photo-mode-plan) .headline', 3000, 'photo_card не создал заголовок поверх фотографии');
+        const photoCardStyle = win.getComputedStyle(photoCardHeadline);
+        assert(photoCardStyle.color === 'rgb(255, 255, 255)', 'photo_card должен выводить контрастный белый заголовок поверх фото');
+        assert(photoCardStyle.backgroundImage !== 'none' || photoCardStyle.backgroundColor !== 'rgba(0, 0, 0, 0)', 'photo_card не создал контрастную подложку заголовка');
+        pass('photo_card: контрастный заголовок поверх обычного фото');
+
+        await attachImage(win, doc, '#photoOne', 'floor-plan.svg', planSvg);
+        click(doc, '[data-photo="plan"]');
+        click(doc, '[data-layout-mode="photo_card"]');
+        const safePlanHeadline = await waitForElement(doc, '.flyer.has-photo.layout-photo_card.photo-mode-plan .headline', 3000, 'photo_card не переключился в безопасный режим планировки');
+        const safePlanStyle = win.getComputedStyle(safePlanHeadline);
+        const safePlanImage = doc.querySelector('.flyer.layout-photo_card.photo-mode-plan .photo-box img');
+        assert(safePlanStyle.color !== 'rgb(255, 255, 255)', 'на планировке нельзя оставлять белый overlay-заголовок');
+        assert(safePlanStyle.backgroundImage === 'none' && safePlanStyle.backgroundColor === 'rgba(0, 0, 0, 0)', 'на планировке нельзя оставлять затемняющую подложку заголовка');
+        assert(safePlanImage && win.getComputedStyle(safePlanImage).objectFit === 'contain', 'планировка photo_card может обрезаться');
+        pass('photo_card: планировка без overlay и обрезки');
+
+        click(doc, '[data-count="4"]');
+        click(doc, '[data-layout-mode="photo_card"]');
+        await waitFor(() => doc.querySelector('.flyer.has-photo.layout-photo_card.count-2'), 3000, 'photo_card не ограничил результат до 2 на А4');
+        pass('photo_card: ограничение до 2 на А4');
+
+        await attachImage(win, doc, '#photoOne', 'agent-portrait.svg', portraitSvg);
         setField(win, doc, '#agentName', 'Анна Качкина');
         click(doc, '[data-photo="one"]');
         click(doc, '[data-count="1"]');
@@ -171,6 +215,14 @@
       input.value = value;
       input.dispatchEvent(new win.Event('input', {bubbles:true}));
       input.dispatchEvent(new win.Event('change', {bubbles:true}));
+    }
+    async function waitForElement(doc, selector, timeout, message){
+      let element = null;
+      await waitFor(() => {
+        element = doc.querySelector(selector);
+        return element;
+      }, timeout, message);
+      return element;
     }
     async function waitFor(predicate, timeout, message){
       const started = Date.now();

@@ -10,6 +10,7 @@ const runValidatePath = path.join(rootDir, 'tools/run-validate.mjs');
 const browserSmokeRunnerPath = path.join(rootDir, 'tools/run-browser-smoke.mjs');
 const browserSmokePagePath = path.join(rootDir, 'tools/browser-smoke.html');
 const printScreenshotRunnerPath = path.join(rootDir, 'tools/run-print-screenshots.mjs');
+const printScreenshotCollectorPath = path.join(rootDir, 'tools/collect-print-screenshots.mjs');
 const printScreenshotPagePath = path.join(rootDir, 'tools/print-screenshot.html');
 const workflowSource = readRequired(workflowPath);
 const packageSource = readRequired(packagePath);
@@ -18,6 +19,7 @@ const runValidateSource = readRequired(runValidatePath);
 const browserSmokeRunnerSource = readRequired(browserSmokeRunnerPath);
 const browserSmokePageSource = readRequired(browserSmokePagePath);
 const printScreenshotRunnerSource = readRequired(printScreenshotRunnerPath);
+const printScreenshotCollectorSource = readRequired(printScreenshotCollectorPath);
 const printScreenshotPageSource = readRequired(printScreenshotPagePath);
 const pkg = readPackage(packageSource);
 
@@ -39,31 +41,42 @@ requireSnippets('.github/workflows/validate.yml', workflowSource, [
   'contents: read',
   'validate:',
   'browser-smoke:',
-  'print-screenshots:',
+  'print-screenshot:',
+  'collect-print-screenshots:',
   'needs: validate',
   'needs: browser-smoke',
+  'needs: print-screenshot',
+  'fail-fast: false',
+  'matrix:',
+  'scenario:',
+  'PRINT_SCREENSHOT_SCENARIO: ${{ matrix.scenario }}',
   'runs-on: ubuntu-latest',
   'timeout-minutes: 5',
-  'timeout-minutes: 8',
+  'timeout-minutes: 3',
   'uses: actions/checkout@v4',
   'uses: actions/setup-node@v4',
+  'uses: actions/upload-artifact@v4',
+  'uses: actions/download-artifact@v4',
   "node-version: '20'",
   'run: npm run validate',
   'run: npm run smoke:browser',
   'run: npm run screenshots:print',
+  'run: npm run screenshots:manifest',
   'if: failure()',
   'if: success()',
-  'uses: actions/upload-artifact@v4',
   'name: validation-failure',
   'path: validation-failure.log',
   'name: browser-smoke-failure',
   'path: browser-smoke-failure.log',
+  'name: print-screenshot-${{ matrix.scenario }}',
+  'name: print-screenshot-failure-${{ matrix.scenario }}',
+  'pattern: print-screenshot-*',
+  'merge-multiple: true',
   'name: print-screenshots',
   'path: artifacts/print-screenshots/',
-  'name: print-screenshots-failure',
-  'path: print-screenshots-failure.log',
   'if-no-files-found: warn',
   'if-no-files-found: error',
+  'retention-days: 1',
   'retention-days: 3',
   'retention-days: 7'
 ]);
@@ -129,15 +142,21 @@ requireSnippets('tools/browser-smoke.html', browserSmokePageSource, [
 requireSnippets('tools/run-print-screenshots.mjs', printScreenshotRunnerSource, [
   "path.join(rootDir, 'artifacts', 'print-screenshots')",
   "path.join(rootDir, 'print-screenshots-failure.log')",
-  "{id:'one-no-photo'",
-  "{id:'two-big-phone'",
-  "{id:'one-showcase'",
-  "{id:'two-photo'",
-  "{id:'four-contacts'",
+  'PRINT_SCREENSHOT_SCENARIO',
+  'selectedScenarios',
+  "fs.writeFileSync(path.join(outputDir, `${scenario.id}.json`)",
   "'--window-size=794,1123'",
   "'--dump-dom'",
   '`--screenshot=${screenshotPath}`',
-  "path.join(outputDir, 'manifest.json')"
+  'server.keepAliveTimeout = 1',
+  "'Connection':'close'"
+]);
+
+requireSnippets('tools/collect-print-screenshots.mjs', printScreenshotCollectorSource, [
+  'Не найден ${id}.png после matrix job.',
+  'Не найден ${id}.json после matrix job.',
+  "path.join(outputDir, 'manifest.json')",
+  'Print screenshot artifacts collected'
 ]);
 
 requireSnippets('tools/print-screenshot.html', printScreenshotPageSource, [
@@ -154,6 +173,7 @@ if (pkg) {
   requireScript('validate:ci-config', 'node tools/validate-ci-config.mjs', scripts);
   requireScript('smoke:browser', 'node tools/run-browser-smoke.mjs', scripts);
   requireScript('screenshots:print', 'node tools/run-print-screenshots.mjs', scripts);
+  requireScript('screenshots:manifest', 'node tools/collect-print-screenshots.mjs', scripts);
 }
 
 if (errors.length) {

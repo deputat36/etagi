@@ -203,11 +203,16 @@
     async function attachImage(win, doc, selector, name, source){
       const input = doc.querySelector(selector);
       assert(input, `не найден элемент ${selector}`);
+      const alt = selector === '#photoTwo' ? 'Фото 2' : 'Фото 1';
+      const previousSource = doc.querySelector(`#printSheet img[alt="${alt}"]`)?.src || '';
       const transfer = new win.DataTransfer();
       transfer.items.add(new win.File([source], name, {type:'image/svg+xml'}));
       input.files = transfer.files;
       input.dispatchEvent(new win.Event('change', {bubbles:true}));
-      await waitFor(() => input.files?.length === 1, 1000, `не удалось загрузить ${name}`);
+      await waitFor(() => {
+        const image = doc.querySelector(`#printSheet img[alt="${alt}"]`);
+        return input.files?.length === 1 && image?.src && image.src !== previousSource;
+      }, 3000, `не удалось отрисовать ${name}`);
     }
     function setField(win, doc, selector, value){
       const input = doc.querySelector(selector);

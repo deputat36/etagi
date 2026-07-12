@@ -95,31 +95,45 @@ Smoke использует системный Chrome/Chromium без Playwright 
 
 ## Screenshot-регрессия печати
 
-После успешного browser smoke запускать:
+Локальная команда:
 
 ```bash
 npm run screenshots:print
 ```
 
-Команда создаёт папку `artifacts/print-screenshots/` и пять PNG:
+Для одного сценария:
 
-```text
-one-no-photo.png
-two-big-phone.png
-one-showcase.png
-two-photo.png
-four-contacts.png
+```bash
+PRINT_SCREENSHOT_SCENARIO=four-contacts npm run screenshots:print
 ```
 
-Также создаётся `manifest.json` с размерами файлов и параметрами viewport. При ошибке создаётся `print-screenshots-failure.log`.
+В GitHub Actions каждый лист запускается в отдельном изолированном matrix job Chrome:
 
-GitHub Actions загружает успешный artifact `print-screenshots` на 7 дней. Снимки нужны для ручной проверки:
+```text
+one-no-photo
+two-big-phone
+one-showcase
+two-photo
+four-contacts
+```
 
-- обрезки текста и фотографий;
-- крупного телефона;
-- контактов внутри карточек;
-- правильного количества макетов;
-- разумного расхода чернил в плотном сценарии.
+Каждый job сохраняет PNG и метафайл. После пяти успешных job команда:
+
+```bash
+npm run screenshots:manifest
+```
+
+объединяет части, проверяет комплектность и создаёт общий `manifest.json`.
+
+Итоговый artifact `print-screenshots` содержит пять PNG и хранится 7 дней. Частичные artifacts хранятся 1 день. При падении создаётся `print-screenshot-failure-<scenario>`.
+
+Снимки проверяют:
+
+- обрезку текста и фотографий;
+- крупный телефон;
+- контакты внутри карточек;
+- правильное количество макетов;
+- разумный расход чернил в плотном сценарии.
 
 Подробности: `docs/print-screenshot-regression.md`.
 
@@ -217,10 +231,10 @@ docs/ink-efficiency.md
 
 ## GitHub Actions
 
-Workflow выполняет последовательно:
+Workflow выполняет:
 
 ```text
-validate → browser-smoke → print-screenshots
+validate → browser-smoke → 5 изолированных print-screenshot job → collect-print-screenshots
 ```
 
-Artifacts ошибок хранятся 3 дня, успешные печатные PNG — 7 дней. Если connector не возвращает runs или combined status, это ограничение наблюдаемости, а не подтверждение успешной проверки.
+Artifacts ошибок хранятся 3 дня, части PNG — 1 день, итоговый комплект — 7 дней. Если connector не возвращает runs или combined status, это ограничение наблюдаемости, а не подтверждение успешной проверки.

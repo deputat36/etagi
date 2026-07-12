@@ -7,6 +7,7 @@
     "templates:inventory": "node tools/template-portfolio-inventory.mjs",
     "smoke:browser": "node tools/run-browser-smoke.mjs",
     "screenshots:print": "node tools/run-print-screenshots.mjs",
+    "screenshots:manifest": "node tools/collect-print-screenshots.mjs",
     "validate:templates": "node tools/validate-templates.mjs",
     "validate:template-id-aliases": "node tools/validate-template-id-aliases.mjs",
     "validate:borisoglebsk-coverage": "node tools/validate-borisoglebsk-coverage.mjs",

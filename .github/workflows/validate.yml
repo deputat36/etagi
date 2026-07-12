@@ -77,3 +77,37 @@ jobs:
           path: browser-smoke-failure.log
           if-no-files-found: warn
           retention-days: 3
+
+  print-screenshots:
+    needs: browser-smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Generate print screenshots
+        run: npm run screenshots:print
+
+      - name: Upload print screenshots
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: print-screenshots
+          path: artifacts/print-screenshots/
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Upload print screenshots failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: print-screenshots-failure
+          path: print-screenshots-failure.log
+          if-no-files-found: warn
+          retention-days: 3

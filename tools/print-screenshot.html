@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Печатный screenshot</title>
+  <style>
+    html,body{margin:0;width:210mm;height:297mm;overflow:hidden;background:#fff}
+    #captureStatus{display:none}
+    #appFrame{display:block;width:210mm;height:297mm;border:0;background:#fff}
+  </style>
+</head>
+<body>
+  <pre id="captureStatus" data-status="pending">Подготовка печатного сценария…</pre>
+  <iframe id="appFrame" title="Печатный лист А4"></iframe>
+  <script>
+    const status = document.getElementById('captureStatus');
+    const frame = document.getElementById('appFrame');
+    const scenario = new URLSearchParams(location.search).get('scenario') || 'one-no-photo';
+
+    frame.addEventListener('load', async () => {
+      const win = frame.contentWindow;
+      const doc = frame.contentDocument;
+      try{
+        await waitFor(() => doc.querySelectorAll('.tpl-card').length > 0, 12000, 'шаблоны не появились');
+        await waitFor(() => doc.querySelector('#printSheet .flyer'), 12000, 'лист А4 не появился');
+        click(doc, '[data-spn-ui-mode="advanced"]');
+        await waitFor(() => doc.body.dataset.spnUiMode === 'advanced', 3000, 'расширенный режим не включился');
+
+        setField(win, doc, '#agentName', 'Анна Качкина');
+        setField(win, doc, '#agentPhone', '+7 960 125-18-77');
+        setField(win, doc, '#headline', scenario === 'four-contacts' ? 'ПРОДАМ КВАРТИРУ В ВАШЕМ РАЙОНЕ' : 'НЕДВИЖИМОСТЬ В БОРИСОГЛЕБСКЕ');
+        setField(win, doc, '#description', 'Помогу с продажей, покупкой и оценкой недвижимости. Позвоните — расскажу подробности.');
+        setField(win, doc, '#area', 'Борисоглебск');
+
+        if(scenario === 'one-no-photo') await prepareOneNoPhoto(doc);
+        else if(scenario === 'two-big-phone') await prepareTwoBigPhone(doc);
+        else if(scenario === 'one-showcase') await prepareOneShowcase(win, doc);
+        else if(scenario === 'two-photo') await prepareTwoPhoto(win, doc);
+        else if(scenario === 'four-contacts') await prepareFourContacts(doc);
+        else throw new Error(`неизвестный сценарий ${scenario}`);
+
+        await waitFor(() => doc.querySelectorAll('#printSheet .flyer').length > 0, 3000, 'макеты исчезли');
+        await new Promise(resolve => win.requestAnimationFrame(() => win.requestAnimationFrame(resolve)));
+        assertSheet(doc, scenario);
+        prepareCaptureView(doc);
+        status.dataset.status = 'passed';
+        status.textContent = `PASSED ${scenario}`;
+      } catch(error){
+        status.dataset.status = 'failed';
+        status.textContent = `FAILED ${scenario}: ${error.message || error}`;
+      }
+    }, {once:true});
+
+    frame.src = '/index.html?smoke=1';
+
+    async function prepareOneNoPhoto(doc){
+      click(doc, '[data-photo="none"]');
+      click(doc, '[data-layout-mode="readable"]');
+      click(doc, '[data-count="1"]');
+      await waitFor(() => doc.querySelectorAll('#printSheet .flyer.no-photo.count-1').length === 1, 3000, 'не создан 1 макет без фото');
+    }
+
+    async function prepareTwoBigPhone(doc){
+      click(doc, '[data-photo="none"]');
+      click(doc, '[data-layout-mode="readable"]');
+      await waitFor(() => doc.querySelectorAll('#printSheet .flyer.no-photo.count-2').length === 2, 3000, 'не создано 2 макета без фото');
+      const phone = doc.querySelector('#printSheet .flyer .phone');
+      if(!phone || parseFloat(frame.contentWindow.getComputedStyle(phone).fontSize) < 30) throw new Error('телефон недостаточно крупный');
+    }
+
+    async function prepareOneShowcase(win, doc){
+      await attachImage(win, doc, '#photoOne', 'showcase.svg', facadeSvg());
+      click(doc, '[data-photo="one"]');
+      click(doc, '[data-count="1"]');
+      click(doc, '[data-layout-mode="showcase"]');
+      await waitFor(() => doc.querySelector('.flyer.has-photo.layout-showcase.count-1 .photo-box img'), 3000, 'витрина не создана');
+    }
+
+    async function prepareTwoPhoto(win, doc){
+      await attachImage(win, doc, '#photoOne', 'photo.svg', facadeSvg());
+      click(doc, '[data-photo="one"]');
+      click(doc, '[data-count="2"]');
+      click(doc, '[data-layout-mode="photo"]');
+      await waitFor(() => doc.querySelectorAll('.flyer.has-photo.layout-photo.count-2').length === 2, 3000, 'не создано 2 макета с фото');
+    }
+
+    async function prepareFourContacts(doc){
+      click(doc, '[data-photo="none"]');
+      click(doc, '[data-count="4"]');
+      click(doc, '[data-layout-mode="entrance"]');
+      await waitFor(() => doc.querySelectorAll('#printSheet .flyer.count-4').length === 4, 3000, 'не создано 4 макета');
+    }
+
+    function assertSheet(doc, currentScenario){
+      const flyers = [...doc.querySelectorAll('#printSheet .flyer')];
+      if(!flyers.length) throw new Error('нет макетов для проверки');
+      if(flyers.some(flyer => flyer.classList.contains('overflow'))) throw new Error('обнаружен overflow макета');
+      for(const flyer of flyers){
+        const contact = flyer.querySelector('.contact');
+        if(!contact) continue;
+        const flyerRect = flyer.getBoundingClientRect();
+        const contactRect = contact.getBoundingClientRect();
+        if(contactRect.bottom > flyerRect.bottom + 1 || contactRect.right > flyerRect.right + 1) throw new Error('контакты выходят за границы макета');
+      }
+      const expected = {'one-no-photo':1,'two-big-phone':2,'one-showcase':1,'two-photo':2,'four-contacts':4}[currentScenario];
+      if(flyers.length !== expected) throw new Error(`ожидалось ${expected} макетов, получено ${flyers.length}`);
+    }
+
+    function prepareCaptureView(doc){
+      const style = doc.createElement('style');
+      style.textContent = `
+        html,body{margin:0!important;background:#fff!important;overflow:hidden!important}
+        .app{display:block!important;min-height:0!important;padding:0!important}
+        .sidebar{display:none!important}
+        .workspace{display:block!important;width:210mm!important;height:297mm!important;max-height:none!important;padding:0!important;border:0!important;border-radius:0!important;box-shadow:none!important;overflow:hidden!important}
+        .preview-top,.status-line{display:none!important}
+        .sheet-wrap{width:210mm!important;height:297mm!important;padding:0!important;border:0!important;border-radius:0!important;background:#fff!important;overflow:hidden!important}
+        .sheet-scale{width:210mm!important;margin:0!important;transform:none!important}
+        .sheet{width:210mm!important;height:297mm!important;min-height:297mm!important;box-shadow:none!important}
+      `;
+      doc.head.appendChild(style);
+      const zoom = doc.getElementById('zoom');
+      if(zoom) zoom.value = '100';
+    }
+
+    async function attachImage(win, doc, selector, name, source){
+      const input = doc.querySelector(selector);
+      if(!input) throw new Error(`не найден ${selector}`);
+      const previousSource = doc.querySelector('#printSheet img[alt="Фото 1"]')?.src || '';
+      const transfer = new win.DataTransfer();
+      transfer.items.add(new win.File([source], name, {type:'image/svg+xml'}));
+      input.files = transfer.files;
+      input.dispatchEvent(new win.Event('change', {bubbles:true}));
+      await waitFor(() => {
+        const image = doc.querySelector('#printSheet img[alt="Фото 1"]');
+        return image?.src && image.src !== previousSource;
+      }, 3000, `не удалось отрисовать ${name}`);
+    }
+
+    function facadeSvg(){
+      return '<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800"><rect width="1200" height="800" fill="#dbeafe"/><rect x="120" y="140" width="960" height="560" rx="24" fill="#e30613"/><g fill="white"><rect x="220" y="240" width="160" height="120"/><rect x="520" y="240" width="160" height="120"/><rect x="820" y="240" width="160" height="120"/><rect x="220" y="440" width="160" height="120"/><rect x="520" y="440" width="160" height="120"/><rect x="820" y="440" width="160" height="120"/></g></svg>';
+    }
+
+    function click(doc, selector){
+      const element = doc.querySelector(selector);
+      if(!element) throw new Error(`не найден ${selector}`);
+      element.click();
+    }
+
+    function setField(win, doc, selector, value){
+      const input = doc.querySelector(selector);
+      if(!input) throw new Error(`не найден ${selector}`);
+      input.value = value;
+      input.dispatchEvent(new win.Event('input', {bubbles:true}));
+      input.dispatchEvent(new win.Event('change', {bubbles:true}));
+    }
+
+    async function waitFor(predicate, timeout, message){
+      const started = Date.now();
+      while(Date.now() - started < timeout){
+        if(predicate()) return;
+        await new Promise(resolve => setTimeout(resolve, 80));
+      }
+      throw new Error(message);
+    }
+  </script>
+</body>
+</html>

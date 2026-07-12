@@ -24,6 +24,8 @@ const chrome = findChrome();
 if(!chrome) failImmediately('Print screenshots: Chrome/Chromium не найден. Укажите CHROME_BIN или установите системный браузер.');
 
 const server = createStaticServer(rootDir);
+server.keepAliveTimeout = 1;
+server.headersTimeout = 5000;
 const port = await listen(server);
 const manifest = [];
 
@@ -43,6 +45,7 @@ try{
       virtualTimeBudget: result.virtualTimeBudget
     });
     console.log(`✓ ${scenario.title}: ${Math.round(sizeBytes / 1024)} КБ, попытка ${result.attempt}`);
+    await delay(900);
   }
 
   fs.writeFileSync(path.join(outputDir, 'manifest.json'), JSON.stringify({
@@ -77,6 +80,11 @@ async function captureScenario(command, port, scenario, screenshotPath){
         '--no-sandbox',
         '--disable-gpu',
         '--disable-dev-shm-usage',
+        '--disable-background-networking',
+        '--disable-component-update',
+        '--disable-default-apps',
+        '--no-first-run',
+        '--no-default-browser-check',
         '--hide-scrollbars',
         '--run-all-compositor-stages-before-draw',
         '--force-device-scale-factor=1',
@@ -185,10 +193,15 @@ function createStaticServer(root){
         response.writeHead(404).end('Not found');
         return;
       }
-      response.writeHead(200, {'Content-Type':contentType(filePath), 'Cache-Control':'no-store'});
+      response.shouldKeepAlive = false;
+      response.writeHead(200, {
+        'Content-Type':contentType(filePath),
+        'Cache-Control':'no-store',
+        'Connection':'close'
+      });
       fs.createReadStream(filePath).pipe(response);
     } catch(error){
-      response.writeHead(500).end(error.message || 'Server error');
+      response.writeHead(500, {'Connection':'close'}).end(error.message || 'Server error');
     }
   });
 }
@@ -202,6 +215,10 @@ function listen(server){
 
 function closeServer(server){
   return new Promise(resolve => server.close(() => resolve()));
+}
+
+function delay(ms){
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 function contentType(filePath){

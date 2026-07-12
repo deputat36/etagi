@@ -14,6 +14,7 @@ const scenarios = [
   {id:'two-photo', title:'2 на А4 — С фото'},
   {id:'four-contacts', title:'4 на А4 без наложения контактов'}
 ];
+const virtualBudgets = [30000, 45000];
 
 fs.rmSync(failureLogPath, {force:true});
 fs.rmSync(outputDir, {recursive:true, force:true});
@@ -28,54 +29,20 @@ const manifest = [];
 
 try{
   for(const scenario of scenarios){
-    const profileDir = fs.mkdtempSync(path.join(os.tmpdir(), `etagi-print-${scenario.id}-`));
     const screenshotPath = path.join(outputDir, `${scenario.id}.png`);
-    const url = `http://127.0.0.1:${port}/tools/print-screenshot.html?scenario=${encodeURIComponent(scenario.id)}`;
+    const result = await captureScenario(chrome, port, scenario, screenshotPath);
+    const sizeBytes = fs.statSync(screenshotPath).size;
+    if(sizeBytes < 10000) throw new Error(`${scenario.title}: PNG подозрительно мал — ${sizeBytes} байт.`);
 
-    try{
-      const result = await runChrome(chrome, [
-        '--headless=new',
-        '--no-sandbox',
-        '--disable-gpu',
-        '--disable-dev-shm-usage',
-        '--hide-scrollbars',
-        '--force-device-scale-factor=1',
-        '--window-size=794,1123',
-        `--user-data-dir=${profileDir}`,
-        '--virtual-time-budget=18000',
-        '--dump-dom',
-        `--screenshot=${screenshotPath}`,
-        url
-      ], {
-        cwd: rootDir,
-        timeout: 45000,
-        maxBuffer: 12 * 1024 * 1024
-      });
-
-      if(result.timedOut) throw new Error(`${scenario.title}: Chrome не завершил сценарий за 45 секунд.`);
-      if(result.overflow) throw new Error(`${scenario.title}: вывод Chrome превысил 12 МБ.`);
-      if(result.error) throw new Error(`${scenario.title}: браузер не запущен — ${result.error.message}`);
-      if(result.status !== 0) throw new Error(`${scenario.title}: Chrome завершился с кодом ${result.status}.\n${tail(result.stderr)}`);
-
-      const dom = String(result.stdout || '');
-      const summary = extractStatus(dom);
-      if(!dom.includes('id="captureStatus"') || !dom.includes('data-status="passed"')){
-        throw new Error(`${scenario.title}: harness не подтвердил готовность.\n${summary || tail(result.stderr) || 'Статус не найден.'}`);
-      }
-      if(!fs.existsSync(screenshotPath)) throw new Error(`${scenario.title}: PNG не создан.`);
-      const sizeBytes = fs.statSync(screenshotPath).size;
-      if(sizeBytes < 10000) throw new Error(`${scenario.title}: PNG подозрительно мал — ${sizeBytes} байт.`);
-
-      manifest.push({
-        id: scenario.id,
-        title: scenario.title,
-        file: path.relative(rootDir, screenshotPath).replaceAll('\\', '/'),
-        sizeBytes
-      });
-      console.log(`✓ ${scenario.title}: ${Math.round(sizeBytes / 1024)} КБ`);
-    } finally {
-      fs.rmSync(profileDir, {recursive:true, force:true});
-    }
+    manifest.push({
+      id: scenario.id,
+      title: scenario.title,
+      file: path.relative(rootDir, screenshotPath).replaceAll('\\', '/'),
+      sizeBytes,
+      attempt: result.attempt,
+      virtualTimeBudget: result.virtualTimeBudget
+    });
+    console.log(`✓ ${scenario.title}: ${Math.round(sizeBytes / 1024)} КБ, попытка ${result.attempt}`);
   }
 
   fs.writeFileSync(path.join(outputDir, 'manifest.json'), JSON.stringify({
@@ -91,6 +58,58 @@ try{
   process.exitCode = 1;
 } finally {
   await closeServer(server);
+}
+
+async function captureScenario(command, port, scenario, screenshotPath){
+  let lastFailure = '';
+
+  for(let index = 0; index < virtualBudgets.length; index += 1){
+    const attempt = index + 1;
+    const virtualTimeBudget = virtualBudgets[index];
+    const profileDir = fs.mkdtempSync(path.join(os.tmpdir(), `etagi-print-${scenario.id}-${attempt}-`));
+    const url = `http://127.0.0.1:${port}/tools/print-screenshot.html?scenario=${encodeURIComponent(scenario.id)}`;
+
+    fs.rmSync(screenshotPath, {force:true});
+
+    try{
+      const result = await runChrome(command, [
+        '--headless=new',
+        '--no-sandbox',
+        '--disable-gpu',
+        '--disable-dev-shm-usage',
+        '--hide-scrollbars',
+        '--run-all-compositor-stages-before-draw',
+        '--force-device-scale-factor=1',
+        '--window-size=794,1123',
+        `--user-data-dir=${profileDir}`,
+        `--virtual-time-budget=${virtualTimeBudget}`,
+        '--dump-dom',
+        `--screenshot=${screenshotPath}`,
+        url
+      ], {
+        cwd: rootDir,
+        timeout: virtualTimeBudget + 20000,
+        maxBuffer: 12 * 1024 * 1024
+      });
+
+      if(result.timedOut) lastFailure = `${scenario.title}: Chrome не завершил попытку ${attempt} за ${virtualTimeBudget + 20000} мс.`;
+      else if(result.overflow) lastFailure = `${scenario.title}: вывод Chrome превысил 12 МБ.`;
+      else if(result.error) lastFailure = `${scenario.title}: браузер не запущен — ${result.error.message}`;
+      else if(result.status !== 0) lastFailure = `${scenario.title}: Chrome завершился с кодом ${result.status}.\n${tail(result.stderr)}`;
+      else {
+        const dom = String(result.stdout || '');
+        const summary = extractStatus(dom);
+        if(dom.includes('id="captureStatus"') && dom.includes('data-status="passed"') && fs.existsSync(screenshotPath)){
+          return {attempt, virtualTimeBudget};
+        }
+        lastFailure = `${scenario.title}: harness не подтвердил готовность на попытке ${attempt}.\n${summary || tail(result.stderr) || 'Статус не найден.'}`;
+      }
+    } finally {
+      fs.rmSync(profileDir, {recursive:true, force:true});
+    }
+  }
+
+  throw new Error(lastFailure || `${scenario.title}: сценарий не завершён.`);
 }
 
 function runChrome(command, args, options){

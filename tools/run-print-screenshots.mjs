@@ -14,7 +14,6 @@ const scenarios = [
   {id:'two-photo', title:'2 на А4 — С фото'},
   {id:'four-contacts', title:'4 на А4 без наложения контактов'}
 ];
-const virtualBudgets = [30000, 45000];
 const requestedScenario = getRequestedScenario();
 const selectedScenarios = requestedScenario
   ? scenarios.filter(item => item.id === requestedScenario)
@@ -52,16 +51,15 @@ try{
         file: path.relative(rootDir, screenshotPath).replaceAll('\\', '/'),
         sizeBytes,
         attempt: result.attempt,
-        virtualTimeBudget: result.virtualTimeBudget
+        captureMethod: 'cdp-pipe',
+        waitMs: result.waitMs
       };
       manifest.push(entry);
       fs.writeFileSync(path.join(outputDir, `${scenario.id}.json`), JSON.stringify(entry, null, 2), 'utf8');
-      console.log(`✓ ${scenario.title}: ${Math.round(sizeBytes / 1024)} КБ, попытка ${result.attempt}`);
+      console.log(`✓ ${scenario.title}: ${Math.round(sizeBytes / 1024)} КБ, ожидание ${result.waitMs} мс`);
     } finally {
       await closeServer(server);
     }
-
-    await delay(500);
   }
 
   if(!requestedScenario) writeManifest(manifest);
@@ -76,52 +74,16 @@ try{
 async function captureScenario(command, port, scenario, screenshotPath){
   let lastFailure = '';
 
-  for(let index = 0; index < virtualBudgets.length; index += 1){
-    const attempt = index + 1;
-    const virtualTimeBudget = virtualBudgets[index];
+  for(let attempt = 1; attempt <= 2; attempt += 1){
     const profileDir = fs.mkdtempSync(path.join(os.tmpdir(), `etagi-print-${scenario.id}-${attempt}-`));
     const url = `http://127.0.0.1:${port}/tools/print-screenshot.html?scenario=${encodeURIComponent(scenario.id)}`;
-
     fs.rmSync(screenshotPath, {force:true});
 
     try{
-      const result = await runChrome(command, [
-        '--headless=new',
-        '--no-sandbox',
-        '--disable-gpu',
-        '--disable-dev-shm-usage',
-        '--disable-background-networking',
-        '--disable-component-update',
-        '--disable-default-apps',
-        '--no-first-run',
-        '--no-default-browser-check',
-        '--hide-scrollbars',
-        '--run-all-compositor-stages-before-draw',
-        '--force-device-scale-factor=1',
-        '--window-size=794,1123',
-        `--user-data-dir=${profileDir}`,
-        `--virtual-time-budget=${virtualTimeBudget}`,
-        '--dump-dom',
-        `--screenshot=${screenshotPath}`,
-        url
-      ], {
-        cwd: rootDir,
-        timeout: virtualTimeBudget + 20000,
-        maxBuffer: 12 * 1024 * 1024
-      });
-
-      if(result.timedOut) lastFailure = `${scenario.title}: Chrome не завершил попытку ${attempt} за ${virtualTimeBudget + 20000} мс.`;
-      else if(result.overflow) lastFailure = `${scenario.title}: вывод Chrome превысил 12 МБ.`;
-      else if(result.error) lastFailure = `${scenario.title}: браузер не запущен — ${result.error.message}`;
-      else if(result.status !== 0) lastFailure = `${scenario.title}: Chrome завершился с кодом ${result.status}.\n${tail(result.stderr)}`;
-      else {
-        const dom = String(result.stdout || '');
-        const summary = extractStatus(dom);
-        if(dom.includes('id="captureStatus"') && dom.includes('data-status="passed"') && fs.existsSync(screenshotPath)){
-          return {attempt, virtualTimeBudget};
-        }
-        lastFailure = `${scenario.title}: harness не подтвердил готовность на попытке ${attempt}.\n${summary || tail(result.stderr) || 'Статус не найден.'}`;
-      }
+      const result = await captureWithCdpPipe(command, profileDir, url, screenshotPath);
+      return {attempt, waitMs:result.waitMs};
+    } catch(error){
+      lastFailure = `${scenario.title}: попытка ${attempt} — ${error.message || error}`;
     } finally {
       fs.rmSync(profileDir, {recursive:true, force:true});
     }
@@ -130,41 +92,183 @@ async function captureScenario(command, port, scenario, screenshotPath){
   throw new Error(lastFailure || `${scenario.title}: сценарий не завершён.`);
 }
 
-function runChrome(command, args, options){
-  return new Promise(resolve => {
-    let stdout = '';
-    let stderr = '';
-    let settled = false;
-    let timedOut = false;
-    let overflow = false;
-    let timer;
-
-    const child = spawn(command, args, {cwd:options.cwd, stdio:['ignore','pipe','pipe']});
-    const finish = result => {
-      if(settled) return;
-      settled = true;
-      clearTimeout(timer);
-      resolve({stdout, stderr, timedOut, overflow, ...result});
-    };
-    const append = (current, chunk) => {
-      const next = current + chunk;
-      if(Buffer.byteLength(next, 'utf8') <= options.maxBuffer) return next;
-      overflow = true;
-      child.kill('SIGKILL');
-      return current;
-    };
-
-    child.stdout.setEncoding('utf8');
-    child.stderr.setEncoding('utf8');
-    child.stdout.on('data', chunk => { stdout = append(stdout, chunk); });
-    child.stderr.on('data', chunk => { stderr = append(stderr, chunk); });
-    child.once('error', error => finish({error, status:null, signal:null}));
-    child.once('close', (status, signal) => finish({error:null, status, signal}));
-    timer = setTimeout(() => {
-      timedOut = true;
-      child.kill('SIGKILL');
-    }, options.timeout);
+async function captureWithCdpPipe(command, profileDir, url, screenshotPath){
+  const child = spawn(command, [
+    '--headless=new',
+    '--no-sandbox',
+    '--disable-gpu',
+    '--disable-dev-shm-usage',
+    '--disable-background-networking',
+    '--disable-component-update',
+    '--disable-default-apps',
+    '--no-first-run',
+    '--no-default-browser-check',
+    '--hide-scrollbars',
+    '--run-all-compositor-stages-before-draw',
+    '--force-device-scale-factor=1',
+    '--window-size=794,1123',
+    `--user-data-dir=${profileDir}`,
+    '--remote-debugging-pipe',
+    'about:blank'
+  ], {
+    cwd: rootDir,
+    stdio:['ignore','ignore','pipe','pipe','pipe']
   });
+
+  let stderr = '';
+  child.stderr.setEncoding('utf8');
+  child.stderr.on('data', chunk => {
+    stderr = tail(stderr + chunk);
+  });
+
+  const cdp = createCdpPipeClient(child);
+  const startedAt = Date.now();
+
+  try{
+    const {targetId} = await cdp.send('Target.createTarget', {
+      url:'about:blank',
+      width:794,
+      height:1123
+    }, '', 12000);
+    const {sessionId} = await cdp.send('Target.attachToTarget', {
+      targetId,
+      flatten:true
+    }, '', 12000);
+
+    await cdp.send('Page.enable', {}, sessionId);
+    await cdp.send('Runtime.enable', {}, sessionId);
+    await cdp.send('Emulation.setDeviceMetricsOverride', {
+      width:794,
+      height:1123,
+      deviceScaleFactor:1,
+      mobile:false,
+      screenWidth:794,
+      screenHeight:1123
+    }, sessionId);
+    await cdp.send('Page.navigate', {url}, sessionId, 12000);
+
+    const captureStatus = await waitForCaptureStatus(cdp, sessionId, 35000);
+    if(captureStatus.status !== 'passed'){
+      throw new Error(captureStatus.text || `harness status: ${captureStatus.status}`);
+    }
+
+    await cdp.send('Page.bringToFront', {}, sessionId);
+    const screenshot = await cdp.send('Page.captureScreenshot', {
+      format:'png',
+      fromSurface:true,
+      captureBeyondViewport:false
+    }, sessionId, 15000);
+
+    if(!screenshot?.data) throw new Error('CDP не вернул PNG.');
+    fs.writeFileSync(screenshotPath, Buffer.from(screenshot.data, 'base64'));
+    return {waitMs:Date.now() - startedAt};
+  } catch(error){
+    const details = stderr ? `${error.message || error}\n${stderr}` : String(error.message || error);
+    throw new Error(details);
+  } finally {
+    cdp.close();
+    await terminateProcess(child);
+  }
+}
+
+async function waitForCaptureStatus(cdp, sessionId, timeout){
+  const startedAt = Date.now();
+  let latest = {status:'missing', text:'captureStatus не найден'};
+
+  while(Date.now() - startedAt < timeout){
+    const evaluated = await cdp.send('Runtime.evaluate', {
+      expression:`(() => {
+        const node = document.getElementById('captureStatus');
+        return node
+          ? {status:node.dataset.status || 'pending', text:(node.textContent || '').trim()}
+          : {status:'missing', text:'captureStatus не найден'};
+      })()`,
+      returnByValue:true,
+      awaitPromise:true
+    }, sessionId, 8000);
+
+    latest = evaluated?.result?.value || latest;
+    if(latest.status === 'passed' || latest.status === 'failed') return latest;
+    await delay(120);
+  }
+
+  throw new Error(`harness timeout: ${latest.text || latest.status}`);
+}
+
+function createCdpPipeClient(child){
+  const input = child.stdio[3];
+  const output = child.stdio[4];
+  const pending = new Map();
+  let nextId = 1;
+  let buffer = Buffer.alloc(0);
+  let closed = false;
+
+  output.on('data', chunk => {
+    buffer = Buffer.concat([buffer, chunk]);
+    let separatorIndex = buffer.indexOf(0);
+
+    while(separatorIndex >= 0){
+      const raw = buffer.subarray(0, separatorIndex).toString('utf8');
+      buffer = buffer.subarray(separatorIndex + 1);
+      if(raw) handleMessage(raw);
+      separatorIndex = buffer.indexOf(0);
+    }
+  });
+
+  const failAll = error => {
+    if(closed) return;
+    closed = true;
+    for(const item of pending.values()){
+      clearTimeout(item.timer);
+      item.reject(error);
+    }
+    pending.clear();
+  };
+
+  child.once('error', failAll);
+  child.once('close', (code, signal) => {
+    failAll(new Error(`Chrome CDP pipe закрыт: code=${code}, signal=${signal || ''}`));
+  });
+
+  function handleMessage(raw){
+    let message;
+    try{
+      message = JSON.parse(raw);
+    } catch(error){
+      failAll(new Error(`Некорректный ответ CDP: ${raw.slice(0, 300)}`));
+      return;
+    }
+
+    if(!message.id) return;
+    const item = pending.get(message.id);
+    if(!item) return;
+    pending.delete(message.id);
+    clearTimeout(item.timer);
+    if(message.error) item.reject(new Error(`${item.method}: ${message.error.message || 'CDP error'}`));
+    else item.resolve(message.result || {});
+  }
+
+  return {
+    send(method, params = {}, sessionId = '', timeout = 10000){
+      if(closed) return Promise.reject(new Error(`CDP pipe закрыт до команды ${method}.`));
+      const id = nextId++;
+      const payload = {id, method, params};
+      if(sessionId) payload.sessionId = sessionId;
+
+      return new Promise((resolve, reject) => {
+        const timer = setTimeout(() => {
+          pending.delete(id);
+          reject(new Error(`${method}: timeout ${timeout} мс`));
+        }, timeout);
+        pending.set(id, {method, resolve, reject, timer});
+        input.write(`${JSON.stringify(payload)}\0`);
+      });
+    },
+    close(){
+      failAll(new Error('CDP pipe закрыт runner-ом.'));
+      input.end();
+    }
+  };
 }
 
 function getRequestedScenario(){
@@ -241,6 +345,21 @@ function closeServer(server){
   return new Promise(resolve => server.close(() => resolve()));
 }
 
+function terminateProcess(child){
+  if(child.exitCode !== null || child.signalCode) return Promise.resolve();
+  child.kill('SIGTERM');
+  return new Promise(resolve => {
+    const timer = setTimeout(() => {
+      if(child.exitCode === null && !child.signalCode) child.kill('SIGKILL');
+      resolve();
+    }, 1500);
+    child.once('close', () => {
+      clearTimeout(timer);
+      resolve();
+    });
+  });
+}
+
 function delay(ms){
   return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -259,20 +378,6 @@ function contentType(filePath){
     '.jpeg':'image/jpeg',
     '.webp':'image/webp'
   })[ext] || 'application/octet-stream';
-}
-
-function extractStatus(dom){
-  const match = dom.match(/<pre\b[^>]*id="captureStatus"[^>]*>([\s\S]*?)<\/pre>/i);
-  return decodeHtml(match?.[1] || '').trim();
-}
-
-function decodeHtml(value){
-  return String(value || '')
-    .replaceAll('&amp;', '&')
-    .replaceAll('&lt;', '<')
-    .replaceAll('&gt;', '>')
-    .replaceAll('&quot;', '"')
-    .replaceAll('&#39;', "'");
 }
 
 function tail(value){

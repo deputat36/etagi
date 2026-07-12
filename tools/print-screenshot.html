@@ -88,7 +88,8 @@
       click(doc, '[data-photo="none"]');
       click(doc, '[data-count="4"]');
       click(doc, '[data-layout-mode="entrance"]');
-      await waitFor(() => doc.querySelectorAll('#printSheet .flyer.count-4').length === 4, 3000, 'не создано 4 макета');
+      await waitFor(() => doc.getElementById('colorMode')?.value === 'economy', 3000, 'плотный режим не включил экономный цвет');
+      await waitFor(() => doc.querySelectorAll('#printSheet .flyer.color-economy.count-4').length === 4, 3000, 'не создано 4 экономных макета');
     }
 
     function assertSheet(doc, currentScenario){
@@ -104,6 +105,28 @@
       }
       const expected = {'one-no-photo':1,'two-big-phone':2,'one-showcase':1,'two-photo':2,'four-contacts':4}[currentScenario];
       if(flyers.length !== expected) throw new Error(`ожидалось ${expected} макетов, получено ${flyers.length}`);
+      if(currentScenario === 'four-contacts') assertInkEfficientContacts(flyers);
+    }
+
+    function assertInkEfficientContacts(flyers){
+      for(const flyer of flyers){
+        const contact = flyer.querySelector('.contact');
+        if(!contact) throw new Error('в плотном макете отсутствует контактная зона');
+        const style = frame.contentWindow.getComputedStyle(contact);
+        if(relativeLuminance(style.backgroundColor) < 0.82) throw new Error('экономный режим оставил тёмную сплошную контактную заливку');
+        if(parseFloat(style.borderTopWidth) < 1) throw new Error('экономная контактная зона потеряла цветную рамку');
+        const phone = contact.querySelector('.phone');
+        if(!phone || relativeLuminance(frame.contentWindow.getComputedStyle(phone).color) > 0.45) throw new Error('телефон в экономной контактной зоне недостаточно контрастный');
+      }
+    }
+
+    function relativeLuminance(value){
+      const rgb = String(value || '').match(/[\d.]+/g)?.slice(0,3).map(Number) || [0,0,0];
+      const channels = rgb.map(channel => {
+        const normalized = channel / 255;
+        return normalized <= .03928 ? normalized / 12.92 : Math.pow((normalized + .055) / 1.055, 2.4);
+      });
+      return .2126 * channels[0] + .7152 * channels[1] + .0722 * channels[2];
     }
 
     function prepareCaptureView(doc){

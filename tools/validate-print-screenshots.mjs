@@ -49,7 +49,7 @@ requireSnippets(files.runner, sources.runner, [
   'PRINT_SCREENSHOT_SCENARIO',
   "process.argv.indexOf('--scenario')",
   'selectedScenarios',
-  "fs.writeFileSync(path.join(outputDir, `${scenario.id}.json`) ",
+  "fs.writeFileSync(path.join(outputDir, `${scenario.id}.json`)",
   "'--window-size=794,1123'",
   "'--dump-dom'",
   '`--screenshot=${screenshotPath}`',

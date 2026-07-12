@@ -107,6 +107,8 @@ npm run screenshots:print
 PRINT_SCREENSHOT_SCENARIO=four-contacts npm run screenshots:print
 ```
 
+Runner использует Chrome DevTools Protocol через `--remote-debugging-pipe`. Он опрашивает `captureStatus` командой `Runtime.evaluate` и вызывает `Page.captureScreenshot` только после фактического `data-status="passed"`. Снимок по фиксированному таймеру запрещён.
+
 В GitHub Actions каждый лист запускается в отдельном изолированном matrix job Chrome:
 
 ```text

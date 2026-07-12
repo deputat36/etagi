@@ -18,6 +18,7 @@
     "validate:agent-brand-photo-layout": "node tools/validate-agent-brand-photo-layout.mjs",
     "validate:agent-brand-mode-guard": "node tools/validate-agent-brand-mode-guard.mjs",
     "validate:layout-mode-accessibility": "node tools/validate-layout-mode-accessibility.mjs",
+    "validate:preview-quickbar": "node tools/validate-preview-quickbar.mjs",
     "validate:js": "node tools/validate-js.mjs",
     "validate:assets": "node tools/validate-assets.mjs",
     "validate:asset-duplicates": "node tools/validate-asset-duplicates.mjs",

@@ -74,10 +74,18 @@ if(!(taskImportIndex >= 0 && reportImportIndex > taskImportIndex && fieldImportI
 
 requireSnippets(files.agentBrandGuard, sources.agentBrandGuard, [
   '[data-layout-mode="agent_brand_photo"]',
-  'window.requestAnimationFrame(normalizeAgentBrandMode)',
+  "grid.addEventListener('click', prepareAgentBrandMode, true)",
   "colorMode.value === 'private'",
   "colorMode.value = 'brand'",
-  'showBrand.checked = true'
+  'showBrand.checked = true',
+  'const syncTarget = colorMode || showBrand;',
+  "dispatchEvent(new Event('change', {bubbles:true}))"
+]);
+
+forbidSnippets(files.agentBrandGuard, sources.agentBrandGuard, [
+  'requestAnimationFrame',
+  'button.click()',
+  'pendingButton'
 ]);
 
 requireSnippets(files.layoutAccessibility, sources.layoutAccessibility, [

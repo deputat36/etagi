@@ -32,6 +32,7 @@ npm run validate:newbuild-visual-layout
 npm run validate:agent-brand-photo-layout
 npm run validate:agent-brand-mode-guard
 npm run validate:layout-mode-accessibility
+npm run validate:preview-quickbar
 npm run validate:js
 npm run validate:assets
 npm run validate:asset-duplicates
@@ -92,6 +93,28 @@ Smoke использует системный Chrome/Chromium без Playwright 
 - отсутствие обрезки планировки.
 
 При падении создаётся `browser-smoke-failure.log`. Если Chrome не найден, путь задаётся через `CHROME_BIN`.
+
+## Закреплённая панель предпросмотра
+
+`spnPreviewQuickBar.js` улучшает существующий `previewStatus`, не создавая вторую сводку.
+
+Панель:
+
+- закрепляется внутри рабочей области;
+- сохраняет показатели формата, компоновки, фото, цветности и качества;
+- добавляет `aria-live="polite"`;
+- на мобильном экране перестраивается в одну колонку;
+- кнопкой `К печати` прокручивает боковую панель к разделу печати;
+- переводит фокус на `Проверить`, а не запускает системную печать;
+- не обходит print guard.
+
+После изменений панели выполнять:
+
+```bash
+npm run validate:preview-quickbar
+```
+
+Ручной сценарий: `docs/preview-quickbar.md`.
 
 ## Screenshot-регрессия печати
 
@@ -225,6 +248,7 @@ docs/full-scenario-regression-checklist.md
 docs/newbie-mode-regression-checklist.md
 docs/photo-layout-modes.md
 docs/layout-mode-accessibility-checklist.md
+docs/preview-quickbar.md
 docs/workspace-backup-regression-checklist.md
 docs/distribution-field-mode-regression-checklist.md
 docs/print-screenshot-regression.md

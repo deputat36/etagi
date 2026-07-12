@@ -9,12 +9,16 @@ const indexPath = path.join(rootDir, 'index.html');
 const runValidatePath = path.join(rootDir, 'tools/run-validate.mjs');
 const browserSmokeRunnerPath = path.join(rootDir, 'tools/run-browser-smoke.mjs');
 const browserSmokePagePath = path.join(rootDir, 'tools/browser-smoke.html');
+const printScreenshotRunnerPath = path.join(rootDir, 'tools/run-print-screenshots.mjs');
+const printScreenshotPagePath = path.join(rootDir, 'tools/print-screenshot.html');
 const workflowSource = readRequired(workflowPath);
 const packageSource = readRequired(packagePath);
 const indexSource = readRequired(indexPath);
 const runValidateSource = readRequired(runValidatePath);
 const browserSmokeRunnerSource = readRequired(browserSmokeRunnerPath);
 const browserSmokePageSource = readRequired(browserSmokePagePath);
+const printScreenshotRunnerSource = readRequired(printScreenshotRunnerPath);
+const printScreenshotPageSource = readRequired(printScreenshotPagePath);
 const pkg = readPackage(packageSource);
 
 requireSnippets('.github/workflows/validate.yml', workflowSource, [
@@ -35,22 +39,33 @@ requireSnippets('.github/workflows/validate.yml', workflowSource, [
   'contents: read',
   'validate:',
   'browser-smoke:',
+  'print-screenshots:',
   'needs: validate',
+  'needs: browser-smoke',
   'runs-on: ubuntu-latest',
   'timeout-minutes: 5',
+  'timeout-minutes: 8',
   'uses: actions/checkout@v4',
   'uses: actions/setup-node@v4',
   "node-version: '20'",
   'run: npm run validate',
+  'run: npm run smoke:browser',
+  'run: npm run screenshots:print',
   'if: failure()',
+  'if: success()',
   'uses: actions/upload-artifact@v4',
   'name: validation-failure',
   'path: validation-failure.log',
   'name: browser-smoke-failure',
   'path: browser-smoke-failure.log',
+  'name: print-screenshots',
+  'path: artifacts/print-screenshots/',
+  'name: print-screenshots-failure',
+  'path: print-screenshots-failure.log',
   'if-no-files-found: warn',
+  'if-no-files-found: error',
   'retention-days: 3',
-  'run: npm run smoke:browser'
+  'retention-days: 7'
 ]);
 
 requireSnippets('index.html', indexSource, [
@@ -111,11 +126,34 @@ requireSnippets('tools/browser-smoke.html', browserSmokePageSource, [
   'private → agent_brand_photo: фирменность восстановлена'
 ]);
 
+requireSnippets('tools/run-print-screenshots.mjs', printScreenshotRunnerSource, [
+  "path.join(rootDir, 'artifacts', 'print-screenshots')",
+  "path.join(rootDir, 'print-screenshots-failure.log')",
+  "{id:'one-no-photo'",
+  "{id:'two-big-phone'",
+  "{id:'one-showcase'",
+  "{id:'two-photo'",
+  "{id:'four-contacts'",
+  "'--window-size=794,1123'",
+  "'--dump-dom'",
+  '`--screenshot=${screenshotPath}`',
+  "path.join(outputDir, 'manifest.json')"
+]);
+
+requireSnippets('tools/print-screenshot.html', printScreenshotPageSource, [
+  'id="captureStatus"',
+  "scenario === 'four-contacts'",
+  "doc.getElementById('colorMode')?.value === 'economy'",
+  'assertInkEfficientContacts(flyers)',
+  "status.dataset.status = 'passed'"
+]);
+
 if (pkg) {
   const scripts = pkg.scripts || {};
   requireScript('validate', 'node tools/run-validate.mjs', scripts);
   requireScript('validate:ci-config', 'node tools/validate-ci-config.mjs', scripts);
   requireScript('smoke:browser', 'node tools/run-browser-smoke.mjs', scripts);
+  requireScript('screenshots:print', 'node tools/run-print-screenshots.mjs', scripts);
 }
 
 if (errors.length) {

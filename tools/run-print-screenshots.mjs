@@ -126,9 +126,7 @@ async function captureWithCdpPipe(command, profileDir, url, screenshotPath){
 
   try{
     const {targetId} = await cdp.send('Target.createTarget', {
-      url:'about:blank',
-      width:794,
-      height:1123
+      url:'about:blank'
     }, '', 12000);
     const {sessionId} = await cdp.send('Target.attachToTarget', {
       targetId,

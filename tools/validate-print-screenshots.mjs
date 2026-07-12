@@ -50,14 +50,24 @@ requireSnippets(files.runner, sources.runner, [
   "process.argv.indexOf('--scenario')",
   'selectedScenarios',
   "fs.writeFileSync(path.join(outputDir, `${scenario.id}.json`)",
+  "captureMethod: 'cdp-pipe'",
   "'--window-size=794,1123'",
-  "'--dump-dom'",
-  '`--screenshot=${screenshotPath}`',
-  "dom.includes('data-status=\"passed\"')",
+  "'--remote-debugging-pipe'",
+  "cdp.send('Runtime.evaluate'",
+  "cdp.send('Page.captureScreenshot'",
+  'waitForCaptureStatus',
+  'createCdpPipeClient',
+  "input.write(`${JSON.stringify(payload)}\\0`)",
   'sizeBytes < 10000',
   'fs.writeFileSync(failureLogPath',
   'server.keepAliveTimeout = 1',
   "'Connection':'close'"
+]);
+
+forbidSnippets(files.runner, sources.runner, [
+  "'--virtual-time-budget=",
+  "'--dump-dom'",
+  '`--screenshot=${screenshotPath}`'
 ]);
 
 requireSnippets(files.collector, sources.collector, [
@@ -108,6 +118,7 @@ requireSnippets(files.guide, sources.guide, [
   '`one-showcase.png`',
   '`two-photo.png`',
   '`four-contacts.png`',
+  'Chrome DevTools Protocol',
   'print-screenshots-failure.log',
   'синтетические данные'
 ]);
@@ -116,7 +127,8 @@ requireSnippets(files.maintenance, sources.maintenance, [
   'npm run validate:print-screenshots',
   'npm run screenshots:print',
   'print-screenshots',
-  'изолирован'
+  'изолирован',
+  'Chrome DevTools Protocol'
 ]);
 
 if(errors.length){

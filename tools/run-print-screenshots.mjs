@@ -15,52 +15,62 @@ const scenarios = [
   {id:'four-contacts', title:'4 на А4 без наложения контактов'}
 ];
 const virtualBudgets = [30000, 45000];
+const requestedScenario = getRequestedScenario();
+const selectedScenarios = requestedScenario
+  ? scenarios.filter(item => item.id === requestedScenario)
+  : scenarios;
 
 fs.rmSync(failureLogPath, {force:true});
 fs.rmSync(outputDir, {recursive:true, force:true});
 fs.mkdirSync(outputDir, {recursive:true});
 
+if(requestedScenario && !selectedScenarios.length){
+  failImmediately(`Print screenshots: неизвестный сценарий ${requestedScenario}.`);
+}
+
 const chrome = findChrome();
 if(!chrome) failImmediately('Print screenshots: Chrome/Chromium не найден. Укажите CHROME_BIN или установите системный браузер.');
 
-const server = createStaticServer(rootDir);
-server.keepAliveTimeout = 1;
-server.headersTimeout = 5000;
-const port = await listen(server);
 const manifest = [];
 
 try{
-  for(const scenario of scenarios){
+  for(const scenario of selectedScenarios){
+    const server = createStaticServer(rootDir);
+    server.keepAliveTimeout = 1;
+    server.headersTimeout = 5000;
+    const port = await listen(server);
     const screenshotPath = path.join(outputDir, `${scenario.id}.png`);
-    const result = await captureScenario(chrome, port, scenario, screenshotPath);
-    const sizeBytes = fs.statSync(screenshotPath).size;
-    if(sizeBytes < 10000) throw new Error(`${scenario.title}: PNG подозрительно мал — ${sizeBytes} байт.`);
 
-    manifest.push({
-      id: scenario.id,
-      title: scenario.title,
-      file: path.relative(rootDir, screenshotPath).replaceAll('\\', '/'),
-      sizeBytes,
-      attempt: result.attempt,
-      virtualTimeBudget: result.virtualTimeBudget
-    });
-    console.log(`✓ ${scenario.title}: ${Math.round(sizeBytes / 1024)} КБ, попытка ${result.attempt}`);
-    await delay(900);
+    try{
+      const result = await captureScenario(chrome, port, scenario, screenshotPath);
+      const sizeBytes = fs.statSync(screenshotPath).size;
+      if(sizeBytes < 10000) throw new Error(`${scenario.title}: PNG подозрительно мал — ${sizeBytes} байт.`);
+
+      const entry = {
+        id: scenario.id,
+        title: scenario.title,
+        file: path.relative(rootDir, screenshotPath).replaceAll('\\', '/'),
+        sizeBytes,
+        attempt: result.attempt,
+        virtualTimeBudget: result.virtualTimeBudget
+      };
+      manifest.push(entry);
+      fs.writeFileSync(path.join(outputDir, `${scenario.id}.json`), JSON.stringify(entry, null, 2), 'utf8');
+      console.log(`✓ ${scenario.title}: ${Math.round(sizeBytes / 1024)} КБ, попытка ${result.attempt}`);
+    } finally {
+      await closeServer(server);
+    }
+
+    await delay(500);
   }
 
-  fs.writeFileSync(path.join(outputDir, 'manifest.json'), JSON.stringify({
-    generatedAt: new Date().toISOString(),
-    viewport: {width:794, height:1123, deviceScaleFactor:1},
-    scenarios: manifest
-  }, null, 2), 'utf8');
+  if(!requestedScenario) writeManifest(manifest);
   console.log(`Print screenshots passed: ${manifest.length} PNG.`);
 } catch(error){
   const details = String(error?.message || error);
   fs.writeFileSync(failureLogPath, `${details}\n`, 'utf8');
   console.error(details);
   process.exitCode = 1;
-} finally {
-  await closeServer(server);
 }
 
 async function captureScenario(command, port, scenario, screenshotPath){
@@ -155,6 +165,20 @@ function runChrome(command, args, options){
       child.kill('SIGKILL');
     }, options.timeout);
   });
+}
+
+function getRequestedScenario(){
+  const index = process.argv.indexOf('--scenario');
+  const cliValue = index >= 0 ? process.argv[index + 1] : '';
+  return String(process.env.PRINT_SCREENSHOT_SCENARIO || cliValue || '').trim();
+}
+
+function writeManifest(entries){
+  fs.writeFileSync(path.join(outputDir, 'manifest.json'), JSON.stringify({
+    generatedAt: new Date().toISOString(),
+    viewport: {width:794, height:1123, deviceScaleFactor:1},
+    scenarios: entries
+  }, null, 2), 'utf8');
 }
 
 function findChrome(){

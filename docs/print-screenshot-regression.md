@@ -14,6 +14,20 @@ npm run screenshots:print
 PRINT_SCREENSHOT_SCENARIO=four-contacts npm run screenshots:print
 ```
 
+## Надёжный захват через Chrome DevTools Protocol
+
+Runner запускает Chrome с `--remote-debugging-pipe` и управляет страницей через Chrome DevTools Protocol.
+
+Последовательность захвата:
+
+1. открыть страницу сценария;
+2. опрашивать `captureStatus` через `Runtime.evaluate`;
+3. дождаться фактического `data-status="passed"`;
+4. только после этого вызвать `Page.captureScreenshot`;
+5. сохранить PNG и метаданные времени ожидания.
+
+Фиксированный virtual-time budget и CLI-снимок «по таймеру» не используются. Это защищает от PNG, снятого до завершения `FileReader`, рендера компоновки или проверки контактов.
+
 ## Изолированная матрица GitHub Actions
 
 В CI каждый сценарий запускается в отдельном чистом job Chrome. Это исключает влияние предыдущего браузерного процесса и сразу показывает, какой конкретный лист не сформировался.
@@ -28,7 +42,7 @@ two-photo
 four-contacts
 ```
 
-Каждый job создаёт PNG и одноимённый JSON с размером, номером попытки и virtual-time budget. Частичные artifacts хранятся 1 день.
+Каждый job создаёт PNG и одноимённый JSON с размером, номером попытки, методом захвата и временем ожидания. Частичные artifacts хранятся 1 день.
 
 После успешного завершения всех пяти job команда:
 

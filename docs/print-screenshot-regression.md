@@ -1,12 +1,42 @@
 # Screenshot-регрессия печатных листов А4
 
-Автоматический job создаёт PNG-снимки основных печатных сценариев генератора после успешных `validate` и `browser-smoke`.
+Автоматический workflow создаёт PNG-снимки основных печатных сценариев после успешных `validate` и `browser-smoke`.
 
-## Команда
+## Локальная команда
 
 ```bash
 npm run screenshots:print
 ```
+
+Локально команда может сформировать весь набор. Для одного сценария используется переменная:
+
+```bash
+PRINT_SCREENSHOT_SCENARIO=four-contacts npm run screenshots:print
+```
+
+## Изолированная матрица GitHub Actions
+
+В CI каждый сценарий запускается в отдельном чистом job Chrome. Это исключает влияние предыдущего браузерного процесса и сразу показывает, какой конкретный лист не сформировался.
+
+Matrix содержит:
+
+```text
+one-no-photo
+two-big-phone
+one-showcase
+two-photo
+four-contacts
+```
+
+Каждый job создаёт PNG и одноимённый JSON с размером, номером попытки и virtual-time budget. Частичные artifacts хранятся 1 день.
+
+После успешного завершения всех пяти job команда:
+
+```bash
+npm run screenshots:manifest
+```
+
+проверяет комплектность, собирает `manifest.json` и формирует единый artifact `print-screenshots`.
 
 ## Сценарии
 
@@ -18,13 +48,11 @@ npm run screenshots:print
 | `two-photo.png` | 2 макета на А4 в режиме `С фото` |
 | `four-contacts.png` | 4 макета на А4 без наложений и с облегчённой цветной контактной зоной |
 
-Файлы создаются в:
+Файлы собираются в:
 
 ```text
 artifacts/print-screenshots/
 ```
-
-Рядом сохраняется `manifest.json` с датой, viewport, именами сценариев и размером каждого PNG.
 
 ## Что проверяется до снимка
 
@@ -46,17 +74,17 @@ Harness не создаёт PNG вслепую. Для каждого сцена
 - тёмный контрастный телефон;
 - сохранение четырёх макетов на А4.
 
-Если проверка не пройдена, job завершается ошибкой и загружает `print-screenshots-failure.log`.
+При ошибке конкретный matrix job загружает artifact `print-screenshot-failure-<scenario>` с файлом `print-screenshots-failure.log`.
 
-## GitHub Actions artifact
+## Итоговый artifact
 
-После успешного запуска workflow создаётся artifact:
+После успешного запуска создаётся:
 
 ```text
 print-screenshots
 ```
 
-Он содержит пять PNG и `manifest.json`. Срок хранения — 7 дней.
+Он содержит пять PNG, пять служебных JSON и общий `manifest.json`. Срок хранения — 7 дней.
 
 ## Ручная визуальная проверка
 

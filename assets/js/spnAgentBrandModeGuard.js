@@ -1,21 +1,14 @@
 const STYLE_ID = 'spnAgentBrandModeGuardStyles';
-let pendingButton = null;
 
 window.addEventListener('DOMContentLoaded', () => {
   const grid = document.getElementById('layoutModeGrid');
   if(!grid) return;
   injectStyles();
-  grid.addEventListener('click', event => {
-    const button = event.target.closest('[data-layout-mode="agent_brand_photo"]');
-    if(!button) return;
-    pendingButton = button;
-    window.requestAnimationFrame(normalizeAgentBrandMode);
-  });
+  grid.addEventListener('click', prepareAgentBrandMode, true);
 });
 
-function normalizeAgentBrandMode(){
-  const button = pendingButton;
-  pendingButton = null;
+function prepareAgentBrandMode(event){
+  const button = event.target.closest('[data-layout-mode="agent_brand_photo"]');
   if(!button) return;
 
   const colorMode = document.getElementById('colorMode');
@@ -24,20 +17,19 @@ function normalizeAgentBrandMode(){
 
   if(colorMode && colorMode.value === 'private'){
     colorMode.value = 'brand';
-    colorMode.dispatchEvent(new Event('change', {bubbles:true}));
     changed = true;
   }
 
   if(showBrand && !showBrand.checked){
     showBrand.checked = true;
-    showBrand.dispatchEvent(new Event('change', {bubbles:true}));
     changed = true;
   }
 
-  if(changed){
-    setStatus('Режим «Фото СПН»: фирменное оформление восстановлено после частного макета.');
-    window.requestAnimationFrame(() => button.click());
-  }
+  if(!changed) return;
+
+  const syncTarget = colorMode || showBrand;
+  syncTarget?.dispatchEvent(new Event('change', {bubbles:true}));
+  setStatus('Режим «Фото СПН»: фирменное оформление восстановлено до применения компоновки.');
 }
 
 function setStatus(text){

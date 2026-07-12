@@ -44,14 +44,18 @@ function scheduleInkTip(list){
 }
 
 function updateInkTip(list){
-  list.querySelector(`[${TIP_ATTR}]`)?.remove();
-
+  const existing = list.querySelector(`[${TIP_ATTR}]`);
   const colorMode = document.getElementById('colorMode');
   const showContact = document.getElementById('showContact');
   const activeCount = document.querySelector('#printPresetRow [data-count].active');
   const count = Number(activeCount?.dataset.count) || 2;
+  const shouldShow = colorMode?.value === 'brand' && Boolean(showContact?.checked) && count >= 4;
 
-  if(colorMode?.value !== 'brand' || !showContact?.checked || count < 4) return;
+  if(!shouldShow){
+    existing?.remove();
+    return;
+  }
+  if(existing) return;
 
   const item = document.createElement('div');
   item.className = 'qitem tip ink-efficiency-tip';

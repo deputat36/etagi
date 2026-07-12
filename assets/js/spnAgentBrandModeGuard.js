@@ -1,4 +1,5 @@
 const STYLE_ID = 'spnAgentBrandModeGuardStyles';
+let pendingButton = null;
 
 window.addEventListener('DOMContentLoaded', () => {
   const grid = document.getElementById('layoutModeGrid');
@@ -7,11 +8,16 @@ window.addEventListener('DOMContentLoaded', () => {
   grid.addEventListener('click', event => {
     const button = event.target.closest('[data-layout-mode="agent_brand_photo"]');
     if(!button) return;
-    window.requestAnimationFrame(() => normalizeAgentBrandMode(button));
+    pendingButton = button;
+    window.requestAnimationFrame(normalizeAgentBrandMode);
   });
 });
 
-function normalizeAgentBrandMode(button){
+function normalizeAgentBrandMode(){
+  const button = pendingButton;
+  pendingButton = null;
+  if(!button) return;
+
   const colorMode = document.getElementById('colorMode');
   const showBrand = document.getElementById('showBrand');
   let changed = false;

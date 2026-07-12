@@ -50,6 +50,7 @@
     "validate:report-history-docs": "node tools/validate-report-history-docs.mjs",
     "validate:newbie-mode-docs": "node tools/validate-newbie-mode-docs.mjs",
     "validate:print-screenshots": "node tools/validate-print-screenshots.mjs",
+    "validate:ink-efficiency": "node tools/validate-ink-efficiency.mjs",
     "validate:ci-config": "node tools/validate-ci-config.mjs",
     "validate": "node tools/run-validate.mjs"
   },

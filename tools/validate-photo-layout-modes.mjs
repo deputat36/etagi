@@ -6,6 +6,7 @@ const errors = [];
 const files = {
   state: 'assets/js/state.js',
   rules: 'assets/js/layoutRules.js',
+  render: 'assets/js/render.js',
   styles: 'assets/js/spnPhotoLayoutStyle.js',
   quality: 'assets/js/quality.js',
   actions: 'assets/js/spnPhotoLayoutQualityActions.js',
@@ -42,6 +43,19 @@ requireSnippets(files.rules, sources.rules, [
   'state.showQr = Boolean(state.qrLink);',
   "['photo_left','photo_card','newbuild_visual','agent_brand_photo'].includes(state.layoutMode)",
   "state.layoutMode === 'photo_card' && state.photoMode === 'plan'"
+]);
+
+requireSnippets(files.render, sources.render, [
+  'const countToken = Number(state.printCount) || 2;',
+  "const photoToken = safeClassToken(state.photoMode || 'none');",
+  "const layoutToken = safeClassToken(state.layoutMode || 'manual');",
+  'sheet-count-${countToken}',
+  'sheet-photo-${photoToken}',
+  'sheet-layout-${layoutToken}',
+  '`count-${countToken}`',
+  '`photo-mode-${photoToken}`',
+  '`layout-${layoutToken}`',
+  'function safeClassToken(value)'
 ]);
 
 requireSnippets(files.styles, sources.styles, [

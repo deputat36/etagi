@@ -10,6 +10,7 @@ const files = {
   quality: 'assets/js/quality.js',
   actions: 'assets/js/spnPhotoLayoutQualityActions.js',
   uiMode: 'assets/js/spnUiMode.js',
+  smoke: 'tools/browser-smoke.html',
   guide: 'docs/photo-layout-modes.md'
 };
 const sources = Object.fromEntries(
@@ -89,6 +90,18 @@ requireSnippets(files.actions, sources.actions, [
 requireSnippets(files.uiMode, sources.uiMode, [
   "import './spnPhotoLayoutStyle.js';",
   "import './spnPhotoLayoutQualityActions.js';"
+]);
+
+requireSnippets(files.smoke, sources.smoke, [
+  '[data-layout-mode="photo_left"]',
+  'photo_left: фото слева и текст справа',
+  'photo_left: ограничение до 2 на А4',
+  '[data-layout-mode="photo_card"]',
+  'photo_card: контрастный заголовок поверх обычного фото',
+  'photo_card: планировка без overlay и обрезки',
+  'photo_card: ограничение до 2 на А4',
+  "safePlanStyle.backgroundImage === 'none'",
+  "win.getComputedStyle(safePlanImage).objectFit === 'contain'"
 ]);
 
 requireSnippets(files.guide, sources.guide, [

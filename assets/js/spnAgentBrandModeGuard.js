@@ -7,11 +7,11 @@ window.addEventListener('DOMContentLoaded', () => {
   grid.addEventListener('click', event => {
     const button = event.target.closest('[data-layout-mode="agent_brand_photo"]');
     if(!button) return;
-    window.requestAnimationFrame(normalizeAgentBrandMode);
+    window.requestAnimationFrame(() => normalizeAgentBrandMode(button));
   });
 });
 
-function normalizeAgentBrandMode(){
+function normalizeAgentBrandMode(button){
   const colorMode = document.getElementById('colorMode');
   const showBrand = document.getElementById('showBrand');
   let changed = false;
@@ -28,7 +28,10 @@ function normalizeAgentBrandMode(){
     changed = true;
   }
 
-  if(changed) setStatus('Режим «Фото СПН»: фирменное оформление восстановлено после частного макета.');
+  if(changed){
+    setStatus('Режим «Фото СПН»: фирменное оформление восстановлено после частного макета.');
+    window.requestAnimationFrame(() => button.click());
+  }
 }
 
 function setStatus(text){

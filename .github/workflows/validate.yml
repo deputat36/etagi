@@ -78,10 +78,19 @@ jobs:
           if-no-files-found: warn
           retention-days: 3
 
-  print-screenshots:
+  print-screenshot:
     needs: browser-smoke
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        scenario:
+          - one-no-photo
+          - two-big-phone
+          - one-showcase
+          - two-photo
+          - four-contacts
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -91,23 +100,56 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Generate print screenshots
+      - name: Generate print screenshot
+        env:
+          PRINT_SCREENSHOT_SCENARIO: ${{ matrix.scenario }}
         run: npm run screenshots:print
 
-      - name: Upload print screenshots
+      - name: Upload print screenshot part
         if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: print-screenshot-${{ matrix.scenario }}
+          path: artifacts/print-screenshots/
+          if-no-files-found: error
+          retention-days: 1
+
+      - name: Upload print screenshot failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: print-screenshot-failure-${{ matrix.scenario }}
+          path: print-screenshots-failure.log
+          if-no-files-found: warn
+          retention-days: 3
+
+  collect-print-screenshots:
+    needs: print-screenshot
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Download print screenshot parts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: print-screenshot-*
+          path: artifacts/print-screenshots/
+          merge-multiple: true
+
+      - name: Build print screenshot manifest
+        run: npm run screenshots:manifest
+
+      - name: Upload print screenshots
         uses: actions/upload-artifact@v4
         with:
           name: print-screenshots
           path: artifacts/print-screenshots/
           if-no-files-found: error
           retention-days: 7
-
-      - name: Upload print screenshots failure
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: print-screenshots-failure
-          path: print-screenshots-failure.log
-          if-no-files-found: warn
-          retention-days: 3

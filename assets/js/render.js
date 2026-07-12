@@ -34,7 +34,10 @@ export function getGrid(count, splitMode){
 
 export function renderSheet(sheet, state){
   const grid = getGrid(state.printCount, state.splitMode);
-  sheet.className = 'sheet';
+  const countToken = Number(state.printCount) || 2;
+  const photoToken = safeClassToken(state.photoMode || 'none');
+  const layoutToken = safeClassToken(state.layoutMode || 'manual');
+  sheet.className = `sheet sheet-count-${countToken} sheet-photo-${photoToken} sheet-layout-${layoutToken}`;
   sheet.classList.toggle('show-cut-lines', Boolean(state.showCutLines));
   sheet.classList.toggle('safe-print-margins', Boolean(state.safePrintMargins));
   sheet.classList.toggle('print-check-mode', Boolean(state.printCheckMode));
@@ -49,7 +52,10 @@ export function renderSheet(sheet, state){
 }
 
 function renderFlyer(state){
-  const classes = ['flyer'];
+  const countToken = Number(state.printCount) || 2;
+  const photoToken = safeClassToken(state.photoMode || 'none');
+  const layoutToken = safeClassToken(state.layoutMode || 'manual');
+  const classes = ['flyer', `count-${countToken}`, `photo-mode-${photoToken}`, `layout-${layoutToken}`];
   const hasPhoto = hasRenderablePhoto(state);
   if(state.colorMode === 'economy') classes.push('color-economy');
   if(state.colorMode === 'bw') classes.push('bw');
@@ -178,6 +184,9 @@ function splitTearTopic(value){
 function normalizeBlockOrder(order){
   const safe = Array.isArray(order) ? order.filter(id => DEFAULT_BLOCK_ORDER.includes(id)) : [];
   return [...new Set([...safe, ...DEFAULT_BLOCK_ORDER])];
+}
+function safeClassToken(value){
+  return String(value || 'manual').toLowerCase().replace(/[^a-z0-9_-]/g, '-');
 }
 function markOverflow(sheet){
   sheet.querySelectorAll('.flyer').forEach(f=>{

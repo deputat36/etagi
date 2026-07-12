@@ -34,6 +34,7 @@ import './spnPhotoLayoutQualityActions.js';
 import './spnAgentBrandModeGuard.js';
 import './spnInkEfficiency.js';
 import './spnLayoutModeAccessibility.js';
+import './spnPreviewQuickBar.js';
 import './spnWizardFlow.js';
 import './spnNewbieWizardPatch.js';
 import './spnManagerReview.js';

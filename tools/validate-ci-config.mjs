@@ -145,12 +145,22 @@ requireSnippets('tools/run-print-screenshots.mjs', printScreenshotRunnerSource, 
   'PRINT_SCREENSHOT_SCENARIO',
   'selectedScenarios',
   "fs.writeFileSync(path.join(outputDir, `${scenario.id}.json`)",
+  "captureMethod: 'cdp-pipe'",
   "'--window-size=794,1123'",
-  "'--dump-dom'",
-  '`--screenshot=${screenshotPath}`',
+  "'--remote-debugging-pipe'",
+  "cdp.send('Runtime.evaluate'",
+  "cdp.send('Page.captureScreenshot'",
+  'waitForCaptureStatus',
+  'createCdpPipeClient',
   'server.keepAliveTimeout = 1',
   "'Connection':'close'"
 ]);
+
+for(const forbidden of ["'--virtual-time-budget=", "'--dump-dom'", '`--screenshot=${screenshotPath}`']){
+  if(printScreenshotRunnerSource.includes(forbidden)){
+    errors.push(`tools/run-print-screenshots.mjs: запрещён устаревший CLI-захват — ${forbidden}`);
+  }
+}
 
 requireSnippets('tools/collect-print-screenshots.mjs', printScreenshotCollectorSource, [
   'Не найден ${id}.png после matrix job.',

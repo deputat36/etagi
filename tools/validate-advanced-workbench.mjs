@@ -23,8 +23,8 @@ requireSnippets(files.helper, sources.helper, [
   'observer.disconnect();',
   "details.className = 'card spn-advanced-workbench'",
   "details.open = readOpenState()",
-  'Работа после печати',
-  'План расклейки · отклики · итоги теста',
+  'Дополнительная аналитика',
+  'План расклейки · квалификация отклика · итог теста',
   "sections[0].insertAdjacentElement('beforebegin', details)",
   'sections.forEach(section => body.append(section))',
   "details.addEventListener('toggle'",
@@ -53,22 +53,23 @@ forbidSnippets(files.index, sources.index, [
 ]);
 
 requireSnippets(files.guide, sources.guide, [
-  '# Рабочий блок после печати',
+  '# Дополнительная аналитика',
   '`План расклейки`',
   '`Квалификация отклика`',
   '`Итог теста расклейки`',
+  '`После печати`',
   'не создаёт копии секций',
   'etagi-raskleyka-advanced-workbench-open-v1',
   'npm run validate:advanced-workbench'
 ]);
 
 if(errors.length){
-  console.error('\nОшибки рабочего блока после печати:');
+  console.error('\nОшибки блока дополнительной аналитики:');
   errors.forEach(error => console.error(`- ${error}`));
   process.exit(1);
 }
 
-console.log('Проверка рабочего блока после печати пройдена.');
+console.log('Проверка блока дополнительной аналитики пройдена.');
 
 function requireSnippets(file, source, snippets){
   for(const snippet of snippets){

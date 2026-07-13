@@ -34,6 +34,7 @@ npm run validate:agent-brand-mode-guard
 npm run validate:layout-mode-accessibility
 npm run validate:preview-quickbar
 npm run validate:advanced-workbench
+npm run validate:wizard-step-status
 npm run validate:js
 npm run validate:assets
 npm run validate:asset-duplicates
@@ -144,6 +145,33 @@ npm run validate:advanced-workbench
 ```
 
 Ручной сценарий: `docs/advanced-workbench.md`.
+
+## Компактный статус шагов мастера
+
+`spnWizardStepStatus.js` добавляет к восьми кнопкам мастера короткие метки состояния и два общих показателя:
+
+```text
+До печати
+После печати
+```
+
+Правила:
+
+- модуль не блокирует навигацию и печать;
+- обязательность фото и QR включается только при выбранном медиа-сценарии;
+- сохранение макета остаётся необязательным;
+- задание и отчёт считаются отдельно от подготовки листа;
+- обновления объединяются через `requestAnimationFrame`;
+- события ограничены `.sidebar` и не используют глобальный click-перехват;
+- новые ключи `localStorage` не создаются.
+
+После изменений выполнять:
+
+```bash
+npm run validate:wizard-step-status
+```
+
+Ручной сценарий: `docs/wizard-step-status.md`.
 
 ## Screenshot-регрессия печати
 
@@ -279,6 +307,7 @@ docs/photo-layout-modes.md
 docs/layout-mode-accessibility-checklist.md
 docs/preview-quickbar.md
 docs/advanced-workbench.md
+docs/wizard-step-status.md
 docs/workspace-backup-regression-checklist.md
 docs/distribution-field-mode-regression-checklist.md
 docs/print-screenshot-regression.md

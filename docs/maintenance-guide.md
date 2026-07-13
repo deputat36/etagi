@@ -34,6 +34,7 @@ npm run validate:agent-brand-mode-guard
 npm run validate:layout-mode-accessibility
 npm run validate:preview-quickbar
 npm run validate:advanced-workbench
+npm run validate:post-print-workspace
 npm run validate:wizard-step-status
 npm run validate:mobile-readability
 npm run validate:js
@@ -120,9 +121,9 @@ npm run validate:preview-quickbar
 
 Ручной сценарий: `docs/preview-quickbar.md`.
 
-## Рабочий блок после печати
+## Дополнительная аналитика
 
-`spnAdvancedWorkbench.js` объединяет три крупные операционные секции:
+`spnAdvancedWorkbench.js` объединяет три углублённых секции:
 
 ```text
 План расклейки
@@ -147,6 +148,36 @@ npm run validate:advanced-workbench
 ```
 
 Ручной сценарий: `docs/advanced-workbench.md`.
+
+## Компактный блок после печати
+
+`spnPostPrintWorkspace.js` объединяет реальные разделы `Задание на расклейку` и `Отчёт после расклейки` в один раскрываемый контейнер `После печати`.
+
+Внутри сохраняются:
+
+- задание и режим исполнителя;
+- отчёт, история и аналитика;
+- сводка менеджеру;
+- все существующие обработчики и локальные данные.
+
+Правила:
+
+- блок по умолчанию закрыт в режимах `Быстро` и `Расширенно`;
+- на шагах Wizard Flow `Задание` и `Отчёт` он раскрывается автоматически;
+- временное открытие мастером не перезаписывает выбор пользователя;
+- в `Новичке` контейнер скрыт на остальных шагах;
+- заголовок показывает live-статус задания и отчёта;
+- состояние раскрытия хранится под проектным ключом и входит в backup;
+- запрещены копирование DOM-узлов, прямой `window.print()` и глобальные click-перехваты.
+
+После изменений выполнять:
+
+```bash
+npm run validate:post-print-workspace
+npm run smoke:browser
+```
+
+Ручной сценарий: `docs/post-print-workspace.md`.
 
 ## Компактный статус шагов мастера
 
@@ -322,6 +353,7 @@ docs/photo-layout-modes.md
 docs/layout-mode-accessibility-checklist.md
 docs/preview-quickbar.md
 docs/advanced-workbench.md
+docs/post-print-workspace.md
 docs/wizard-step-status.md
 docs/mobile-readability.md
 docs/workspace-backup-regression-checklist.md

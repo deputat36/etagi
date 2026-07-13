@@ -158,6 +158,7 @@ function injectStyles(){
     .tpl-card-office-reason-newbuild{background:#fdf2f8;border-color:#fbcfe8;color:#be185d}
     .tpl-card.active .tpl-office-badge{border-color:color-mix(in srgb,var(--accent) 40%,#fff)}
     .tpl-card.active .tpl-card-office-reason{background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.28);color:#fff}
+    @media(max-width:520px){.tpl-office-badge{padding:4px 7px;font-size:11px;line-height:1.1}.tpl-card-office-reason{font-size:11.5px;line-height:1.3}}
     @media print{.tpl-card-office-badges,.tpl-card-office-reason{display:none!important}}
   `;
   document.head.appendChild(style);

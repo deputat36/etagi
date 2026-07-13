@@ -341,7 +341,7 @@ function injectStyles(){
     .spn-wizard-nav{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px}
     body[data-wizard-flow="on"] .sidebar [data-wizard-section]{display:none!important}
     body[data-wizard-flow="on"] .sidebar [data-wizard-section].spn-wizard-section-active{display:block!important}
-    @media(max-width:520px){.spn-wizard-print-count{grid-template-columns:1fr 1fr}.spn-wizard-steps{grid-template-columns:1fr}.spn-wizard-flow-head{grid-template-columns:1fr}}
+    @media(max-width:520px){.spn-wizard-print-count{grid-template-columns:1fr 1fr}.spn-wizard-steps{grid-template-columns:1fr}.spn-wizard-flow-head{grid-template-columns:1fr}.spn-wizard-print-help,.spn-wizard-print-count span,.spn-wizard-steps span,.spn-wizard-step-help span,.spn-wizard-next-notice span{font-size:11.5px;line-height:1.3;opacity:.9}}
     @media print{.spn-wizard-flow{display:none!important}}
   `;
   document.head.appendChild(style);

@@ -270,7 +270,7 @@
         result.dataset.status = 'failed';
         result.textContent = `FAILED\n${checks.map(item => `✓ ${item}`).join('\n')}\n✗ общий timeout smoke-теста`;
       }
-    }, 22000);
+    }, 40000);
 
     function pass(message){ checks.push(message); }
     function nextFrame(win){

@@ -20,6 +20,7 @@
     "validate:layout-mode-accessibility": "node tools/validate-layout-mode-accessibility.mjs",
     "validate:preview-quickbar": "node tools/validate-preview-quickbar.mjs",
     "validate:advanced-workbench": "node tools/validate-advanced-workbench.mjs",
+    "validate:post-print-workspace": "node tools/validate-post-print-workspace.mjs",
     "validate:wizard-step-status": "node tools/validate-wizard-step-status.mjs",
     "validate:mobile-readability": "node tools/validate-mobile-readability.mjs",
     "validate:js": "node tools/validate-js.mjs",

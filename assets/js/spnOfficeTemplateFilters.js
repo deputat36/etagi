@@ -96,7 +96,7 @@ function injectStyles(){
     .spn-office-template-card-manager .spn-office-template-card-note,.spn-office-template-card-blank .spn-office-template-card-note{background:#fff7ed;border-color:#fed7aa;color:#c2410c}
     .spn-office-template-card-local .spn-office-template-card-note,.spn-office-template-card-newbuild .spn-office-template-card-note{background:#fdf2f8;border-color:#fbcfe8;color:#be185d}
     .spn-office-template-card-photo .spn-office-template-card-note{background:#eef2ff;border-color:#c7d2fe;color:#4338ca}
-    @media(max-width:520px){.spn-office-template-filter-grid,.spn-office-template-filters-head{grid-template-columns:1fr}.spn-office-template-card{min-height:68px}}
+    @media(max-width:520px){.spn-office-template-filter-grid,.spn-office-template-filters-head{grid-template-columns:1fr}.spn-office-template-card{min-height:74px}.spn-office-template-card b{margin-top:22px}.spn-office-template-card-hint{font-size:11.5px;line-height:1.25}.spn-office-template-card-note{padding:4px 7px;font-size:10.5px;line-height:1.1}}
     @media print{.spn-office-template-filters{display:none!important}}
   `;
   document.head.appendChild(style);

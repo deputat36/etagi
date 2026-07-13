@@ -63,7 +63,9 @@ function syncWizardState(details){
 }
 
 function isWizardForced(){
-  return ['task', 'report'].includes(document.body.dataset.wizardStep || '');
+  const newbieMode = document.body.dataset.spnUiMode === 'newbie';
+  const wizardStep = document.body.dataset.wizardStep || '';
+  return newbieMode && ['task', 'report'].includes(wizardStep);
 }
 
 function scheduleStatusUpdate(){

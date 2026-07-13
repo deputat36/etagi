@@ -31,7 +31,7 @@ function organizeSections(sidebar, observer){
   details.className = 'card spn-advanced-workbench';
   details.open = readOpenState();
   details.innerHTML = `<summary>
-    <span><b>Работа после печати</b><small>План расклейки · отклики · итоги теста</small></span>
+    <span><b>Дополнительная аналитика</b><small>План расклейки · квалификация отклика · итог теста</small></span>
     <span class="spn-workbench-count">3 инструмента</span>
   </summary><div class="spn-advanced-workbench-body"></div>`;
 

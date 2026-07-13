@@ -1,6 +1,6 @@
 # Автоматическая инвентаризация библиотеки шаблонов
 
-Сформировано: 2026-07-10T16:37:45.175Z
+Сформировано: 2026-07-13T07:10:40.952Z
 
 ## Общий итог
 
@@ -8,12 +8,14 @@
 - шаблонов: 117;
 - с office-метаданными: 52 (44%);
 - получили office через overrides: 12;
+- получили уникальный ID через aliases: 4;
 - office-рекомендованных: 42;
 - без office-метаданных: 65;
 - рабочих: 95;
 - тестовых: 13;
 - устаревших: 9;
-- повторяющихся id: 4;
+- исходных повторяющихся id: 4;
+- неразрешённых итоговых id: 0;
 - повторяющихся office-сценариев: 2;
 - одинаковых нормализованных заголовков: 10;
 - вероятных смысловых дублей: 0.
@@ -71,6 +73,41 @@
 | low | 19 |
 | high | 10 |
 
+## Пакетные алиасы ID
+
+| Итоговый ID | Исходный ID | Пакет |
+|---|---|---|
+| extra_brand_area_expert | brand_area_expert | templates_extra.json |
+| extra_private_buy_flat | private_buy_flat | templates_extra.json |
+| extra_private_sell_flat | private_sell_flat | templates_extra.json |
+| extra_service_safe_deal | service_safe_deal | templates_extra.json |
+
+## Исходные повторяющиеся ID
+
+### brand_area_expert
+
+- brand_area_expert — Ваш специалист по району (templates.json, deprecated);
+- extra_brand_area_expert — Ваш специалист по району (templates_extra.json, deprecated, alias brand_area_expert → extra_brand_area_expert);
+
+### private_buy_flat
+
+- private_buy_flat — Частное: куплю квартиру (templates.json, test, office override);
+- extra_private_buy_flat — Частное: куплю квартиру (templates_extra.json, test, office override, alias private_buy_flat → extra_private_buy_flat);
+
+### private_sell_flat
+
+- private_sell_flat — Частное: продам квартиру (templates.json, test, office override);
+- extra_private_sell_flat — Частное: продаётся квартира (templates_extra.json, test, office override, alias private_sell_flat → extra_private_sell_flat);
+
+### service_safe_deal
+
+- service_safe_deal — Безопасная сделка (templates.json, deprecated);
+- extra_service_safe_deal — Безопасная сделка (templates_extra.json, deprecated, alias service_safe_deal → extra_service_safe_deal);
+
+## Неразрешённые итоговые ID
+
+Повторы не найдены.
+
 ## Пакеты без полного office-покрытия
 
 | Пакет | Всего | С office | Через overrides | Покрытие | Тест | Устарело |
@@ -90,13 +127,13 @@
 
 | Шаблон | Пакет | Причина | Замена |
 |---|---|---|---|
-| brand_area_expert — Ваш специалист по району | templates_extra.json | Заменён локальным брендовым шаблоном с фотографией СПН, QR и понятной географией работы. | bgo_brand_local_specialist |
+| extra_brand_area_expert — Ваш специалист по району | templates_extra.json | Заменён локальным брендовым шаблоном с фотографией СПН, QR и понятной географией работы. | bgo_brand_local_specialist |
+| extra_service_safe_deal — Безопасная сделка | templates_extra.json | Продающий пакет содержит актуальную версию с office-метаданными и обязательной проверкой сложных юридических формулировок. | sales_service_safe_deal |
 | object_commercial_space — Коммерческое помещение | templates_extra.json | Локальный объектный шаблон точнее контролирует назначение, вход, коммуникации, ограничения и условия сделки. | bgo_object_commercial_space |
 | rent_find_tenant — Сдам квартиру аккуратным жильцам | templates_extra.json | Заменён локальным сценарием помощи собственнику с арендой, где явно контролируются условия услуги и комиссии. | bgo_rent_owner_flat |
 | seller_inherited_flat — Наследственная квартира | templates_extra.json | Заменён локальным сценарием наследства с обязательной менеджерской проверкой и безопасной юридической формулировкой. | bgo_service_inheritance_sale_plan |
 | seller_sell_buy_chain — Продать и купить взамен | templates_extra.json | Заменён более конкретным сценарием альтернативной продажи и покупки с office-риском и заметкой менеджера. | bgo_seller_exchange_larger_home |
 | seller_thinking_about_sale — Думаете о продаже? | templates_extra.json | Смысловой дубль. Продающий вариант имеет office-метаданные, понятный уровень риска и более крупный телефон. | sales_seller_owner_price_hook |
-| service_safe_deal — Безопасная сделка | templates_extra.json | Продающий пакет содержит актуальную версию с office-метаданными и обязательной проверкой сложных юридических формулировок. | sales_service_safe_deal |
 | brand_area_expert — Ваш специалист по району | templates.json | Заменён локальным брендовым шаблоном с фотографией СПН, QR и понятной географией работы. | bgo_brand_local_specialist |
 | service_safe_deal — Безопасная сделка | templates.json | Продающий пакет содержит актуальную версию с office-метаданными и обязательной проверкой сложных юридических формулировок. | sales_service_safe_deal |
 
@@ -111,9 +148,9 @@
 | ab_owner_soft_price_check — Тест: мягкая оценка цены | templates_ab_tests.json | A/B-вариант предназначен для контролируемого теста и сравнения результатов, а не для выдачи новичку как основной шаблон. | — |
 | ab_service_after_viewing — Тест: после просмотра рынка | templates_ab_tests.json | A/B-вариант предназначен для контролируемого теста и сравнения результатов, а не для выдачи новичку как основной шаблон. | — |
 | buyer_maternity_capital — Квартира с маткапиталом | templates_extra.json | Сценарий полезен, но условия использования материнского капитала требуют актуальной проверки перед массовой печатью. | — |
+| extra_private_buy_flat — Частное: куплю квартиру | templates_extra.json | Частный макет без бренда применяется только по согласованной офисной задаче и после проверки менеджером. | — |
+| extra_private_sell_flat — Частное: продаётся квартира | templates_extra.json | Частный объектный макет без бренда требует проверки цены, характеристик, фото и соответствия офисной политике. | — |
 | newbuild_family_mortgage — Новостройка и семейная ипотека | templates_extra.json | Условия семейной ипотеки меняются. Перед использованием требуется проверка актуальных условий и менеджерская адаптация текста. | — |
-| private_buy_flat — Частное: куплю квартиру | templates_extra.json | Частный макет без бренда применяется только по согласованной офисной задаче и после проверки менеджером. | — |
-| private_sell_flat — Частное: продаётся квартира | templates_extra.json | Частный объектный макет без бренда требует проверки цены, характеристик, фото и соответствия офисной политике. | — |
 | seller_empty_flat — Куплю пустующую квартиру | templates_extra.json | Сценарий пустующей квартиры полезен, но заголовок «Куплю» допустим только при подтверждённом спросе и после проверки менеджером. | — |
 | private_buy_flat — Частное: куплю квартиру | templates.json | Частный макет без бренда применяется только по согласованной офисной задаче и после проверки менеджером. | — |
 | private_sell_flat — Частное: продам квартиру | templates.json | Частный объектный макет без бренда требует проверки цены, характеристик, фото и соответствия офисной политике. | — |
@@ -134,17 +171,17 @@
 
 - private_buy_flat — Частное: куплю квартиру (templates.json, test, office override);
 - seller_micro_4 — Микро: куплю квартиру (templates.json, working);
-- private_buy_flat — Частное: куплю квартиру (templates_extra.json, test, office override);
+- extra_private_buy_flat — Частное: куплю квартиру (templates_extra.json, test, office override, alias private_buy_flat → extra_private_buy_flat);
 
 ### безопасная сделка с недвижимостью
 
 - service_safe_deal — Безопасная сделка (templates.json, deprecated);
-- service_safe_deal — Безопасная сделка (templates_extra.json, deprecated);
+- extra_service_safe_deal — Безопасная сделка (templates_extra.json, deprecated, alias service_safe_deal → extra_service_safe_deal);
 
 ### ваш специалист по району
 
 - brand_area_expert — Ваш специалист по району (templates.json, deprecated);
-- brand_area_expert — Ваш специалист по району (templates_extra.json, deprecated);
+- extra_brand_area_expert — Ваш специалист по району (templates_extra.json, deprecated, alias brand_area_expert → extra_brand_area_expert);
 
 ### коммерческое помещение
 
@@ -164,7 +201,7 @@
 ### продается квартира
 
 - object_flat_photo — Продам квартиру с фото (templates.json, working);
-- private_sell_flat — Частное: продаётся квартира (templates_extra.json, test, office override);
+- extra_private_sell_flat — Частное: продаётся квартира (templates_extra.json, test, office override, alias private_sell_flat → extra_private_sell_flat);
 
 ### продается объект
 
@@ -181,12 +218,12 @@
 ### extra_private_buy_flat
 
 - private_buy_flat — Частное: куплю квартиру (templates.json, test, office override);
-- private_buy_flat — Частное: куплю квартиру (templates_extra.json, test, office override);
+- extra_private_buy_flat — Частное: куплю квартиру (templates_extra.json, test, office override, alias private_buy_flat → extra_private_buy_flat);
 
 ### extra_private_sell_flat
 
 - private_sell_flat — Частное: продам квартиру (templates.json, test, office override);
-- private_sell_flat — Частное: продаётся квартира (templates_extra.json, test, office override);
+- extra_private_sell_flat — Частное: продаётся квартира (templates_extra.json, test, office override, alias private_sell_flat → extra_private_sell_flat);
 
 ## Шаблоны без office-метаданных
 
@@ -202,13 +239,13 @@
 - custom_object_photo_showcase — Пустой: объект с фото (templates_custom.json, working);
 - custom_private_note — Пустой: частная записка (templates_custom.json, working);
 - custom_service_consultation — Пустой: консультация (templates_custom.json, working);
-- brand_area_expert — Ваш специалист по району (templates_extra.json, deprecated);
+- extra_brand_area_expert — Ваш специалист по району (templates_extra.json, deprecated, alias brand_area_expert → extra_brand_area_expert);
+- extra_service_safe_deal — Безопасная сделка (templates_extra.json, deprecated, alias service_safe_deal → extra_service_safe_deal);
 - object_commercial_space — Коммерческое помещение (templates_extra.json, deprecated);
 - rent_find_tenant — Сдам квартиру аккуратным жильцам (templates_extra.json, deprecated);
 - seller_inherited_flat — Наследственная квартира (templates_extra.json, deprecated);
 - seller_sell_buy_chain — Продать и купить взамен (templates_extra.json, deprecated);
 - seller_thinking_about_sale — Думаете о продаже? (templates_extra.json, deprecated);
-- service_safe_deal — Безопасная сделка (templates_extra.json, deprecated);
 - trust_buyer_safe_purchase — Доверие: безопасная покупка (templates_trust.json, working);
 - trust_object_clear_terms — Доверие: понятные условия объекта (templates_trust.json, working);
 - trust_private_neighbor_question — Доверие: вопрос соседям (templates_trust.json, working);
@@ -266,5 +303,7 @@
 2. Для вероятного дубля определить основной рабочий вариант, тестовый вариант или устаревший вариант.
 3. Устаревший шаблон должен ссылаться на конечную рабочую замену.
 4. Office-метаданные учитывать вместе с `data/template_office_overrides.json`.
-5. Повторяющиеся заголовки допустимы только при разных целях, аудиториях или форматах.
-6. После осознанных изменений повторно запустить `npm run templates:inventory`.
+5. Исходные повторы ID разрешать только через `data/template_id_aliases.json`.
+6. Неразрешённых итоговых ID всегда должно быть 0.
+7. Повторяющиеся заголовки допустимы только при разных целях, аудиториях или форматах.
+8. После осознанных изменений повторно запустить `npm run templates:inventory`.

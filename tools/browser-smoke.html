@@ -34,6 +34,10 @@
         if(earlyErrors.length) throw new Error(`ранние runtime errors: ${earlyErrors.join(' | ')}`);
         pass('ранние runtime-ошибки не обнаружены');
 
+        const postPrintWorkspace = await waitForElement(doc, '#spnPostPrintWorkspace', 6000, 'компактный блок После печати не появился');
+        await waitFor(() => !postPrintWorkspace.open && postPrintWorkspace.dataset.wizardForced === 'false', 3000, 'блок После печати не закрылся по умолчанию');
+        pass('После печати: исходно закрыт');
+
         const wizard = doc.getElementById('spnWizardFlow');
         await waitFor(() => wizard?.dataset.stepStatusBound === 'true', 6000, 'модуль статусов шагов не привязался к мастеру');
         wizard.click();
@@ -88,7 +92,9 @@
         await waitFor(() => doc.body.dataset.wizardStep === 'check', 2000, 'шаг Проверка не открылся');
         click(doc, '#spnWizardNext');
         await waitFor(() => doc.body.dataset.wizardStep === 'task', 3000, 'переход Проверка → Задание не выполнен');
+        await waitFor(() => postPrintWorkspace.open && postPrintWorkspace.dataset.wizardForced === 'true' && win.getComputedStyle(postPrintWorkspace).display !== 'none', 3000, 'блок После печати не открылся на шаге Задание');
         pass('Проверка → Задание');
+        pass('После печати: автоматически открыт для задания');
 
         setField(win, doc, '#distributionPlace', 'Северный микрорайон');
         setField(win, doc, '#distributionSheets', '20');
@@ -98,7 +104,9 @@
 
         click(doc, '#spnWizardNext');
         await waitFor(() => doc.body.dataset.wizardStep === 'report', 3000, 'переход Задание → Отчёт не выполнен');
+        await waitFor(() => postPrintWorkspace.open && postPrintWorkspace.dataset.wizardForced === 'true', 3000, 'блок После печати не остался открытым на шаге Отчёт');
         pass('Задание → Отчёт');
+        pass('После печати: открыт для отчёта');
         assert(doc.getElementById('spnDistributionTask'), 'блок задания отсутствует');
         assert(doc.getElementById('spnDistributionReport'), 'блок отчёта отсутствует');
 
@@ -110,13 +118,22 @@
         const reportDebug = () => `date=${doc.getElementById('distributionReportDate')?.value || '—'}; place=${doc.getElementById('distributionReportPlace')?.value || '—'}; sheets=${doc.getElementById('distributionReportSheets')?.value || '—'}; state=${reportStep?.dataset.stepStatus || '—'}; badge=${reportStep?.querySelector('.spn-wizard-step-status')?.textContent || '—'}`;
         await waitFor(() => reportStep?.dataset.stepStatus === 'ready' && ['заполнен', 'готово'].includes(reportStep.querySelector('.spn-wizard-step-status')?.textContent), 3000, () => `заполненный отчёт не стал готовым (${reportDebug()})`);
         await waitFor(() => progressSummary.dataset.afterReady === 'true', 3000, 'итог После печати не стал готовым');
+        await waitFor(() => doc.getElementById('spnPostPrintWorkspaceStatus')?.textContent.includes('задание готово') && doc.getElementById('spnPostPrintWorkspaceStatus')?.textContent.includes('отчёт заполнен'), 3000, 'live-статус блока После печати не обновился');
         pass('статусы: отчёт и итог После печати готовы');
+        pass('После печати: live-статус задания и отчёта готов');
 
         click(doc, '[data-spn-ui-mode="quick"]');
         await waitFor(() => doc.body.dataset.spnUiMode === 'quick', 2000, 'режим Быстро не включился');
         click(doc, '[data-spn-ui-mode="advanced"]');
         await waitFor(() => doc.body.dataset.spnUiMode === 'advanced', 2000, 'режим Расширенно не включился');
+        await waitFor(() => postPrintWorkspace.dataset.wizardForced === 'false' && !postPrintWorkspace.open, 3000, 'после выхода из Новичка блок не вернулся в закрытое состояние');
         pass('режимы Быстро и Расширенно переключаются');
+        pass('После печати: восстановлено закрытое состояние');
+        postPrintWorkspace.querySelector('summary')?.click();
+        await waitFor(() => postPrintWorkspace.open, 2000, 'блок После печати не раскрылся вручную');
+        assert(postPrintWorkspace.contains(doc.getElementById('spnDistributionTask')), 'задание потеряно при группировке');
+        assert(postPrintWorkspace.contains(doc.getElementById('spnDistributionReport')), 'отчёт потерян при группировке');
+        pass('После печати: ручное раскрытие сохраняет рабочие разделы');
         await waitFor(() => doc.getElementById('spnWorkspaceBackup'), 3000, 'блок backup рабочего пространства не появился');
         pass('backup рабочего пространства доступен');
 
@@ -129,6 +146,8 @@
         doc.getElementById('closeDistributionFieldModeBtn')?.click();
         await waitFor(() => !fieldDialog.open && !fieldDialog.hasAttribute('open'), 2000, 'мобильный режим исполнителя не закрылся');
         pass('мобильный режим исполнителя открывается');
+        postPrintWorkspace.querySelector('summary')?.click();
+        await waitFor(() => !postPrintWorkspace.open, 2000, 'блок После печати не закрылся вручную');
 
         await waitFor(() => {
           const buttons = [...doc.querySelectorAll('#layoutModeGrid [data-layout-mode]')];
@@ -251,7 +270,7 @@
         result.dataset.status = 'failed';
         result.textContent = `FAILED\n${checks.map(item => `✓ ${item}`).join('\n')}\n✗ общий timeout smoke-теста`;
       }
-    }, 18000);
+    }, 22000);
 
     function pass(message){ checks.push(message); }
     function nextFrame(win){

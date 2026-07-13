@@ -9,7 +9,8 @@ const files = {
   uiMode: 'assets/js/spnUiMode.js',
   guide: 'docs/wizard-step-status.md',
   package: 'package.json',
-  maintenance: 'docs/maintenance-guide.md'
+  maintenance: 'docs/maintenance-guide.md',
+  smoke: 'tools/browser-smoke.html'
 };
 
 const sources = Object.fromEntries(
@@ -86,6 +87,18 @@ requireSnippets(files.maintenance, sources.maintenance, [
   'npm run validate:wizard-step-status',
   '## Компактный статус шагов мастера',
   'docs/wizard-step-status.md'
+]);
+
+requireSnippets(files.smoke, sources.smoke, [
+  "stepButtons.length === 8",
+  "button.querySelector('.spn-wizard-step-status')",
+  "progressSummary?.querySelectorAll('[data-progress-phase]').length === 2",
+  "setCheckbox(doc, '#showPhoto', false)",
+  "mediaStep?.dataset.stepStatus === 'optional'",
+  "taskStep?.dataset.stepStatus === 'ready'",
+  "reportStep?.dataset.stepStatus === 'ready'",
+  "progressSummary.dataset.afterReady === 'true'",
+  "mediaStep?.dataset.stepStatus === 'ready'"
 ]);
 
 if(errors.length){

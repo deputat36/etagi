@@ -69,10 +69,13 @@
         await nextFrame(win);
         pass('mobile: важные рабочие подписи читаемы');
 
+        setField(win, doc, '#qrLink', '');
         setCheckbox(doc, '#showPhoto', false);
         setCheckbox(doc, '#showQr', false);
         const mediaStep = doc.querySelector('[data-wizard-step="media"]');
-        await waitFor(() => mediaStep?.dataset.stepStatus === 'optional' && mediaStep.querySelector('.spn-wizard-step-status')?.textContent === 'необязательно', 3000, 'выключенные Фото / QR не стали необязательными');
+        wizard.click();
+        const mediaDebug = () => `showPhoto=${doc.getElementById('showPhoto')?.checked}; showQr=${doc.getElementById('showQr')?.checked}; qrLink=${doc.getElementById('qrLink')?.value || '—'}; state=${mediaStep?.dataset.stepStatus || '—'}; badge=${mediaStep?.querySelector('.spn-wizard-step-status')?.textContent || '—'}`;
+        await waitFor(() => mediaStep?.dataset.stepStatus === 'optional' && mediaStep.querySelector('.spn-wizard-step-status')?.textContent === 'необязательно', 3000, () => `выключенные Фото / QR не стали необязательными (${mediaDebug()})`);
         pass('статусы: Фото / QR корректно стали необязательными');
 
         click(doc, '[data-spn-ui-mode="newbie"]');

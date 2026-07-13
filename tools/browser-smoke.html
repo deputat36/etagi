@@ -50,6 +50,25 @@
         assert(['true', 'false'].includes(progressSummary.dataset.afterReady), 'итог После печати не содержит состояния готовности');
         pass('статусы: восемь шагов и два общих итога');
 
+        frame.style.width = '500px';
+        await nextFrame(win);
+        const mobileFontSize = selector => {
+          const element = doc.querySelector(selector);
+          assert(element, `не найдена мобильная подпись ${selector}`);
+          return parseFloat(win.getComputedStyle(element).fontSize);
+        };
+        assert(mobileFontSize('.spn-wizard-step-status') >= 11, 'мобильный статус шага мельче 11 px');
+        assert(mobileFontSize('.spn-wizard-print-count span') >= 11.5, 'мобильная подпись формата А4 мельче 11.5 px');
+        assert(mobileFontSize('.spn-wizard-steps span') >= 11.5, 'мобильная подпись шага мельче 11.5 px');
+        assert(mobileFontSize('.spn-wizard-progress-summary span') >= 11.5, 'мобильный итог этапа мельче 11.5 px');
+        assert(mobileFontSize('.spn-office-template-card-note') >= 10.5, 'мобильная отметка сценария шаблона мельче 10.5 px');
+        doc.body.dataset.templateMenuMode = 'compact';
+        assert(mobileFontSize('.tpl-card .badge') >= 10.5, 'мобильный badge шаблона мельче 10.5 px');
+        assert(mobileFontSize('.tpl-office-badge') >= 11, 'мобильная отметка риска шаблона мельче 11 px');
+        frame.style.width = '1280px';
+        await nextFrame(win);
+        pass('mobile: важные рабочие подписи читаемы');
+
         setCheckbox(doc, '#showPhoto', false);
         setCheckbox(doc, '#showQr', false);
         const mediaStep = doc.querySelector('[data-wizard-step="media"]');
@@ -232,6 +251,9 @@
     }, 18000);
 
     function pass(message){ checks.push(message); }
+    function nextFrame(win){
+      return new Promise(resolve => win.requestAnimationFrame(() => win.requestAnimationFrame(resolve)));
+    }
     function assert(condition, message){ if(!condition) throw new Error(message); }
     function click(doc, selector){
       const element = doc.querySelector(selector);

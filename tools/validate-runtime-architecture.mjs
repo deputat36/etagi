@@ -15,6 +15,7 @@ const files = {
   layoutAccessibility: 'assets/js/spnLayoutModeAccessibility.js',
   workspaceBackup: 'assets/js/spnWorkspaceBackup.js',
   distributionFieldMode: 'assets/js/spnDistributionFieldMode.js',
+  postPrintWorkspace: 'assets/js/spnPostPrintWorkspace.js',
   wizardCss: 'assets/css/spn-wizard.css',
   audit: 'docs/full-project-audit-and-roadmap-2026-07-11.md'
 };
@@ -55,6 +56,7 @@ const helperEntries = [
   'spnManagerPeriodSummary.js',
   'spnWorkspaceBackup.js',
   'spnDistributionFieldMode.js',
+  'spnPostPrintWorkspace.js',
   'spnPhotoLayoutQualityActions.js',
   'spnAgentBrandModeGuard.js',
   'spnLayoutModeAccessibility.js'
@@ -68,8 +70,9 @@ for (const file of helperEntries) {
 const taskImportIndex = sources.uiMode.indexOf("import './spnDistributionTaskHelper.js';");
 const reportImportIndex = sources.uiMode.indexOf("import './spnDistributionReportHelper.js';");
 const fieldImportIndex = sources.uiMode.indexOf("import './spnDistributionFieldMode.js';");
-if(!(taskImportIndex >= 0 && reportImportIndex > taskImportIndex && fieldImportIndex > reportImportIndex)){
-  errors.push('assets/js/spnUiMode.js: мобильный полевой режим должен подключаться после задания и отчёта');
+const postPrintImportIndex = sources.uiMode.indexOf("import './spnPostPrintWorkspace.js';");
+if(!(taskImportIndex >= 0 && reportImportIndex > taskImportIndex && fieldImportIndex > reportImportIndex && postPrintImportIndex > fieldImportIndex)){
+  errors.push('assets/js/spnUiMode.js: блок после печати должен подключаться после задания, отчёта и мобильного режима');
 }
 
 requireSnippets(files.agentBrandGuard, sources.agentBrandGuard, [
@@ -138,6 +141,27 @@ forbidSnippets(files.distributionFieldMode, sources.distributionFieldMode, [
   'data:image',
   'fetch(',
   'XMLHttpRequest'
+]);
+
+requireSnippets(files.postPrintWorkspace, sources.postPrintWorkspace, [
+  "const GROUP_ID = 'spnPostPrintWorkspace'",
+  "const SECTION_IDS = ['spnDistributionTask', 'spnDistributionReport']",
+  "details.className = 'card spn-post-print-workspace'",
+  'sections.forEach(section => body.append(section))',
+  "attributeFilter:['data-wizard-step', 'data-spn-ui-mode']",
+  "['task', 'report'].includes(document.body.dataset.wizardStep || '')",
+  'details.open = forced || readOpenState()',
+  'задание готово',
+  'отчёт заполнен'
+]);
+
+forbidSnippets(files.postPrintWorkspace, sources.postPrintWorkspace, [
+  'cloneNode(',
+  'outerHTML',
+  'setInterval(',
+  'window.print(',
+  "document.addEventListener('click'",
+  "window.addEventListener('click'"
 ]);
 
 requireSnippets(files.index, sources.index, [

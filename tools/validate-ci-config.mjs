@@ -110,7 +110,9 @@ requireSnippets('tools/run-browser-smoke.mjs', browserSmokeRunnerSource, [
   'function runChrome(command, args, options)',
   "child.kill('SIGKILL')",
   "'--headless=new'",
-  "'--virtual-time-budget=22000'",
+  "'--virtual-time-budget=42000'",
+  'timeout: 55000',
+  'за 55 секунд',
   "'--dump-dom'",
   'data-status="passed"'
 ]);
@@ -136,7 +138,8 @@ requireSnippets('tools/browser-smoke.html', browserSmokePageSource, [
   'keyboard: End выбрал последнюю компоновку',
   '[data-layout-mode="private"]',
   '[data-layout-mode="agent_brand_photo"]',
-  'private → agent_brand_photo: фирменность восстановлена'
+  'private → agent_brand_photo: фирменность восстановлена',
+  '}, 40000);'
 ]);
 
 requireSnippets('tools/run-print-screenshots.mjs', printScreenshotRunnerSource, [

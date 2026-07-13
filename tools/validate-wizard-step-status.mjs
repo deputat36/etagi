@@ -90,6 +90,8 @@ requireSnippets(files.maintenance, sources.maintenance, [
 ]);
 
 requireSnippets(files.smoke, sources.smoke, [
+  "wizard?.dataset.stepStatusBound === 'true'",
+  'wizard.click();',
   "stepButtons.length === 8",
   "button.querySelector('.spn-wizard-step-status')",
   "progressSummary?.querySelectorAll('[data-progress-phase]').length === 2",

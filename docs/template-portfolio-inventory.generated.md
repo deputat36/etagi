@@ -1,16 +1,16 @@
 # Автоматическая инвентаризация библиотеки шаблонов
 
-Сформировано: 2026-07-13T07:10:40.952Z
+Сформировано: 2026-07-13T07:17:26.697Z
 
 ## Общий итог
 
 - файлов шаблонов: 10;
 - шаблонов: 117;
-- с office-метаданными: 52 (44%);
-- получили office через overrides: 12;
+- с office-метаданными: 55 (47%);
+- получили office через overrides: 15;
 - получили уникальный ID через aliases: 4;
-- office-рекомендованных: 42;
-- без office-метаданных: 65;
+- office-рекомендованных: 45;
+- без office-метаданных: 62;
 - рабочих: 95;
 - тестовых: 13;
 - устаревших: 9;
@@ -61,16 +61,16 @@
 
 | Уровень | Количество |
 |---|---:|
-| manager | 27 |
-| newbie | 24 |
+| manager | 28 |
+| newbie | 26 |
 | experienced | 1 |
 
 ## Office-риски
 
 | Риск | Количество |
 |---|---:|
-| medium | 23 |
-| low | 19 |
+| medium | 24 |
+| low | 21 |
 | high | 10 |
 
 ## Пакетные алиасы ID
@@ -121,7 +121,7 @@
 | templates_extra.json | 17 | 10 | 10 | 59% | 5 | 7 |
 | templates_sales.json | 6 | 6 | 0 | 100% | 0 | 0 |
 | templates_tellerman_sad.json | 5 | 5 | 0 | 100% | 0 | 0 |
-| templates_trust.json | 6 | 0 | 0 | 0% | 0 | 0 |
+| templates_trust.json | 6 | 3 | 3 | 50% | 0 | 0 |
 
 ## Устаревшие шаблоны и замены
 
@@ -246,11 +246,8 @@
 - seller_inherited_flat — Наследственная квартира (templates_extra.json, deprecated);
 - seller_sell_buy_chain — Продать и купить взамен (templates_extra.json, deprecated);
 - seller_thinking_about_sale — Думаете о продаже? (templates_extra.json, deprecated);
-- trust_buyer_safe_purchase — Доверие: безопасная покупка (templates_trust.json, working);
-- trust_object_clear_terms — Доверие: понятные условия объекта (templates_trust.json, working);
 - trust_private_neighbor_question — Доверие: вопрос соседям (templates_trust.json, working);
 - trust_seller_no_pressure — Доверие: без давления (templates_trust.json, working);
-- trust_seller_safe_sale — Доверие: безопасная продажа (templates_trust.json, working);
 - trust_service_documents_check — Доверие: проверка документов (templates_trust.json, working);
 - brand_area_expert — Ваш специалист по району (templates.json, deprecated);
 - brand_consult — Консультация по недвижимости (templates.json, working);

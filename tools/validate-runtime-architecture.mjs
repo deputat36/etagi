@@ -149,7 +149,9 @@ requireSnippets(files.postPrintWorkspace, sources.postPrintWorkspace, [
   "details.className = 'card spn-post-print-workspace'",
   'sections.forEach(section => body.append(section))',
   "attributeFilter:['data-wizard-step', 'data-spn-ui-mode']",
-  "['task', 'report'].includes(document.body.dataset.wizardStep || '')",
+  "const newbieMode = document.body.dataset.spnUiMode === 'newbie'",
+  "const wizardStep = document.body.dataset.wizardStep || ''",
+  "return newbieMode && ['task', 'report'].includes(wizardStep)",
   'details.open = forced || readOpenState()',
   'задание готово',
   'отчёт заполнен'

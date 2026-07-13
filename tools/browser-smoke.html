@@ -34,6 +34,25 @@
         if(earlyErrors.length) throw new Error(`ранние runtime errors: ${earlyErrors.join(' | ')}`);
         pass('ранние runtime-ошибки не обнаружены');
 
+        await waitFor(() => {
+          const stepButtons = [...doc.querySelectorAll('#spnWizardFlow [data-wizard-step]')];
+          return stepButtons.length === 8 && stepButtons.every(button => {
+            const state = button.dataset.stepStatus;
+            return button.querySelector('.spn-wizard-step-status') && ['ready', 'attention', 'optional', 'later'].includes(state);
+          });
+        }, 3000, 'компактные статусы восьми шагов не настроены');
+        const progressSummary = doc.getElementById('spnWizardProgressSummary');
+        assert(progressSummary?.querySelectorAll('[data-progress-phase]').length === 2, 'нет итогов До печати / После печати');
+        assert(['true', 'false'].includes(progressSummary.dataset.beforeReady), 'итог До печати не содержит состояния готовности');
+        assert(['true', 'false'].includes(progressSummary.dataset.afterReady), 'итог После печати не содержит состояния готовности');
+        pass('статусы: восемь шагов и два общих итога');
+
+        setCheckbox(doc, '#showPhoto', false);
+        setCheckbox(doc, '#showQr', false);
+        const mediaStep = doc.querySelector('[data-wizard-step="media"]');
+        await waitFor(() => mediaStep?.dataset.stepStatus === 'optional' && mediaStep.querySelector('.spn-wizard-step-status')?.textContent === 'необязательно', 3000, 'выключенные Фото / QR не стали необязательными');
+        pass('статусы: Фото / QR корректно стали необязательными');
+
         click(doc, '[data-spn-ui-mode="newbie"]');
         await waitFor(() => doc.body.dataset.spnUiMode === 'newbie', 3000, 'режим Новичок не включился');
         await waitFor(() => doc.body.dataset.wizardFlow === 'on', 5000, 'Wizard Flow не включился автоматически');
@@ -46,11 +65,25 @@
         await waitFor(() => doc.body.dataset.wizardStep === 'task', 3000, 'переход Проверка → Задание не выполнен');
         pass('Проверка → Задание');
 
+        setField(win, doc, '#distributionPlace', 'Северный микрорайон');
+        setField(win, doc, '#distributionSheets', '20');
+        const taskStep = doc.querySelector('[data-wizard-step="task"]');
+        await waitFor(() => taskStep?.dataset.stepStatus === 'ready' && taskStep.querySelector('.spn-wizard-step-status')?.textContent === 'готово', 3000, 'заполненное задание не стало готовым');
+        pass('статусы: задание стало готовым');
+
         click(doc, '#spnWizardNext');
         await waitFor(() => doc.body.dataset.wizardStep === 'report', 3000, 'переход Задание → Отчёт не выполнен');
         pass('Задание → Отчёт');
         assert(doc.getElementById('spnDistributionTask'), 'блок задания отсутствует');
         assert(doc.getElementById('spnDistributionReport'), 'блок отчёта отсутствует');
+
+        setField(win, doc, '#distributionReportDate', '2026-07-13');
+        setField(win, doc, '#distributionReportPlace', 'Северный микрорайон');
+        setField(win, doc, '#distributionReportSheets', '20');
+        const reportStep = doc.querySelector('[data-wizard-step="report"]');
+        await waitFor(() => reportStep?.dataset.stepStatus === 'ready' && reportStep.querySelector('.spn-wizard-step-status')?.textContent === 'заполнен', 3000, 'заполненный отчёт не стал готовым');
+        await waitFor(() => progressSummary.dataset.afterReady === 'true', 3000, 'итог После печати не стал готовым');
+        pass('статусы: отчёт и итог После печати готовы');
 
         click(doc, '[data-spn-ui-mode="quick"]');
         await waitFor(() => doc.body.dataset.spnUiMode === 'quick', 2000, 'режим Быстро не включился');
@@ -97,6 +130,8 @@
         await attachImage(win, doc, '#photoOne', 'newbuild-facade.svg', facadeSvg);
         await attachImage(win, doc, '#photoTwo', 'newbuild-plan.svg', planSvg);
         await waitFor(() => doc.querySelector('#photoModeRow [data-photo="two"].active'), 3000, 'режим двух изображений не включился');
+        await waitFor(() => mediaStep?.dataset.stepStatus === 'ready', 3000, 'загруженные фото не обновили статус медиа');
+        pass('статусы: загруженные фото готовы');
 
         click(doc, '[data-count="1"]');
         click(doc, '[data-layout-mode="newbuild_visual"]');
@@ -220,6 +255,11 @@
       input.value = value;
       input.dispatchEvent(new win.Event('input', {bubbles:true}));
       input.dispatchEvent(new win.Event('change', {bubbles:true}));
+    }
+    function setCheckbox(doc, selector, checked){
+      const input = doc.querySelector(selector);
+      assert(input, `не найден элемент ${selector}`);
+      if(input.checked !== checked) input.click();
     }
     async function waitForElement(doc, selector, timeout, message){
       let element = null;

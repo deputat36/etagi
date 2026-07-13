@@ -7,6 +7,7 @@ const files = {
   helper: 'assets/js/spnPostPrintWorkspace.js',
   entry: 'assets/js/spnUiMode.js',
   index: 'index.html',
+  smoke: 'tools/browser-smoke.html',
   guide: 'docs/post-print-workspace.md'
 };
 const sources = Object.fromEntries(
@@ -27,7 +28,9 @@ requireSnippets(files.helper, sources.helper, [
   'sections.forEach(section => body.append(section))',
   "details.addEventListener('toggle'",
   "attributeFilter:['data-wizard-step', 'data-spn-ui-mode']",
-  "['task', 'report'].includes(document.body.dataset.wizardStep || '')",
+  "const newbieMode = document.body.dataset.spnUiMode === 'newbie'",
+  "const wizardStep = document.body.dataset.wizardStep || ''",
+  "return newbieMode && ['task', 'report'].includes(wizardStep)",
   "details.dataset.wizardForced = forced ? 'true' : 'false'",
   'details.open = forced || readOpenState()',
   'задание готово',
@@ -54,6 +57,20 @@ requireSnippets(files.entry, sources.entry, [
 forbidSnippets(files.index, sources.index, [
   'src="assets/js/spnPostPrintWorkspace.js"',
   "src='assets/js/spnPostPrintWorkspace.js'"
+]);
+
+requireSnippets(files.smoke, sources.smoke, [
+  "'#spnPostPrintWorkspace'",
+  'После печати: исходно закрыт',
+  'После печати: автоматически открыт для задания',
+  'После печати: открыт для отчёта',
+  'После печати: live-статус задания и отчёта готов',
+  'После печати: восстановлено закрытое состояние',
+  'После печати: ручное раскрытие сохраняет рабочие разделы',
+  "postPrintWorkspace.dataset.wizardForced === 'true'",
+  "postPrintWorkspace.dataset.wizardForced === 'false'",
+  'postPrintWorkspace.contains(doc.getElementById',
+  'spnPostPrintWorkspaceStatus'
 ]);
 
 requireSnippets(files.guide, sources.guide, [

@@ -110,6 +110,39 @@
         "recommendedPrintCount": 2,
         "managerNote": "Частный объектный макет без бренда требует проверки цены, характеристик, фото, документов и соответствия офисной политике."
       }
+    },
+    "trust_seller_safe_sale": {
+      "tags": ["офис", "рекомендовано", "новичку", "доверие"],
+      "office": {
+        "recommended": true,
+        "level": "newbie",
+        "scenario": "trust_seller_safe_sale",
+        "risk": "low",
+        "recommendedPrintCount": 2,
+        "managerNote": "Подходит новичку: проверить контакты и исходные данные объекта; говорить о порядке действий и помощи, не обещать отсутствие всех рисков или юридический результат."
+      }
+    },
+    "trust_buyer_safe_purchase": {
+      "tags": ["офис", "рекомендовано", "новичку", "доверие"],
+      "office": {
+        "recommended": true,
+        "level": "newbie",
+        "scenario": "trust_buyer_safe_purchase",
+        "risk": "low",
+        "recommendedPrintCount": 2,
+        "managerNote": "Подходит новичку: уточнить бюджет, район, способ оплаты и требования; не обещать проверку всех документов, наличие объекта или результат сделки."
+      }
+    },
+    "trust_object_clear_terms": {
+      "tags": ["офис", "рекомендовано", "менеджер", "доверие"],
+      "office": {
+        "recommended": true,
+        "level": "manager",
+        "scenario": "trust_object_clear_terms",
+        "risk": "medium",
+        "recommendedPrintCount": 2,
+        "managerNote": "Перед печатью проверить цену, фактические характеристики, документы, условия просмотра, фотографии и QR; не называть условия окончательными без подтверждения собственника."
+      }
     }
   }
 }

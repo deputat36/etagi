@@ -81,6 +81,7 @@
         setField(win, doc, '#distributionReportPlace', 'Северный микрорайон');
         setField(win, doc, '#distributionReportSheets', '20');
         const reportStep = doc.querySelector('[data-wizard-step="report"]');
+        reportStep.click();
         await waitFor(() => reportStep?.dataset.stepStatus === 'ready' && reportStep.querySelector('.spn-wizard-step-status')?.textContent === 'заполнен', 3000, 'заполненный отчёт не стал готовым');
         await waitFor(() => progressSummary.dataset.afterReady === 'true', 3000, 'итог После печати не стал готовым');
         pass('статусы: отчёт и итог После печати готовы');
@@ -130,6 +131,7 @@
         await attachImage(win, doc, '#photoOne', 'newbuild-facade.svg', facadeSvg);
         await attachImage(win, doc, '#photoTwo', 'newbuild-plan.svg', planSvg);
         await waitFor(() => doc.querySelector('#photoModeRow [data-photo="two"].active'), 3000, 'режим двух изображений не включился');
+        mediaStep.click();
         await waitFor(() => mediaStep?.dataset.stepStatus === 'ready', 3000, 'загруженные фото не обновили статус медиа');
         pass('статусы: загруженные фото готовы');
 

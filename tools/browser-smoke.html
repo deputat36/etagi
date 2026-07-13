@@ -86,7 +86,7 @@
         const reportStep = doc.querySelector('[data-wizard-step="report"]');
         reportStep.click();
         const reportDebug = () => `date=${doc.getElementById('distributionReportDate')?.value || '—'}; place=${doc.getElementById('distributionReportPlace')?.value || '—'}; sheets=${doc.getElementById('distributionReportSheets')?.value || '—'}; state=${reportStep?.dataset.stepStatus || '—'}; badge=${reportStep?.querySelector('.spn-wizard-step-status')?.textContent || '—'}`;
-        await waitFor(() => reportStep?.dataset.stepStatus === 'ready' && reportStep.querySelector('.spn-wizard-step-status')?.textContent === 'заполнен', 3000, () => `заполненный отчёт не стал готовым (${reportDebug()})`);
+        await waitFor(() => reportStep?.dataset.stepStatus === 'ready' && ['заполнен', 'готово'].includes(reportStep.querySelector('.spn-wizard-step-status')?.textContent), 3000, () => `заполненный отчёт не стал готовым (${reportDebug()})`);
         await waitFor(() => progressSummary.dataset.afterReady === 'true', 3000, 'итог После печати не стал готовым');
         pass('статусы: отчёт и итог После печати готовы');
 

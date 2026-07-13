@@ -37,6 +37,7 @@ import './spnLayoutModeAccessibility.js';
 import './spnPreviewQuickBar.js';
 import './spnAdvancedWorkbench.js';
 import './spnWizardFlow.js';
+import './spnWizardStepStatus.js';
 import './spnNewbieWizardPatch.js';
 import './spnManagerReview.js';
 import './spnMetaCompactStyle.js';

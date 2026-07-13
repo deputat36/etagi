@@ -258,7 +258,7 @@ function injectStyles(){
     .spn-wizard-progress-summary span b{font-size:10.5px;color:#334155}
     .spn-wizard-progress-summary[data-before-ready="true"] [data-progress-phase="before"],
     .spn-wizard-progress-summary[data-after-ready="true"] [data-progress-phase="after"]{border-color:#bbf7d0;background:#f0fdf4;color:#166534}
-    @media(max-width:520px){.spn-wizard-progress-summary{grid-template-columns:1fr}.spn-wizard-steps button{padding-right:70px}}
+    @media(max-width:520px){.spn-wizard-progress-summary{grid-template-columns:1fr}.spn-wizard-steps button{padding-right:120px}.spn-wizard-step-status{max-width:108px;padding:4px 6px;font-size:11px;line-height:1.1}.spn-wizard-progress-summary span,.spn-wizard-progress-summary span b{font-size:11.5px}}
     @media print{.spn-wizard-progress-summary,.spn-wizard-step-status{display:none!important}}
   `;
   document.head.appendChild(style);

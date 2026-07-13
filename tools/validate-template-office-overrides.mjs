@@ -8,6 +8,7 @@ const portfolioPath = path.join(dataDir, 'template_portfolio_status.json');
 const loaderPath = path.join(rootDir, 'assets/js/templates.js');
 const validLevels = new Set(['newbie', 'experienced', 'manager']);
 const validRisks = new Set(['low', 'medium', 'high']);
+const allowedOverridePackages = new Set(['templates_extra.json', 'templates_trust.json']);
 const errors = [];
 
 const templateFiles = fs.readdirSync(dataDir)
@@ -40,8 +41,17 @@ const expectedIds = new Set([
   'newbuild_family_mortgage',
   'newbuild_layout_choice',
   'private_buy_flat',
-  'private_sell_flat'
+  'private_sell_flat',
+  'trust_seller_safe_sale',
+  'trust_buyer_safe_purchase',
+  'trust_object_clear_terms'
 ]);
+
+const expectedTrustPolicies = {
+  trust_seller_safe_sale: {recommended:true, level:'newbie', risk:'low', recommendedPrintCount:2},
+  trust_buyer_safe_purchase: {recommended:true, level:'newbie', risk:'low', recommendedPrintCount:2},
+  trust_object_clear_terms: {recommended:true, level:'manager', risk:'medium', recommendedPrintCount:2}
+};
 
 for(const id of expectedIds){
   if(!overrides.templates?.[id]) errors.push(`template_office_overrides.json: отсутствует обязательная разметка ${id}`);
@@ -54,7 +64,7 @@ for(const [id, rule] of Object.entries(overrides.templates || {})){
     errors.push(`${label}: templateId не найден`);
     continue;
   }
-  if(template.__file !== 'templates_extra.json') errors.push(`${label}: на этом этапе overrides разрешены только для templates_extra.json`);
+  if(!allowedOverridePackages.has(template.__file)) errors.push(`${label}: пакет ${template.__file} не разрешён для office-overrides`);
   if(template.office) errors.push(`${label}: исходный шаблон уже имеет office; не нужно дублировать его в overrides`);
 
   const status = resolvePortfolioStatus(template, portfolio);
@@ -92,6 +102,13 @@ for(const [id, rule] of Object.entries(overrides.templates || {})){
   if(office.recommended === true && !tags.includes('рекомендовано')) errors.push(`${label}: recommended=true требует тег рекомендовано`);
   if(office.risk === 'high' && office.level !== 'manager') errors.push(`${label}: высокий риск допускается только уровню manager`);
   if(status === 'test' && !tags.includes('тестовый')) errors.push(`${label}: тестовый шаблон должен иметь тег тестовый`);
+
+  const expectedPolicy = expectedTrustPolicies[id];
+  if(expectedPolicy){
+    for(const [field, expected] of Object.entries(expectedPolicy)){
+      if(office[field] !== expected) errors.push(`${label}: ${field} должен быть ${JSON.stringify(expected)}`);
+    }
+  }
 
   if(office.scenario) registerScenario(office.scenario, `override:${id}`);
 }

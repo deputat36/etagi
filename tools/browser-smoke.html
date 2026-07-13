@@ -34,6 +34,9 @@
         if(earlyErrors.length) throw new Error(`ранние runtime errors: ${earlyErrors.join(' | ')}`);
         pass('ранние runtime-ошибки не обнаружены');
 
+        const wizard = doc.getElementById('spnWizardFlow');
+        await waitFor(() => wizard?.dataset.stepStatusBound === 'true', 6000, 'модуль статусов шагов не привязался к мастеру');
+        wizard.click();
         await waitFor(() => {
           const stepButtons = [...doc.querySelectorAll('#spnWizardFlow [data-wizard-step]')];
           return stepButtons.length === 8 && stepButtons.every(button => {

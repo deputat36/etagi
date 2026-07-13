@@ -35,6 +35,7 @@ npm run validate:layout-mode-accessibility
 npm run validate:preview-quickbar
 npm run validate:advanced-workbench
 npm run validate:wizard-step-status
+npm run validate:mobile-readability
 npm run validate:js
 npm run validate:assets
 npm run validate:asset-duplicates
@@ -174,6 +175,19 @@ npm run validate:wizard-step-status
 
 Ручной сценарий: `docs/wizard-step-status.md`.
 
+## Мобильная читаемость рабочих подписей
+
+На ширине до 520 px увеличиваются только важные для текущего действия подписи мастера и служебные отметки шаблонов. Desktop-размеры, печатный лист и данные пользователя не меняются.
+
+После изменений выполнять:
+
+```bash
+npm run validate:mobile-readability
+npm run smoke:browser
+```
+
+Ручной сценарий: `docs/mobile-readability.md`.
+
 ## Screenshot-регрессия печати
 
 Локальная команда:
@@ -309,6 +323,7 @@ docs/layout-mode-accessibility-checklist.md
 docs/preview-quickbar.md
 docs/advanced-workbench.md
 docs/wizard-step-status.md
+docs/mobile-readability.md
 docs/workspace-backup-regression-checklist.md
 docs/distribution-field-mode-regression-checklist.md
 docs/print-screenshot-regression.md

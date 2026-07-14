@@ -6,10 +6,10 @@ const layoutSyncSource = read('assets/js/layoutExtrasSync.js');
 const qrSizeSource = read('assets/js/qrSizeHint.js');
 const errors = [];
 
-check(indexSource, 'index.html', [
-  'src="assets/js/qualityPriorityHint.js"',
-  'src="assets/js/preprintSummary.js"',
-  'src="assets/js/qualityExtraActions.js"'
+checkHtmlScript(indexSource, 'index.html', [
+  'assets/js/qualityPriorityHint.js',
+  'assets/js/preprintSummary.js',
+  'assets/js/qualityExtraActions.js'
 ]);
 
 checkScriptOrder(
@@ -78,13 +78,29 @@ function check(source, file, snippets) {
   }
 }
 
+function checkHtmlScript(source, file, scriptPaths) {
+  for (const scriptPath of scriptPaths) {
+    const pattern = new RegExp(`src=["']${escapeRegex(scriptPath)}(?:\\?v=[^"']+)?["']`);
+    if (!pattern.test(source)) errors.push(`${file}: missing script ${scriptPath} with optional asset-version`);
+  }
+}
+
 function checkScriptOrder(source, file, firstScript, secondScript, message) {
-  const firstIndex = source.indexOf(`src="${firstScript}"`);
-  const secondIndex = source.indexOf(`src="${secondScript}"`);
+  const firstIndex = findScriptIndex(source, firstScript);
+  const secondIndex = findScriptIndex(source, secondScript);
   if (firstIndex === -1 || secondIndex === -1) return;
   if (firstIndex > secondIndex) {
     errors.push(`${file}: ${message} — ${firstScript} должен быть выше ${secondScript}`);
   }
+}
+
+function findScriptIndex(source, scriptPath) {
+  const pattern = new RegExp(`src=["']${escapeRegex(scriptPath)}(?:\\?v=[^"']+)?["']`);
+  return source.search(pattern);
+}
+
+function escapeRegex(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 function checkConnectedHelper(file, source, importSnippet) {

@@ -1,6 +1,9 @@
 import fs from 'node:fs';
 
 const readmeSource = read('README.md');
+const statusSource = read('docs/current-project-status-2026-07-14.md');
+const releaseSource = read('docs/release-3.86.0-candidate.md');
+const inventorySource = read('docs/template-portfolio-inventory.generated.md');
 const packageSource = read('package.json');
 const workflowSource = read('.github/workflows/validate.yml');
 const errors = [];
@@ -27,6 +30,20 @@ check(readmeSource, 'README.md', [
   'tools/validate-runtime-architecture.mjs',
   'tools/validate-manager-sensitive-review.mjs'
 ]);
+
+check(statusSource, 'docs/current-project-status-2026-07-14.md', [
+  '# Актуальный статус генератора расклеек',
+  'docs/full-project-audit-and-roadmap-2026-07-11.md',
+  'docs/template-portfolio-inventory.generated.md',
+  'docs/manager-sensitive-template-review-3.86.0.md',
+  'docs/manager-sensitive-template-evidence-3.86.0.md',
+  'tools/validate-manager-sensitive-review.mjs',
+  'Issue #40',
+  'Issue #51',
+  'issues #40 и #51 остаются открытыми'
+]);
+
+validateStatusSnapshot();
 
 for (const file of [
   'assets/js/qualityExtraActions.js',
@@ -85,12 +102,80 @@ for (const removed of [
 }
 
 if (errors.length) {
-  console.error('\nОшибки README, документации и workflow по helper-модулям качества:');
+  console.error('\nОшибки README, актуального статуса и workflow по helper-модулям качества:');
   errors.forEach(error => console.error(`- ${error}`));
   process.exit(1);
 }
 
-console.log('README, актуальный статус, документация и workflow по helper-модулям качества актуальны.');
+console.log('README, актуальный статус, инвентаризация, релиз и workflow синхронизированы.');
+
+function validateStatusSnapshot() {
+  const releaseStatus = releaseSource.match(/^Статус:\s*(DRAFT|READY)\s*$/m)?.[1] || '';
+  const targetVersion = releaseSource.match(/^Целевая версия:\s*([0-9.]+)\s*$/m)?.[1] || '';
+  const workflowRun = releaseSource.match(/Последний полный контроль:\s*GitHub Actions workflow run #(\d+)/)?.[1] || '';
+
+  if (!releaseStatus) errors.push('docs/release-3.86.0-candidate.md: не найден статус релиза');
+  if (!targetVersion) errors.push('docs/release-3.86.0-candidate.md: не найдена целевая версия');
+  if (!workflowRun) errors.push('docs/release-3.86.0-candidate.md: не найден номер полного workflow run');
+
+  if (pkg?.version) {
+    check(statusSource, 'docs/current-project-status-2026-07-14.md', [
+      `Опубликованная версия: \`${pkg.version}\``
+    ]);
+  }
+
+  if (targetVersion && releaseStatus) {
+    check(statusSource, 'docs/current-project-status-2026-07-14.md', [
+      `Релиз-кандидат: \`${targetVersion}\`, статус \`${releaseStatus}\``
+    ]);
+  }
+
+  if (workflowRun) {
+    check(statusSource, 'docs/current-project-status-2026-07-14.md', [
+      `Последний полный запуск, зафиксированный в релиз-кандидате: workflow run #${workflowRun}`
+    ]);
+  }
+
+  const metrics = {
+    files: readMetric('файлов шаблонов'),
+    templates: readMetric('шаблонов'),
+    office: readMetric('с office-метаданными'),
+    recommended: readMetric('office-рекомендованных'),
+    working: readMetric('рабочих'),
+    test: readMetric('тестовых'),
+    deprecated: readMetric('устаревших'),
+    unresolved: readMetric('неразрешённых итоговых id'),
+    nearDuplicates: readMetric('вероятных смысловых дублей')
+  };
+
+  const expected = [
+    `- файлов шаблонов: ${metrics.files};`,
+    `- шаблонов всего: ${metrics.templates};`,
+    `- \`working\`: ${metrics.working};`,
+    `- \`test\`: ${metrics.test};`,
+    `- \`deprecated\`: ${metrics.deprecated};`,
+    `- шаблонов с office-метаданными: ${metrics.office};`,
+    `- office-рекомендованных: ${metrics.recommended};`,
+    `- Неразрешённых итоговых ID и вероятных смысловых дублей — ${metrics.unresolved}.`
+  ];
+
+  check(statusSource, 'docs/current-project-status-2026-07-14.md', expected);
+
+  if (metrics.unresolved !== 0) errors.push('Инвентаризация: неразрешённые итоговые ID должны быть равны 0');
+  if (metrics.nearDuplicates !== 0) errors.push('Инвентаризация: вероятные смысловые дубли должны быть равны 0');
+  if (metrics.working + metrics.test + metrics.deprecated !== metrics.templates) {
+    errors.push('Инвентаризация: working + test + deprecated не совпадает с общим количеством шаблонов');
+  }
+}
+
+function readMetric(label) {
+  const match = inventorySource.match(new RegExp(`^- ${escapeRegExp(label)}:\\s*(\\d+)`, 'm'));
+  if (!match) {
+    errors.push(`docs/template-portfolio-inventory.generated.md: не найден показатель ${label}`);
+    return -1;
+  }
+  return Number(match[1]);
+}
 
 function check(source, file, snippets) {
   for (const snippet of snippets) {
@@ -100,7 +185,7 @@ function check(source, file, snippets) {
 
 function readPackage(source) {
   try { return JSON.parse(source || '{}'); }
-  catch(e) {
+  catch {
     errors.push('package.json: JSON не читается');
     return null;
   }
@@ -108,4 +193,8 @@ function readPackage(source) {
 
 function read(file) {
   return fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : '';
+}
+
+function escapeRegExp(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }

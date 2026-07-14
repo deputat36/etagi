@@ -5,6 +5,7 @@ const rootDir = process.cwd();
 const errors = [];
 
 const files = {
+  package: 'package.json',
   index: 'index.html',
   uiMode: 'assets/js/spnUiMode.js',
   newbieMode: 'assets/js/spnNewbieMode.js',
@@ -26,8 +27,12 @@ const files = {
 const sources = Object.fromEntries(
   Object.entries(files).map(([key, file]) => [key, readRequired(file)])
 );
+const packageVersion = readPackageVersion(sources.package);
 
 requireSnippets(files.index, sources.index, [
+  `assets/js/spnUiMode.js?v=${packageVersion}`
+]);
+forbidSnippets(files.index, sources.index, [
   'assets/js/spnUiMode.js?v=newbie-wizard-20260703-1'
 ]);
 
@@ -262,6 +267,17 @@ function requireSnippets(file, source, snippets) {
 function forbidSnippets(file, source, snippets) {
   for (const snippet of snippets) {
     if (source.includes(snippet)) errors.push(`${file}: forbidden snippet found — ${snippet}`);
+  }
+}
+
+function readPackageVersion(source) {
+  try {
+    const version = String(JSON.parse(source).version || '').trim();
+    if(!/^\d+\.\d+\.\d+$/.test(version)) errors.push(`${files.package}: version must use X.Y.Z`);
+    return version;
+  } catch(error) {
+    errors.push(`${files.package}: JSON cannot be parsed — ${error.message}`);
+    return '';
   }
 }
 

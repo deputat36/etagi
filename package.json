@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "templates:inventory": "node tools/template-portfolio-inventory.mjs",
+    "assets:stamp": "node tools/stamp-asset-version.mjs",
     "smoke:browser": "node tools/run-browser-smoke.mjs",
     "screenshots:print": "node tools/run-print-screenshots.mjs",
     "screenshots:manifest": "node tools/collect-print-screenshots.mjs",
@@ -48,6 +49,7 @@
     "validate:workspace-backup": "node tools/validate-workspace-backup.mjs",
     "validate:distribution-field-mode": "node tools/validate-distribution-field-mode.mjs",
     "validate:version-sync": "node tools/validate-version-sync.mjs",
+    "validate:asset-version": "node tools/validate-asset-version.mjs",
     "validate:package-scripts": "node tools/validate-package-scripts.mjs",
     "validate:changelog": "node tools/validate-changelog.mjs",
     "validate:layout-extras": "node tools/validate-layout-extras.mjs",

@@ -26,14 +26,16 @@ compareArrays(evidenceIds, reviewIds, 'Порядок шаблонов в док
 
 requireSnippets('docs/manager-sensitive-template-review-3.86.0.md', review, [
   'docs/manager-sensitive-template-evidence-3.86.0.md',
-  'npm run validate:manager-sensitive-review'
+  'npm run validate:release-candidate',
+  'node tools/validate-manager-sensitive-review.mjs'
 ]);
 
 requireSnippets('docs/manager-sensitive-template-evidence-3.86.0.md', evidence, [
   '# Доказательный пакет чувствительных шаблонов 3.86.0',
   'Источник списка: `docs/manager-sensitive-template-review-3.86.0.md`',
   'Источник данных: `data/templates*.json`, `data/template_office_overrides.json`, `data/template_portfolio_status.json`',
-  'Пакет автоматически сверяется командой `npm run validate:manager-sensitive-review`.'
+  'Пакет автоматически сверяется внутри `npm run validate:release-candidate`.',
+  '`node tools/validate-manager-sensitive-review.mjs`'
 ]);
 
 for(const id of reviewIds){

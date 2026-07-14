@@ -37,6 +37,8 @@ const expectedIds = new Set([
   'buyer_have_object','buyer_need_family','buyer_mortgage','buyer_specific_search',
   'object_flat_photo','object_flat_two_photos','object_big_photo','object_new_price',
   'object_house_two','object_land','object_qr',
+  'newbuild_no_commission','newbuild_family','newbuild_budget','newbuild_two_photo','newbuild_mortgage',
+  'service_estimate','service_mortgage','service_complex_sale','service_intercity',
   'seller_empty_flat','buyer_first_flat','buyer_maternity_capital','buyer_low_budget',
   'object_ready_move_in','object_no_repair_sale','newbuild_family_mortgage','newbuild_layout_choice',
   'private_buy_flat','private_sell_flat',
@@ -66,6 +68,15 @@ const expectedPolicies = {
   object_house_two: {recommended:true, level:'manager', risk:'medium', recommendedPrintCount:2},
   object_land: {recommended:true, level:'manager', risk:'medium', recommendedPrintCount:2},
   object_qr: {recommended:true, level:'manager', risk:'medium', recommendedPrintCount:2},
+  newbuild_no_commission: {recommended:false, level:'manager', risk:'high', recommendedPrintCount:2},
+  newbuild_family: {recommended:true, level:'manager', risk:'medium', recommendedPrintCount:2},
+  newbuild_budget: {recommended:false, level:'manager', risk:'high', recommendedPrintCount:4},
+  newbuild_two_photo: {recommended:true, level:'manager', risk:'medium', recommendedPrintCount:2},
+  newbuild_mortgage: {recommended:false, level:'manager', risk:'high', recommendedPrintCount:2},
+  service_estimate: {recommended:true, level:'newbie', risk:'low', recommendedPrintCount:2},
+  service_mortgage: {recommended:false, level:'manager', risk:'high', recommendedPrintCount:2},
+  service_complex_sale: {recommended:false, level:'manager', risk:'high', recommendedPrintCount:4},
+  service_intercity: {recommended:true, level:'manager', risk:'medium', recommendedPrintCount:2},
   custom_blank_readable: {recommended:false, level:'manager', risk:'medium', recommendedPrintCount:2},
   custom_blank_entrance: {recommended:false, level:'manager', risk:'high', recommendedPrintCount:4},
   custom_object_photo_showcase: {recommended:false, level:'manager', risk:'medium', recommendedPrintCount:1},
@@ -91,6 +102,11 @@ const expectedStatuses = {
   buyer_have_object: 'test',
   buyer_mortgage: 'test',
   buyer_specific_search: 'test',
+  newbuild_no_commission: 'test',
+  newbuild_budget: 'test',
+  newbuild_mortgage: 'test',
+  service_mortgage: 'test',
+  service_complex_sale: 'test',
   custom_private_note: 'test',
   custom_service_consultation: 'test',
   custom_ab_test_short: 'test',
@@ -156,6 +172,11 @@ const basePriceTemplate = templateById.get('seller_price_check');
 const basePriceText = JSON.stringify(basePriceTemplate?.data || {});
 if(!basePriceText.includes('ориентир по цене')) errors.push('seller_price_check: безопасный базовый сценарий должен предлагать ориентир по цене');
 if(/точн(?:ая|ую)\s+цен/i.test(basePriceText)) errors.push('seller_price_check: нельзя обещать точную цену без анализа объекта');
+
+const serviceEstimateTemplate = templateById.get('service_estimate');
+const serviceEstimateText = JSON.stringify(serviceEstimateTemplate?.data || {});
+if(!serviceEstimateText.includes('ориентир по рыночной цене')) errors.push('service_estimate: безопасный сценарий должен предлагать ориентир по рыночной цене');
+if(/точн(?:ая|ую)\s+оцен/i.test(serviceEstimateText)) errors.push('service_estimate: нельзя обещать точную оценку без анализа объекта');
 
 requireSnippets('assets/js/templates.js', loaderSource, [
   "const TEMPLATE_OFFICE_OVERRIDES_FILE = 'data/template_office_overrides.json';",

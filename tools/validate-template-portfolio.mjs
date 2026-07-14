@@ -1,3 +1,4 @@
+import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -6,6 +7,7 @@ const dataDir = path.join(rootDir, 'data');
 const registryPath = path.join(dataDir, 'template_portfolio_status.json');
 const loaderPath = path.join(rootDir, 'assets/js/templates.js');
 const badgesPath = path.join(rootDir, 'assets/js/spnTemplateCardBadges.js');
+const freshnessPath = path.join(rootDir, 'tools/validate-template-inventory-freshness.mjs');
 const validStatuses = new Set(['working', 'test', 'deprecated']);
 const errors = [];
 
@@ -52,6 +54,7 @@ for(const [id, rule] of Object.entries(registry.templates || {})){
 }
 
 checkReplacementCycles(registry.templates || {});
+checkInventoryFreshness();
 
 requireSnippets('assets/js/templates.js', loaderSource, [
   "const TEMPLATE_PORTFOLIO_FILE = 'data/template_portfolio_status.json';",
@@ -87,7 +90,7 @@ if(errors.length){
 const statusCounts = countStatuses(templates, registry);
 console.log(`Шаблонов: ${templates.length}`);
 console.log(`Статусы: ${Object.entries(statusCounts).map(([status, count]) => `${status}=${count}`).join(', ')}`);
-console.log('Проверка жизненного цикла шаблонов пройдена.');
+console.log('Проверка жизненного цикла шаблонов и актуальности инвентаризации пройдена.');
 
 function readTemplateFile(file){
   const source = readRequired(path.join(dataDir, file));
@@ -164,6 +167,30 @@ function checkReplacementCycles(rules){
       visited.add(rule.replacementId);
       current = rule.replacementId;
     }
+  }
+}
+
+function checkInventoryFreshness(){
+  if(!fs.existsSync(freshnessPath)){
+    errors.push('tools/validate-template-inventory-freshness.mjs: файл не найден');
+    return;
+  }
+
+  const result = spawnSync(process.execPath, [freshnessPath], {
+    cwd: rootDir,
+    encoding: 'utf8',
+    stdio: 'pipe',
+    maxBuffer: 8 * 1024 * 1024
+  });
+
+  if(result.error){
+    errors.push(`Проверка актуальности инвентаризации не запустилась: ${result.error.message}`);
+    return;
+  }
+
+  if(result.status !== 0){
+    const details = [result.stdout?.trim(), result.stderr?.trim()].filter(Boolean).join('\n');
+    errors.push(details || 'Инвентаризация шаблонов устарела.');
   }
 }
 

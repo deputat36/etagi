@@ -23,18 +23,10 @@ if (actionsSource && qualitySource) {
       errors.push(`assets/js/qualityExtraActions.js: неполное описание быстрого исправления — ${JSON.stringify(item)}`);
       continue;
     }
-    if (!/^[a-z][a-zA-Z0-9]*$/.test(item.action)) {
-      errors.push(`assets/js/qualityExtraActions.js: небезопасное имя действия — ${item.action}`);
-    }
-    if (item.label.length > 32) {
-      errors.push(`assets/js/qualityExtraActions.js: слишком длинная подпись кнопки — ${item.label}`);
-    }
-    if (!qualitySource.includes(`title:'${item.title}'`) && !qualitySource.includes(`title: '${item.title}'`)) {
-      errors.push(`assets/js/qualityExtraActions.js: заголовок не найден в quality.js — ${item.title}`);
-    }
-    if (!actionsSource.includes(`action === '${item.action}'`)) {
-      errors.push(`assets/js/qualityExtraActions.js: действие не обработано — ${item.action}`);
-    }
+    if (!/^[a-z][a-zA-Z0-9]*$/.test(item.action)) errors.push(`assets/js/qualityExtraActions.js: небезопасное имя действия — ${item.action}`);
+    if (item.label.length > 32) errors.push(`assets/js/qualityExtraActions.js: слишком длинная подпись кнопки — ${item.label}`);
+    if (!qualitySource.includes(`title:'${item.title}'`) && !qualitySource.includes(`title: '${item.title}'`)) errors.push(`assets/js/qualityExtraActions.js: заголовок не найден в quality.js — ${item.title}`);
+    if (!actionsSource.includes(`action === '${item.action}'`)) errors.push(`assets/js/qualityExtraActions.js: действие не обработано — ${item.action}`);
   }
 }
 
@@ -56,12 +48,7 @@ const requiredActionSnippets = [
   'function getPrintCount() {',
   'function shorten(text, max) {'
 ];
-
-for (const snippet of requiredActionSnippets) {
-  if (!actionsSource.includes(snippet)) {
-    errors.push(`assets/js/qualityExtraActions.js: отсутствует обязательная часть — ${snippet}`);
-  }
-}
+for (const snippet of requiredActionSnippets) if (!actionsSource.includes(snippet)) errors.push(`assets/js/qualityExtraActions.js: отсутствует обязательная часть — ${snippet}`);
 
 const requiredDirectResponseActionSnippets = [
   "import { cleanPhoneValue, getPhoneInfo } from './phone.js';",
@@ -72,12 +59,7 @@ const requiredDirectResponseActionSnippets = [
   "enableCheckbox('showContact');",
   'Контакты включены'
 ];
-
-for (const snippet of requiredDirectResponseActionSnippets) {
-  if (!actionsSource.includes(snippet)) {
-    errors.push(`assets/js/qualityExtraActions.js: не закреплено прямое безопасное действие канала отклика — ${snippet}`);
-  }
-}
+for (const snippet of requiredDirectResponseActionSnippets) if (!actionsSource.includes(snippet)) errors.push(`assets/js/qualityExtraActions.js: не закреплено прямое безопасное действие канала отклика — ${snippet}`);
 
 const requiredDirectPhotoActionSnippets = [
   "{ title: 'Фото включено, но не загружено', action: 'focusPhotoOne', label: 'Перейти к фото' }",
@@ -88,12 +70,7 @@ const requiredDirectPhotoActionSnippets = [
   "const input = document.getElementById(inputId)",
   'Фото оставлено включённым'
 ];
-
-for (const snippet of requiredDirectPhotoActionSnippets) {
-  if (!actionsSource.includes(snippet)) {
-    errors.push(`assets/js/qualityExtraActions.js: не закреплено прямое безопасное действие фото — ${snippet}`);
-  }
-}
+for (const snippet of requiredDirectPhotoActionSnippets) if (!actionsSource.includes(snippet)) errors.push(`assets/js/qualityExtraActions.js: не закреплено прямое безопасное действие фото — ${snippet}`);
 
 const requiredDirectQrActionSnippets = [
   "{ title: 'QR включён, но ссылки нет', action: 'focusQrLink', label: 'Добавить ссылку' }",
@@ -103,12 +80,7 @@ const requiredDirectQrActionSnippets = [
   'input.select?.()',
   'QR оставлен включённым'
 ];
-
-for (const snippet of requiredDirectQrActionSnippets) {
-  if (!actionsSource.includes(snippet)) {
-    errors.push(`assets/js/qualityExtraActions.js: не закреплено прямое безопасное действие пустого QR — ${snippet}`);
-  }
-}
+for (const snippet of requiredDirectQrActionSnippets) if (!actionsSource.includes(snippet)) errors.push(`assets/js/qualityExtraActions.js: не закреплено прямое безопасное действие пустого QR — ${snippet}`);
 
 const forbiddenActionSnippets = [
   "document.getElementById('qualityBtn')?.click()",
@@ -123,24 +95,14 @@ const forbiddenActionSnippets = [
   "button.dataset.fix === 'showContact'",
   'function hasLikelyPhoneValue()'
 ];
-
-for (const snippet of forbiddenActionSnippets) {
-  if (actionsSource.includes(snippet)) {
-    errors.push(`assets/js/qualityExtraActions.js: найдено устаревшее или разрушающее данные поведение — ${snippet}`);
-  }
-}
+for (const snippet of forbiddenActionSnippets) if (actionsSource.includes(snippet)) errors.push(`assets/js/qualityExtraActions.js: найдено устаревшее или разрушающее данные поведение — ${snippet}`);
 
 const forbiddenQualitySnippets = [
   "title:'Нет канала отклика', text:'В макете нет контактов, отрывных телефонов и QR. Для расклейки это почти всегда ошибка.', action:'showContact'",
   "action:'noPhoto'",
   "action:'onePhoto'"
 ];
-
-for (const snippet of forbiddenQualitySnippets) {
-  if (qualitySource.includes(snippet)) {
-    errors.push(`assets/js/quality.js: найдено устаревшее действие — ${snippet}`);
-  }
-}
+for (const snippet of forbiddenQualitySnippets) if (qualitySource.includes(snippet)) errors.push(`assets/js/quality.js: найдено устаревшее действие — ${snippet}`);
 
 const requiredBuiltInMarkup = [
   'class="quality-fix-btn"',
@@ -148,9 +110,7 @@ const requiredBuiltInMarkup = [
   'data-fix="${i.action}"',
   'esc(label)'
 ];
-for (const snippet of requiredBuiltInMarkup) {
-  if (!appSource.includes(snippet)) errors.push(`assets/js/app.js: отсутствует разметка штатной кнопки — ${snippet}`);
-}
+for (const snippet of requiredBuiltInMarkup) if (!appSource.includes(snippet)) errors.push(`assets/js/app.js: отсутствует разметка штатной кнопки — ${snippet}`);
 
 const requiredScripts = [
   'assets/js/app.js',
@@ -162,7 +122,8 @@ const requiredScripts = [
   'assets/js/qualityExtraActions.js'
 ];
 for (const script of requiredScripts) {
-  if (!indexSource.includes(`src="${script}"`)) errors.push(`index.html: не подключён ${script}`);
+  const pattern = new RegExp(`src=["']${escapeRegex(script)}(?:\\?v=[^"']+)?["']`);
+  if (!pattern.test(indexSource)) errors.push(`index.html: не подключён ${script}`);
 }
 
 for (const className of ['.quality-fix-btn', '.quality-extra-fix-btn', '#printBtn.print-blocked', '#printBtn.print-has-warnings']) {
@@ -182,13 +143,14 @@ function extractQuickActions(source) {
   return [...block.matchAll(/\{\s*title:\s*['"]([^'"]+)['"],\s*action:\s*['"]([^'"]+)['"],\s*label:\s*['"]([^'"]+)['"]\s*\}/g)]
     .map(match => ({ title: match[1], action: match[2], label: match[3] }));
 }
-
 function countItems(items) {
   const counts = new Map();
   for (const item of items) counts.set(item, (counts.get(item) || 0) + 1);
   return counts;
 }
-
+function escapeRegex(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
 function readRequired(relativePath) {
   const filePath = path.join(rootDir, relativePath);
   if (!fs.existsSync(filePath)) return '';

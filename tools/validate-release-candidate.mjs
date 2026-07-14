@@ -69,7 +69,7 @@ requireSnippets(files.acceptance, acceptance, [
 
 requireSnippets(files.managerReview, managerReview, [
   '# Менеджерская проверка чувствительных шаблонов 3.86.0',
-  'issue #41',
+  'issue #51',
   '`buyer_mortgage`',
   '`newbuild_no_commission`',
   '`newbuild_budget`',

@@ -14,6 +14,7 @@
     "validate:borisoglebsk-coverage": "node tools/validate-borisoglebsk-coverage.mjs",
     "validate:template-portfolio": "node tools/validate-template-portfolio.mjs",
     "validate:template-office-overrides": "node tools/validate-template-office-overrides.mjs",
+    "validate:template-inventory-freshness": "node tools/validate-template-inventory-freshness.mjs",
     "validate:photo-layout-modes": "node tools/validate-photo-layout-modes.mjs",
     "validate:newbuild-visual-layout": "node tools/validate-newbuild-visual-layout.mjs",
     "validate:agent-brand-photo-layout": "node tools/validate-agent-brand-photo-layout.mjs",

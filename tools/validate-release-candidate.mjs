@@ -19,6 +19,7 @@ const changelog = readRequired(files.changelog);
 const targetVersion = '3.86.0';
 const packageVersion = String(pkg?.version || '').trim();
 const status = release.match(/^Статус:\s*(DRAFT|READY)\s*$/m)?.[1] || '';
+const workflowRunNumber = Number(release.match(/Последний полный контроль:\s*GitHub Actions workflow run #(\d+)/)?.[1] || 0);
 const acceptancePassed = /^Статус:\s*ПРОЙДЕНА\s*$/m.test(acceptance);
 const acceptancePending = /^Статус:\s*НЕ ПРОЙДЕНА\s*$/m.test(acceptance);
 const uncheckedRelease = countCheckboxes(release, false);
@@ -30,12 +31,19 @@ requireSnippets(files.release, release, [
   'Целевая версия: 3.86.0',
   'Причина статуса `DRAFT`',
   '## Автоматические доказательства',
-  'workflow run #1378',
   '## Блокирующие условия перед выпуском',
   'docs/manual-print-acceptance-3.86.0.md',
   'npm run assets:stamp',
-  'npm run validate'
+  'npm run validate',
+  '`validate` — успешно',
+  '`browser-smoke` — успешно',
+  '`print-screenshot` для пяти сценариев — успешно',
+  '`collect-print-screenshots` — успешно'
 ]);
+
+if(!Number.isInteger(workflowRunNumber) || workflowRunNumber <= 0) {
+  errors.push(`${files.release}: нужен актуальный номер последнего полного workflow run`);
+}
 
 requireSnippets(files.acceptance, acceptance, [
   '# Ручная печатная приёмка 3.86.0',
@@ -92,7 +100,7 @@ if(errors.length){
   process.exit(1);
 }
 
-console.log(`Релиз-кандидат 3.86.0 корректен: статус ${status}, текущая версия ${packageVersion}.`);
+console.log(`Релиз-кандидат 3.86.0 корректен: статус ${status}, текущая версия ${packageVersion}, workflow run #${workflowRunNumber}.`);
 
 function countCheckboxes(source, checked){
   const marker = checked ? 'x' : ' ';

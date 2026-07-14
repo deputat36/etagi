@@ -156,7 +156,8 @@ function validateStatusSnapshot() {
     `- \`deprecated\`: ${metrics.deprecated};`,
     `- шаблонов с office-метаданными: ${metrics.office};`,
     `- office-рекомендованных: ${metrics.recommended};`,
-    `- Неразрешённых итоговых ID и вероятных смысловых дублей — ${metrics.unresolved}.`
+    `- неразрешённых итоговых дублей: ${metrics.unresolved};`,
+    `- вероятных смысловых дублей: ${metrics.nearDuplicates};`
   ];
 
   check(statusSource, 'docs/current-project-status-2026-07-14.md', expected);

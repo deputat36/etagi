@@ -1,6 +1,38 @@
 {
   "version": 1,
   "templates": {
+    "seller_buy_flat_house": {
+      "tags": ["офис", "менеджер", "тестовый", "подтверждённый спрос"],
+      "office": {"recommended": false, "level": "manager", "scenario": "base_seller_buy_flat_house", "risk": "high", "recommendedPrintCount": 2, "managerNote": "Использовать только при подтверждённом активном спросе на квартиры в конкретном доме или районе; убрать обещание готовности к сделке, если нет реальных клиентов и согласованных критериев."}
+    },
+    "seller_need_2room_family": {
+      "tags": ["офис", "менеджер", "тестовый", "подтверждённый спрос"],
+      "office": {"recommended": false, "level": "manager", "scenario": "base_seller_need_2room_family", "risk": "high", "recommendedPrintCount": 2, "managerNote": "Перед печатью подтвердить реальный запрос семьи, район, бюджет и требования; заменить формулировку о покупателях в поиске и «реальной цене», если эти данные не подтверждены."}
+    },
+    "seller_buy_no_repair": {
+      "tags": ["офис", "менеджер", "тестовый", "подтверждённый спрос"],
+      "office": {"recommended": false, "level": "manager", "scenario": "base_seller_buy_no_repair", "risk": "high", "recommendedPrintCount": 4, "managerNote": "Прямой заголовок «Куплю» использовать только при реальном спросе на объекты без ремонта; проверить район, бюджет, состояние, документы и не обещать продажу или оценку без осмотра."}
+    },
+    "seller_cash_fast": {
+      "tags": ["офис", "менеджер", "тестовый", "подтверждённый спрос"],
+      "office": {"recommended": false, "level": "manager", "scenario": "base_seller_cash_fast", "risk": "high", "recommendedPrintCount": 4, "managerNote": "Формулировка «Есть покупатель с деньгами» допустима только при подтверждённом клиенте, бюджете и критериях; нельзя создавать ожидание гарантированной быстрой сделки или отсутствия просмотров."}
+    },
+    "seller_buy_house": {
+      "tags": ["офис", "менеджер", "тестовый", "подтверждённый спрос"],
+      "office": {"recommended": false, "level": "manager", "scenario": "base_seller_buy_house", "risk": "high", "recommendedPrintCount": 2, "managerNote": "Использовать только при подтверждённом спросе на дома; до печати уточнить район, бюджет, коммуникации, участок, способ оплаты и не обещать ипотеку или безопасный результат сделки."}
+    },
+    "seller_buy_land": {
+      "tags": ["офис", "менеджер", "тестовый", "подтверждённый спрос"],
+      "office": {"recommended": false, "level": "manager", "scenario": "base_seller_buy_land", "risk": "high", "recommendedPrintCount": 2, "managerNote": "Прямой запрос на участок печатать только при реальном клиентском спросе; проверить назначение земли, расположение, площадь, коммуникации, бюджет и не выдавать предварительный ориентир за оценку."}
+    },
+    "seller_price_check": {
+      "tags": ["офис", "рекомендовано", "новичку", "оценка"],
+      "office": {"recommended": true, "level": "newbie", "scenario": "base_seller_price_check", "risk": "low", "recommendedPrintCount": 1, "managerNote": "Подходит новичку: предлагать ориентир по текущим предложениям и спросу, не называть его точной оценкой и не обещать конкретную цену продажи без анализа объекта."}
+    },
+    "seller_neighbors": {
+      "tags": ["офис", "менеджер", "тестовый", "подтверждённый спрос"],
+      "office": {"recommended": false, "level": "manager", "scenario": "base_seller_neighbors", "risk": "high", "recommendedPrintCount": 2, "managerNote": "Утверждение об интересе покупателей к дому или району должно подтверждаться текущими запросами и данными рынка; иначе заменить его на нейтральное предложение оценки спроса и стратегии продажи."}
+    },
     "seller_empty_flat": {
       "tags": ["офис", "менеджер", "тестовый"],
       "office": {"recommended": false, "level": "manager", "scenario": "extra_empty_flat_options", "risk": "high", "recommendedPrintCount": 4, "managerNote": "Использовать только после проверки: заголовок «Куплю» допустим при подтверждённом спросе; иначе заменить его на предложение оценки и вариантов использования квартиры."}

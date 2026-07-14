@@ -3,179 +3,91 @@
   "templates": {
     "seller_empty_flat": {
       "tags": ["офис", "менеджер", "тестовый"],
-      "office": {
-        "recommended": false,
-        "level": "manager",
-        "scenario": "extra_empty_flat_options",
-        "risk": "high",
-        "recommendedPrintCount": 4,
-        "managerNote": "Использовать только после проверки: заголовок «Куплю» допустим при подтверждённом спросе; иначе заменить его на предложение оценки и вариантов использования квартиры."
-      }
+      "office": {"recommended": false, "level": "manager", "scenario": "extra_empty_flat_options", "risk": "high", "recommendedPrintCount": 4, "managerNote": "Использовать только после проверки: заголовок «Куплю» допустим при подтверждённом спросе; иначе заменить его на предложение оценки и вариантов использования квартиры."}
     },
     "buyer_first_flat": {
       "tags": ["офис", "рекомендовано", "новичку"],
-      "office": {
-        "recommended": true,
-        "level": "newbie",
-        "scenario": "extra_buyer_first_flat",
-        "risk": "low",
-        "recommendedPrintCount": 2,
-        "managerNote": "Подходит новичку: уточнить бюджет, район и способ оплаты, не обещать одобрение ипотеки или наличие конкретного объекта."
-      }
+      "office": {"recommended": true, "level": "newbie", "scenario": "extra_buyer_first_flat", "risk": "low", "recommendedPrintCount": 2, "managerNote": "Подходит новичку: уточнить бюджет, район и способ оплаты, не обещать одобрение ипотеки или наличие конкретного объекта."}
     },
     "buyer_maternity_capital": {
       "tags": ["офис", "менеджер", "тестовый"],
-      "office": {
-        "recommended": false,
-        "level": "manager",
-        "scenario": "extra_buyer_maternity_capital",
-        "risk": "high",
-        "recommendedPrintCount": 2,
-        "managerNote": "Перед печатью проверить актуальные правила использования материнского капитала, требования банка и отсутствие обещаний гарантированного одобрения."
-      }
+      "office": {"recommended": false, "level": "manager", "scenario": "extra_buyer_maternity_capital", "risk": "high", "recommendedPrintCount": 2, "managerNote": "Перед печатью проверить актуальные правила использования материнского капитала, требования банка и отсутствие обещаний гарантированного одобрения."}
     },
     "buyer_low_budget": {
       "tags": ["офис", "рекомендовано", "новичку"],
-      "office": {
-        "recommended": true,
-        "level": "newbie",
-        "scenario": "extra_buyer_low_budget",
-        "risk": "low",
-        "recommendedPrintCount": 4,
-        "managerNote": "Подходит новичку: говорить о подборе и сравнении расходов, не обещать объект по заранее заданной цене без проверки рынка."
-      }
+      "office": {"recommended": true, "level": "newbie", "scenario": "extra_buyer_low_budget", "risk": "low", "recommendedPrintCount": 4, "managerNote": "Подходит новичку: говорить о подборе и сравнении расходов, не обещать объект по заранее заданной цене без проверки рынка."}
     },
     "object_ready_move_in": {
       "tags": ["офис", "рекомендовано", "менеджер"],
-      "office": {
-        "recommended": true,
-        "level": "manager",
-        "scenario": "extra_object_ready_move_in",
-        "risk": "medium",
-        "recommendedPrintCount": 2,
-        "managerNote": "Проверить соответствие фотографий и текста фактическому ремонту, мебели, технике, этажу, цене и готовности объекта к проживанию."
-      }
+      "office": {"recommended": true, "level": "manager", "scenario": "extra_object_ready_move_in", "risk": "medium", "recommendedPrintCount": 2, "managerNote": "Проверить соответствие фотографий и текста фактическому ремонту, мебели, технике, этажу, цене и готовности объекта к проживанию."}
     },
     "object_no_repair_sale": {
       "tags": ["офис", "рекомендовано", "менеджер"],
-      "office": {
-        "recommended": true,
-        "level": "manager",
-        "scenario": "extra_object_no_repair_sale",
-        "risk": "medium",
-        "recommendedPrintCount": 2,
-        "managerNote": "Проверить цену, состояние, фотографии, возможность торга и формулировки об ипотеке; недостатки объекта не скрывать."
-      }
+      "office": {"recommended": true, "level": "manager", "scenario": "extra_object_no_repair_sale", "risk": "medium", "recommendedPrintCount": 2, "managerNote": "Проверить цену, состояние, фотографии, возможность торга и формулировки об ипотеке; недостатки объекта не скрывать."}
     },
     "newbuild_family_mortgage": {
       "tags": ["офис", "менеджер", "тестовый"],
-      "office": {
-        "recommended": false,
-        "level": "manager",
-        "scenario": "extra_newbuild_family_mortgage",
-        "risk": "high",
-        "recommendedPrintCount": 2,
-        "managerNote": "Перед каждым тиражом проверить актуальные условия семейной ипотеки, доступные проекты, сроки сдачи и отсутствие гарантий одобрения."
-      }
+      "office": {"recommended": false, "level": "manager", "scenario": "extra_newbuild_family_mortgage", "risk": "high", "recommendedPrintCount": 2, "managerNote": "Перед каждым тиражом проверить актуальные условия семейной ипотеки, доступные проекты, сроки сдачи и отсутствие гарантий одобрения."}
     },
     "newbuild_layout_choice": {
       "tags": ["офис", "рекомендовано", "менеджер"],
-      "office": {
-        "recommended": true,
-        "level": "manager",
-        "scenario": "extra_newbuild_layout_choice",
-        "risk": "medium",
-        "recommendedPrintCount": 1,
-        "managerNote": "Проверить конкретный проект, актуальные планировки, площади, сроки, цены и QR-ссылку; не показывать недоступные варианты."
-      }
+      "office": {"recommended": true, "level": "manager", "scenario": "extra_newbuild_layout_choice", "risk": "medium", "recommendedPrintCount": 1, "managerNote": "Проверить конкретный проект, актуальные планировки, площади, сроки, цены и QR-ссылку; не показывать недоступные варианты."}
     },
     "private_buy_flat": {
       "tags": ["офис", "менеджер", "тестовый"],
-      "office": {
-        "recommended": false,
-        "level": "manager",
-        "scenario": "extra_private_buy_flat",
-        "risk": "high",
-        "recommendedPrintCount": 4,
-        "managerNote": "Частный макет без бренда использовать только по согласованной задаче и при реальном спросе; проверить соответствие офисной политике."
-      }
+      "office": {"recommended": false, "level": "manager", "scenario": "extra_private_buy_flat", "risk": "high", "recommendedPrintCount": 4, "managerNote": "Частный макет без бренда использовать только по согласованной задаче и при реальном спросе; проверить соответствие офисной политике."}
     },
     "private_sell_flat": {
       "tags": ["офис", "менеджер", "тестовый"],
-      "office": {
-        "recommended": false,
-        "level": "manager",
-        "scenario": "extra_private_sell_flat",
-        "risk": "high",
-        "recommendedPrintCount": 2,
-        "managerNote": "Частный объектный макет без бренда требует проверки цены, характеристик, фото, документов и соответствия офисной политике."
-      }
+      "office": {"recommended": false, "level": "manager", "scenario": "extra_private_sell_flat", "risk": "high", "recommendedPrintCount": 2, "managerNote": "Частный объектный макет без бренда требует проверки цены, характеристик, фото, документов и соответствия офисной политике."}
+    },
+    "custom_blank_readable": {
+      "tags": ["офис", "менеджер", "конструктор"],
+      "office": {"recommended": false, "level": "manager", "scenario": "custom_blank_readable", "risk": "medium", "recommendedPrintCount": 2, "managerNote": "Перед печатью заменить все заглушки, определить конкретную цель и проверить телефон, заголовок, описание и отсутствие неподтверждённых обещаний."}
+    },
+    "custom_blank_entrance": {
+      "tags": ["офис", "менеджер", "конструктор"],
+      "office": {"recommended": false, "level": "manager", "scenario": "custom_blank_entrance", "risk": "high", "recommendedPrintCount": 4, "managerNote": "Точный повод для обращения к соседям должен быть реальным и проверенным; нельзя писать о покупателе, продаже рядом или оценке без подтверждения."}
+    },
+    "custom_object_photo_showcase": {
+      "tags": ["офис", "менеджер", "конструктор"],
+      "office": {"recommended": false, "level": "manager", "scenario": "custom_object_photo_showcase", "risk": "medium", "recommendedPrintCount": 1, "managerNote": "Заполнить характеристики, цену, фото, условия и QR; проверить соответствие изображения объекту и не обещать быстрый выход на сделку без оснований."}
+    },
+    "custom_private_note": {
+      "tags": ["офис", "менеджер", "тестовый", "конструктор"],
+      "office": {"recommended": false, "level": "manager", "scenario": "custom_private_note", "risk": "high", "recommendedPrintCount": 4, "managerNote": "Частный формат без бренда использовать только после согласования задачи и текста; не создавать впечатление частного покупателя или подтверждённого спроса без оснований."}
+    },
+    "custom_service_consultation": {
+      "tags": ["офис", "менеджер", "тестовый", "конструктор"],
+      "office": {"recommended": false, "level": "manager", "scenario": "custom_service_consultation", "risk": "high", "recommendedPrintCount": 2, "managerNote": "До печати выбрать одну конкретную услугу и проверить её объём; юридические, оценочные и ипотечные формулировки согласовать с ответственным специалистом."}
+    },
+    "custom_ab_test_short": {
+      "tags": ["офис", "менеджер", "тестовый", "конструктор"],
+      "office": {"recommended": false, "level": "manager", "scenario": "custom_ab_test_short", "risk": "medium", "recommendedPrintCount": 4, "managerNote": "Использовать только в контролируемом A/B-тесте: менять один элемент, сохранять одинаковые условия расклейки и фиксировать отклики в отчёте."}
     },
     "trust_seller_safe_sale": {
       "tags": ["офис", "рекомендовано", "новичку", "доверие"],
-      "office": {
-        "recommended": true,
-        "level": "newbie",
-        "scenario": "trust_seller_safe_sale",
-        "risk": "low",
-        "recommendedPrintCount": 2,
-        "managerNote": "Подходит новичку: проверить контакты и исходные данные объекта; говорить о порядке действий и помощи, не обещать отсутствие всех рисков или юридический результат."
-      }
+      "office": {"recommended": true, "level": "newbie", "scenario": "trust_seller_safe_sale", "risk": "low", "recommendedPrintCount": 2, "managerNote": "Подходит новичку: проверить контакты и исходные данные объекта; говорить о порядке действий и помощи, не обещать отсутствие всех рисков или юридический результат."}
     },
     "trust_seller_no_pressure": {
       "tags": ["офис", "рекомендовано", "новичку", "доверие"],
-      "office": {
-        "recommended": true,
-        "level": "newbie",
-        "scenario": "trust_seller_no_pressure",
-        "risk": "low",
-        "recommendedPrintCount": 4,
-        "managerNote": "Подходит новичку после замены обещания точной цены на ориентировочную стоимость по текущим предложениям; не выдавать предварительный ориентир за результат оценки."
-      }
+      "office": {"recommended": true, "level": "newbie", "scenario": "trust_seller_no_pressure", "risk": "low", "recommendedPrintCount": 4, "managerNote": "Подходит новичку после замены обещания точной цены на ориентировочную стоимость по текущим предложениям; не выдавать предварительный ориентир за результат оценки."}
     },
     "trust_service_documents_check": {
       "tags": ["офис", "менеджер", "тестовый", "доверие"],
-      "office": {
-        "recommended": false,
-        "level": "manager",
-        "scenario": "trust_service_documents_check",
-        "risk": "high",
-        "recommendedPrintCount": 2,
-        "managerNote": "Использовать только после согласования объёма консультации и участия квалифицированного специалиста; не обещать полную юридическую проверку или отсутствие рисков сделки."
-      }
+      "office": {"recommended": false, "level": "manager", "scenario": "trust_service_documents_check", "risk": "high", "recommendedPrintCount": 2, "managerNote": "Использовать только после согласования объёма консультации и участия квалифицированного специалиста; не обещать полную юридическую проверку или отсутствие рисков сделки."}
     },
     "trust_buyer_safe_purchase": {
       "tags": ["офис", "рекомендовано", "новичку", "доверие"],
-      "office": {
-        "recommended": true,
-        "level": "newbie",
-        "scenario": "trust_buyer_safe_purchase",
-        "risk": "low",
-        "recommendedPrintCount": 2,
-        "managerNote": "Подходит новичку: уточнить бюджет, район, способ оплаты и требования; не обещать проверку всех документов, наличие объекта или результат сделки."
-      }
+      "office": {"recommended": true, "level": "newbie", "scenario": "trust_buyer_safe_purchase", "risk": "low", "recommendedPrintCount": 2, "managerNote": "Подходит новичку: уточнить бюджет, район, способ оплаты и требования; не обещать проверку всех документов, наличие объекта или результат сделки."}
     },
     "trust_object_clear_terms": {
       "tags": ["офис", "рекомендовано", "менеджер", "доверие"],
-      "office": {
-        "recommended": true,
-        "level": "manager",
-        "scenario": "trust_object_clear_terms",
-        "risk": "medium",
-        "recommendedPrintCount": 2,
-        "managerNote": "Перед печатью проверить цену, фактические характеристики, документы, условия просмотра, фотографии и QR; не называть условия окончательными без подтверждения собственника."
-      }
+      "office": {"recommended": true, "level": "manager", "scenario": "trust_object_clear_terms", "risk": "medium", "recommendedPrintCount": 2, "managerNote": "Перед печатью проверить цену, фактические характеристики, документы, условия просмотра, фотографии и QR; не называть условия окончательными без подтверждения собственника."}
     },
     "trust_private_neighbor_question": {
       "tags": ["офис", "менеджер", "тестовый", "доверие"],
-      "office": {
-        "recommended": false,
-        "level": "manager",
-        "scenario": "trust_private_neighbor_question",
-        "risk": "high",
-        "recommendedPrintCount": 4,
-        "managerNote": "Использовать только при подтверждённом спросе на этот дом и после согласования частного формата; нельзя создавать впечатление существующего покупателя без реального запроса."
-      }
+      "office": {"recommended": false, "level": "manager", "scenario": "trust_private_neighbor_question", "risk": "high", "recommendedPrintCount": 4, "managerNote": "Использовать только при подтверждённом спросе на этот дом и после согласования частного формата; нельзя создавать впечатление существующего покупателя без реального запроса."}
     }
   }
 }

@@ -24,6 +24,12 @@
 docs/current-project-status-2026-07-14.md
 ```
 
+Подтверждение полного GitHub Actions workflow после усиления release gate:
+
+```text
+docs/ci-verification-3.86.0.md
+```
+
 Исторический аудит, на основании которого были выполнены этапы P0/P1:
 
 ```text
@@ -40,10 +46,10 @@ docs/full-project-audit-and-roadmap-2026-07-11.md
 Текущий приоритет:
 
 ```text
-ручная viewport- и печатная приёмка #40 → менеджерская проверка #51 → новый полный Actions run → выпуск 3.86.0
+ручная viewport- и печатная приёмка #40 → менеджерская проверка #51 → выпуск 3.86.0
 ```
 
-Технический рабочий путь, backup, мобильное выполнение, уникальные ID, office-разметка активных шаблонов, browser smoke и print-screenshot matrix реализованы. Релиз остаётся `DRAFT`, пока не выполнены реальные проверки на рабочем ПК, телефоне, офисном принтере и не приняты решения по 11 чувствительным шаблонам.
+Технический рабочий путь, backup, мобильное выполнение, уникальные ID, office-разметка активных шаблонов, browser smoke и print-screenshot matrix реализованы и подтверждены PR-run #1468. Релиз остаётся `DRAFT`, пока не выполнены реальные проверки на рабочем ПК, телефоне, офисном принтере и не приняты решения по 12 чувствительным шаблонам.
 
 ## Офисный сценарий для Борисоглебска
 
@@ -65,6 +71,7 @@ docs/full-project-audit-and-roadmap-2026-07-11.md
 
 ```text
 docs/current-project-status-2026-07-14.md             актуальный статус и блокеры релиза
+docs/ci-verification-3.86.0.md                         подтверждённый GitHub Actions run
 docs/office-rollout-plan.md                            план внедрения генератора в офисе
 docs/spn-one-page-instruction.md                       краткая инструкция для СПН
 docs/manager.md                                        короткий чек-лист менеджера
@@ -84,7 +91,7 @@ docs/distribution-field-mode.md                        мобильное вып
 docs/distribution-field-mode-regression-checklist.md  ручная проверка полевого режима
 docs/manual-print-acceptance-3.86.0.md                 viewport- и печатная приёмка 3.86.0
 docs/manager-sensitive-template-review-3.86.0.md      решения менеджера по чувствительным шаблонам
-docs/manager-sensitive-template-evidence-3.86.0.md    текущие тексты и ограничения 11 шаблонов
+docs/manager-sensitive-template-evidence-3.86.0.md    текущие тексты и ограничения 12 шаблонов
 ```
 
 ## Что уже умеет генератор
@@ -320,5 +327,6 @@ tools/validate-manager-sensitive-review.mjs          сверка чувстви
 tools/run-browser-smoke.mjs                          запуск headless Chrome smoke
 tools/browser-smoke.html                             браузерный smoke-сценарий
 docs/current-project-status-2026-07-14.md            актуальный статус и блокеры
+docs/ci-verification-3.86.0.md                       журнал подтверждённого CI
 docs/full-project-audit-and-roadmap-2026-07-11.md    исторический аудит и исходный план
 ```

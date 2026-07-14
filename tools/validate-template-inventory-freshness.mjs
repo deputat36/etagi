@@ -33,6 +33,13 @@ if(generatorResult?.status !== 0){
   process.exit(generatorResult?.status || 1);
 }
 
+const activeWithoutOffice = findActiveTemplatesWithoutOffice(generated);
+if(activeWithoutOffice.length){
+  console.error('Рабочие или тестовые шаблоны без office-метаданных запрещены:');
+  activeWithoutOffice.forEach(line => console.error(`- ${line}`));
+  process.exit(1);
+}
+
 if(normalizeReport(original) !== normalizeReport(generated)){
   console.error('Инвентаризация шаблонов устарела. Запустите npm run templates:inventory и сохраните обновлённый отчёт.');
   console.error('GENERATED_TEMPLATE_INVENTORY_BEGIN');
@@ -41,7 +48,17 @@ if(normalizeReport(original) !== normalizeReport(generated)){
   process.exit(1);
 }
 
-console.log('Инвентаризация шаблонов соответствует актуальным данным.');
+console.log('Инвентаризация шаблонов соответствует актуальным данным; активные шаблоны имеют office-метаданные.');
+
+function findActiveTemplatesWithoutOffice(source){
+  const section = String(source || '').match(/## Шаблоны без office-метаданных\n\n([\s\S]*?)(?=\n## |$)/)?.[1] || '';
+  return section
+    .split('\n')
+    .map(line => line.trim())
+    .filter(line => line.startsWith('- '))
+    .filter(line => !/\bdeprecated\b/i.test(line))
+    .map(line => line.slice(2));
+}
 
 function normalizeReport(source){
   return String(source || '')

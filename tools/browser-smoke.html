@@ -124,8 +124,21 @@
 
         click(doc, '[data-spn-ui-mode="quick"]');
         await waitFor(() => doc.body.dataset.spnUiMode === 'quick', 2000, 'режим Быстро не включился');
+        const advancedWorkbench = await waitForElement(doc, '#spnAdvancedWorkbench', 6000, 'группа дополнительной аналитики не появилась');
+        await waitFor(() => win.getComputedStyle(advancedWorkbench).display === 'none', 2000, 'дополнительная аналитика не скрылась в режиме Быстро');
         click(doc, '[data-spn-ui-mode="advanced"]');
         await waitFor(() => doc.body.dataset.spnUiMode === 'advanced', 2000, 'режим Расширенно не включился');
+        await waitFor(() => win.getComputedStyle(advancedWorkbench).display !== 'none' && advancedWorkbench.querySelectorAll('.spn-advanced-workbench-body > .card').length === 3, 3000, 'три аналитических инструмента не собраны в один раздел');
+        if(!advancedWorkbench.open) advancedWorkbench.querySelector('summary')?.click();
+        await waitFor(() => advancedWorkbench.open, 2000, 'дополнительная аналитика не раскрылась');
+        setField(win, doc, '#leadQuickNote', 'Тестовая заметка workbench');
+        advancedWorkbench.querySelector('summary')?.click();
+        await waitFor(() => !advancedWorkbench.open, 2000, 'дополнительная аналитика не закрылась');
+        advancedWorkbench.querySelector('summary')?.click();
+        await waitFor(() => advancedWorkbench.open && doc.getElementById('leadQuickNote')?.value === 'Тестовая заметка workbench', 2000, 'значение потеряно после повторного открытия аналитики');
+        pass('Дополнительная аналитика: три инструмента сгруппированы и сохраняют значения');
+        advancedWorkbench.querySelector('summary')?.click();
+        await waitFor(() => !advancedWorkbench.open, 2000, 'дополнительная аналитика не вернулась в компактное состояние');
         await waitFor(() => postPrintWorkspace.dataset.wizardForced === 'false' && !postPrintWorkspace.open, 3000, 'после выхода из Новичка блок не вернулся в закрытое состояние');
         pass('режимы Быстро и Расширенно переключаются');
         pass('После печати: восстановлено закрытое состояние');

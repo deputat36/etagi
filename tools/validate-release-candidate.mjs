@@ -7,12 +7,14 @@ const files = {
   package: 'package.json',
   release: 'docs/release-3.86.0-candidate.md',
   acceptance: 'docs/manual-print-acceptance-3.86.0.md',
+  testPack: 'docs/manual-print-test-pack-3.86.0.md',
   changelog: 'docs/changelog.md'
 };
 
 const pkg = readJson(files.package);
 const release = readRequired(files.release);
 const acceptance = readRequired(files.acceptance);
+const testPack = readRequired(files.testPack);
 const changelog = readRequired(files.changelog);
 const targetVersion = '3.86.0';
 const packageVersion = String(pkg?.version || '').trim();
@@ -28,6 +30,7 @@ requireSnippets(files.release, release, [
   'Целевая версия: 3.86.0',
   'Причина статуса `DRAFT`',
   '## Автоматические доказательства',
+  'workflow run #1378',
   '## Блокирующие условия перед выпуском',
   'docs/manual-print-acceptance-3.86.0.md',
   'npm run assets:stamp',
@@ -48,6 +51,21 @@ requireSnippets(files.acceptance, acceptance, [
   '`newbuild_visual`',
   '`agent_brand_photo`',
   'Версию 3.86.0 можно переводить из `DRAFT` в `READY`.'
+]);
+
+requireSnippets(files.testPack, testPack, [
+  '# Пакет ручной печатной проверки 3.86.0',
+  '## Единые тестовые данные',
+  'Тестовый специалист',
+  '+7 900 000-00-00',
+  'https://deputat36.github.io/etagi/',
+  '## Сценарий 1 — один макет без фото',
+  '## Сценарий 2 — два макета с крупным телефоном',
+  '## Сценарий 3 — четыре макета и расход чернил',
+  'Для массовой печати 4 на А4 допускаются оценки `Низкий` или `Приемлемый`.',
+  '## Сценарий 5 — специализированные фото-компоновки',
+  'Сканировать штатной камерой двух разных телефонов.',
+  'issue #40'
 ]);
 
 if(!status) errors.push(`${files.release}: статус должен быть DRAFT или READY`);

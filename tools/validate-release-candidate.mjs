@@ -1,3 +1,4 @@
+import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -8,6 +9,8 @@ const files = {
   release: 'docs/release-3.86.0-candidate.md',
   acceptance: 'docs/manual-print-acceptance-3.86.0.md',
   managerReview: 'docs/manager-sensitive-template-review-3.86.0.md',
+  managerEvidence: 'docs/manager-sensitive-template-evidence-3.86.0.md',
+  managerValidator: 'tools/validate-manager-sensitive-review.mjs',
   testPack: 'docs/manual-print-test-pack-3.86.0.md',
   changelog: 'docs/changelog.md'
 };
@@ -16,6 +19,7 @@ const pkg = readJson(files.package);
 const release = readRequired(files.release);
 const acceptance = readRequired(files.acceptance);
 const managerReview = readRequired(files.managerReview);
+const managerEvidence = readRequired(files.managerEvidence);
 const testPack = readRequired(files.testPack);
 const changelog = readRequired(files.changelog);
 const targetVersion = '3.86.0';
@@ -39,6 +43,8 @@ requireSnippets(files.release, release, [
   '## Блокирующие условия перед выпуском',
   'docs/manual-print-acceptance-3.86.0.md',
   'docs/manager-sensitive-template-review-3.86.0.md',
+  'docs/manager-sensitive-template-evidence-3.86.0.md',
+  'node tools/validate-manager-sensitive-review.mjs',
   'сценарий 0',
   '360–430 px',
   'удобный доступ к печати',
@@ -78,6 +84,8 @@ requireSnippets(files.acceptance, acceptance, [
 requireSnippets(files.managerReview, managerReview, [
   '# Менеджерская проверка чувствительных шаблонов 3.86.0',
   'issue #51',
+  'docs/manager-sensitive-template-evidence-3.86.0.md',
+  'node tools/validate-manager-sensitive-review.mjs',
   '`buyer_mortgage`',
   '`newbuild_no_commission`',
   '`newbuild_budget`',
@@ -91,6 +99,14 @@ requireSnippets(files.managerReview, managerReview, [
   '`service_micro_4`',
   'npm run templates:inventory',
   'npm run validate'
+]);
+
+requireSnippets(files.managerEvidence, managerEvidence, [
+  '# Доказательный пакет чувствительных шаблонов 3.86.0',
+  'Источник списка: `docs/manager-sensitive-template-review-3.86.0.md`',
+  'Источник данных: `data/templates*.json`, `data/template_office_overrides.json`, `data/template_portfolio_status.json`',
+  'npm run validate:release-candidate',
+  'node tools/validate-manager-sensitive-review.mjs'
 ]);
 
 requireSnippets(files.testPack, testPack, [
@@ -112,6 +128,8 @@ requireSnippets(files.testPack, testPack, [
   'Сканировать штатной камерой двух разных телефонов.',
   'issue #40'
 ]);
+
+runManagerSensitiveReviewValidation();
 
 if(!status) errors.push(`${files.release}: статус должен быть DRAFT или READY`);
 
@@ -141,7 +159,32 @@ if(errors.length){
   process.exit(1);
 }
 
-console.log(`Релиз-кандидат 3.86.0 корректен: статус ${status}, текущая версия ${packageVersion}, workflow run #${workflowRunNumber}; viewport-, печатная и менеджерская приёмка согласованы со статусом.`);
+console.log(`Релиз-кандидат 3.86.0 корректен: статус ${status}, текущая версия ${packageVersion}, workflow run #${workflowRunNumber}; viewport-, печатная и менеджерская приёмка согласованы со статусом, evidence-пакет синхронизирован.`);
+
+function runManagerSensitiveReviewValidation(){
+  const scriptPath = path.join(rootDir, files.managerValidator);
+  if(!fs.existsSync(scriptPath)){
+    errors.push(`${files.managerValidator}: файл не найден`);
+    return;
+  }
+
+  const result = spawnSync(process.execPath, [scriptPath], {
+    cwd: rootDir,
+    encoding: 'utf8',
+    stdio: 'pipe',
+    maxBuffer: 8 * 1024 * 1024
+  });
+
+  if(result.error){
+    errors.push(`Проверка чувствительных шаблонов не запустилась: ${result.error.message}`);
+    return;
+  }
+
+  if(result.status !== 0){
+    const details = [result.stdout?.trim(), result.stderr?.trim()].filter(Boolean).join('\n');
+    errors.push(details || 'Доказательный пакет чувствительных шаблонов не прошёл проверку.');
+  }
+}
 
 function countCheckboxes(source, checked){
   const marker = checked ? 'x' : ' ';

@@ -26,6 +26,7 @@
 - жизненный цикл `working / test / deprecated`;
 - уникальные итоговые `templateId` и безопасные алиасы исторических дублей;
 - полностью размеченные пакеты `templates_sales.json` и `templates_trust.json`;
+- первая базовая seller-партия `templates.json`: прямые заявления о спросе переведены в `test / manager / high`, безопасная оценка цены оставлена новичку;
 - custom-конструкторы доступны только как manager / not recommended;
 - контролируемые ипотечные, юридические, частные и A/B-сценарии;
 - менеджерский notice для чувствительных формулировок.
@@ -55,25 +56,26 @@
 - команда `npm run assets:stamp` и проверка `validate:asset-version`;
 - release-candidate gate, запрещающий преждевременно выставить версию 3.86.0;
 - общий `npm run validate`;
-- настоящий browser smoke с согласованным общим бюджетом;
+- настоящий browser smoke через Chrome DevTools Protocol;
 - пять независимых печатных screenshot-сценариев через Chrome DevTools Protocol;
 - диагностические artifacts для статических, браузерных и печатных ошибок.
 
 ## Автоматические доказательства
 
-Последний полный контроль: GitHub Actions workflow run #1378 от 14 июля 2026 года.
+Последний полный контроль: GitHub Actions workflow run #1390 от 14 июля 2026 года.
 
 Подтверждено:
 
-- `validate` — успешно, включая `validate:asset-version` и `validate:release-candidate`;
-- `browser-smoke` — успешно;
+- `validate` — успешно, включая `validate:asset-version`, `validate:release-candidate`, office-политику и CDP-контракты;
+- `browser-smoke` — успешно с первой попытки;
 - `print-screenshot` для пяти сценариев — успешно;
 - `collect-print-screenshots` — успешно;
 - визуальная проверка artifact `print-screenshots` выполнена;
 - плотный сценарий `four-contacts` использует светлую контактную зону и цветную рамку;
 - 31 CSS/JS entry-ресурс использует единый токен `?v=3.85.0`;
 - старый ручной asset-token отсутствует;
-- общий smoke timeout согласован с расширенным сценарием, отдельные проверки остаются строгими.
+- browser-smoke ждёт фактический `data-status=passed/failed` через `Runtime.evaluate` без `virtual-time-budget` и `dump-dom`;
+- ошибка harness не повторяется и не может быть замаскирована второй попыткой Chrome.
 
 Автоматическая техническая часть релиз-кандидата завершена. Она не заменяет физическую печать и проверку QR камерой телефона.
 

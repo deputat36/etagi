@@ -50,10 +50,12 @@ requireSnippets('tools/run-validate.mjs', runValidateSource, [
 
 requireSnippets('tools/run-browser-smoke.mjs', browserSmokeRunnerSource, [
   "import { spawn, spawnSync } from 'node:child_process';",
+  'class SmokeHarnessError extends Error {}',
   "const failureLogPath = path.join(rootDir, 'browser-smoke-failure.log')",
   'writeFailureLog(message)','fs.writeFileSync(failureLogPath','findChrome()','createStaticServer(rootDir)',
-  'for(let attempt = 1; attempt <= 2; attempt += 1)',"'--headless=new'","'--remote-debugging-pipe'",
-  "cdp.send('Target.createTarget'","cdp.send('Runtime.evaluate'",'waitForSmokeStatus','createCdpPipeClient',
+  'for(let attempt = 1; attempt <= 2; attempt += 1)','if(error instanceof SmokeHarnessError) throw error;',
+  "'--headless=new'","'--remote-debugging-pipe'","cdp.send('Target.createTarget'","cdp.send('Runtime.evaluate'",
+  'waitForSmokeStatus','createCdpPipeClient',"throw new SmokeHarnessError(smokeStatus.text",
   "document.getElementById('browserSmokeResult')",'latest.status === \'passed\' || latest.status === \'failed\'',
   'server.keepAliveTimeout = 1',"'Connection':'close'",'terminateProcess(child)','Browser smoke passed via CDP pipe'
 ]);

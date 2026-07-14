@@ -2,6 +2,7 @@ import fs from 'node:fs';
 
 const readmeSource = read('README.md');
 const statusSource = read('docs/current-project-status-2026-07-14.md');
+const ciVerificationSource = read('docs/ci-verification-3.86.0.md');
 const releaseSource = read('docs/release-3.86.0-candidate.md');
 const inventorySource = read('docs/template-portfolio-inventory.generated.md');
 const packageSource = read('package.json');
@@ -13,9 +14,12 @@ check(readmeSource, 'README.md', [
   '# Генератор расклеек СПН «Этажи»',
   '## Актуальный статус и план',
   'docs/current-project-status-2026-07-14.md',
+  'docs/ci-verification-3.86.0.md',
   'docs/full-project-audit-and-roadmap-2026-07-11.md',
   'ручная viewport- и печатная приёмка #40',
   'менеджерская проверка #51',
+  'PR-run #1468',
+  '12 чувствительным шаблонам',
   '### Контроль качества',
   'прямые безопасные действия для пустого QR, фото и отсутствующего канала отклика',
   'выбранные блоки не выключаются автоматически, а пользователь переходит к нужному полю или включает контакты только при корректном телефоне',
@@ -38,9 +42,28 @@ check(statusSource, 'docs/current-project-status-2026-07-14.md', [
   'docs/manager-sensitive-template-review-3.86.0.md',
   'docs/manager-sensitive-template-evidence-3.86.0.md',
   'tools/validate-manager-sensitive-review.mjs',
+  'Для 12 ипотечных, финансовых, юридических',
+  'по каждому из 12 чувствительных шаблонов',
   'Issue #40',
   'Issue #51',
   'issues #40 и #51 остаются открытыми'
+]);
+
+check(ciVerificationSource, 'docs/ci-verification-3.86.0.md', [
+  '# CI-проверка релиз-кандидата 3.86.0',
+  'Статус: ПРОЙДЕНА',
+  'Pull request: #52',
+  'Успешный workflow run: #1468',
+  'Workflow run ID: `29341753329`',
+  'Проверенный head SHA: `1fb0e9da0bc13a81d182bc0f1949c1438f15d5ea`',
+  'Workflow run #1458',
+  '`seller_empty_flat`',
+  'evidence-пакет 12 чувствительных шаблонов',
+  'Итоговый artifact: `print-screenshots`',
+  'Artifact ID: `8314350154`',
+  'sha256:c2ea61a8b5503add6bde135b3d3c0b4fa52e263111050e9c3763f48a46b832ab',
+  'Все пять сценариев имеют `attempt: 1` и `captureMethod: cdp-pipe`.',
+  'ручные issues #40 и #51 не закрыты автоматическим запуском'
 ]);
 
 validateStatusSnapshot();
@@ -50,6 +73,7 @@ for (const file of [
   'assets/js/qualityQrDeduplicate.js',
   'assets/js/qrSizeHint.js',
   'docs/current-project-status-2026-07-14.md',
+  'docs/ci-verification-3.86.0.md',
   'docs/quality-helper-map.md',
   'docs/quality-regression-checklist.md',
   'tools/validate-asset-duplicates.mjs',
@@ -102,12 +126,12 @@ for (const removed of [
 }
 
 if (errors.length) {
-  console.error('\nОшибки README, актуального статуса и workflow по helper-модулям качества:');
+  console.error('\nОшибки README, актуального статуса, CI-журнала и workflow по helper-модулям качества:');
   errors.forEach(error => console.error(`- ${error}`));
   process.exit(1);
 }
 
-console.log('README, актуальный статус, инвентаризация, релиз и workflow синхронизированы.');
+console.log('README, актуальный статус, CI-журнал, инвентаризация, релиз и workflow синхронизированы.');
 
 function validateStatusSnapshot() {
   const releaseStatus = releaseSource.match(/^Статус:\s*(DRAFT|READY)\s*$/m)?.[1] || '';

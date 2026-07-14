@@ -132,6 +132,15 @@ const expectedStatuses = {
   trust_private_neighbor_question: 'test'
 };
 
+const expectedAbPolicies = {
+  ab_owner_soft_price_check: {risk:'medium', recommendedPrintCount:2},
+  ab_owner_direct_buyer: {risk:'high', recommendedPrintCount:4},
+  ab_owner_private_note: {risk:'high', recommendedPrintCount:4},
+  ab_object_neighbor_sold: {risk:'medium', recommendedPrintCount:2},
+  ab_buyer_family_area: {risk:'high', recommendedPrintCount:2},
+  ab_service_after_viewing: {risk:'medium', recommendedPrintCount:2}
+};
+
 for(const id of expectedIds){
   if(!overrides.templates?.[id]) errors.push(`template_office_overrides.json: отсутствует обязательная разметка ${id}`);
 }
@@ -142,6 +151,40 @@ for(const template of templates.filter(item => item.__file === 'templates.json')
     errors.push(`templates.json:${template.id}: каждый неустаревший базовый шаблон должен иметь office-разметку`);
   }
 }
+
+for(const [id, policy] of Object.entries(expectedAbPolicies)){
+  const template = templateById.get(id);
+  const label = `templates_ab_tests.json:${id}`;
+  if(!template){ errors.push(`${label}: обязательный A/B-шаблон не найден`); continue; }
+  if(template.__file !== 'templates_ab_tests.json') errors.push(`${label}: шаблон найден в пакете ${template.__file}`);
+
+  const status = resolvePortfolioStatus(template, portfolio);
+  if(status !== 'test') errors.push(`${label}: portfolio status должен быть test`);
+
+  const tags = Array.isArray(template.tags) ? template.tags : [];
+  for(const tag of ['тест','офис','менеджер','тестовый']){
+    if(!tags.includes(tag)) errors.push(`${label}: нужен тег ${tag}`);
+  }
+  if(tags.includes('рекомендовано') || tags.includes('новичку')) errors.push(`${label}: A/B-тест не должен быть рекомендован новичку`);
+
+  const office = template.office;
+  if(!office || typeof office !== 'object' || Array.isArray(office)){ errors.push(`${label}: нужен прямой объект office`); continue; }
+  if(office.recommended !== false) errors.push(`${label}: office.recommended должен быть false`);
+  if(office.level !== 'manager') errors.push(`${label}: office.level должен быть manager`);
+  if(office.scenario !== id) errors.push(`${label}: office.scenario должен совпадать с id`);
+  if(office.risk !== policy.risk) errors.push(`${label}: office.risk должен быть ${policy.risk}`);
+  if(office.recommendedPrintCount !== policy.recommendedPrintCount) errors.push(`${label}: office.recommendedPrintCount должен быть ${policy.recommendedPrintCount}`);
+  if(typeof office.managerNote !== 'string' || office.managerNote.trim().length < 40) errors.push(`${label}: managerNote должен описывать контролируемый тест и проверку`);
+
+  const text = JSON.stringify({title:template.title, note:template.note, tags:template.tags, data:template.data});
+  if(/реальн(?:ая|ую)\s+(?:цен|картин)/i.test(text)) errors.push(`${label}: нельзя обещать «реальную цену» или «реальную картину»`);
+  if(/оценка\s+без\s+выезда/i.test(text)) errors.push(`${label}: нельзя называть дистанционный ориентир оценкой без выезда`);
+}
+
+const abSoftPriceText = JSON.stringify(templateById.get('ab_owner_soft_price_check')?.data || {});
+if(!abSoftPriceText.includes('ориентир по цене')) errors.push('ab_owner_soft_price_check: должен использоваться безопасный «ориентир по цене»');
+const abServiceText = JSON.stringify(templateById.get('ab_service_after_viewing')?.data || {});
+if(!abServiceText.includes('Ориентир без выезда')) errors.push('ab_service_after_viewing: benefit должен называться «Ориентир без выезда»');
 
 for(const [id, rule] of Object.entries(overrides.templates || {})){
   const template = templateById.get(id);
@@ -217,8 +260,10 @@ if(errors.length){
 
 const baseTemplates = templates.filter(template => template.__file === 'templates.json');
 const classifiedBaseTemplates = baseTemplates.filter(template => resolvePortfolioStatus(template, portfolio) === 'deprecated' || overrides.templates?.[template.id]);
+const abTemplates = templates.filter(template => template.__file === 'templates_ab_tests.json');
 console.log(`Office overrides: ${Object.keys(overrides.templates || {}).length}`);
 console.log(`Базовый пакет: ${classifiedBaseTemplates.length} из ${baseTemplates.length} классифицировано.`);
+console.log(`A/B-пакет: ${abTemplates.length} из ${Object.keys(expectedAbPolicies).length} размечено для менеджера.`);
 console.log('Проверка реестра office-разметки пройдена.');
 
 function registerScenario(scenario, owner){

@@ -6,13 +6,19 @@
 
 ## Проверка
 
-Команда:
+Актуальность отчёта автоматически проверяется внутри:
 
 ```bash
-npm run validate:template-inventory-freshness
+npm run validate:template-portfolio
 ```
 
-временно запускает существующий генератор:
+Для отдельной диагностики можно запустить:
+
+```bash
+node tools/validate-template-inventory-freshness.mjs
+```
+
+Проверка временно запускает существующий генератор:
 
 ```bash
 npm run templates:inventory

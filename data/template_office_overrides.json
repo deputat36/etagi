@@ -33,6 +33,50 @@
       "tags": ["офис", "менеджер", "тестовый", "подтверждённый спрос"],
       "office": {"recommended": false, "level": "manager", "scenario": "base_seller_neighbors", "risk": "high", "recommendedPrintCount": 2, "managerNote": "Утверждение об интересе покупателей к дому или району должно подтверждаться текущими запросами и данными рынка; иначе заменить его на нейтральное предложение оценки спроса и стратегии продажи."}
     },
+    "buyer_have_object": {
+      "tags": ["офис", "менеджер", "тестовый", "актуальное предложение"],
+      "office": {"recommended": false, "level": "manager", "scenario": "base_buyer_have_object", "risk": "high", "recommendedPrintCount": 2, "managerNote": "Перед печатью подтвердить актуальный объект или подборку, соответствие бюджету, району и условиям клиента; убрать заголовок «Есть объект», если подходящих вариантов сейчас нет."}
+    },
+    "buyer_need_family": {
+      "tags": ["офис", "рекомендовано", "новичку", "подбор"],
+      "office": {"recommended": true, "level": "newbie", "scenario": "base_buyer_need_family", "risk": "low", "recommendedPrintCount": 2, "managerNote": "Подходит новичку: уточнить состав семьи, бюджет, район, инфраструктуру и способ оплаты; говорить о подборе и организации процесса, не обещая конкретный объект или результат сделки."}
+    },
+    "buyer_mortgage": {
+      "tags": ["офис", "менеджер", "тестовый", "ипотека"],
+      "office": {"recommended": false, "level": "manager", "scenario": "base_buyer_mortgage", "risk": "high", "recommendedPrintCount": 2, "managerNote": "Перед каждым тиражом проверить актуальные ипотечные программы, ставки, требования банков и объём юридического сопровождения; не обещать одобрение, платёж или условия без расчёта."}
+    },
+    "buyer_specific_search": {
+      "tags": ["офис", "менеджер", "тестовый", "подтверждённый спрос"],
+      "office": {"recommended": false, "level": "manager", "scenario": "base_buyer_specific_search", "risk": "high", "recommendedPrintCount": 4, "managerNote": "Использовать только при реальном клиенте: зафиксировать район, тип объекта, этаж, площадь, состояние, бюджет и способ оплаты; убрать слова «реальный запрос», если критерии не подтверждены."}
+    },
+    "object_flat_photo": {
+      "tags": ["офис", "рекомендовано", "менеджер", "объект"],
+      "office": {"recommended": true, "level": "manager", "scenario": "base_object_flat_photo", "risk": "medium", "recommendedPrintCount": 2, "managerNote": "Перед печатью проверить соответствие фотографии реальному объекту, цену, район, характеристики, документы, доступность показов и актуальность предложения."}
+    },
+    "object_flat_two_photos": {
+      "tags": ["офис", "рекомендовано", "менеджер", "объект"],
+      "office": {"recommended": true, "level": "manager", "scenario": "base_object_flat_two_photos", "risk": "medium", "recommendedPrintCount": 2, "managerNote": "Обе фотографии должны относиться к объекту и показывать заявленные преимущества; заполнить цену, площадь, этаж, состояние, условия продажи и проверить актуальность объявления."}
+    },
+    "object_big_photo": {
+      "tags": ["офис", "рекомендовано", "менеджер", "объект"],
+      "office": {"recommended": true, "level": "manager", "scenario": "base_object_big_photo", "risk": "medium", "recommendedPrintCount": 1, "managerNote": "Крупное фото должно честно представлять объект; перед печатью заполнить район, цену и главное преимущество, проверить телефон, актуальность продажи и отсутствие вводящих в заблуждение деталей."}
+    },
+    "object_new_price": {
+      "tags": ["офис", "рекомендовано", "менеджер", "объект"],
+      "office": {"recommended": true, "level": "manager", "scenario": "base_object_new_price", "risk": "medium", "recommendedPrintCount": 4, "managerNote": "Подтвердить согласованную собственником новую цену, дату снижения и актуальность объекта; не использовать акцент «Новая цена» без фактического изменения условий продажи."}
+    },
+    "object_house_two": {
+      "tags": ["офис", "рекомендовано", "менеджер", "объект"],
+      "office": {"recommended": true, "level": "manager", "scenario": "base_object_house_two", "risk": "medium", "recommendedPrintCount": 2, "managerNote": "Проверить фотографии фасада и участка, площадь дома и земли, коммуникации, подъезд, состояние, документы, цену и ограничения использования объекта."}
+    },
+    "object_land": {
+      "tags": ["офис", "рекомендовано", "менеджер", "объект"],
+      "office": {"recommended": true, "level": "manager", "scenario": "base_object_land", "risk": "medium", "recommendedPrintCount": 2, "managerNote": "До печати проверить назначение земли, площадь, границы, подъезд, коммуникации, документы, цену и соответствие фотографии фактическому участку."}
+    },
+    "object_qr": {
+      "tags": ["офис", "рекомендовано", "менеджер", "объект", "qr"],
+      "office": {"recommended": true, "level": "manager", "scenario": "base_object_qr", "risk": "medium", "recommendedPrintCount": 2, "managerNote": "QR должен вести на актуальную страницу именно этого объекта; проверить ссылку с двух телефонов, фотографии, цену, параметры, контакты и доступность предложения перед печатью."}
+    },
     "seller_empty_flat": {
       "tags": ["офис", "менеджер", "тестовый"],
       "office": {"recommended": false, "level": "manager", "scenario": "extra_empty_flat_options", "risk": "high", "recommendedPrintCount": 4, "managerNote": "Использовать только после проверки: заголовок «Куплю» допустим при подтверждённом спросе; иначе заменить его на предложение оценки и вариантов использования квартиры."}

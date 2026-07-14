@@ -8,7 +8,7 @@ const portfolioPath = path.join(dataDir, 'template_portfolio_status.json');
 const loaderPath = path.join(rootDir, 'assets/js/templates.js');
 const validLevels = new Set(['newbie', 'experienced', 'manager']);
 const validRisks = new Set(['low', 'medium', 'high']);
-const allowedOverridePackages = new Set(['templates_extra.json', 'templates_trust.json', 'templates_custom.json']);
+const allowedOverridePackages = new Set(['templates.json', 'templates_extra.json', 'templates_trust.json', 'templates_custom.json']);
 const errors = [];
 
 const templateFiles = fs.readdirSync(dataDir)
@@ -32,6 +32,8 @@ if(!overrides.templates || typeof overrides.templates !== 'object' || Array.isAr
 }
 
 const expectedIds = new Set([
+  'seller_buy_flat_house','seller_need_2room_family','seller_buy_no_repair','seller_cash_fast',
+  'seller_buy_house','seller_buy_land','seller_price_check','seller_neighbors',
   'seller_empty_flat','buyer_first_flat','buyer_maternity_capital','buyer_low_budget',
   'object_ready_move_in','object_no_repair_sale','newbuild_family_mortgage','newbuild_layout_choice',
   'private_buy_flat','private_sell_flat',
@@ -42,6 +44,14 @@ const expectedIds = new Set([
 ]);
 
 const expectedPolicies = {
+  seller_buy_flat_house: {recommended:false, level:'manager', risk:'high', recommendedPrintCount:2},
+  seller_need_2room_family: {recommended:false, level:'manager', risk:'high', recommendedPrintCount:2},
+  seller_buy_no_repair: {recommended:false, level:'manager', risk:'high', recommendedPrintCount:4},
+  seller_cash_fast: {recommended:false, level:'manager', risk:'high', recommendedPrintCount:4},
+  seller_buy_house: {recommended:false, level:'manager', risk:'high', recommendedPrintCount:2},
+  seller_buy_land: {recommended:false, level:'manager', risk:'high', recommendedPrintCount:2},
+  seller_price_check: {recommended:true, level:'newbie', risk:'low', recommendedPrintCount:1},
+  seller_neighbors: {recommended:false, level:'manager', risk:'high', recommendedPrintCount:2},
   custom_blank_readable: {recommended:false, level:'manager', risk:'medium', recommendedPrintCount:2},
   custom_blank_entrance: {recommended:false, level:'manager', risk:'high', recommendedPrintCount:4},
   custom_object_photo_showcase: {recommended:false, level:'manager', risk:'medium', recommendedPrintCount:1},
@@ -57,6 +67,13 @@ const expectedPolicies = {
 };
 
 const expectedStatuses = {
+  seller_buy_flat_house: 'test',
+  seller_need_2room_family: 'test',
+  seller_buy_no_repair: 'test',
+  seller_cash_fast: 'test',
+  seller_buy_house: 'test',
+  seller_buy_land: 'test',
+  seller_neighbors: 'test',
   custom_private_note: 'test',
   custom_service_consultation: 'test',
   custom_ab_test_short: 'test',
@@ -117,6 +134,11 @@ const noPressureTemplate = templateById.get('trust_seller_no_pressure');
 const noPressureText = JSON.stringify(noPressureTemplate?.data || {});
 if(/реальн(?:ая|ую)\s+цен/i.test(noPressureText)) errors.push('trust_seller_no_pressure: нельзя обещать «реальную цену» без полноценной оценки');
 if(!noPressureText.includes('ориентировочную стоимость')) errors.push('trust_seller_no_pressure: должна использоваться формулировка «ориентировочную стоимость»');
+
+const basePriceTemplate = templateById.get('seller_price_check');
+const basePriceText = JSON.stringify(basePriceTemplate?.data || {});
+if(!basePriceText.includes('ориентир по цене')) errors.push('seller_price_check: безопасный базовый сценарий должен предлагать ориентир по цене');
+if(/точн(?:ая|ую)\s+цен/i.test(basePriceText)) errors.push('seller_price_check: нельзя обещать точную цену без анализа объекта');
 
 requireSnippets('assets/js/templates.js', loaderSource, [
   "const TEMPLATE_OFFICE_OVERRIDES_FILE = 'data/template_office_overrides.json';",

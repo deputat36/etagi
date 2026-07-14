@@ -43,14 +43,25 @@ const expectedIds = new Set([
   'private_buy_flat',
   'private_sell_flat',
   'trust_seller_safe_sale',
+  'trust_seller_no_pressure',
+  'trust_service_documents_check',
   'trust_buyer_safe_purchase',
-  'trust_object_clear_terms'
+  'trust_object_clear_terms',
+  'trust_private_neighbor_question'
 ]);
 
 const expectedTrustPolicies = {
   trust_seller_safe_sale: {recommended:true, level:'newbie', risk:'low', recommendedPrintCount:2},
+  trust_seller_no_pressure: {recommended:true, level:'newbie', risk:'low', recommendedPrintCount:4},
+  trust_service_documents_check: {recommended:false, level:'manager', risk:'high', recommendedPrintCount:2},
   trust_buyer_safe_purchase: {recommended:true, level:'newbie', risk:'low', recommendedPrintCount:2},
-  trust_object_clear_terms: {recommended:true, level:'manager', risk:'medium', recommendedPrintCount:2}
+  trust_object_clear_terms: {recommended:true, level:'manager', risk:'medium', recommendedPrintCount:2},
+  trust_private_neighbor_question: {recommended:false, level:'manager', risk:'high', recommendedPrintCount:4}
+};
+
+const expectedTrustStatuses = {
+  trust_service_documents_check: 'test',
+  trust_private_neighbor_question: 'test'
 };
 
 for(const id of expectedIds){
@@ -69,6 +80,9 @@ for(const [id, rule] of Object.entries(overrides.templates || {})){
 
   const status = resolvePortfolioStatus(template, portfolio);
   if(status === 'deprecated') errors.push(`${label}: устаревший шаблон не должен получать новую office-разметку`);
+  if(expectedTrustStatuses[id] && status !== expectedTrustStatuses[id]) {
+    errors.push(`${label}: portfolio status должен быть ${expectedTrustStatuses[id]}`);
+  }
 
   if(!rule || typeof rule !== 'object' || Array.isArray(rule)){
     errors.push(`${label}: правило должно быть объектом`);
@@ -111,6 +125,15 @@ for(const [id, rule] of Object.entries(overrides.templates || {})){
   }
 
   if(office.scenario) registerScenario(office.scenario, `override:${id}`);
+}
+
+const noPressureTemplate = templateById.get('trust_seller_no_pressure');
+const noPressureText = JSON.stringify(noPressureTemplate?.data || {});
+if(/реальн(?:ая|ую)\s+цен/i.test(noPressureText)) {
+  errors.push('trust_seller_no_pressure: нельзя обещать «реальную цену» без полноценной оценки');
+}
+if(!noPressureText.includes('ориентировочную стоимость')) {
+  errors.push('trust_seller_no_pressure: должна использоваться формулировка «ориентировочную стоимость»');
 }
 
 requireSnippets('assets/js/templates.js', loaderSource, [

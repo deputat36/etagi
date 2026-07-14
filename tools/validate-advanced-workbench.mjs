@@ -7,7 +7,8 @@ const files = {
   helper: 'assets/js/spnAdvancedWorkbench.js',
   entry: 'assets/js/spnUiMode.js',
   index: 'index.html',
-  guide: 'docs/advanced-workbench.md'
+  guide: 'docs/advanced-workbench.md',
+  smoke: 'tools/browser-smoke.html'
 };
 const sources = Object.fromEntries(
   Object.entries(files).map(([key, file]) => [key, readRequired(file)])
@@ -61,6 +62,15 @@ requireSnippets(files.guide, sources.guide, [
   'не создаёт копии секций',
   'etagi-raskleyka-advanced-workbench-open-v1',
   'npm run validate:advanced-workbench'
+]);
+
+requireSnippets(files.smoke, sources.smoke, [
+  "const advancedWorkbench = await waitForElement(doc, '#spnAdvancedWorkbench'",
+  "win.getComputedStyle(advancedWorkbench).display === 'none'",
+  "advancedWorkbench.querySelectorAll('.spn-advanced-workbench-body > .card').length === 3",
+  "setField(win, doc, '#leadQuickNote', 'Тестовая заметка workbench')",
+  "doc.getElementById('leadQuickNote')?.value === 'Тестовая заметка workbench'",
+  'Дополнительная аналитика: три инструмента сгруппированы и сохраняют значения'
 ]);
 
 if(errors.length){

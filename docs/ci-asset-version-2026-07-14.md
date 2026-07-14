@@ -14,6 +14,7 @@ validate → browser-smoke → print-screenshot × 5 → collect-print-screensho
 - версия совпадает с `package.json`;
 - старый токен `newbie-wizard-20260703-1` отсутствует;
 - `npm run assets:stamp` и `validate:asset-version` работают;
+- HTML-контракты качества допускают единый version-query;
 - runtime и печатная матрица остаются зелёными.
 
 PR служебный. Полезный код уже находится в `main`.

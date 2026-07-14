@@ -65,6 +65,7 @@ npm run validate:version-sync
 npm run validate:asset-version
 npm run validate:package-scripts
 npm run validate:changelog
+npm run validate:release-candidate
 npm run validate:layout-extras
 npm run validate:layout-media-preservation
 npm run validate:phone-helper
@@ -95,6 +96,30 @@ npm run validate:asset-version
 Запрещено вручную оставлять отдельные произвольные токены или смешивать версии. Источник версии — `package.json`. Подробности: `docs/asset-versioning.md`.
 
 Статические относительные импорты внутри ES-модулей массово не переписываются. Их целостность проверяют `validate:assets` и настоящий browser smoke.
+
+## Релиз-кандидат 3.86.0
+
+Подготовка версии ведётся через два документа:
+
+```text
+docs/release-3.86.0-candidate.md
+docs/manual-print-acceptance-3.86.0.md
+```
+
+Пока релиз имеет статус `DRAFT`:
+
+- `package.json` остаётся на версии `3.85.0`;
+- в `docs/changelog.md` не добавляется финальный раздел `## 3.86.0`;
+- ручная печатная приёмка имеет статус `НЕ ПРОЙДЕНА`;
+- незакрытые чекбоксы являются ожидаемым блокирующим состоянием.
+
+Перевод в `READY` разрешён только после физической проверки печати, QR, телефона, линий реза и расхода чернил. После этого версия, asset-token и changelog обновляются одной согласованной серией.
+
+Контракт проверяет:
+
+```bash
+npm run validate:release-candidate
+```
 
 ## Browser smoke
 
@@ -381,6 +406,8 @@ docs/distribution-field-mode-regression-checklist.md
 docs/print-screenshot-regression.md
 docs/ink-efficiency.md
 docs/asset-versioning.md
+docs/manual-print-acceptance-3.86.0.md
+docs/release-3.86.0-candidate.md
 ```
 
 ## GitHub Actions

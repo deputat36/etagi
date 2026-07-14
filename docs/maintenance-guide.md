@@ -62,6 +62,7 @@ npm run validate:storage-safety
 npm run validate:workspace-backup
 npm run validate:distribution-field-mode
 npm run validate:version-sync
+npm run validate:asset-version
 npm run validate:package-scripts
 npm run validate:changelog
 npm run validate:layout-extras
@@ -75,6 +76,25 @@ npm run validate:ci-config
 ```
 
 `validate:package-scripts` контролирует отсутствие пропусков, лишних команд и повторов в этом списке.
+
+## Единый asset-version
+
+CSS и JavaScript, подключённые непосредственно из `index.html`, используют единый токен:
+
+```text
+?v=<package.version>
+```
+
+После изменения версии в `package.json` выполнить:
+
+```bash
+npm run assets:stamp
+npm run validate:asset-version
+```
+
+Запрещено вручную оставлять отдельные произвольные токены или смешивать версии. Источник версии — `package.json`. Подробности: `docs/asset-versioning.md`.
+
+Статические относительные импорты внутри ES-модулей массово не переписываются. Их целостность проверяют `validate:assets` и настоящий browser smoke.
 
 ## Browser smoke
 
@@ -360,6 +380,7 @@ docs/workspace-backup-regression-checklist.md
 docs/distribution-field-mode-regression-checklist.md
 docs/print-screenshot-regression.md
 docs/ink-efficiency.md
+docs/asset-versioning.md
 ```
 
 ## GitHub Actions

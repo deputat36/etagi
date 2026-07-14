@@ -39,6 +39,8 @@ const expectedIds = new Set([
   'object_house_two','object_land','object_qr',
   'newbuild_no_commission','newbuild_family','newbuild_budget','newbuild_two_photo','newbuild_mortgage',
   'service_estimate','service_mortgage','service_complex_sale','service_intercity',
+  'rent_owner','rent_need','rent_room','brand_consult','brand_empty',
+  'private_buy_house','private_specific','seller_micro_4','object_micro_4','service_micro_4',
   'seller_empty_flat','buyer_first_flat','buyer_maternity_capital','buyer_low_budget',
   'object_ready_move_in','object_no_repair_sale','newbuild_family_mortgage','newbuild_layout_choice',
   'private_buy_flat','private_sell_flat',
@@ -77,6 +79,16 @@ const expectedPolicies = {
   service_mortgage: {recommended:false, level:'manager', risk:'high', recommendedPrintCount:2},
   service_complex_sale: {recommended:false, level:'manager', risk:'high', recommendedPrintCount:4},
   service_intercity: {recommended:true, level:'manager', risk:'medium', recommendedPrintCount:2},
+  rent_owner: {recommended:true, level:'manager', risk:'medium', recommendedPrintCount:2},
+  rent_need: {recommended:false, level:'manager', risk:'high', recommendedPrintCount:4},
+  rent_room: {recommended:false, level:'manager', risk:'high', recommendedPrintCount:4},
+  brand_consult: {recommended:true, level:'manager', risk:'medium', recommendedPrintCount:2},
+  brand_empty: {recommended:true, level:'newbie', risk:'low', recommendedPrintCount:1},
+  private_buy_house: {recommended:false, level:'manager', risk:'high', recommendedPrintCount:2},
+  private_specific: {recommended:false, level:'manager', risk:'high', recommendedPrintCount:4},
+  seller_micro_4: {recommended:false, level:'manager', risk:'high', recommendedPrintCount:4},
+  object_micro_4: {recommended:true, level:'manager', risk:'medium', recommendedPrintCount:4},
+  service_micro_4: {recommended:false, level:'manager', risk:'high', recommendedPrintCount:4},
   custom_blank_readable: {recommended:false, level:'manager', risk:'medium', recommendedPrintCount:2},
   custom_blank_entrance: {recommended:false, level:'manager', risk:'high', recommendedPrintCount:4},
   custom_object_photo_showcase: {recommended:false, level:'manager', risk:'medium', recommendedPrintCount:1},
@@ -107,6 +119,12 @@ const expectedStatuses = {
   newbuild_mortgage: 'test',
   service_mortgage: 'test',
   service_complex_sale: 'test',
+  rent_need: 'test',
+  rent_room: 'test',
+  private_buy_house: 'test',
+  private_specific: 'test',
+  seller_micro_4: 'test',
+  service_micro_4: 'test',
   custom_private_note: 'test',
   custom_service_consultation: 'test',
   custom_ab_test_short: 'test',
@@ -116,6 +134,13 @@ const expectedStatuses = {
 
 for(const id of expectedIds){
   if(!overrides.templates?.[id]) errors.push(`template_office_overrides.json: отсутствует обязательная разметка ${id}`);
+}
+
+for(const template of templates.filter(item => item.__file === 'templates.json')){
+  const status = resolvePortfolioStatus(template, portfolio);
+  if(status !== 'deprecated' && !overrides.templates?.[template.id]) {
+    errors.push(`templates.json:${template.id}: каждый неустаревший базовый шаблон должен иметь office-разметку`);
+  }
 }
 
 for(const [id, rule] of Object.entries(overrides.templates || {})){
@@ -190,7 +215,10 @@ if(errors.length){
   process.exit(1);
 }
 
+const baseTemplates = templates.filter(template => template.__file === 'templates.json');
+const classifiedBaseTemplates = baseTemplates.filter(template => resolvePortfolioStatus(template, portfolio) === 'deprecated' || overrides.templates?.[template.id]);
 console.log(`Office overrides: ${Object.keys(overrides.templates || {}).length}`);
+console.log(`Базовый пакет: ${classifiedBaseTemplates.length} из ${baseTemplates.length} классифицировано.`);
 console.log('Проверка реестра office-разметки пройдена.');
 
 function registerScenario(scenario, owner){

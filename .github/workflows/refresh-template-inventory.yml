@@ -1,0 +1,52 @@
+name: Refresh template portfolio inventory
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'data/templates*.json'
+      - 'data/template_portfolio_status.json'
+      - 'data/template_office_overrides.json'
+      - 'data/template_id_aliases.json'
+      - 'tools/template-portfolio-inventory.mjs'
+      - '.github/workflows/refresh-template-inventory.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: template-inventory-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Rebuild inventory
+        run: npm run templates:inventory
+
+      - name: Commit refreshed report
+        run: |
+          if git diff --quiet -- docs/template-portfolio-inventory.generated.md; then
+            echo "Template inventory is already current."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/template-portfolio-inventory.generated.md
+          git commit -m "docs: refresh template portfolio inventory"
+          git push origin HEAD:main

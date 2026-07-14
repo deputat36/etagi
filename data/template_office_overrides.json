@@ -113,6 +113,46 @@
       "tags": ["офис", "рекомендовано", "менеджер", "межгород"],
       "office": {"recommended": true, "level": "manager", "scenario": "base_service_intercity", "risk": "medium", "recommendedPrintCount": 2, "managerNote": "До печати проверить наличие специалиста и реальной возможности сопровождения в нужном городе, объём услуги, порядок передачи клиента, ответственность сторон и условия оплаты."}
     },
+    "rent_owner": {
+      "tags": ["офис", "рекомендовано", "менеджер", "аренда"],
+      "office": {"recommended": true, "level": "manager", "scenario": "base_rent_owner", "risk": "medium", "recommendedPrintCount": 2, "managerNote": "Перед печатью уточнить объём услуги, комиссию, порядок поиска и проверки арендатора, форму договора, ответственность сторон и корректность ориентира по арендной ставке."}
+    },
+    "rent_need": {
+      "tags": ["офис", "менеджер", "тестовый", "аренда", "подтверждённый спрос"],
+      "office": {"recommended": false, "level": "manager", "scenario": "base_rent_need", "risk": "high", "recommendedPrintCount": 4, "managerNote": "Использовать только при реальном нанимателе: подтвердить район, бюджет, срок, состав проживающих и требования; убрать обещания «аккуратные арендаторы» и «реальный запрос» без оснований."}
+    },
+    "rent_room": {
+      "tags": ["офис", "менеджер", "тестовый", "аренда", "подтверждённый спрос"],
+      "office": {"recommended": false, "level": "manager", "scenario": "base_rent_room", "risk": "high", "recommendedPrintCount": 4, "managerNote": "Печатать только при подтверждённом клиенте на комнату или студию; зафиксировать бюджет, район, срок, состав проживающих и не создавать видимость готового нанимателя без запроса."}
+    },
+    "brand_consult": {
+      "tags": ["офис", "рекомендовано", "менеджер", "личный бренд"],
+      "office": {"recommended": true, "level": "manager", "scenario": "base_brand_consult", "risk": "medium", "recommendedPrintCount": 2, "managerNote": "Проверить фотографию, имя, телефон и географию работы; объём консультаций по ипотеке, документам и оценке должен соответствовать компетенциям СПН и участию профильных специалистов."}
+    },
+    "brand_empty": {
+      "tags": ["офис", "рекомендовано", "новичку", "личный бренд"],
+      "office": {"recommended": true, "level": "newbie", "scenario": "base_brand_empty", "risk": "low", "recommendedPrintCount": 1, "managerNote": "Подходит новичку как общий контактный макет: проверить фотографию, имя и крупный телефон; на обращении уточнять задачу и не обещать юридический, ипотечный или оценочный результат."}
+    },
+    "private_buy_house": {
+      "tags": ["офис", "менеджер", "тестовый", "частное", "подтверждённый спрос"],
+      "office": {"recommended": false, "level": "manager", "scenario": "base_private_buy_house", "risk": "high", "recommendedPrintCount": 2, "managerNote": "Частный формат без бренда использовать только при реальном спросе на дом и после согласования; уточнить район, бюджет, участок, коммуникации, состояние и способ оплаты."}
+    },
+    "private_specific": {
+      "tags": ["офис", "менеджер", "тестовый", "частное", "подтверждённый спрос"],
+      "office": {"recommended": false, "level": "manager", "scenario": "base_private_specific", "risk": "high", "recommendedPrintCount": 4, "managerNote": "Поиск квартиры в конкретном доме печатать только при подтверждённом покупателе и согласованной частной подаче; проверить параметры, бюджет, способ оплаты и офисную политику."}
+    },
+    "seller_micro_4": {
+      "tags": ["офис", "менеджер", "тестовый", "короткий", "подтверждённый спрос"],
+      "office": {"recommended": false, "level": "manager", "scenario": "base_seller_micro_4", "risk": "high", "recommendedPrintCount": 4, "managerNote": "Массовый короткий заголовок «Куплю квартиру» допустим только при подтверждённом спросе; перед печатью указать район или критерий и проверить крупный телефон."}
+    },
+    "object_micro_4": {
+      "tags": ["офис", "рекомендовано", "менеджер", "короткий", "объект"],
+      "office": {"recommended": true, "level": "manager", "scenario": "base_object_micro_4", "risk": "medium", "recommendedPrintCount": 4, "managerNote": "Использовать только для актуального объекта; несмотря на короткий формат, проверить цену, район, ключевой параметр, условия просмотра, телефон и отсутствие вводящего в заблуждение текста."}
+    },
+    "service_micro_4": {
+      "tags": ["офис", "менеджер", "тестовый", "короткий", "услуга"],
+      "office": {"recommended": false, "level": "manager", "scenario": "base_service_micro_4", "risk": "high", "recommendedPrintCount": 4, "managerNote": "До массовой печати выбрать конкретный вид консультации; ипотеку, документы и оценку нельзя объединять без определения объёма услуги и участия профильных специалистов."}
+    },
     "seller_empty_flat": {
       "tags": ["офис", "менеджер", "тестовый"],
       "office": {"recommended": false, "level": "manager", "scenario": "extra_empty_flat_options", "risk": "high", "recommendedPrintCount": 4, "managerNote": "Использовать только после проверки: заголовок «Куплю» допустим при подтверждённом спросе; иначе заменить его на предложение оценки и вариантов использования квартиры."}

@@ -77,6 +77,42 @@
       "tags": ["офис", "рекомендовано", "менеджер", "объект", "qr"],
       "office": {"recommended": true, "level": "manager", "scenario": "base_object_qr", "risk": "medium", "recommendedPrintCount": 2, "managerNote": "QR должен вести на актуальную страницу именно этого объекта; проверить ссылку с двух телефонов, фотографии, цену, параметры, контакты и доступность предложения перед печатью."}
     },
+    "newbuild_no_commission": {
+      "tags": ["офис", "менеджер", "тестовый", "новостройки"],
+      "office": {"recommended": false, "level": "manager", "scenario": "base_newbuild_no_commission", "risk": "high", "recommendedPrintCount": 2, "managerNote": "Перед печатью подтвердить по каждому проекту, что покупатель действительно не платит комиссию, проверить договор с застройщиком, актуальные цены, доступные квартиры и условия услуги."}
+    },
+    "newbuild_family": {
+      "tags": ["офис", "рекомендовано", "менеджер", "новостройки"],
+      "office": {"recommended": true, "level": "manager", "scenario": "base_newbuild_family", "risk": "medium", "recommendedPrintCount": 2, "managerNote": "Проверить актуальные проекты, районы, инфраструктуру, планировки, этажи, сроки сдачи и реальные плюсы и минусы; не обещать ипотечные условия без отдельного расчёта."}
+    },
+    "newbuild_budget": {
+      "tags": ["офис", "менеджер", "тестовый", "новостройки", "ипотека"],
+      "office": {"recommended": false, "level": "manager", "scenario": "base_newbuild_budget", "risk": "high", "recommendedPrintCount": 4, "managerNote": "Перед тиражом пересчитать цены, первоначальный взнос и платёж по актуальным программам; формулировку «где выгоднее» использовать только после сравнения доступных проектов и полной стоимости."}
+    },
+    "newbuild_two_photo": {
+      "tags": ["офис", "рекомендовано", "менеджер", "новостройки", "объект"],
+      "office": {"recommended": true, "level": "manager", "scenario": "base_newbuild_two_photo", "risk": "medium", "recommendedPrintCount": 2, "managerNote": "Фасад, визуализация и планировка должны относиться к выбранному проекту и актуальной квартире; проверить площадь, этаж, цену, срок сдачи, отделку и доступность лота."}
+    },
+    "newbuild_mortgage": {
+      "tags": ["офис", "менеджер", "тестовый", "новостройки", "ипотека"],
+      "office": {"recommended": false, "level": "manager", "scenario": "base_newbuild_mortgage", "risk": "high", "recommendedPrintCount": 2, "managerNote": "Проверить актуальные ставки, банки, программы, первоначальный взнос и требования к клиенту; платёж и доступность квартиры указывать только по свежему расчёту без гарантии одобрения."}
+    },
+    "service_estimate": {
+      "tags": ["офис", "рекомендовано", "новичку", "оценка"],
+      "office": {"recommended": true, "level": "newbie", "scenario": "base_service_estimate", "risk": "low", "recommendedPrintCount": 2, "managerNote": "Подходит новичку: предлагать предварительный ориентир по аналогам и факторам стоимости, не называть его официальной или точной оценкой и не обещать цену продажи."}
+    },
+    "service_mortgage": {
+      "tags": ["офис", "менеджер", "тестовый", "ипотека"],
+      "office": {"recommended": false, "level": "manager", "scenario": "base_service_mortgage", "risk": "high", "recommendedPrintCount": 2, "managerNote": "Перед печатью проверить актуальные программы, документы и требования банков; не обещать конкретный платёж, подачу заявки, одобрение или подходящий объект без консультации и расчёта."}
+    },
+    "service_complex_sale": {
+      "tags": ["офис", "менеджер", "тестовый", "юридическая проверка"],
+      "office": {"recommended": false, "level": "manager", "scenario": "base_service_complex_sale", "risk": "high", "recommendedPrintCount": 4, "managerNote": "Сценарий использовать после первичного разбора ситуации; доли, наследство, материнский капитал, обременения и юридическую консультацию согласовать с профильным специалистом."}
+    },
+    "service_intercity": {
+      "tags": ["офис", "рекомендовано", "менеджер", "межгород"],
+      "office": {"recommended": true, "level": "manager", "scenario": "base_service_intercity", "risk": "medium", "recommendedPrintCount": 2, "managerNote": "До печати проверить наличие специалиста и реальной возможности сопровождения в нужном городе, объём услуги, порядок передачи клиента, ответственность сторон и условия оплаты."}
+    },
     "seller_empty_flat": {
       "tags": ["офис", "менеджер", "тестовый"],
       "office": {"recommended": false, "level": "manager", "scenario": "extra_empty_flat_options", "risk": "high", "recommendedPrintCount": 4, "managerNote": "Использовать только после проверки: заголовок «Куплю» допустим при подтверждённом спросе; иначе заменить его на предложение оценки и вариантов использования квартиры."}

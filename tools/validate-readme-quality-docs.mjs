@@ -8,8 +8,11 @@ const pkg = readPackage(packageSource);
 
 check(readmeSource, 'README.md', [
   '# Генератор расклеек СПН «Этажи»',
-  '## Актуальный аудит и план',
+  '## Актуальный статус и план',
+  'docs/current-project-status-2026-07-14.md',
   'docs/full-project-audit-and-roadmap-2026-07-11.md',
+  'ручная viewport- и печатная приёмка #40',
+  'менеджерская проверка #51',
   '### Контроль качества',
   'прямые безопасные действия для пустого QR, фото и отсутствующего канала отклика',
   'выбранные блоки не выключаются автоматически, а пользователь переходит к нужному полю или включает контакты только при корректном телефоне',
@@ -21,13 +24,15 @@ check(readmeSource, 'README.md', [
   'npm run validate',
   'assets/js/quality.js',
   'assets/js/spnWorkspaceBackup.js',
-  'tools/validate-runtime-architecture.mjs'
+  'tools/validate-runtime-architecture.mjs',
+  'tools/validate-manager-sensitive-review.mjs'
 ]);
 
 for (const file of [
   'assets/js/qualityExtraActions.js',
   'assets/js/qualityQrDeduplicate.js',
   'assets/js/qrSizeHint.js',
+  'docs/current-project-status-2026-07-14.md',
   'docs/quality-helper-map.md',
   'docs/quality-regression-checklist.md',
   'tools/validate-asset-duplicates.mjs',
@@ -38,7 +43,8 @@ for (const file of [
   'tools/validate-quality-helper-imports.mjs',
   'tools/validate-quality-regression-checklist.mjs',
   'tools/validate-quality-helper-map.mjs',
-  'tools/validate-qr-empty-direct-action.mjs'
+  'tools/validate-qr-empty-direct-action.mjs',
+  'tools/validate-manager-sensitive-review.mjs'
 ]) {
   if (!fs.existsSync(file)) errors.push(`${file}: файл не найден`);
 }
@@ -84,7 +90,7 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log('README, документация и workflow по helper-модулям качества актуальны.');
+console.log('README, актуальный статус, документация и workflow по helper-модулям качества актуальны.');
 
 function check(source, file, snippets) {
   for (const snippet of snippets) {

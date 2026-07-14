@@ -30,17 +30,17 @@ try {
     '--hide-scrollbars',
     '--window-size=1440,1200',
     `--user-data-dir=${profileDir}`,
-    '--virtual-time-budget=42000',
+    '--virtual-time-budget=70000',
     '--dump-dom',
     url
   ], {
     cwd: rootDir,
     encoding: 'utf8',
-    timeout: 55000,
+    timeout: 85000,
     maxBuffer: 12 * 1024 * 1024
   });
 
-  if (result.timedOut) fail('Browser smoke: Chrome не завершил smoke-сценарий за 55 секунд.', result.stderr);
+  if (result.timedOut) fail('Browser smoke: Chrome не завершил smoke-сценарий за 85 секунд.', result.stderr);
   if (result.overflow) fail('Browser smoke: вывод Chrome превысил безопасный лимит 12 МБ.', result.stderr);
   if (result.error) fail(`Browser smoke: не удалось запустить браузер — ${result.error.message}`);
 

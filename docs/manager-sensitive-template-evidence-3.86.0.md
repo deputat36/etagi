@@ -4,7 +4,7 @@
 
 Источник данных: `data/templates*.json`, `data/template_office_overrides.json`, `data/template_portfolio_status.json`
 
-Пакет автоматически сверяется командой `npm run validate:manager-sensitive-review`.
+Пакет автоматически сверяется внутри `npm run validate:release-candidate`. Для отдельной диагностики используется `node tools/validate-manager-sensitive-review.mjs`.
 
 Документ показывает текущий текст макетов и действующие ограничения. Решение менеджера фиксируется в основном бланке, а изменения вносятся в исходные JSON-файлы.
 

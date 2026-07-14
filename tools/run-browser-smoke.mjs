@@ -4,6 +4,8 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawn, spawnSync } from 'node:child_process';
 
+class SmokeHarnessError extends Error {}
+
 const rootDir = process.cwd();
 const failureLogPath = path.join(rootDir, 'browser-smoke-failure.log');
 fs.rmSync(failureLogPath, {force:true});
@@ -40,6 +42,7 @@ async function runBrowserSmoke(command, port){
       const result = await runWithCdpPipe(command, profileDir, url);
       return {attempt, ...result};
     } catch(error){
+      if(error instanceof SmokeHarnessError) throw error;
       lastFailure = `Browser smoke: попытка ${attempt} — ${error.message || error}`;
     } finally {
       fs.rmSync(profileDir, {recursive:true, force:true});
@@ -96,11 +99,12 @@ async function runWithCdpPipe(command, profileDir, url){
     await cdp.send('Page.navigate', {url}, sessionId, 12000);
 
     const smokeStatus = await waitForSmokeStatus(cdp, sessionId, 80000);
-    if(smokeStatus.status !== 'passed') throw new Error(smokeStatus.text || `harness status: ${smokeStatus.status}`);
+    if(smokeStatus.status !== 'passed') throw new SmokeHarnessError(smokeStatus.text || `harness status: ${smokeStatus.status}`);
 
     return {text:smokeStatus.text, waitMs:Date.now() - startedAt};
   } catch(error){
     const details = stderr ? `${error.message || error}\n${stderr}` : String(error.message || error);
+    if(error instanceof SmokeHarnessError) throw new SmokeHarnessError(details);
     throw new Error(details);
   } finally {
     cdp.close();
@@ -302,14 +306,10 @@ function contentType(filePath){
   })[ext] || 'application/octet-stream';
 }
 
-function terminateNow(message){
+function failImmediately(message){
   writeFailureLog(message);
   console.error(message);
   process.exit(1);
-}
-
-function failImmediately(message){
-  terminateNow(message);
 }
 
 function writeFailureLog(message){

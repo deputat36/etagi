@@ -52,9 +52,15 @@ requireSnippets('tools/run-browser-smoke.mjs', browserSmokeRunnerSource, [
   "import { spawn, spawnSync } from 'node:child_process';",
   "const failureLogPath = path.join(rootDir, 'browser-smoke-failure.log')",
   'writeFailureLog(message)','fs.writeFileSync(failureLogPath','findChrome()','createStaticServer(rootDir)',
-  'const result = await runChrome(chrome, [','function runChrome(command, args, options)',"child.kill('SIGKILL')",
-  "'--headless=new'","'--virtual-time-budget=70000'",'timeout: 85000','за 85 секунд',"'--dump-dom'",'data-status="passed"'
+  'for(let attempt = 1; attempt <= 2; attempt += 1)',"'--headless=new'","'--remote-debugging-pipe'",
+  "cdp.send('Target.createTarget'","cdp.send('Runtime.evaluate'",'waitForSmokeStatus','createCdpPipeClient',
+  "document.getElementById('browserSmokeResult')",'latest.status === \'passed\' || latest.status === \'failed\'',
+  'server.keepAliveTimeout = 1',"'Connection':'close'",'terminateProcess(child)','Browser smoke passed via CDP pipe'
 ]);
+
+for(const forbidden of ["'--virtual-time-budget=", "'--dump-dom'", 'function runChrome(command, args, options)']){
+  if(browserSmokeRunnerSource.includes(forbidden)) errors.push(`tools/run-browser-smoke.mjs: запрещён устаревший CLI smoke-runner — ${forbidden}`);
+}
 
 if (browserSmokeRunnerSource.includes('spawnSync(chrome,')) {
   errors.push('tools/run-browser-smoke.mjs: Chrome нельзя запускать через spawnSync — он блокирует локальный HTTP-сервер');

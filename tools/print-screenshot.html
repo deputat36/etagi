@@ -33,7 +33,7 @@
         setField(win, doc, '#area', 'Борисоглебск');
 
         if(scenario === 'one-no-photo') await prepareOneNoPhoto(doc);
-        else if(scenario === 'two-big-phone') await prepareTwoBigPhone(doc);
+        else if(scenario === 'two-big-phone') await prepareTwoBigPhone(win, doc);
         else if(scenario === 'one-showcase') await prepareOneShowcase(win, doc);
         else if(scenario === 'two-photo') await prepareTwoPhoto(win, doc);
         else if(scenario === 'four-contacts') await prepareFourContacts(doc);
@@ -60,12 +60,28 @@
       await waitFor(() => doc.querySelectorAll('#printSheet .flyer.no-photo.count-1').length === 1, 3000, 'не создан 1 макет без фото');
     }
 
-    async function prepareTwoBigPhone(doc){
+    async function prepareTwoBigPhone(win, doc){
       click(doc, '[data-photo="none"]');
       click(doc, '[data-layout-mode="readable"]');
       await waitFor(() => doc.querySelectorAll('#printSheet .flyer.no-photo.count-2').length === 2, 3000, 'не создано 2 макета без фото');
       const phone = doc.querySelector('#printSheet .flyer .phone');
       if(!phone || parseFloat(frame.contentWindow.getComputedStyle(phone).fontSize) < 30) throw new Error('телефон недостаточно крупный');
+      await verifyInlineHeadlineEditing(win, doc);
+    }
+
+    async function verifyInlineHeadlineEditing(win, doc){
+      const value = 'РЕДАКТИРУЮ ПРЯМО НА МАКЕТЕ';
+      const editable = doc.querySelector('#printSheet [data-inline-field="headline"]');
+      if(!editable || !editable.isContentEditable) throw new Error('заголовок на макете не стал редактируемым');
+      editable.focus();
+      editable.textContent = value;
+      editable.blur();
+      await waitFor(() => doc.getElementById('headline')?.value === value, 3000, 'прямое редактирование не синхронизировало поле заголовка');
+      await waitFor(() => {
+        const headlines = [...doc.querySelectorAll('#printSheet [data-inline-field="headline"]')];
+        return headlines.length === 2 && headlines.every(item => item.textContent.trim() === value);
+      }, 3000, 'прямое редактирование не обновило все копии макета');
+      await new Promise(resolve => win.requestAnimationFrame(() => win.requestAnimationFrame(resolve)));
     }
 
     async function prepareOneShowcase(win, doc){
@@ -105,18 +121,19 @@
       }
       const expected = {'one-no-photo':1,'two-big-phone':2,'one-showcase':1,'two-photo':2,'four-contacts':4}[currentScenario];
       if(flyers.length !== expected) throw new Error(`ожидалось ${expected} макетов, получено ${flyers.length}`);
-      if(currentScenario === 'four-contacts') assertInkEfficientContacts(flyers);
+      assertLightweightContacts(flyers);
     }
 
-    function assertInkEfficientContacts(flyers){
+    function assertLightweightContacts(flyers){
       for(const flyer of flyers){
         const contact = flyer.querySelector('.contact');
-        if(!contact) throw new Error('в плотном макете отсутствует контактная зона');
+        if(!contact) throw new Error('в макете отсутствует контактная зона');
         const style = frame.contentWindow.getComputedStyle(contact);
-        if(relativeLuminance(style.backgroundColor) < 0.82) throw new Error('экономный режим оставил тёмную сплошную контактную заливку');
-        if(parseFloat(style.borderTopWidth) < 1) throw new Error('экономная контактная зона потеряла цветную рамку');
+        if(relativeLuminance(style.backgroundColor) < 0.82) throw new Error('контактная зона оставила большую тёмную сплошную заливку');
+        if(parseFloat(style.borderTopWidth) < 1) throw new Error('светлая контактная зона потеряла цветную рамку');
+        if(parseFloat(style.paddingTop) > 11) throw new Error('контактная зона сохранила чрезмерный внутренний отступ');
         const phone = contact.querySelector('.phone');
-        if(!phone || relativeLuminance(frame.contentWindow.getComputedStyle(phone).color) > 0.45) throw new Error('телефон в экономной контактной зоне недостаточно контрастный');
+        if(!phone || relativeLuminance(frame.contentWindow.getComputedStyle(phone).color) > 0.45) throw new Error('телефон в светлой контактной зоне недостаточно контрастный');
       }
     }
 

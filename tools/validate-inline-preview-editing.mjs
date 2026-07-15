@@ -7,6 +7,8 @@ const files = {
   module: 'assets/js/spnInlinePreviewEditor.js',
   render: 'assets/js/render.js',
   entry: 'assets/js/spnUiMode.js',
+  index: 'index.html',
+  package: 'package.json',
   screenshot: 'tools/print-screenshot.html',
   guide: 'docs/inline-preview-editing.md'
 };
@@ -60,6 +62,15 @@ requireSnippets(files.entry, sources.entry, [
 if(sources.entry.indexOf("import './spnInlinePreviewEditor.js';") < sources.entry.indexOf("import './spnContactEditor.js';")){
   errors.push(`${files.entry}: inline-редактор должен подключаться после редактора контактного призыва`);
 }
+forbidSnippets(files.index, sources.index, [
+  'src="assets/js/spnInlinePreviewEditor.js"',
+  "src='assets/js/spnInlinePreviewEditor.js'"
+]);
+
+const pkg = readJson(files.package, sources.package);
+if(String(pkg?.scripts?.['test:inline-preview-editing'] || '').trim() !== 'node tools/validate-inline-preview-editing.mjs'){
+  errors.push(`${files.package}: test:inline-preview-editing должен запускать node tools/validate-inline-preview-editing.mjs`);
+}
 
 requireSnippets(files.screenshot, sources.screenshot, [
   'verifyInlineHeadlineEditing',
@@ -75,7 +86,8 @@ requireSnippets(files.guide, sources.guide, [
   'обновится во всех копиях макета на листе',
   'Esc отменяет',
   'Вставка выполняется как обычный текст без HTML-разметки',
-  'npm run validate:inline-preview-editing'
+  'npm run test:inline-preview-editing',
+  'npm run validate:ink-efficiency'
 ]);
 
 if(errors.length){
@@ -95,6 +107,15 @@ function requireSnippets(file, source, snippets){
 function forbidSnippets(file, source, snippets){
   for(const snippet of snippets){
     if(source.includes(snippet)) errors.push(`${file}: найден запрещённый фрагмент — ${snippet}`);
+  }
+}
+
+function readJson(file, source){
+  try{
+    return JSON.parse(source || '{}');
+  } catch(error){
+    errors.push(`${file}: JSON не читается — ${error.message}`);
+    return null;
   }
 }
 

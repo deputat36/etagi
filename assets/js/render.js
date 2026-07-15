@@ -81,7 +81,7 @@ function renderFlyer(state){
 
 function renderAgentBrandIdentity(state){
   const name = String(state.agentName || '').trim() || 'ИМЯ СПЕЦИАЛИСТА';
-  return `<div class="agent-brand-identity"><strong>${esc(name)}</strong><span>Специалист по недвижимости</span></div>`;
+  return `<div class="agent-brand-identity"><strong${inlineEditAttrs('agentName', 'Имя специалиста')}>${esc(name)}</strong><span>Специалист по недвижимости</span></div>`;
 }
 
 function renderBrandRow(state){
@@ -89,10 +89,10 @@ function renderBrandRow(state){
 }
 
 function renderBlock(blockId, state){
-  if(blockId === 'headline') return state.showHeadline ? `<div class="headline">${esc(state.headline)}</div>` : '';
-  if(blockId === 'price') return state.showPrice && state.price ? `<div class="subline">${esc(state.price)}</div>` : '';
+  if(blockId === 'headline') return state.showHeadline ? `<div class="headline"${inlineEditAttrs('headline', 'Заголовок', {multiline:true})}>${esc(state.headline)}</div>` : '';
+  if(blockId === 'price') return state.showPrice && state.price ? `<div class="subline"${inlineEditAttrs('price', 'Цена или бюджет')}>${esc(state.price)}</div>` : '';
   if(blockId === 'photo') return hasRenderablePhoto(state) ? renderPhotos(state) : '';
-  if(blockId === 'description') return state.showDescription && state.description ? `<div class="desc">${esc(state.description)}</div>` : '';
+  if(blockId === 'description') return state.showDescription && state.description ? `<div class="desc"${inlineEditAttrs('description', 'Описание', {multiline:true})}>${esc(state.description)}</div>` : '';
   if(blockId === 'meta') return state.showMeta ? renderMeta(state) : '';
   if(blockId === 'benefits') return state.showBenefits ? renderBenefits(state) : '';
   if(blockId === 'customBlock') return state.showCustomBlock ? renderCustomBlock(state) : '';
@@ -103,7 +103,7 @@ function renderBlock(blockId, state){
 function renderBenefits(state){
   const benefits = nl(state.benefits).slice(0, Number(state.printCount)>=4 ? 3 : 5);
   if(!benefits.length) return '';
-  return `<div class="benefits">${benefits.map(x=>`<div class="benefit">${esc(x)}</div>`).join('')}</div>`;
+  return `<div class="benefits">${benefits.map((value, index)=>`<div class="benefit"${inlineEditAttrs('benefits', `Преимущество ${index + 1}`, {index})}>${esc(value)}</div>`).join('')}</div>`;
 }
 
 function hasRenderablePhoto(state){
@@ -120,14 +120,14 @@ function renderPhotos(state){
 }
 function renderMeta(state){
   const items = [];
-  if(state.area) items.push(['Район', state.area]);
-  if(state.propertyType) items.push(['Тип', state.propertyType]);
-  if(state.params) items.push(['Параметры', state.params]);
+  if(state.area) items.push(['Район', 'area', state.area]);
+  if(state.propertyType) items.push(['Тип', 'propertyType', state.propertyType]);
+  if(state.params) items.push(['Параметры', 'params', state.params]);
   if(!items.length) return '';
   if(shouldUseCompactMeta(state)){
-    return `<div class="meta meta-inline">${items.slice(0,4).map(([k,v])=>`<span><b>${esc(k)}:</b> ${esc(v)}</span>`).join('')}</div>`;
+    return `<div class="meta meta-inline">${items.slice(0,4).map(([label,field,value])=>`<span><b>${esc(label)}:</b> <span class="meta-value"${inlineEditAttrs(field, label)}>${esc(value)}</span></span>`).join('')}</div>`;
   }
-  return `<div class="meta">${items.slice(0,4).map(([k,v])=>`<div>${esc(k)}<br>${esc(v)}</div>`).join('')}</div>`;
+  return `<div class="meta">${items.slice(0,4).map(([label,field,value])=>`<div><span class="meta-label">${esc(label)}</span><br><span class="meta-value"${inlineEditAttrs(field, label)}>${esc(value)}</span></div>`).join('')}</div>`;
 }
 function shouldUseCompactMeta(state){
   return Number(state.printCount) >= 4 || state.layoutDensity === 'dense';
@@ -136,23 +136,24 @@ function renderCustomBlock(state){
   const title = String(state.customBlockTitle || '').trim();
   const text = String(state.customBlockText || '').trim();
   if(!title && !text) return '';
-  return `<div class="custom-block">${title ? `<b>${esc(title)}</b>` : ''}${text ? `<span>${esc(text)}</span>` : ''}</div>`;
+  return `<div class="custom-block">${title ? `<b${inlineEditAttrs('customBlockTitle', 'Название дополнительного блока')}>${esc(title)}</b>` : ''}${text ? `<span${inlineEditAttrs('customBlockText', 'Текст дополнительного блока', {multiline:true})}>${esc(text)}</span>` : ''}</div>`;
 }
 function renderContact(state){
   return `<div class="contact">
-    <div class="phone">${esc(state.agentPhone || 'ВАШ ТЕЛЕФОН')}</div>
-    <div class="person">${esc(state.agentName || 'Специалист по недвижимости')}</div>
-    <div class="cta">${esc(getContactCta(state))}</div>
+    <div class="phone"${inlineEditAttrs('agentPhone', 'Телефон')}>${esc(state.agentPhone || 'ВАШ ТЕЛЕФОН')}</div>
+    <div class="person"${inlineEditAttrs('agentName', 'Имя специалиста')}>${esc(state.agentName || 'Специалист по недвижимости')}</div>
+    <div class="cta"${inlineEditAttrs('contactCta', 'Призыв в контактах')}>${esc(getContactCta(state))}</div>
   </div>`;
 }
 function renderQr(state){
   if(!state.qrLink) return '';
   const qr = createQrSvg(state.qrLink);
   const caption = esc(state.qrCaption || 'Открыть ссылку');
+  const captionAttrs = inlineEditAttrs('qrCaption', 'Подпись QR');
   if(!qr.ok){
-    return `<div class="qr-row qr-standalone"><div class="qr-box qr-error">QR</div><span>${caption}<br>ссылка слишком длинная</span></div>`;
+    return `<div class="qr-row qr-standalone"><div class="qr-box qr-error">QR</div><span${captionAttrs}>${caption}<br>ссылка слишком длинная</span></div>`;
   }
-  return `<div class="qr-row qr-standalone"><div class="qr-box real-qr">${qr.svg}</div><span>${caption}</span></div>`;
+  return `<div class="qr-row qr-standalone"><div class="qr-box real-qr">${qr.svg}</div><span${captionAttrs}>${caption}</span></div>`;
 }
 function renderTears(state){
   const phone = esc(state.agentPhone || 'телефон');
@@ -180,6 +181,11 @@ function splitTearTopic(value){
     return [`${clean.slice(0, cut)}-`, clean.slice(cut)].filter(Boolean);
   }
   return [clean];
+}
+function inlineEditAttrs(field, label, options = {}){
+  const indexAttr = Number.isInteger(options.index) ? ` data-inline-index="${options.index}"` : '';
+  const multilineAttr = options.multiline ? ' aria-multiline="true"' : ' aria-multiline="false"';
+  return ` data-inline-field="${field}" data-inline-label="${esc(label)}"${indexAttr} contenteditable="true" spellcheck="true" tabindex="0" role="textbox"${multilineAttr} title="Нажмите, чтобы изменить текст прямо на макете"`;
 }
 function normalizeBlockOrder(order){
   const safe = Array.isArray(order) ? order.filter(id => DEFAULT_BLOCK_ORDER.includes(id)) : [];

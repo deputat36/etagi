@@ -49,7 +49,10 @@ function updateInkTip(list){
   const showContact = document.getElementById('showContact');
   const activeCount = document.querySelector('#printPresetRow [data-count].active');
   const count = Number(activeCount?.dataset.count) || 2;
-  const shouldShow = colorMode?.value === 'brand' && Boolean(showContact?.checked) && count >= 4;
+  const shouldShow = colorMode?.value === 'brand'
+    && Boolean(showContact?.checked)
+    && count >= 4
+    && hasDarkContactFill();
 
   if(!shouldShow){
     existing?.remove();
@@ -60,8 +63,23 @@ function updateInkTip(list){
   const item = document.createElement('div');
   item.className = 'qitem tip ink-efficiency-tip';
   item.setAttribute(TIP_ATTR, '');
-  item.innerHTML = '<b>Повышенный расход чернил</b>При 4 и более макетах тёмная контактная плашка повторяется несколько раз. Экономный цвет сохранит фото и фирменный акцент, но заменит крупные заливки светлым фоном и рамкой.<br><button type="button" data-ink-efficiency-action="economy">Экономный цвет</button>';
+  item.innerHTML = '<b>Повышенный расход чернил</b>Контактная зона снова стала тёмной. Экономный цвет вернёт светлый фон, заметную рамку и узкую акцентную полосу без удаления телефона, фото или QR.<br><button type="button" data-ink-efficiency-action="economy">Экономный цвет</button>';
   list.append(item);
+}
+
+function hasDarkContactFill(){
+  const contact = document.querySelector('#printSheet .flyer .contact');
+  if(!contact) return false;
+  return relativeLuminance(getComputedStyle(contact).backgroundColor) < 0.82;
+}
+
+function relativeLuminance(value){
+  const rgb = String(value || '').match(/[\d.]+/g)?.slice(0,3).map(Number) || [0,0,0];
+  const channels = rgb.map(channel => {
+    const normalized = channel / 255;
+    return normalized <= .03928 ? normalized / 12.92 : Math.pow((normalized + .055) / 1.055, 2.4);
+  });
+  return .2126 * channels[0] + .7152 * channels[1] + .0722 * channels[2];
 }
 
 function handleInkAction(event){
@@ -87,6 +105,21 @@ function injectStyles(){
   const style = document.createElement('style');
   style.id = STYLE_ID;
   style.textContent = `
+    .flyer .contact{
+      background:#fff!important;
+      color:#111827!important;
+      border:.45mm solid var(--accent)!important;
+      padding:2.2mm 2.8mm!important;
+      gap:.7mm!important;
+      box-shadow:inset 0 1mm 0 var(--accent)!important;
+    }
+    .flyer .contact .phone,
+    .flyer .contact .person{color:#111827!important}
+    .flyer .contact .cta{color:#334155!important}
+    .flyer.private .contact{
+      border-color:#475569!important;
+      box-shadow:inset 0 1mm 0 #475569!important;
+    }
     .flyer.color-economy{--accent:#0b72b9}
     .flyer.color-economy .brand-mark{
       background:#fff!important;
@@ -127,6 +160,7 @@ function injectStyles(){
     .flyer.color-economy.layout-agent_brand_photo .photos{box-shadow:none!important}
     .ink-efficiency-tip button{background:#fff;border:1px solid #94a3b8;color:#1e293b}
     @media print{
+      .flyer .contact,
       .flyer.color-economy{
         -webkit-print-color-adjust:exact;
         print-color-adjust:exact;

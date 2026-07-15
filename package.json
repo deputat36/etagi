@@ -13,6 +13,7 @@
     "test:cdp-failure-artifact": "node tools/test-cdp-failure-artifact.mjs",
     "test:release-status-details": "node tools/test-release-status-details.mjs",
     "test:release-readiness-states": "node tools/test-release-readiness-states.mjs",
+    "test:inline-preview-editing": "node tools/validate-inline-preview-editing.mjs",
     "validate:templates": "node tools/validate-templates.mjs",
     "validate:template-id-aliases": "node tools/validate-template-id-aliases.mjs",
     "validate:borisoglebsk-coverage": "node tools/validate-borisoglebsk-coverage.mjs",

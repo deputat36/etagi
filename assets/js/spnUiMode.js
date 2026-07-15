@@ -2,6 +2,7 @@ import './spnTearOffEditor.js';
 import './spnBlockControls.js';
 import './spnQrStandaloneStyle.js';
 import './spnContactEditor.js';
+import './spnInlinePreviewEditor.js';
 import './spnBrandEditor.js';
 import './spnQrEditor.js';
 import './spnPriceHelper.js';

@@ -28,7 +28,7 @@ requireSnippets(files.module, sources.module, [
   "input.dispatchEvent(new Event('input', {bubbles:true}))",
   'updateBenefitLine',
   'insertPlainText',
-  'Нажмите на текст в макете',
+  'нажмите на текст в макете',
   '@media print'
 ]);
 

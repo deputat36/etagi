@@ -18,7 +18,6 @@ check(readmeSource, 'README.md', [
   'docs/full-project-audit-and-roadmap-2026-07-11.md',
   'ручная viewport- и печатная приёмка #40',
   'менеджерская проверка #51',
-  'PR-run #1468',
   '12 чувствительным шаблонам',
   '### Контроль качества',
   'прямые безопасные действия для пустого QR, фото и отсутствующего канала отклика',
@@ -53,16 +52,16 @@ check(ciVerificationSource, 'docs/ci-verification-3.86.0.md', [
   '# CI-проверка релиз-кандидата 3.86.0',
   'Статус: ПРОЙДЕНА',
   'Pull request: #52',
-  'Успешный workflow run: #1468',
-  'Workflow run ID: `29341753329`',
-  'Проверенный head SHA: `1fb0e9da0bc13a81d182bc0f1949c1438f15d5ea`',
+  'Успешный workflow run: #',
+  'Workflow run ID: `',
+  'Проверенный head SHA: `',
   'Workflow run #1458',
   '`seller_empty_flat`',
   'evidence-пакет 12 чувствительных шаблонов',
   'Итоговый artifact: `print-screenshots`',
-  'Artifact ID: `8314350154`',
-  'sha256:c2ea61a8b5503add6bde135b3d3c0b4fa52e263111050e9c3763f48a46b832ab',
-  'Все пять сценариев имеют `attempt: 1` и `captureMethod: cdp-pipe`.',
+  'Artifact ID: `',
+  'Digest: `sha256:',
+  '`captureMethod: cdp-pipe`',
   'ручные issues #40 и #51 не закрыты автоматическим запуском'
 ]);
 
@@ -137,10 +136,27 @@ function validateStatusSnapshot() {
   const releaseStatus = releaseSource.match(/^Статус:\s*(DRAFT|READY)\s*$/m)?.[1] || '';
   const targetVersion = releaseSource.match(/^Целевая версия:\s*([0-9.]+)\s*$/m)?.[1] || '';
   const workflowRun = releaseSource.match(/Последний полный контроль:\s*GitHub Actions workflow run #(\d+)/)?.[1] || '';
+  const ciWorkflowRun = ciVerificationSource.match(/^Успешный workflow run:\s*#(\d+)\s*$/m)?.[1] || '';
+  const ciResultRun = ciVerificationSource.match(/^## Результат run #(\d+)\s*$/m)?.[1] || '';
+  const ciWorkflowRunId = ciVerificationSource.match(/^Workflow run ID:\s*`(\d+)`\s*$/m)?.[1] || '';
+  const ciHeadSha = ciVerificationSource.match(/^Проверенный head SHA:\s*`([0-9a-f]{40})`\s*$/m)?.[1] || '';
+  const ciArtifactId = ciVerificationSource.match(/^Artifact ID:\s*`(\d+)`\s*$/m)?.[1] || '';
+  const ciArtifactDigest = ciVerificationSource.match(/^Digest:\s*`(sha256:[0-9a-f]{64})`\s*$/m)?.[1] || '';
 
   if (!releaseStatus) errors.push('docs/release-3.86.0-candidate.md: не найден статус релиза');
   if (!targetVersion) errors.push('docs/release-3.86.0-candidate.md: не найдена целевая версия');
   if (!workflowRun) errors.push('docs/release-3.86.0-candidate.md: не найден номер полного workflow run');
+  if (!ciWorkflowRun) errors.push('docs/ci-verification-3.86.0.md: не найден номер успешного workflow run');
+  if (!ciWorkflowRunId) errors.push('docs/ci-verification-3.86.0.md: не найден workflow run ID');
+  if (!ciHeadSha) errors.push('docs/ci-verification-3.86.0.md: не найден 40-символьный head SHA');
+  if (!ciArtifactId) errors.push('docs/ci-verification-3.86.0.md: не найден artifact ID');
+  if (!ciArtifactDigest) errors.push('docs/ci-verification-3.86.0.md: не найден sha256 artifact');
+  if (ciWorkflowRun && ciResultRun !== ciWorkflowRun) {
+    errors.push('docs/ci-verification-3.86.0.md: номер в заголовке результата не совпадает с успешным workflow run');
+  }
+  if (workflowRun && ciWorkflowRun && workflowRun !== ciWorkflowRun) {
+    errors.push('docs/release-3.86.0-candidate.md: последний полный workflow run не совпадает с CI-журналом');
+  }
 
   if (pkg?.version) {
     check(statusSource, 'docs/current-project-status-2026-07-14.md', [
@@ -154,9 +170,15 @@ function validateStatusSnapshot() {
     ]);
   }
 
-  if (workflowRun) {
+  if (ciWorkflowRun) {
+    check(readmeSource, 'README.md', [
+      `PR-run #${ciWorkflowRun}`
+    ]);
     check(statusSource, 'docs/current-project-status-2026-07-14.md', [
-      `Последний полный запуск, зафиксированный в релиз-кандидате: workflow run #${workflowRun}`
+      `Последний полный запуск, зафиксированный в релиз-кандидате: workflow run #${ciWorkflowRun}`
+    ]);
+    check(releaseSource, 'docs/release-3.86.0-candidate.md', [
+      `Последний полный контроль: GitHub Actions workflow run #${ciWorkflowRun}`
     ]);
   }
 

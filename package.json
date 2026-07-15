@@ -32,6 +32,7 @@
     "validate:assets": "node tools/validate-assets.mjs",
     "validate:asset-duplicates": "node tools/validate-asset-duplicates.mjs",
     "validate:runtime-architecture": "node tools/validate-runtime-architecture.mjs",
+    "validate:inline-preview-editing": "node tools/validate-inline-preview-editing.mjs",
     "validate:quality-actions": "node tools/validate-quality-actions.mjs",
     "validate:quality-issue-actions": "node tools/validate-quality-issue-actions.mjs",
     "validate:phone-cleanup-action": "node tools/validate-phone-cleanup-action.mjs",

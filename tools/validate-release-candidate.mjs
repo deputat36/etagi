@@ -12,7 +12,9 @@ const files = {
   managerEvidence: 'docs/manager-sensitive-template-evidence-3.86.0.md',
   managerValidator: 'tools/validate-manager-sensitive-review.mjs',
   testPack: 'docs/manual-print-test-pack-3.86.0.md',
-  changelog: 'docs/changelog.md'
+  changelog: 'docs/changelog.md',
+  readinessReporter: 'tools/report-release-readiness.mjs',
+  readinessGuide: 'docs/release-readiness-status.md'
 };
 
 const pkg = readJson(files.package);
@@ -22,6 +24,8 @@ const managerReview = readRequired(files.managerReview);
 const managerEvidence = readRequired(files.managerEvidence);
 const testPack = readRequired(files.testPack);
 const changelog = readRequired(files.changelog);
+const readinessReporter = readRequired(files.readinessReporter);
+const readinessGuide = readRequired(files.readinessGuide);
 const targetVersion = '3.86.0';
 const packageVersion = String(pkg?.version || '').trim();
 const status = release.match(/^Статус:\s*(DRAFT|READY)\s*$/m)?.[1] || '';
@@ -30,9 +34,12 @@ const acceptancePassed = /^Статус:\s*ПРОЙДЕНА\s*$/m.test(acceptanc
 const acceptancePending = /^Статус:\s*НЕ ПРОЙДЕНА\s*$/m.test(acceptance);
 const managerReviewPassed = /^Статус:\s*ПРОЙДЕНА\s*$/m.test(managerReview);
 const managerReviewPending = /^Статус:\s*НЕ ПРОЙДЕНА\s*$/m.test(managerReview);
-const uncheckedRelease = countCheckboxes(release, false);
-const uncheckedAcceptance = countCheckboxes(acceptance, false);
-const uncheckedManagerReview = countCheckboxes(managerReview, false);
+const releaseChecks = checkboxSummary(release);
+const acceptanceChecks = checkboxSummary(acceptance);
+const managerReviewChecks = checkboxSummary(managerReview);
+const uncheckedRelease = releaseChecks.unchecked;
+const uncheckedAcceptance = acceptanceChecks.unchecked;
+const uncheckedManagerReview = managerReviewChecks.unchecked;
 const changelogHasTarget = new RegExp(`^## ${escapeRegExp(targetVersion)}\\s*$`, 'm').test(changelog);
 
 requireSnippets(files.release, release, [
@@ -48,6 +55,7 @@ requireSnippets(files.release, release, [
   'сценарий 0',
   '360–430 px',
   'удобный доступ к печати',
+  'npm run release:status',
   'npm run assets:stamp',
   'npm run validate',
   '`validate` — успешно',
@@ -94,6 +102,7 @@ requireSnippets(files.managerReview, managerReview, [
   '`buyer_maternity_capital`',
   '`newbuild_family_mortgage`',
   '`service_complex_sale`',
+  '`seller_empty_flat`',
   '`trust_service_documents_check`',
   '`custom_service_consultation`',
   '`service_micro_4`',
@@ -129,7 +138,42 @@ requireSnippets(files.testPack, testPack, [
   'issue #40'
 ]);
 
+requireSnippets(files.readinessReporter, readinessReporter, [
+  "args.has('--json')",
+  "args.has('--strict')",
+  'documentedWorkflowRun',
+  'checkboxSummary',
+  'consistencyErrors',
+  'issue #40',
+  'issue #51',
+  'Следующий шаг:',
+  'process.exitCode = 2'
+]);
+
+forbidSnippets(files.readinessReporter, readinessReporter, [
+  'fetch(',
+  'XMLHttpRequest',
+  'node:http',
+  'node:https'
+]);
+
+requireSnippets(files.readinessGuide, readinessGuide, [
+  '# Сводный статус готовности релиза',
+  'npm run release:status',
+  'npm run release:status -- --json',
+  'npm run release:status -- --strict',
+  'кодом `2`',
+  'issue #40',
+  'issue #51',
+  'не изменяет файлы'
+]);
+
+if(String(pkg?.scripts?.['release:status'] || '').trim() !== 'node tools/report-release-readiness.mjs') {
+  errors.push('package.json: release:status должен запускать node tools/report-release-readiness.mjs');
+}
+
 runManagerSensitiveReviewValidation();
+runReleaseReadinessReportValidation();
 
 if(!status) errors.push(`${files.release}: статус должен быть DRAFT или READY`);
 
@@ -159,7 +203,7 @@ if(errors.length){
   process.exit(1);
 }
 
-console.log(`Релиз-кандидат 3.86.0 корректен: статус ${status}, текущая версия ${packageVersion}, workflow run #${workflowRunNumber}; viewport-, печатная и менеджерская приёмка согласованы со статусом, evidence-пакет синхронизирован.`);
+console.log(`Релиз-кандидат 3.86.0 корректен: статус ${status}, текущая версия ${packageVersion}, workflow run #${workflowRunNumber}; viewport-, печатная и менеджерская приёмка согласованы со статусом, evidence-пакет и сводный отчёт синхронизированы.`);
 
 function runManagerSensitiveReviewValidation(){
   const scriptPath = path.join(rootDir, files.managerValidator);
@@ -186,14 +230,112 @@ function runManagerSensitiveReviewValidation(){
   }
 }
 
-function countCheckboxes(source, checked){
-  const marker = checked ? 'x' : ' ';
-  return (source.match(new RegExp(`^- \\[${marker}\\]`, 'gm')) || []).length;
+function runReleaseReadinessReportValidation(){
+  const jsonResult = runReporter(['--json']);
+  if(!jsonResult) return;
+  if(jsonResult.status !== 0){
+    errors.push(`Сводный отчёт --json завершился кодом ${jsonResult.status}: ${collectOutput(jsonResult)}`);
+    return;
+  }
+
+  let report;
+  try {
+    report = JSON.parse(jsonResult.stdout || '{}');
+  } catch(error) {
+    errors.push(`Сводный отчёт вернул некорректный JSON — ${error.message}`);
+    return;
+  }
+
+  const expectedReady = status === 'READY'
+    && packageVersion === targetVersion
+    && acceptancePassed
+    && managerReviewPassed
+    && uncheckedRelease === 0
+    && uncheckedAcceptance === 0
+    && uncheckedManagerReview === 0
+    && changelogHasTarget;
+
+  compareReportValue('targetVersion', report.targetVersion, targetVersion);
+  compareReportValue('packageVersion', report.packageVersion, packageVersion);
+  compareReportValue('publishedVersion', report.publishedVersion, packageVersion);
+  compareReportValue('releaseStatus', report.releaseStatus, status);
+  compareReportValue('documentedWorkflowRun', report.documentedWorkflowRun, workflowRunNumber);
+  compareReportValue('ready', report.ready, expectedReady);
+  compareReportSummary('release', report.checks?.release, releaseChecks, status);
+  compareReportSummary('manualPrint', report.checks?.manualPrint, acceptanceChecks, acceptancePassed ? 'ПРОЙДЕНА' : 'НЕ ПРОЙДЕНА');
+  compareReportSummary('managerReview', report.checks?.managerReview, managerReviewChecks, managerReviewPassed ? 'ПРОЙДЕНА' : 'НЕ ПРОЙДЕНА');
+  compareReportValue('changelog.targetSectionPresent', report.checks?.changelog?.targetSectionPresent, changelogHasTarget);
+
+  if(!Array.isArray(report.blockers)) errors.push(`${files.readinessReporter}: blockers должен быть массивом`);
+  if(!Array.isArray(report.consistencyErrors)) errors.push(`${files.readinessReporter}: consistencyErrors должен быть массивом`);
+  if(report.consistencyErrors?.length) errors.push(`${files.readinessReporter}: найден рассинхрон — ${report.consistencyErrors.join('; ')}`);
+  if(!String(report.nextAction || '').trim()) errors.push(`${files.readinessReporter}: не указан следующий шаг`);
+  if(!expectedReady && !report.blockers?.some(item => String(item).includes('issue #40'))) errors.push(`${files.readinessReporter}: DRAFT должен показывать blocker issue #40`);
+  if(!expectedReady && !report.blockers?.some(item => String(item).includes('issue #51'))) errors.push(`${files.readinessReporter}: DRAFT должен показывать blocker issue #51`);
+
+  const humanResult = runReporter([]);
+  if(humanResult && humanResult.status !== 0) errors.push(`${files.readinessReporter}: обычный отчёт завершился кодом ${humanResult.status}`);
+  for(const snippet of ['Релиз-кандидат', 'Зафиксированный полный CI:', 'Готовность документов:', 'Следующий шаг:']) {
+    if(humanResult && !String(humanResult.stdout || '').includes(snippet)) errors.push(`${files.readinessReporter}: в обычном выводе отсутствует ${snippet}`);
+  }
+
+  const strictResult = runReporter(['--strict']);
+  const expectedStrictStatus = expectedReady ? 0 : 2;
+  if(strictResult && strictResult.status !== expectedStrictStatus) {
+    errors.push(`${files.readinessReporter}: --strict должен завершаться кодом ${expectedStrictStatus}, получен ${strictResult.status}`);
+  }
+}
+
+function runReporter(extraArgs){
+  const scriptPath = path.join(rootDir, files.readinessReporter);
+  if(!fs.existsSync(scriptPath)){
+    errors.push(`${files.readinessReporter}: файл не найден`);
+    return null;
+  }
+  const result = spawnSync(process.execPath, [scriptPath, ...extraArgs], {
+    cwd: rootDir,
+    encoding: 'utf8',
+    stdio: 'pipe',
+    maxBuffer: 4 * 1024 * 1024
+  });
+  if(result.error) errors.push(`Сводный отчёт не запустился: ${result.error.message}`);
+  return result;
+}
+
+function compareReportSummary(label, actual, expected, expectedStatus){
+  if(!actual || typeof actual !== 'object'){
+    errors.push(`${files.readinessReporter}: отсутствует checks.${label}`);
+    return;
+  }
+  compareReportValue(`${label}.status`, actual.status, expectedStatus);
+  compareReportValue(`${label}.checked`, actual.checked, expected.checked);
+  compareReportValue(`${label}.unchecked`, actual.unchecked, expected.unchecked);
+  compareReportValue(`${label}.total`, actual.total, expected.total);
+}
+
+function compareReportValue(label, actual, expected){
+  if(actual !== expected) errors.push(`${files.readinessReporter}: ${label}=${JSON.stringify(actual)}, ожидается ${JSON.stringify(expected)}`);
+}
+
+function collectOutput(result){
+  return [result?.stdout?.trim(), result?.stderr?.trim()].filter(Boolean).join('\n') || 'нет диагностического вывода';
+}
+
+function checkboxSummary(source){
+  const checked = (source.match(/^- \[[xX]\]/gm) || []).length;
+  const unchecked = (source.match(/^- \[ \]/gm) || []).length;
+  return {checked, unchecked, total:checked + unchecked};
 }
 
 function requireSnippets(file, source, snippets){
   for(const snippet of snippets){
     if(!source.includes(snippet)) errors.push(`${file}: отсутствует обязательный фрагмент — ${snippet}`);
+  }
+}
+
+function forbidSnippets(file, source, snippets){
+  for(const snippet of snippets){
+    if(source.includes(snippet)) errors.push(`${file}: найден запрещённый фрагмент — ${snippet}`);
   }
 }
 

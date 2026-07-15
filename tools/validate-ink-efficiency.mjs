@@ -20,10 +20,15 @@ requireSnippets(files.helper, sources.helper, [
   "dispatchEvent(new Event('change', {bubbles:true}))",
   'Повышенный расход чернил',
   'Экономный цвет',
-  "const shouldShow = colorMode?.value === 'brand' && Boolean(showContact?.checked) && count >= 4;",
-  'if(existing) return;',
-  '.flyer.color-economy .contact',
+  'hasDarkContactFill()',
+  'relativeLuminance(getComputedStyle(contact).backgroundColor) < 0.82',
+  '.flyer .contact{',
   'background:#fff!important',
+  'border:.45mm solid var(--accent)!important',
+  'padding:2.2mm 2.8mm!important',
+  'box-shadow:inset 0 1mm 0 var(--accent)!important',
+  '.flyer.private .contact',
+  '.flyer.color-economy .contact',
   'border:.55mm solid var(--accent)!important',
   'box-shadow:inset 0 1.1mm 0 var(--accent)!important',
   '.flyer.color-economy.layout-photo_card:not(.photo-mode-plan) .headline',
@@ -37,7 +42,8 @@ forbidSnippets(files.helper, sources.helper, [
   "window.addEventListener('click'",
   'showPhoto.checked = false',
   'showQr.checked = false',
-  "colorMode.value = 'bw'"
+  "colorMode.value = 'bw'",
+  'background:#111827!important'
 ]);
 
 requireSnippets(files.entry, sources.entry, [
@@ -47,19 +53,23 @@ requireSnippets(files.entry, sources.entry, [
 requireSnippets(files.screenshot, sources.screenshot, [
   "doc.getElementById('colorMode')?.value === 'economy'",
   '.flyer.color-economy.count-4',
-  'assertInkEfficientContacts(flyers)',
+  'assertLightweightContacts(flyers)',
   'relativeLuminance(style.backgroundColor) < 0.82',
-  'экономный режим оставил тёмную сплошную контактную заливку',
-  'экономная контактная зона потеряла цветную рамку'
+  'контактная зона оставила большую тёмную сплошную заливку',
+  'светлая контактная зона потеряла цветную рамку',
+  'контактная зона сохранила чрезмерный внутренний отступ'
 ]);
 
 requireSnippets(files.guide, sources.guide, [
   '# Оптимизация расхода чернил',
+  'Стандартный фирменный режим',
   'не переводит лист в чёрно-белый',
   'не удаляет фото, QR, телефон или фирменность',
   'npm run validate:ink-efficiency',
   'four-contacts.png',
-  'светлый фон контактного блока'
+  'светлый фон контактного блока',
+  'тонкая цветная рамка',
+  'узкая акцентная полоса'
 ]);
 
 if(errors.length){

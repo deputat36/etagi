@@ -10,6 +10,8 @@ const runValidatePath = path.join(rootDir, 'tools/run-validate.mjs');
 const browserSmokeRunnerPath = path.join(rootDir, 'tools/run-browser-smoke.mjs');
 const browserSmokePagePath = path.join(rootDir, 'tools/browser-smoke.html');
 const printScreenshotRunnerPath = path.join(rootDir, 'tools/run-print-screenshots.mjs');
+const printScreenshotFaultTestPath = path.join(rootDir, 'tools/test-cdp-failure-artifact.mjs');
+const fakeChromePath = path.join(rootDir, 'tools/fake-chrome-cdp-failure.mjs');
 const printScreenshotCollectorPath = path.join(rootDir, 'tools/collect-print-screenshots.mjs');
 const printScreenshotPagePath = path.join(rootDir, 'tools/print-screenshot.html');
 const workflowSource = readRequired(workflowPath);
@@ -19,6 +21,8 @@ const runValidateSource = readRequired(runValidatePath);
 const browserSmokeRunnerSource = readRequired(browserSmokeRunnerPath);
 const browserSmokePageSource = readRequired(browserSmokePagePath);
 const printScreenshotRunnerSource = readRequired(printScreenshotRunnerPath);
+const printScreenshotFaultTestSource = readRequired(printScreenshotFaultTestPath);
+const fakeChromeSource = readRequired(fakeChromePath);
 const printScreenshotCollectorSource = readRequired(printScreenshotCollectorPath);
 const printScreenshotPageSource = readRequired(printScreenshotPagePath);
 const pkg = readPackage(packageSource);
@@ -26,12 +30,12 @@ const pkg = readPackage(packageSource);
 requireSnippets('.github/workflows/validate.yml', workflowSource, [
   'name: Validate project','push:','pull_request:','workflow_dispatch:',
   "- 'index.html'","- 'assets/**'","- 'data/**'","- 'help/**'","- 'docs/**'","- 'tools/**'","- 'README.md'","- 'package.json'","- '.github/workflows/validate.yml'",
-  'permissions:','contents: read','validate:','browser-smoke:','print-screenshot:','collect-print-screenshots:',
+  'permissions:','contents: read','validate:','cdp-failure-artifact:','browser-smoke:','print-screenshot:','collect-print-screenshots:',
   'needs: validate','needs: browser-smoke','needs: print-screenshot','fail-fast: false','matrix:','scenario:',
   'PRINT_SCREENSHOT_SCENARIO: ${{ matrix.scenario }}','runs-on: ubuntu-latest','timeout-minutes: 5','timeout-minutes: 3',
   'uses: actions/checkout@v4','uses: actions/setup-node@v4','uses: actions/upload-artifact@v4','uses: actions/download-artifact@v4',
-  "node-version: '20'",'run: npm run validate','run: npm run smoke:browser','run: npm run screenshots:print','run: npm run screenshots:manifest',
-  'if: failure()','if: success()','name: validation-failure','path: validation-failure.log','name: browser-smoke-failure','path: browser-smoke-failure.log',
+  "node-version: '20'",'run: npm run validate','run: npm run test:cdp-failure-artifact','run: npm run smoke:browser','run: npm run screenshots:print','run: npm run screenshots:manifest',
+  'if: failure()','if: success()','name: validation-failure','path: validation-failure.log','name: cdp-failure-artifact','path: print-screenshots-failure.log','name: browser-smoke-failure','path: browser-smoke-failure.log',
   'name: print-screenshot-${{ matrix.scenario }}','name: print-screenshot-failure-${{ matrix.scenario }}','pattern: print-screenshot-*','merge-multiple: true',
   'name: print-screenshots','path: artifacts/print-screenshots/','if-no-files-found: warn','if-no-files-found: error','retention-days: 1','retention-days: 3','retention-days: 7'
 ]);
@@ -85,6 +89,21 @@ for(const forbidden of ["'--virtual-time-budget=", "'--dump-dom'", '`--screensho
   if(printScreenshotRunnerSource.includes(forbidden)) errors.push(`tools/run-print-screenshots.mjs: запрещён устаревший CLI-захват — ${forbidden}`);
 }
 
+requireSnippets('tools/test-cdp-failure-artifact.mjs', printScreenshotFaultTestSource, [
+  "spawnSync(process.execPath, ['tools/run-print-screenshots.mjs', '--scenario', 'one-showcase']",
+  'CHROME_BIN: fakeChromePath',
+  "path.join(rootDir, 'print-screenshots-failure.log')",
+  "failureLog.includes('попытка 2')",
+  'Fault-injection проверка пройдена'
+]);
+
+requireSnippets('tools/fake-chrome-cdp-failure.mjs', fakeChromeSource, [
+  '#!/usr/bin/env node',
+  "args.includes('--version')",
+  'fault injection: fake Chrome exits before the CDP response',
+  'process.exit(86)'
+]);
+
 requireSnippets('tools/collect-print-screenshots.mjs', printScreenshotCollectorSource, [
   'Не найден ${id}.png после matrix job.','Не найден ${id}.json после matrix job.',"path.join(outputDir, 'manifest.json')",'Print screenshot artifacts collected'
 ]);
@@ -100,6 +119,7 @@ if (pkg) {
   requireScript('smoke:browser', 'node tools/run-browser-smoke.mjs', scripts);
   requireScript('screenshots:print', 'node tools/run-print-screenshots.mjs', scripts);
   requireScript('screenshots:manifest', 'node tools/collect-print-screenshots.mjs', scripts);
+  requireScript('test:cdp-failure-artifact', 'node tools/test-cdp-failure-artifact.mjs', scripts);
 }
 
 if (errors.length) {

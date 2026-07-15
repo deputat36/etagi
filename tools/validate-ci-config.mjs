@@ -7,6 +7,10 @@ const workflowPath = path.join(rootDir, '.github/workflows/validate.yml');
 const printIssueFormPath = path.join(rootDir, '.github/ISSUE_TEMPLATE/print-regression.yml');
 const sensitiveIssueFormPath = path.join(rootDir, '.github/ISSUE_TEMPLATE/sensitive-template-change.yml');
 const issueFormsGuidePath = path.join(rootDir, 'docs/manual-review-issue-forms.md');
+const manualPrintAcceptancePath = path.join(rootDir, 'docs/manual-print-acceptance-3.86.0.md');
+const manualPrintTestPackPath = path.join(rootDir, 'docs/manual-print-test-pack-3.86.0.md');
+const managerReviewPath = path.join(rootDir, 'docs/manager-sensitive-template-review-3.86.0.md');
+const releaseReadinessGuidePath = path.join(rootDir, 'docs/release-readiness-status.md');
 const packagePath = path.join(rootDir, 'package.json');
 const indexPath = path.join(rootDir, 'index.html');
 const runValidatePath = path.join(rootDir, 'tools/run-validate.mjs');
@@ -21,6 +25,10 @@ const workflowSource = readRequired(workflowPath);
 const printIssueFormSource = readRequired(printIssueFormPath);
 const sensitiveIssueFormSource = readRequired(sensitiveIssueFormPath);
 const issueFormsGuideSource = readRequired(issueFormsGuidePath);
+const manualPrintAcceptanceSource = readRequired(manualPrintAcceptancePath);
+const manualPrintTestPackSource = readRequired(manualPrintTestPackPath);
+const managerReviewSource = readRequired(managerReviewPath);
+const releaseReadinessGuideSource = readRequired(releaseReadinessGuidePath);
 const packageSource = readRequired(packagePath);
 const indexSource = readRequired(indexPath);
 const runValidateSource = readRequired(runValidatePath);
@@ -127,6 +135,38 @@ requireSnippets('docs/manual-review-issue-forms.md', issueFormsGuideSource, [
   'npm run validate:ci-config'
 ]);
 
+requireSnippets('docs/manual-print-acceptance-3.86.0.md', manualPrintAcceptanceSource, [
+  '## Фиксация критичных замечаний',
+  '.github/ISSUE_TEMPLATE/print-regression.yml',
+  'docs/manual-review-issue-forms.md',
+  'Номер issue занести в таблицу ниже',
+  'повторить тот же сценарий'
+]);
+
+requireSnippets('docs/manual-print-test-pack-3.86.0.md', manualPrintTestPackSource, [
+  '## Как оформить найденную проблему',
+  '.github/ISSUE_TEMPLATE/print-regression.yml',
+  'docs/manual-review-issue-forms.md',
+  'Номер созданного issue перенести',
+  'повторить тот же сценарий'
+]);
+
+requireSnippets('docs/manager-sensitive-template-review-3.86.0.md', managerReviewSource, [
+  '## Как оформить отдельное изменение',
+  '.github/ISSUE_TEMPLATE/sensitive-template-change.yml',
+  'docs/manual-review-issue-forms.md',
+  'Номер issue записать',
+  'Само создание issue не считается выполнением решения'
+]);
+
+requireSnippets('docs/release-readiness-status.md', releaseReadinessGuideSource, [
+  '## Фиксация найденных замечаний',
+  '.github/ISSUE_TEMPLATE/print-regression.yml',
+  '.github/ISSUE_TEMPLATE/sensitive-template-change.yml',
+  'docs/manual-review-issue-forms.md',
+  'Созданный issue не закрывает ручной пункт автоматически'
+]);
+
 requireSnippets('index.html', indexSource, [
   "new URLSearchParams(window.location.search).has('smoke')",
   'window.__ETAGI_EARLY_ERRORS__ = errors;',
@@ -168,7 +208,7 @@ requireSnippets('tools/browser-smoke.html', browserSmokePageSource, [
 
 requireSnippets('tools/run-print-screenshots.mjs', printScreenshotRunnerSource, [
   "path.join(rootDir, 'artifacts', 'print-screenshots')","path.join(rootDir, 'print-screenshots-failure.log')",'PRINT_SCREENSHOT_SCENARIO','selectedScenarios',
-  "fs.writeFileSync(path.join(outputDir, `${scenario.id}.json`)","captureMethod: 'cdp-pipe'","'--window-size=794,1123'","'--remote-debugging-pipe'",
+  "fs.writeFileSync(path.join(outputDir, `${scenario.id}.json`)",'captureMethod: \'cdp-pipe\'',"'--window-size=794,1123'","'--remote-debugging-pipe'",
   "cdp.send('Runtime.evaluate'","cdp.send('Page.captureScreenshot'",'waitForCaptureStatus','createCdpPipeClient','server.keepAliveTimeout = 1',"'Connection':'close'"
 ]);
 

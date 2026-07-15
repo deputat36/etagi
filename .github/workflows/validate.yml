@@ -12,6 +12,7 @@ on:
       - 'README.md'
       - 'package.json'
       - '.github/workflows/validate.yml'
+      - '.github/ISSUE_TEMPLATE/**'
   pull_request:
     paths:
       - 'index.html'
@@ -23,6 +24,7 @@ on:
       - 'README.md'
       - 'package.json'
       - '.github/workflows/validate.yml'
+      - '.github/ISSUE_TEMPLATE/**'
   workflow_dispatch:
 
 permissions:

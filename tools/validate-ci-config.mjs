@@ -4,6 +4,9 @@ import path from 'node:path';
 const rootDir = process.cwd();
 const errors = [];
 const workflowPath = path.join(rootDir, '.github/workflows/validate.yml');
+const printIssueFormPath = path.join(rootDir, '.github/ISSUE_TEMPLATE/print-regression.yml');
+const sensitiveIssueFormPath = path.join(rootDir, '.github/ISSUE_TEMPLATE/sensitive-template-change.yml');
+const issueFormsGuidePath = path.join(rootDir, 'docs/manual-review-issue-forms.md');
 const packagePath = path.join(rootDir, 'package.json');
 const indexPath = path.join(rootDir, 'index.html');
 const runValidatePath = path.join(rootDir, 'tools/run-validate.mjs');
@@ -15,6 +18,9 @@ const fakeChromePath = path.join(rootDir, 'tools/fake-chrome-cdp-failure.mjs');
 const printScreenshotCollectorPath = path.join(rootDir, 'tools/collect-print-screenshots.mjs');
 const printScreenshotPagePath = path.join(rootDir, 'tools/print-screenshot.html');
 const workflowSource = readRequired(workflowPath);
+const printIssueFormSource = readRequired(printIssueFormPath);
+const sensitiveIssueFormSource = readRequired(sensitiveIssueFormPath);
+const issueFormsGuideSource = readRequired(issueFormsGuidePath);
 const packageSource = readRequired(packagePath);
 const indexSource = readRequired(indexPath);
 const runValidateSource = readRequired(runValidatePath);
@@ -29,7 +35,7 @@ const pkg = readPackage(packageSource);
 
 requireSnippets('.github/workflows/validate.yml', workflowSource, [
   'name: Validate project','push:','pull_request:','workflow_dispatch:',
-  "- 'index.html'","- 'assets/**'","- 'data/**'","- 'help/**'","- 'docs/**'","- 'tools/**'","- 'README.md'","- 'package.json'","- '.github/workflows/validate.yml'",
+  "- 'index.html'","- 'assets/**'","- 'data/**'","- 'help/**'","- 'docs/**'","- 'tools/**'","- 'README.md'","- 'package.json'","- '.github/workflows/validate.yml'","- '.github/ISSUE_TEMPLATE/**'",
   'permissions:','contents: read','validate:','cdp-failure-artifact:','browser-smoke:','print-screenshot:','collect-print-screenshots:',
   'needs: validate','needs: browser-smoke','needs: print-screenshot','fail-fast: false','matrix:','scenario:',
   'PRINT_SCREENSHOT_SCENARIO: ${{ matrix.scenario }}','runs-on: ubuntu-latest','timeout-minutes: 5','timeout-minutes: 3',
@@ -38,6 +44,87 @@ requireSnippets('.github/workflows/validate.yml', workflowSource, [
   'if: failure()','if: success()','name: validation-failure','path: validation-failure.log','name: cdp-failure-artifact','path: print-screenshots-failure.log','name: browser-smoke-failure','path: browser-smoke-failure.log',
   'name: print-screenshot-${{ matrix.scenario }}','name: print-screenshot-failure-${{ matrix.scenario }}','pattern: print-screenshot-*','merge-multiple: true',
   'name: print-screenshots','path: artifacts/print-screenshots/','if-no-files-found: warn','if-no-files-found: error','retention-days: 1','retention-days: 3','retention-days: 7'
+]);
+
+validateIssueForm('.github/ISSUE_TEMPLATE/print-regression.yml', printIssueFormSource, {
+  snippets: [
+    'Печатная или viewport-регрессия 3.86.0',
+    'issue #40',
+    'docs/manual-print-test-pack-3.86.0.md',
+    'docs/manual-print-acceptance-3.86.0.md',
+    'телефоне 360–430 px',
+    '1 на А4 без фото',
+    '2 на А4 с крупным телефоном',
+    '4 на А4 в экономном цвете',
+    'QR, линии реза или отрывные телефоны',
+    'персональных данных'
+  ],
+  fields: {
+    severity: {type: 'dropdown', required: true},
+    scenario: {type: 'dropdown', required: true},
+    generator_ref: {type: 'input', required: true},
+    environment: {type: 'input', required: true},
+    viewport: {type: 'input', required: true},
+    printer: {type: 'input', required: true},
+    reproducibility: {type: 'dropdown', required: true},
+    steps: {type: 'textarea', required: true},
+    expected: {type: 'textarea', required: true},
+    actual: {type: 'textarea', required: true},
+    evidence: {type: 'textarea'},
+    workaround: {type: 'textarea'},
+    confirmations: {type: 'checkboxes', requiredOptions: 3}
+  }
+});
+
+validateIssueForm('.github/ISSUE_TEMPLATE/sensitive-template-change.yml', sensitiveIssueFormSource, {
+  snippets: [
+    'Изменение чувствительного шаблона 3.86.0',
+    'issue #51',
+    'docs/manager-sensitive-template-review-3.86.0.md',
+    'docs/manager-sensitive-template-evidence-3.86.0.md',
+    'buyer_mortgage',
+    'newbuild_no_commission',
+    'newbuild_budget',
+    'newbuild_mortgage',
+    'service_mortgage',
+    'buyer_maternity_capital',
+    'newbuild_family_mortgage',
+    'service_complex_sale',
+    'seller_empty_flat',
+    'trust_service_documents_check',
+    'custom_service_consultation',
+    'service_micro_4',
+    'Оставить test',
+    'перевести в working',
+    'deprecated',
+    'Временно запретить печать',
+    'npm run templates:inventory',
+    'node tools/validate-manager-sensitive-review.mjs',
+    'npm run validate'
+  ],
+  fields: {
+    template_id: {type: 'dropdown', required: true},
+    decision: {type: 'dropdown', required: true},
+    current_problem: {type: 'textarea', required: true},
+    proposed_change: {type: 'textarea', required: true},
+    replacement_id: {type: 'input'},
+    source_evidence: {type: 'textarea', required: true},
+    risk_boundaries: {type: 'textarea', required: true},
+    verification: {type: 'textarea', required: true},
+    confirmations: {type: 'checkboxes', requiredOptions: 3}
+  }
+});
+
+requireSnippets('docs/manual-review-issue-forms.md', issueFormsGuideSource, [
+  '# GitHub-формы ручной приёмки 3.86.0',
+  '.github/ISSUE_TEMPLATE/print-regression.yml',
+  '.github/ISSUE_TEMPLATE/sensitive-template-change.yml',
+  'issue #40',
+  'issue #51',
+  'docs/manual-print-acceptance-3.86.0.md',
+  'docs/manager-sensitive-template-review-3.86.0.md',
+  'персональные данные',
+  'npm run validate:ci-config'
 ]);
 
 requireSnippets('index.html', indexSource, [
@@ -129,6 +216,51 @@ if (errors.length) {
 }
 
 console.log('CI config validation passed.');
+
+function validateIssueForm(file, source, contract) {
+  requireSnippets(file, source, ['name:', 'description:', 'title:', 'body:', ...contract.snippets]);
+  const items = parseIssueFormItems(source);
+  const byId = new Map();
+
+  for (const item of items) {
+    if (byId.has(item.id)) errors.push(`${file}: поле id=${item.id} повторяется`);
+    byId.set(item.id, item);
+  }
+
+  for (const [id, expected] of Object.entries(contract.fields)) {
+    const item = byId.get(id);
+    if (!item) {
+      errors.push(`${file}: отсутствует обязательное поле id=${id}`);
+      continue;
+    }
+    if (item.type !== expected.type) {
+      errors.push(`${file}: поле id=${id} должно иметь type=${expected.type}, найдено ${item.type}`);
+    }
+    if (expected.required && !/^    validations:\s*$[\s\S]*?^      required:\s*true\s*$/m.test(item.block)) {
+      errors.push(`${file}: поле id=${id} должно быть обязательным через validations.required=true`);
+    }
+    if (expected.requiredOptions) {
+      const requiredOptions = (item.block.match(/^          required:\s*true\s*$/gm) || []).length;
+      if (requiredOptions < expected.requiredOptions) {
+        errors.push(`${file}: поле id=${id} должно содержать минимум ${expected.requiredOptions} обязательных подтверждения`);
+      }
+    }
+  }
+}
+
+function parseIssueFormItems(source) {
+  return String(source || '')
+    .split(/^  - type:\s*/m)
+    .slice(1)
+    .map(chunk => {
+      const newline = chunk.indexOf('\n');
+      const type = (newline >= 0 ? chunk.slice(0, newline) : chunk).trim();
+      const block = newline >= 0 ? chunk.slice(newline + 1) : '';
+      const id = block.match(/^    id:\s*([a-z0-9_]+)\s*$/m)?.[1] || '';
+      return {type, id, block};
+    })
+    .filter(item => item.id);
+}
 
 function requireSnippets(file, text, snippets) {
   for (const snippet of snippets) {

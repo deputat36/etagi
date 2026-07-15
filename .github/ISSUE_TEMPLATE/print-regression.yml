@@ -1,0 +1,144 @@
+name: Печатная или viewport-регрессия 3.86.0
+description: Зафиксировать проблему, обнаруженную при ручной приёмке issue #40.
+title: "[Печать 3.86.0] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Используйте форму только для воспроизводимых замечаний из ручной приёмки issue #40.
+
+        Перед созданием issue сверяйтесь с:
+        - `docs/manual-print-test-pack-3.86.0.md`;
+        - `docs/manual-print-acceptance-3.86.0.md`.
+
+        Не прикладывайте персональные документы клиентов, реальные номера телефонов и изображения без разрешения.
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Критичность
+      description: Насколько проблема мешает выпуску или рабочей печати.
+      options:
+        - Блокер релиза — невозможно завершить обязательный сценарий
+        - Критичная — обрезаны данные, не работает QR или макет непригоден
+        - Значимая — сценарий выполняется, но результат неудобен или нестабилен
+        - Незначительная — визуальное или текстовое улучшение без риска печати
+    validations:
+      required: true
+
+  - type: dropdown
+    id: scenario
+    attributes:
+      label: Сценарий
+      options:
+        - Сценарий 0 — доступ к печати на ПК
+        - Сценарий 0 — доступ к печати на телефоне 360–430 px
+        - 1 на А4 без фото
+        - 2 на А4 с крупным телефоном
+        - 4 на А4 в экономном цвете
+        - Витрина
+        - С фото
+        - photo_left
+        - photo_card
+        - newbuild_visual
+        - agent_brand_photo
+        - QR, линии реза или отрывные телефоны
+        - PDF или настройки офисного принтера
+        - Другое из issue #40
+    validations:
+      required: true
+
+  - type: input
+    id: generator_ref
+    attributes:
+      label: Проверенная версия
+      description: Укажите URL, commit SHA или версию генератора.
+      placeholder: "https://deputat36.github.io/etagi/ · commit abc1234 · version 3.85.0"
+    validations:
+      required: true
+
+  - type: input
+    id: environment
+    attributes:
+      label: Устройство, ОС и браузер
+      placeholder: "Рабочий ПК · Windows 11 · Chrome 150"
+    validations:
+      required: true
+
+  - type: input
+    id: viewport
+    attributes:
+      label: Viewport или размер окна
+      placeholder: "1920×1080, окно 1365×768 или телефон 390×844"
+    validations:
+      required: true
+
+  - type: input
+    id: printer
+    attributes:
+      label: Принтер и настройки
+      description: Для экранной проблемы напишите «не применимо».
+      placeholder: "Brother ..., драйвер ..., A4, масштаб 100%, поля минимальные"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: reproducibility
+    attributes:
+      label: Воспроизводимость
+      options:
+        - Всегда
+        - Иногда
+        - Один раз, повторить пока не удалось
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Шаги воспроизведения
+      description: Начните с выбора режима, формата и шаблона. Укажите все настройки, влияющие на результат.
+      placeholder: |
+        1. Открыть генератор...
+        2. Выбрать режим...
+        3. Нажать...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Ожидаемый результат
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Фактический результат
+    validations:
+      required: true
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Доказательства
+      description: Приложите обезличенный скриншот, фотографию листа или PDF. Укажите, сканируется ли QR и читается ли телефон с двух метров.
+
+  - type: textarea
+    id: workaround
+    attributes:
+      label: Временный обходной путь
+      description: Заполните, если удалось безопасно завершить работу другим способом.
+
+  - type: checkboxes
+    id: confirmations
+    attributes:
+      label: Подтверждения
+      options:
+        - label: Проблема относится к ручной приёмке issue #40 и ещё не описана отдельным issue.
+          required: true
+        - label: В описании нет персональных данных клиентов и непубличных документов.
+          required: true
+        - label: После исправления этот же сценарий нужно повторить на указанном устройстве или принтере.
+          required: true

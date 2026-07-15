@@ -71,8 +71,8 @@ requireSnippets(files.guide, sources.guide, [
   'npm run validate:ink-efficiency',
   'four-contacts.png',
   'светлый фон контактного блока',
-  'тонкая цветная рамка',
-  'узкая акцентная полоса'
+  'тонкую цветную рамку',
+  'узкую акцентную полосу'
 ]);
 
 runInlinePreviewValidation();

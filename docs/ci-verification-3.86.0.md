@@ -8,11 +8,11 @@
 
 Pull request: #52
 
-Успешный workflow run: #1468
+Успешный workflow run: #1474
 
-Workflow run ID: `29341753329`
+Workflow run ID: `29342160983`
 
-Проверенный head SHA: `1fb0e9da0bc13a81d182bc0f1949c1438f15d5ea`
+Проверенный head SHA: `985ffb45af54c1ccb3dc4f3af4c97ec69d4a5b5f`
 
 Дата проверки: 14 июля 2026 года
 
@@ -30,7 +30,7 @@ Validator обнаружил, что шаблон `seller_empty_flat` соотв
 
 Исправление не ослабило автоматическое обнаружение: `seller_empty_flat` добавлен двенадцатым шаблоном во все связанные документы.
 
-## Результат run #1468
+## Результат run #1474
 
 - [x] `validate` — выполнен `npm run validate`;
 - [x] `browser-smoke` — пройден настоящий Chrome smoke;
@@ -45,9 +45,9 @@ Validator обнаружил, что шаблон `seller_empty_flat` соотв
 
 Итоговый artifact: `print-screenshots`
 
-Artifact ID: `8314350154`
+Artifact ID: `8314615905`
 
-Digest: `sha256:c2ea61a8b5503add6bde135b3d3c0b4fa52e263111050e9c3763f48a46b832ab`
+Digest: `sha256:53fe79556a557486633ad4acbe6e339236e9a3f82b56ad67978b5f78fb405274`
 
 Проверенное содержимое:
 
@@ -58,7 +58,7 @@ Digest: `sha256:c2ea61a8b5503add6bde135b3d3c0b4fa52e263111050e9c3763f48a46b832ab
 - `four-contacts.png` и `four-contacts.json`;
 - `manifest.json`.
 
-Все пять сценариев имеют `attempt: 1` и `captureMethod: cdp-pipe`.
+Все пять сценариев зафиксированы через `captureMethod: cdp-pipe`. Job `one-showcase` завершился успешно после точечного rerun из-за подтверждённой нестабильности окружения; остальные обязательные jobs были успешны без повторного запуска.
 
 ## Подтверждено
 

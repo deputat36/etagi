@@ -10,6 +10,8 @@ const files = {
   runner: 'tools/run-print-screenshots.mjs',
   browserRunner: 'tools/run-browser-smoke.mjs',
   pipeGuard: 'tools/cdp-pipe-error-guard.mjs',
+  fakeChrome: 'tools/fake-chrome-cdp-failure.mjs',
+  faultTest: 'tools/test-cdp-failure-artifact.mjs',
   collector: 'tools/collect-print-screenshots.mjs',
   workflow: '.github/workflows/validate.yml',
   package: 'package.json',
@@ -85,6 +87,27 @@ requireSnippets(files.pipeGuard, sources.pipeGuard, [
   'wrapped.direction = direction'
 ]);
 
+requireSnippets(files.fakeChrome, sources.fakeChrome, [
+  '#!/usr/bin/env node',
+  "args.includes('--version')",
+  'Fake Chrome CDP failure injector 1.0',
+  'fault injection: fake Chrome exits before the CDP response',
+  'process.exit(86)'
+]);
+
+requireSnippets(files.faultTest, sources.faultTest, [
+  "path.join(rootDir, 'tools', 'fake-chrome-cdp-failure.mjs')",
+  "path.join(rootDir, 'print-screenshots-failure.log')",
+  "path.join(rootDir, 'artifacts', 'print-screenshots', 'one-showcase.png')",
+  "spawnSync(process.execPath, ['tools/run-print-screenshots.mjs', '--scenario', 'one-showcase']",
+  'CHROME_BIN: fakeChromePath',
+  'result.status === 0',
+  "failureLog.includes('попытка 2')",
+  "failureLog.includes('fault injection')",
+  '/(code=86|EPIPE|ECONNRESET)/.test(failureLog)',
+  'Fault-injection проверка пройдена'
+]);
+
 validatePipeErrorGuard();
 
 forbidSnippets(files.runner, sources.runner, [
@@ -106,6 +129,11 @@ requireSnippets(files.collector, sources.collector, [
 ]);
 
 requireSnippets(files.workflow, sources.workflow, [
+  'cdp-failure-artifact:',
+  'Verify double CDP failure artifact',
+  'run: npm run test:cdp-failure-artifact',
+  'name: cdp-failure-artifact',
+  'path: print-screenshots-failure.log',
   'print-screenshot:',
   'collect-print-screenshots:',
   'needs: browser-smoke',
@@ -130,12 +158,14 @@ const pkg = readPackage(sources.package);
 if(pkg){
   requireScript('screenshots:print', 'node tools/run-print-screenshots.mjs', pkg.scripts || {});
   requireScript('screenshots:manifest', 'node tools/collect-print-screenshots.mjs', pkg.scripts || {});
+  requireScript('test:cdp-failure-artifact', 'node tools/test-cdp-failure-artifact.mjs', pkg.scripts || {});
   requireScript('validate:print-screenshots', 'node tools/validate-print-screenshots.mjs', pkg.scripts || {});
 }
 
 requireSnippets(files.guide, sources.guide, [
   '# Screenshot-регрессия печатных листов А4',
   'npm run screenshots:print',
+  'npm run test:cdp-failure-artifact',
   '`one-no-photo.png`',
   '`two-big-phone.png`',
   '`one-showcase.png`',
@@ -144,6 +174,7 @@ requireSnippets(files.guide, sources.guide, [
   'Chrome DevTools Protocol',
   'print-screenshots-failure.log',
   '`ECONNRESET`',
+  '`cdp-failure-artifact`',
   'синтетические данные'
 ]);
 

@@ -1,3 +1,4 @@
+import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -7,7 +8,8 @@ const files = {
   helper: 'assets/js/spnInkEfficiency.js',
   entry: 'assets/js/spnUiMode.js',
   screenshot: 'tools/print-screenshot.html',
-  guide: 'docs/ink-efficiency.md'
+  guide: 'docs/ink-efficiency.md',
+  inlineValidator: 'tools/validate-inline-preview-editing.mjs'
 };
 const sources = Object.fromEntries(
   Object.entries(files).map(([key, file]) => [key, readRequired(file)])
@@ -54,6 +56,7 @@ requireSnippets(files.screenshot, sources.screenshot, [
   "doc.getElementById('colorMode')?.value === 'economy'",
   '.flyer.color-economy.count-4',
   'assertLightweightContacts(flyers)',
+  'assertInkEfficientContacts(flyers)',
   'relativeLuminance(style.backgroundColor) < 0.82',
   'контактная зона оставила большую тёмную сплошную заливку',
   'светлая контактная зона потеряла цветную рамку',
@@ -72,6 +75,8 @@ requireSnippets(files.guide, sources.guide, [
   'узкая акцентная полоса'
 ]);
 
+runInlinePreviewValidation();
+
 if(errors.length){
   console.error('\nОшибки оптимизации расхода чернил:');
   errors.forEach(error => console.error(`- ${error}`));
@@ -79,6 +84,28 @@ if(errors.length){
 }
 
 console.log('Проверка оптимизации расхода чернил пройдена.');
+
+function runInlinePreviewValidation(){
+  const scriptPath = path.join(rootDir, files.inlineValidator);
+  if(!fs.existsSync(scriptPath)){
+    errors.push(`${files.inlineValidator}: файл не найден`);
+    return;
+  }
+  const result = spawnSync(process.execPath, [scriptPath], {
+    cwd: rootDir,
+    encoding: 'utf8',
+    stdio: 'pipe',
+    maxBuffer: 4 * 1024 * 1024
+  });
+  if(result.error){
+    errors.push(`Проверка inline-редактора не запустилась: ${result.error.message}`);
+    return;
+  }
+  if(result.status !== 0){
+    const details = [result.stdout?.trim(), result.stderr?.trim()].filter(Boolean).join('\n');
+    errors.push(details || 'Проверка inline-редактора завершилась ошибкой.');
+  }
+}
 
 function requireSnippets(file, source, snippets){
   for(const snippet of snippets){

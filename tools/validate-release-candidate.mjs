@@ -14,6 +14,7 @@ const files = {
   testPack: 'docs/manual-print-test-pack-3.86.0.md',
   changelog: 'docs/changelog.md',
   readinessReporter: 'tools/report-release-readiness.mjs',
+  readinessStateTest: 'tools/test-release-readiness-states.mjs',
   readinessGuide: 'docs/release-readiness-status.md'
 };
 
@@ -25,9 +26,11 @@ const managerEvidence = readRequired(files.managerEvidence);
 const testPack = readRequired(files.testPack);
 const changelog = readRequired(files.changelog);
 const readinessReporter = readRequired(files.readinessReporter);
+const readinessStateTest = readRequired(files.readinessStateTest);
 const readinessGuide = readRequired(files.readinessGuide);
 const targetVersion = '3.86.0';
 const packageVersion = String(pkg?.version || '').trim();
+const publishedVersion = release.match(/^Текущая опубликованная версия:\s*([0-9.]+)\s*$/m)?.[1] || '';
 const status = release.match(/^Статус:\s*(DRAFT|READY)\s*$/m)?.[1] || '';
 const workflowRunNumber = Number(release.match(/Последний полный контроль:\s*GitHub Actions workflow run #(\d+)/)?.[1] || 0);
 const acceptancePassed = /^Статус:\s*ПРОЙДЕНА\s*$/m.test(acceptance);
@@ -45,6 +48,7 @@ const changelogHasTarget = new RegExp(`^## ${escapeRegExp(targetVersion)}\\s*$`,
 requireSnippets(files.release, release, [
   '# Релиз-кандидат 3.86.0',
   'Целевая версия: 3.86.0',
+  'Текущая опубликованная версия:',
   'Причина статуса `DRAFT`',
   '## Автоматические доказательства',
   '## Блокирующие условия перед выпуском',
@@ -64,6 +68,9 @@ requireSnippets(files.release, release, [
   '`collect-print-screenshots` — успешно'
 ]);
 
+if(!publishedVersion) {
+  errors.push(`${files.release}: нужна фактически опубликованная версия`);
+}
 if(!Number.isInteger(workflowRunNumber) || workflowRunNumber <= 0) {
   errors.push(`${files.release}: нужен актуальный номер последнего полного workflow run`);
 }
@@ -141,6 +148,7 @@ requireSnippets(files.testPack, testPack, [
 requireSnippets(files.readinessReporter, readinessReporter, [
   "args.has('--json')",
   "args.has('--strict')",
+  'publishedVersion',
   'documentedWorkflowRun',
   'checkboxSummary',
   'consistencyErrors',
@@ -157,27 +165,52 @@ forbidSnippets(files.readinessReporter, readinessReporter, [
   'node:https'
 ]);
 
+requireSnippets(files.readinessStateTest, readinessStateTest, [
+  'verifyDraftState',
+  'verifyReadyBeforePublicationState',
+  'verifyInconsistentState',
+  "publishedVersion: '3.85.0'",
+  "packageVersion: '3.86.0'",
+  "expectStatus('READY strict', strict, 0)",
+  "expectStatus('Рассинхронизация strict', strict, 1)",
+  'Переходные состояния release readiness пройдены'
+]);
+
+forbidSnippets(files.readinessStateTest, readinessStateTest, [
+  'fetch(',
+  'XMLHttpRequest',
+  'node:http',
+  'node:https'
+]);
+
 requireSnippets(files.readinessGuide, readinessGuide, [
   '# Сводный статус готовности релиза',
   'npm run release:status',
+  'npm run release:status -- --details',
   'npm run release:status -- --json',
   'npm run release:status -- --strict',
   'кодом `2`',
   'issue #40',
   'issue #51',
+  'Текущая опубликованная версия',
   'не изменяет файлы'
 ]);
 
 if(String(pkg?.scripts?.['release:status'] || '').trim() !== 'node tools/report-release-readiness.mjs') {
   errors.push('package.json: release:status должен запускать node tools/report-release-readiness.mjs');
 }
+if(String(pkg?.scripts?.['test:release-readiness-states'] || '').trim() !== 'node tools/test-release-readiness-states.mjs') {
+  errors.push('package.json: test:release-readiness-states должен запускать node tools/test-release-readiness-states.mjs');
+}
 
 runManagerSensitiveReviewValidation();
 runReleaseReadinessReportValidation();
+runReleaseReadinessStateValidation();
 
 if(!status) errors.push(`${files.release}: статус должен быть DRAFT или READY`);
 
-if(status === 'DRAFT'){
+if(status === 'DRAFT') {
+  if(packageVersion !== publishedVersion) errors.push(`${files.package}: для DRAFT version должна совпадать с фактически опубликованной версией ${publishedVersion}`);
   if(packageVersion === targetVersion) errors.push(`${files.package}: нельзя ставить ${targetVersion}, пока релиз-кандидат имеет статус DRAFT`);
   if(changelogHasTarget) errors.push(`${files.changelog}: финальный раздел ${targetVersion} нельзя добавлять, пока релиз-кандидат имеет статус DRAFT`);
   if(!acceptancePending) errors.push(`${files.acceptance}: для DRAFT ожидается статус НЕ ПРОЙДЕНА`);
@@ -187,7 +220,7 @@ if(status === 'DRAFT'){
   if(!uncheckedManagerReview) errors.push(`${files.managerReview}: DRAFT должен содержать незакрытые пункты менеджерской проверки`);
 }
 
-if(status === 'READY'){
+if(status === 'READY') {
   if(packageVersion !== targetVersion) errors.push(`${files.package}: для READY ожидается version ${targetVersion}`);
   if(!changelogHasTarget) errors.push(`${files.changelog}: для READY требуется раздел ## ${targetVersion}`);
   if(!acceptancePassed) errors.push(`${files.acceptance}: для READY ожидается статус ПРОЙДЕНА`);
@@ -197,17 +230,17 @@ if(status === 'READY'){
   if(uncheckedManagerReview) errors.push(`${files.managerReview}: для READY все пункты менеджерской проверки должны быть отмечены`);
 }
 
-if(errors.length){
+if(errors.length) {
   console.error('\nОшибки готовности релиз-кандидата 3.86.0:');
   errors.forEach(error => console.error(`- ${error}`));
   process.exit(1);
 }
 
-console.log(`Релиз-кандидат 3.86.0 корректен: статус ${status}, текущая версия ${packageVersion}, workflow run #${workflowRunNumber}; viewport-, печатная и менеджерская приёмка согласованы со статусом, evidence-пакет и сводный отчёт синхронизированы.`);
+console.log(`Релиз-кандидат 3.86.0 корректен: статус ${status}, пакет ${packageVersion}, опубликовано ${publishedVersion}, workflow run #${workflowRunNumber}; viewport-, печатная и менеджерская приёмка согласованы со статусом, evidence-пакет, сводный отчёт и переходные состояния синхронизированы.`);
 
-function runManagerSensitiveReviewValidation(){
+function runManagerSensitiveReviewValidation() {
   const scriptPath = path.join(rootDir, files.managerValidator);
-  if(!fs.existsSync(scriptPath)){
+  if(!fs.existsSync(scriptPath)) {
     errors.push(`${files.managerValidator}: файл не найден`);
     return;
   }
@@ -219,21 +252,21 @@ function runManagerSensitiveReviewValidation(){
     maxBuffer: 8 * 1024 * 1024
   });
 
-  if(result.error){
+  if(result.error) {
     errors.push(`Проверка чувствительных шаблонов не запустилась: ${result.error.message}`);
     return;
   }
 
-  if(result.status !== 0){
+  if(result.status !== 0) {
     const details = [result.stdout?.trim(), result.stderr?.trim()].filter(Boolean).join('\n');
     errors.push(details || 'Доказательный пакет чувствительных шаблонов не прошёл проверку.');
   }
 }
 
-function runReleaseReadinessReportValidation(){
+function runReleaseReadinessReportValidation() {
   const jsonResult = runReporter(['--json']);
   if(!jsonResult) return;
-  if(jsonResult.status !== 0){
+  if(jsonResult.status !== 0) {
     errors.push(`Сводный отчёт --json завершился кодом ${jsonResult.status}: ${collectOutput(jsonResult)}`);
     return;
   }
@@ -257,7 +290,7 @@ function runReleaseReadinessReportValidation(){
 
   compareReportValue('targetVersion', report.targetVersion, targetVersion);
   compareReportValue('packageVersion', report.packageVersion, packageVersion);
-  compareReportValue('publishedVersion', report.publishedVersion, packageVersion);
+  compareReportValue('publishedVersion', report.publishedVersion, publishedVersion);
   compareReportValue('releaseStatus', report.releaseStatus, status);
   compareReportValue('documentedWorkflowRun', report.documentedWorkflowRun, workflowRunNumber);
   compareReportValue('ready', report.ready, expectedReady);
@@ -270,8 +303,9 @@ function runReleaseReadinessReportValidation(){
   if(!Array.isArray(report.consistencyErrors)) errors.push(`${files.readinessReporter}: consistencyErrors должен быть массивом`);
   if(report.consistencyErrors?.length) errors.push(`${files.readinessReporter}: найден рассинхрон — ${report.consistencyErrors.join('; ')}`);
   if(!String(report.nextAction || '').trim()) errors.push(`${files.readinessReporter}: не указан следующий шаг`);
-  if(!expectedReady && !report.blockers?.some(item => String(item).includes('issue #40'))) errors.push(`${files.readinessReporter}: DRAFT должен показывать blocker issue #40`);
-  if(!expectedReady && !report.blockers?.some(item => String(item).includes('issue #51'))) errors.push(`${files.readinessReporter}: DRAFT должен показывать blocker issue #51`);
+  if(status === 'DRAFT' && !report.blockers?.some(item => String(item).includes('issue #40'))) errors.push(`${files.readinessReporter}: DRAFT должен показывать blocker issue #40`);
+  if(status === 'DRAFT' && !report.blockers?.some(item => String(item).includes('issue #51'))) errors.push(`${files.readinessReporter}: DRAFT должен показывать blocker issue #51`);
+  if(expectedReady && report.blockers?.length) errors.push(`${files.readinessReporter}: READY не должен содержать blockers`);
 
   const humanResult = runReporter([]);
   if(humanResult && humanResult.status !== 0) errors.push(`${files.readinessReporter}: обычный отчёт завершился кодом ${humanResult.status}`);
@@ -286,9 +320,32 @@ function runReleaseReadinessReportValidation(){
   }
 }
 
-function runReporter(extraArgs){
+function runReleaseReadinessStateValidation() {
+  const scriptPath = path.join(rootDir, files.readinessStateTest);
+  if(!fs.existsSync(scriptPath)) {
+    errors.push(`${files.readinessStateTest}: файл не найден`);
+    return;
+  }
+
+  const result = spawnSync(process.execPath, [scriptPath], {
+    cwd: rootDir,
+    encoding: 'utf8',
+    stdio: 'pipe',
+    maxBuffer: 4 * 1024 * 1024
+  });
+
+  if(result.error) {
+    errors.push(`Переходные состояния release readiness не запустились: ${result.error.message}`);
+    return;
+  }
+  if(result.status !== 0) {
+    errors.push(collectOutput(result) || 'Переходные состояния release readiness не прошли проверку.');
+  }
+}
+
+function runReporter(extraArgs) {
   const scriptPath = path.join(rootDir, files.readinessReporter);
-  if(!fs.existsSync(scriptPath)){
+  if(!fs.existsSync(scriptPath)) {
     errors.push(`${files.readinessReporter}: файл не найден`);
     return null;
   }
@@ -302,8 +359,8 @@ function runReporter(extraArgs){
   return result;
 }
 
-function compareReportSummary(label, actual, expected, expectedStatus){
-  if(!actual || typeof actual !== 'object'){
+function compareReportSummary(label, actual, expected, expectedStatus) {
+  if(!actual || typeof actual !== 'object') {
     errors.push(`${files.readinessReporter}: отсутствует checks.${label}`);
     return;
   }
@@ -313,45 +370,52 @@ function compareReportSummary(label, actual, expected, expectedStatus){
   compareReportValue(`${label}.total`, actual.total, expected.total);
 }
 
-function compareReportValue(label, actual, expected){
+function compareReportValue(label, actual, expected) {
   if(actual !== expected) errors.push(`${files.readinessReporter}: ${label}=${JSON.stringify(actual)}, ожидается ${JSON.stringify(expected)}`);
 }
 
-function collectOutput(result){
+function collectOutput(result) {
   return [result?.stdout?.trim(), result?.stderr?.trim()].filter(Boolean).join('\n') || 'нет диагностического вывода';
 }
 
-function checkboxSummary(source){
+function checkboxSummary(source) {
   const checked = (source.match(/^- \[[xX]\]/gm) || []).length;
   const unchecked = (source.match(/^- \[ \]/gm) || []).length;
   return {checked, unchecked, total:checked + unchecked};
 }
 
-function requireSnippets(file, source, snippets){
-  for(const snippet of snippets){
+function requireSnippets(file, source, snippets) {
+  for(const snippet of snippets) {
     if(!source.includes(snippet)) errors.push(`${file}: отсутствует обязательный фрагмент — ${snippet}`);
   }
 }
 
-function forbidSnippets(file, source, snippets){
-  for(const snippet of snippets){
+function forbidSnippets(file, source, snippets) {
+  for(const snippet of snippets) {
     if(source.includes(snippet)) errors.push(`${file}: найден запрещённый фрагмент — ${snippet}`);
   }
 }
 
-function readJson(file){
+function readJson(file) {
   const source = readRequired(file);
   if(!source) return null;
-  try { return JSON.parse(source); }
-  catch(error){ errors.push(`${file}: JSON не читается — ${error.message}`); return null; }
+  try {
+    return JSON.parse(source);
+  } catch(error) {
+    errors.push(`${file}: JSON не читается — ${error.message}`);
+    return null;
+  }
 }
 
-function readRequired(file){
+function readRequired(file) {
   const fullPath = path.join(rootDir, file);
-  if(!fs.existsSync(fullPath)){ errors.push(`${file}: файл не найден`); return ''; }
+  if(!fs.existsSync(fullPath)) {
+    errors.push(`${file}: файл не найден`);
+    return '';
+  }
   return fs.readFileSync(fullPath, 'utf8');
 }
 
-function escapeRegExp(value){
+function escapeRegExp(value) {
   return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }

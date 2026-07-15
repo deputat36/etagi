@@ -122,6 +122,12 @@
       const expected = {'one-no-photo':1,'two-big-phone':2,'one-showcase':1,'two-photo':2,'four-contacts':4}[currentScenario];
       if(flyers.length !== expected) throw new Error(`ожидалось ${expected} макетов, получено ${flyers.length}`);
       assertLightweightContacts(flyers);
+      if(currentScenario === 'four-contacts') assertInkEfficientContacts(flyers);
+    }
+
+    function assertInkEfficientContacts(flyers){
+      assertLightweightContacts(flyers);
+      if(flyers.some(flyer => !flyer.classList.contains('color-economy'))) throw new Error('плотная контактная проверка потеряла экономный режим');
     }
 
     function assertLightweightContacts(flyers){

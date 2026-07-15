@@ -3,6 +3,7 @@ import http from 'node:http';
 import os from 'node:os';
 import path from 'node:path';
 import { spawn, spawnSync } from 'node:child_process';
+import { attachCdpPipeErrorHandlers } from './cdp-pipe-error-guard.mjs';
 
 class SmokeHarnessError extends Error {}
 
@@ -166,6 +167,7 @@ function createCdpPipeClient(child){
     pending.clear();
   };
 
+  attachCdpPipeErrorHandlers(input, output, failAll);
   child.once('error', failAll);
   child.once('close', (code, signal) => {
     failAll(new Error(`Chrome CDP pipe закрыт: code=${code}, signal=${signal || ''}`));

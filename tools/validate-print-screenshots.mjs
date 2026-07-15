@@ -1,11 +1,15 @@
 import fs from 'node:fs';
+import { EventEmitter } from 'node:events';
 import path from 'node:path';
+import { attachCdpPipeErrorHandlers } from './cdp-pipe-error-guard.mjs';
 
 const rootDir = process.cwd();
 const errors = [];
 const files = {
   harness: 'tools/print-screenshot.html',
   runner: 'tools/run-print-screenshots.mjs',
+  browserRunner: 'tools/run-browser-smoke.mjs',
+  pipeGuard: 'tools/cdp-pipe-error-guard.mjs',
   collector: 'tools/collect-print-screenshots.mjs',
   workflow: '.github/workflows/validate.yml',
   package: 'package.json',
@@ -57,12 +61,31 @@ requireSnippets(files.runner, sources.runner, [
   "cdp.send('Page.captureScreenshot'",
   'waitForCaptureStatus',
   'createCdpPipeClient',
+  "import { attachCdpPipeErrorHandlers } from './cdp-pipe-error-guard.mjs'",
+  'attachCdpPipeErrorHandlers(input, output, failAll)',
   "input.write(`${JSON.stringify(payload)}\\0`)",
   'sizeBytes < 10000',
   'fs.writeFileSync(failureLogPath',
   'server.keepAliveTimeout = 1',
   "'Connection':'close'"
 ]);
+
+requireSnippets(files.browserRunner, sources.browserRunner, [
+  "import { attachCdpPipeErrorHandlers } from './cdp-pipe-error-guard.mjs'",
+  'attachCdpPipeErrorHandlers(input, output, failAll)'
+]);
+
+requireSnippets(files.pipeGuard, sources.pipeGuard, [
+  'export function attachCdpPipeErrorHandlers',
+  "input.on('error', error => {",
+  "output.on('error', error => {",
+  "toCdpPipeError('write', error)",
+  "toCdpPipeError('read', error)",
+  'wrapped.code = code',
+  'wrapped.direction = direction'
+]);
+
+validatePipeErrorGuard();
 
 forbidSnippets(files.runner, sources.runner, [
   "'--virtual-time-budget=",
@@ -120,6 +143,7 @@ requireSnippets(files.guide, sources.guide, [
   '`four-contacts.png`',
   'Chrome DevTools Protocol',
   'print-screenshots-failure.log',
+  '`ECONNRESET`',
   'синтетические данные'
 ]);
 
@@ -138,6 +162,27 @@ if(errors.length){
 }
 
 console.log('Проверка screenshot-регрессии печати пройдена.');
+
+function validatePipeErrorGuard(){
+  const input = new EventEmitter();
+  const output = new EventEmitter();
+  const captured = [];
+  attachCdpPipeErrorHandlers(input, output, error => captured.push(error));
+
+  const readError = Object.assign(new Error('read ECONNRESET'), {code:'ECONNRESET'});
+  const writeError = Object.assign(new Error('write EPIPE'), {code:'EPIPE'});
+  output.emit('error', readError);
+  input.emit('error', writeError);
+
+  const [capturedRead, capturedWrite] = captured;
+  if(captured.length !== 2) errors.push(`${files.pipeGuard}: stream error должен передаваться в failAll`);
+  if(capturedRead?.code !== 'ECONNRESET' || capturedRead?.direction !== 'read' || !capturedRead.message.includes('read ECONNRESET')) {
+    errors.push(`${files.pipeGuard}: read ECONNRESET должен сохранять код, направление и исходное сообщение`);
+  }
+  if(capturedWrite?.code !== 'EPIPE' || capturedWrite?.direction !== 'write' || !capturedWrite.message.includes('write EPIPE')) {
+    errors.push(`${files.pipeGuard}: write EPIPE должен сохранять код, направление и исходное сообщение`);
+  }
+}
 
 function requireSnippets(file, source, snippets){
   for(const snippet of snippets){

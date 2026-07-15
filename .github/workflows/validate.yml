@@ -44,6 +44,9 @@ jobs:
       - name: Validate project
         run: npm run validate
 
+      - name: Verify release status details
+        run: npm run test:release-status-details
+
       - name: Upload validation failure
         if: failure()
         uses: actions/upload-artifact@v4

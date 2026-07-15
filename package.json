@@ -11,6 +11,7 @@
     "screenshots:print": "node tools/run-print-screenshots.mjs",
     "screenshots:manifest": "node tools/collect-print-screenshots.mjs",
     "test:cdp-failure-artifact": "node tools/test-cdp-failure-artifact.mjs",
+    "test:release-status-details": "node tools/test-release-status-details.mjs",
     "validate:templates": "node tools/validate-templates.mjs",
     "validate:template-id-aliases": "node tools/validate-template-id-aliases.mjs",
     "validate:borisoglebsk-coverage": "node tools/validate-borisoglebsk-coverage.mjs",

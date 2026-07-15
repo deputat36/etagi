@@ -39,7 +39,9 @@
 Команда:
 
 ```bash
-npm run validate:inline-preview-editing
+npm run test:inline-preview-editing
 ```
 
 проверяет runtime-подключение, разметку редактируемых блоков, синхронизацию с формой, отмену через Esc, вставку только обычного текста и screenshot-сценарий прямого редактирования заголовка.
+
+Эта проверка также запускается внутри `npm run validate:ink-efficiency`, поэтому входит в общий `npm run validate`.

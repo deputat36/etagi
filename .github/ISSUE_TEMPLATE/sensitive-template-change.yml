@@ -1,0 +1,110 @@
+name: Изменение чувствительного шаблона 3.86.0
+description: Зафиксировать решение или критичное замечание менеджера из issue #51.
+title: "[Шаблон 3.86.0] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Используйте форму для отдельного изменения текста, риска, office-уровня или жизненного цикла чувствительного шаблона из issue #51.
+
+        Перед созданием issue откройте рядом:
+        - `docs/manager-sensitive-template-review-3.86.0.md`;
+        - `docs/manager-sensitive-template-evidence-3.86.0.md`.
+
+        Запись решения не меняет данные генератора. Изменение должно быть внесено отдельным коммитом и повторно проверено validator.
+
+  - type: dropdown
+    id: template_id
+    attributes:
+      label: Шаблон
+      options:
+        - buyer_mortgage
+        - newbuild_no_commission
+        - newbuild_budget
+        - newbuild_mortgage
+        - service_mortgage
+        - buyer_maternity_capital
+        - newbuild_family_mortgage
+        - service_complex_sale
+        - seller_empty_flat
+        - trust_service_documents_check
+        - custom_service_consultation
+        - service_micro_4
+    validations:
+      required: true
+
+  - type: dropdown
+    id: decision
+    attributes:
+      label: Решение менеджера
+      options:
+        - Оставить test и уточнить условия применения
+        - Исправить и после проверки перевести в working
+        - Перевести в deprecated и указать конечный replacementId
+        - Временно запретить печать до получения актуальной информации
+    validations:
+      required: true
+
+  - type: textarea
+    id: current_problem
+    attributes:
+      label: Что требует изменения
+      description: Укажите конкретную формулировку, риск, уровень или статус и объясните, почему текущее состояние неприемлемо.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed_change
+    attributes:
+      label: Предлагаемое изменение
+      description: Приведите безопасный вариант текста и необходимые изменения office-политики или жизненного цикла.
+    validations:
+      required: true
+
+  - type: input
+    id: replacement_id
+    attributes:
+      label: replacementId
+      description: Обязательно только для решения deprecated. Укажите конечный рабочий шаблон без цепочки замен.
+      placeholder: "template_id или не применимо"
+
+  - type: textarea
+    id: source_evidence
+    attributes:
+      label: Основание решения
+      description: Укажите источник актуальных условий, практику офиса, ответственного специалиста и дату проверки. Не вставляйте персональные данные клиентов.
+    validations:
+      required: true
+
+  - type: textarea
+    id: risk_boundaries
+    attributes:
+      label: Запрещённые обещания и границы применения
+      description: Зафиксируйте, что нельзя обещать и при каких условиях шаблон допустимо использовать.
+    validations:
+      required: true
+
+  - type: textarea
+    id: verification
+    attributes:
+      label: Проверка после изменения
+      description: Укажите команды и ручные действия, которые должны подтвердить исправление.
+      value: |
+        - [ ] npm run templates:inventory
+        - [ ] node tools/validate-manager-sensitive-review.mjs
+        - [ ] npm run validate
+        - [ ] Текст повторно сверен менеджером с evidence-пакетом
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: confirmations
+    attributes:
+      label: Подтверждения
+      options:
+        - label: Решение относится к issue #51 и к одному из 12 обязательных чувствительных шаблонов.
+          required: true
+        - label: Предложение не содержит гарантии одобрения, ставки, платежа, юридического результата, точной цены или готового покупателя.
+          required: true
+        - label: Изменение будет внесено отдельным коммитом и повторно проверено до отметки бланка как ПРОЙДЕНА.
+          required: true

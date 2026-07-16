@@ -12,6 +12,7 @@
     "screenshots:print": "node tools/run-print-screenshots.mjs",
     "screenshots:manifest": "node tools/collect-print-screenshots.mjs",
     "test:cdp-failure-artifact": "node tools/test-cdp-failure-artifact.mjs",
+    "test:ui-actions-failure-artifact": "node tools/test-ui-actions-failure-artifact.mjs",
     "test:release-status-details": "node tools/test-release-status-details.mjs",
     "test:release-readiness-states": "node tools/test-release-readiness-states.mjs",
     "test:inline-preview-editing": "node tools/validate-inline-preview-editing.mjs",

@@ -82,6 +82,30 @@ jobs:
           if-no-files-found: error
           retention-days: 3
 
+  ui-actions-failure-artifact:
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Verify UI actions failure artifact
+        run: npm run test:ui-actions-failure-artifact
+
+      - name: Upload injected UI actions failure artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-actions-failure-artifact
+          path: browser-smoke-failure.log
+          if-no-files-found: error
+          retention-days: 3
+
   browser-smoke:
     needs: validate
     runs-on: ubuntu-latest

@@ -201,7 +201,7 @@
       "ownerToken": "downloadBtn",
       "effect": "Скачивает текущий макет как отдельный JSON-файл.",
       "risk": "download",
-      "verification": {"type": "planned", "source": "issue:#66", "marker": "browser smoke экспорта JSON"}
+      "verification": {"type": "browser", "source": "tools/ui-actions-smoke.html", "marker": "JSON: экспорт Blob содержит состояние и служебные поля"}
     },
     {
       "id": "layout.file-open-trigger",
@@ -211,7 +211,7 @@
       "ownerToken": "uploadBtn",
       "effect": "Открывает системный выбор JSON-файла макета.",
       "risk": "external-side-effect",
-      "verification": {"type": "planned", "source": "issue:#66", "marker": "browser smoke импорта JSON"}
+      "verification": {"type": "browser", "source": "tools/ui-actions-smoke.html", "marker": "JSON: кнопка импорта открывает выбор файла"}
     },
     {
       "id": "layout.file-import",
@@ -221,7 +221,7 @@
       "ownerToken": "uploadFile",
       "effect": "Читает выбранный JSON и заменяет текущее состояние макета.",
       "risk": "replace-state",
-      "verification": {"type": "planned", "source": "issue:#66", "marker": "browser smoke импорта JSON"}
+      "verification": {"type": "browser", "source": "tools/ui-actions-smoke.html", "marker": "JSON: импорт восстанавливает макет без смешивания"}
     },
     {
       "id": "preview.fit",

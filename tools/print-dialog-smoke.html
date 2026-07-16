@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Etagi print dialog smoke</title>
+  <style>
+    body{font-family:Arial,sans-serif;margin:16px}
+    #appFrame{width:1280px;height:900px;border:1px solid #cbd5e1}
+    #uiActionsSmokeResult{white-space:pre-wrap;padding:12px;border:1px solid #cbd5e1;border-radius:8px;background:#f8fafc}
+  </style>
+</head>
+<body>
+  <pre id="uiActionsSmokeResult" data-status="pending">Print dialog smoke is running…</pre>
+  <iframe id="appFrame" title="Генератор расклеек"></iframe>
+  <script>
+    localStorage.clear();
+
+    const result = document.getElementById('uiActionsSmokeResult');
+    const frame = document.getElementById('appFrame');
+    const checks = [];
+    const runtimeErrors = [];
+    let lastAction = 'startup';
+    let printCalls = 0;
+
+    frame.addEventListener('load', async () => {
+      const win = frame.contentWindow;
+      const doc = frame.contentDocument;
+      const earlyErrors = Array.isArray(win.__ETAGI_EARLY_ERRORS__) ? [...win.__ETAGI_EARLY_ERRORS__] : [];
+      runtimeErrors.push(...earlyErrors);
+      win.addEventListener('error', event => runtimeErrors.push(event.message || 'window error'));
+      win.addEventListener('unhandledrejection', event => runtimeErrors.push(String(event.reason || 'unhandled rejection')));
+
+      const originalPrint = win.print;
+      win.print = () => { printCalls += 1; };
+
+      try {
+        await waitFor(() => doc.querySelectorAll('.tpl-card').length > 0, 12000, 'шаблоны не появились');
+        await waitFor(() => doc.querySelector('#printSheet .flyer'), 12000, 'предпросмотр А4 не появился');
+
+        setField(win, doc, '#agentName', 'Мария Печатная');
+        setField(win, doc, '#agentPhone', '+7 900 123-45-67');
+        setField(win, doc, '#layoutName', 'Smoke печатного диалога');
+        setField(win, doc, '#headline', 'Квартира в центре');
+        setField(win, doc, '#price', '4 500 000 ₽');
+        setField(win, doc, '#area', 'Центр');
+        setField(win, doc, '#propertyType', 'Квартира');
+        setField(win, doc, '#params', '2 комнаты, 56 м²');
+        setField(win, doc, '#description', 'Готова к просмотру. Позвоните, чтобы уточнить детали.');
+        setField(win, doc, '#benefits', 'Проверенные документы\nУдобный район');
+        setCheck(win, doc, '#showContact', true);
+        setCheck(win, doc, '#showHeadline', true);
+        setCheck(win, doc, '#showDescription', true);
+        setCheck(win, doc, '#showMeta', true);
+        setCheck(win, doc, '#showBenefits', true);
+        setCheck(win, doc, '#showCustomBlock', false);
+        setCheck(win, doc, '#showPhoto', false);
+        setCheck(win, doc, '#showQr', false);
+        setCheck(win, doc, '#tearOffs', false);
+        setCheck(win, doc, '#printCheckMode', true);
+        click(doc, '[data-count="2"]');
+
+        const before = snapshot(doc);
+
+        lastAction = 'print.open-dialog';
+        click(doc, '#printBtn');
+        await waitFor(() => doc.getElementById('printDialog')?.open === true, 3000, 'печатный диалог не открылся');
+        await waitFor(() => doc.querySelector('#printSummary .print-summary'), 3000, 'сводка макета не появилась в печатном диалоге');
+        assert(printCalls === 0, 'системная печать вызвана при открытии диалога');
+        assert(doc.getElementById('statusLine')?.textContent.includes('Режим проверки'), 'не показана подсказка режима проверки перед печатью');
+        assert(doc.querySelector('#printSummary')?.textContent.includes('Квартира в центре'), 'сводка не содержит заголовок макета');
+        assert(doc.querySelector('#printSummary')?.textContent.includes('+7 900 123-45-67'), 'сводка не содержит телефон');
+        pass('печать: диалог открывается после проверки без системной печати');
+
+        lastAction = 'print.cancel-dialog';
+        click(doc, '#cancelPrintBtn');
+        await waitFor(() => doc.getElementById('printDialog')?.open === false, 2000, 'кнопка «Вернуться» не закрыла печатный диалог');
+        assert(printCalls === 0, 'системная печать вызвана при отмене');
+        const after = snapshot(doc);
+        assert(after.headline === before.headline, 'отмена печати изменила заголовок');
+        assert(after.agentPhone === before.agentPhone, 'отмена печати изменила телефон');
+        assert(after.printCount === before.printCount, 'отмена печати изменила количество копий');
+        pass('печать: Вернуться закрывает диалог без системной печати');
+
+        if(runtimeErrors.length) throw new Error(`runtime errors: ${runtimeErrors.join(' | ')}`);
+        win.print = originalPrint;
+        lastAction = 'completed';
+        result.dataset.status = 'passed';
+        result.textContent = `PASSED\n${checks.map(item => `✓ ${item}`).join('\n')}`;
+      } catch(error) {
+        win.print = originalPrint;
+        result.dataset.status = 'failed';
+        result.dataset.lastAction = lastAction;
+        result.textContent = `FAILED\n${checks.map(item => `✓ ${item}`).join('\n')}\n✗ ${error.message || error}\nПоследнее действие: ${lastAction}\nСостояние: ${JSON.stringify(snapshot(doc))}`;
+      }
+    }, {once:true});
+
+    frame.src = '/index.html?smoke=print-dialog';
+
+    window.setTimeout(() => {
+      if(result.dataset.status === 'pending'){
+        result.dataset.status = 'failed';
+        result.dataset.lastAction = lastAction;
+        result.textContent = `FAILED\n${checks.map(item => `✓ ${item}`).join('\n')}\n✗ общий timeout print dialog smoke\nПоследнее действие: ${lastAction}`;
+      }
+    }, 18000);
+
+    function pass(message){ checks.push(message); }
+    function assert(condition, message){ if(!condition) throw new Error(message); }
+    function click(doc, selector){
+      const element = doc.querySelector(selector);
+      assert(element, `не найден элемент ${selector}`);
+      element.click();
+    }
+    function setField(win, doc, selector, value){
+      const input = doc.querySelector(selector);
+      assert(input, `не найден элемент ${selector}`);
+      input.value = value;
+      input.dispatchEvent(new win.Event('input', {bubbles:true}));
+      input.dispatchEvent(new win.Event('change', {bubbles:true}));
+    }
+    function setCheck(win, doc, selector, checked){
+      const input = doc.querySelector(selector);
+      assert(input, `не найден элемент ${selector}`);
+      input.checked = checked;
+      input.dispatchEvent(new win.Event('change', {bubbles:true}));
+    }
+    function snapshot(doc){
+      return {
+        status:doc.getElementById('statusLine')?.textContent || '',
+        dialogOpen:Boolean(doc.getElementById('printDialog')?.open),
+        printCalls,
+        agentName:doc.getElementById('agentName')?.value || '',
+        agentPhone:doc.getElementById('agentPhone')?.value || '',
+        headline:doc.getElementById('headline')?.value || '',
+        printCount:doc.querySelector('[data-count].active')?.dataset.count || '',
+        qualityScore:doc.getElementById('qualityScore')?.textContent || '',
+        qualityErrors:doc.querySelectorAll('#qualityList .qitem.error').length,
+        summary:doc.getElementById('printSummary')?.textContent?.trim() || ''
+      };
+    }
+    async function waitFor(predicate, timeout, message){
+      const started = Date.now();
+      while(Date.now() - started < timeout){
+        if(predicate()) return;
+        await new Promise(resolve => setTimeout(resolve, 80));
+      }
+      throw new Error(typeof message === 'function' ? message() : message);
+    }
+  </script>
+</body>
+</html>

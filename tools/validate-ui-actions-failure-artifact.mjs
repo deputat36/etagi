@@ -14,6 +14,7 @@ const source = Object.fromEntries(Object.entries(files).map(([key, file]) => [ke
 
 requireSnippets(files.workflow, source.workflow, [
   'ui-actions-failure-artifact:',
+  'run: node tools/validate-ui-actions-failure-artifact.mjs',
   'run: npm run test:ui-actions-failure-artifact',
   'name: ui-actions-failure-artifact',
   'path: browser-smoke-failure.log',
@@ -45,7 +46,6 @@ requireSnippets(files.test, source.test, [
 try{
   const pkg = JSON.parse(source.package);
   requireScript(pkg.scripts, 'test:ui-actions-failure-artifact', 'node tools/test-ui-actions-failure-artifact.mjs');
-  requireScript(pkg.scripts, 'validate:ui-actions-failure-artifact', 'node tools/validate-ui-actions-failure-artifact.mjs');
 } catch(error){
   errors.push(`package.json: JSON не читается — ${error.message}`);
 }

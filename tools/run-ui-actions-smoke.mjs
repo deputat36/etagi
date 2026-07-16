@@ -25,6 +25,12 @@ const smokePages = failureFixtureMode ? [
     timeoutMs:55000
   },
   {
+    label:'QR inline error smoke',
+    path:'tools/qr-inline-error-smoke.html',
+    virtualTimeBudget:18000,
+    timeoutMs:30000
+  },
+  {
     label:'Print dialog smoke',
     path:'tools/print-dialog-smoke.html',
     virtualTimeBudget:20000,

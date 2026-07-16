@@ -47,6 +47,7 @@ export function renderSheet(sheet, state){
   for(let i=0;i<Number(state.printCount);i++){
     sheet.insertAdjacentHTML('beforeend', renderFlyer(state));
   }
+  normalizeInlineTabStops(sheet);
   requestAnimationFrame(()=>markOverflow(sheet));
   return grid;
 }
@@ -186,6 +187,14 @@ function inlineEditAttrs(field, label, options = {}){
   const indexAttr = Number.isInteger(options.index) ? ` data-inline-index="${options.index}"` : '';
   const multilineAttr = options.multiline ? ' aria-multiline="true"' : ' aria-multiline="false"';
   return ` data-inline-field="${field}" data-inline-label="${esc(label)}"${indexAttr} contenteditable="true" spellcheck="true" tabindex="0" role="textbox"${multilineAttr} title="Нажмите, чтобы изменить текст прямо на макете"`;
+}
+function normalizeInlineTabStops(sheet){
+  const flyers = [...sheet.querySelectorAll('.flyer')];
+  flyers.forEach((flyer, flyerIndex) => {
+    flyer.querySelectorAll('[data-inline-field]').forEach(editable => {
+      editable.tabIndex = flyerIndex === 0 ? 0 : -1;
+    });
+  });
 }
 function normalizeBlockOrder(order){
   const safe = Array.isArray(order) ? order.filter(id => DEFAULT_BLOCK_ORDER.includes(id)) : [];

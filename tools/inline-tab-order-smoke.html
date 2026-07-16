@@ -63,8 +63,9 @@
         secondaryHeadline.textContent = 'Изменено во второй копии';
         secondaryHeadline.blur();
 
-        await waitFor(() => doc.getElementById('headline')?.value === 'Изменено во второй копии', 3000, 'редактирование второй копии не обновило поле формы');
-        await waitFor(() => [...doc.querySelectorAll('#printSheet [data-inline-field="headline"]')].every(node => node.textContent.trim() === 'Изменено во второй копии'), 3000, 'редактирование второй копии не обновило остальные копии');
+        const expectedHeadline = 'ИЗМЕНЕНО ВО ВТОРОЙ КОПИИ';
+        await waitFor(() => doc.getElementById('headline')?.value === expectedHeadline, 3000, 'редактирование второй копии не обновило поле формы');
+        await waitFor(() => [...doc.querySelectorAll('#printSheet [data-inline-field="headline"]')].every(node => node.textContent.trim() === expectedHeadline), 3000, 'редактирование второй копии не обновило остальные копии');
 
         const rerenderedFlyers = [...doc.querySelectorAll('#printSheet .flyer')];
         assert([...rerenderedFlyers[0].querySelectorAll('[data-inline-field]')].every(node => node.tabIndex === 0), 'после рендера первая копия потеряла Tab-stop');

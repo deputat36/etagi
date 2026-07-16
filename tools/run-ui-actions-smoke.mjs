@@ -9,6 +9,21 @@ const failureLogPath = path.join(rootDir, 'browser-smoke-failure.log');
 const chrome = findChrome();
 if(!chrome) failImmediately('UI actions smoke: Chrome/Chromium не найден. Укажите CHROME_BIN или установите системный браузер.');
 
+const smokePages = [
+  {
+    label:'UI actions smoke',
+    path:'tools/ui-actions-smoke.html',
+    virtualTimeBudget:40000,
+    timeoutMs:55000
+  },
+  {
+    label:'Print dialog smoke',
+    path:'tools/print-dialog-smoke.html',
+    virtualTimeBudget:20000,
+    timeoutMs:32000
+  }
+];
+
 const server = createStaticServer(rootDir);
 server.keepAliveTimeout = 1;
 server.headersTimeout = 5000;
@@ -17,7 +32,26 @@ const profileDir = fs.mkdtempSync(path.join(os.tmpdir(), 'etagi-ui-actions-smoke
 let failure = '';
 
 try{
-  const url = `http://127.0.0.1:${port}/tools/ui-actions-smoke.html`;
+  for(const page of smokePages){
+    const smoke = await runSmokePage(page);
+    console.log(`${page.label}:`);
+    console.log(smoke.text || `${page.label} passed.`);
+  }
+} catch(error){
+  failure = String(error?.message || error || 'UI actions smoke failed.').trim();
+  writeFailureLog(failure);
+} finally {
+  fs.rmSync(profileDir, {recursive:true, force:true});
+  await closeServer(server);
+}
+
+if(failure){
+  console.error(failure);
+  process.exit(1);
+}
+
+async function runSmokePage(page){
+  const url = `http://127.0.0.1:${port}/${page.path}`;
   const result = await runChrome(chrome, [
     '--headless=new',
     '--no-sandbox',
@@ -33,34 +67,23 @@ try{
     '--force-device-scale-factor=1',
     '--window-size=1440,1200',
     `--user-data-dir=${profileDir}`,
-    '--virtual-time-budget=30000',
+    `--virtual-time-budget=${page.virtualTimeBudget}`,
     '--dump-dom',
     url
-  ], 45000);
+  ], page.timeoutMs);
 
   const dom = String(result.stdout || '');
   const stderr = String(result.stderr || '').trim();
   const smoke = parseSmokeResult(dom);
 
   if(result.code !== 0 && smoke.status !== 'passed'){
-    throw new Error([`UI actions smoke: Chrome завершился с кодом ${result.code}.`, smoke.text, stderr].filter(Boolean).join('\n'));
+    throw new Error([`${page.label}: Chrome завершился с кодом ${result.code}.`, smoke.text, stderr].filter(Boolean).join('\n'));
   }
   if(smoke.status !== 'passed'){
-    throw new Error([`UI actions smoke: статус ${smoke.status}.`, smoke.text, stderr].filter(Boolean).join('\n'));
+    throw new Error([`${page.label}: статус ${smoke.status}.`, smoke.text, stderr].filter(Boolean).join('\n'));
   }
 
-  console.log(smoke.text || 'UI actions smoke passed.');
-} catch(error){
-  failure = String(error?.message || error || 'UI actions smoke failed.').trim();
-  writeFailureLog(failure);
-} finally {
-  fs.rmSync(profileDir, {recursive:true, force:true});
-  await closeServer(server);
-}
-
-if(failure){
-  console.error(failure);
-  process.exit(1);
+  return smoke;
 }
 
 function runChrome(command, args, timeoutMs){

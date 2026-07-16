@@ -161,7 +161,9 @@
         const strengthenedBenefits = doc.getElementById('benefits').value;
         assert(doc.getElementById('showDescription')?.checked === true, 'усиленное описание не включено');
         assert(doc.getElementById('showBenefits')?.checked === true, 'добавленные преимущества не включены');
-        assert(doc.querySelectorAll('#printSheet .benefits .benefit').length === 3, 'в предпросмотре нет трёх преимуществ');
+        const flyers = [...doc.querySelectorAll('#printSheet .flyer')];
+        assert(flyers.length > 0, 'в предпросмотре нет копий макета');
+        assert(flyers.every(flyer => flyer.querySelectorAll('.benefits .benefit').length === 3), 'не в каждой копии макета показаны три преимущества');
         assert((strengthenedDescription.match(/Позвоните — подскажу детали и помогу разобраться\./g) || []).length === 1, 'призыв добавлен больше одного раза');
         click(doc, '#makeStrongerBtn');
         await waitFor(() => doc.getElementById('description')?.value === strengthenedDescription && doc.getElementById('benefits')?.value === strengthenedBenefits, 1000, 'повторное усиление изменило уже подготовленный текст');

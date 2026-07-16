@@ -22,6 +22,7 @@ import './spnTemplateMenuCompact.js';
 import './spnOfficeTemplateFilters.js';
 import './spnOfficeFilterSync.js';
 import './spnTemplateCardBadges.js';
+import './spnTemplateKeyboard.js';
 import './spnManagerTemplateNotice.js';
 import './spnTextStepChecklist.js';
 import './spnNewbieMode.js';

@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Etagi template keyboard smoke</title>
+  <style>
+    body{font-family:Arial,sans-serif;margin:16px}
+    #appFrame{width:1280px;height:900px;border:1px solid #cbd5e1}
+    #uiActionsSmokeResult{white-space:pre-wrap;padding:12px;border:1px solid #cbd5e1;border-radius:8px;background:#f8fafc}
+  </style>
+</head>
+<body>
+  <pre id="uiActionsSmokeResult" data-status="pending">Template keyboard smoke is running…</pre>
+  <iframe id="appFrame" title="Генератор расклеек"></iframe>
+  <script>
+    const result = document.getElementById('uiActionsSmokeResult');
+    const frame = document.getElementById('appFrame');
+    const checks = [];
+    const runtimeErrors = [];
+    let lastAction = 'startup';
+
+    frame.addEventListener('load', async () => {
+      const win = frame.contentWindow;
+      const doc = frame.contentDocument;
+      const earlyErrors = Array.isArray(win.__ETAGI_EARLY_ERRORS__) ? [...win.__ETAGI_EARLY_ERRORS__] : [];
+      runtimeErrors.push(...earlyErrors);
+      win.addEventListener('error', event => runtimeErrors.push(event.message || 'window error'));
+      win.addEventListener('unhandledrejection', event => runtimeErrors.push(String(event.reason || 'unhandled rejection')));
+
+      try{
+        await waitFor(() => doc.querySelectorAll('#templateList [data-template]').length >= 4, 12000, 'карточки шаблонов не появились');
+        await waitFor(() => [...doc.querySelectorAll('#templateList [data-template]')].every(card => card.getAttribute('role') === 'option'), 4000, 'ARIA-роли карточек не появились');
+
+        lastAction = 'template-keyboard.contract';
+        const list = doc.getElementById('templateList');
+        let cards = getCards(doc);
+        assert(list.getAttribute('role') === 'listbox', 'список шаблонов не имеет role=listbox');
+        assert(list.getAttribute('aria-label') === 'Шаблоны расклейки', 'у списка шаблонов нет понятной подписи');
+        assert(cards.every(card => ['true','false'].includes(card.getAttribute('aria-selected'))), 'не у всех карточек есть aria-selected');
+        assert(cards.filter(card => card.tabIndex === 0).length === 1, 'в списке должен быть ровно один Tab-stop');
+        assert(cards.filter(card => card.getAttribute('aria-selected') === 'true').length === 1, 'в списке должен быть ровно один выбранный шаблон');
+        assert(cards.every(card => card.getAttribute('aria-label')?.includes(card.querySelector('b')?.textContent.trim() || '')), 'ARIA-подпись карточки не содержит название');
+        pass('контракт: listbox, option, aria-selected и один Tab-stop');
+
+        const selectedBefore = cards.find(card => card.getAttribute('aria-selected') === 'true');
+        const selectedIdBefore = selectedBefore.dataset.template;
+        const start = cards.find(card => card.tabIndex === 0);
+        start.focus();
+
+        lastAction = 'template-keyboard.arrows';
+        press(win, start, 'End');
+        assert(doc.activeElement === cards.at(-1), 'End не перевёл фокус на последнюю карточку');
+        press(win, doc.activeElement, 'Home');
+        assert(doc.activeElement === cards[0], 'Home не перевёл фокус на первую карточку');
+        press(win, doc.activeElement, 'ArrowRight');
+        assert(doc.activeElement === cards[1], 'ArrowRight не перевёл фокус вперёд');
+        press(win, doc.activeElement, 'ArrowLeft');
+        assert(doc.activeElement === cards[0], 'ArrowLeft не перевёл фокус назад');
+        press(win, doc.activeElement, 'ArrowDown');
+        assert(doc.activeElement === cards[1], 'ArrowDown не перевёл фокус на следующую карточку');
+        press(win, doc.activeElement, 'ArrowUp');
+        assert(doc.activeElement === cards[0], 'ArrowUp не перевёл фокус на предыдущую карточку');
+        assert(doc.querySelector('#templateList [aria-selected="true"]')?.dataset.template === selectedIdBefore, 'стрелки изменили выбранный шаблон без подтверждения');
+        assert(getCards(doc).filter(card => card.tabIndex === 0).length === 1, 'после стрелок появилось несколько Tab-stop');
+        pass('навигация: стрелки и Home/End меняют только фокус');
+
+        lastAction = 'template-keyboard.enter';
+        cards = getCards(doc);
+        const enterTarget = cards.find(card => card.dataset.template !== selectedIdBefore) || cards[1];
+        const enterId = enterTarget.dataset.template;
+        const enterTitle = enterTarget.querySelector('b')?.textContent.trim() || '';
+        enterTarget.focus();
+        press(win, enterTarget, 'Enter');
+        await waitFor(() => doc.querySelector('#templateList [data-template].active')?.dataset.template === enterId, 4000, 'Enter не выбрал шаблон');
+        await waitFor(() => doc.activeElement?.dataset?.template === enterId, 4000, 'после Enter фокус не вернулся на выбранную карточку');
+        assert(doc.getElementById('layoutName')?.value === enterTitle, 'Enter не применил данные выбранного шаблона');
+        assertSelectionContract(doc, enterId);
+        pass('Enter: шаблон выбран, состояние и фокус синхронизированы');
+
+        lastAction = 'template-keyboard.space';
+        cards = getCards(doc);
+        const activeIndex = cards.findIndex(card => card.dataset.template === enterId);
+        const spaceTarget = cards[(activeIndex + 1) % cards.length];
+        const spaceId = spaceTarget.dataset.template;
+        spaceTarget.focus();
+        press(win, spaceTarget, ' ');
+        await waitFor(() => doc.querySelector('#templateList [data-template].active')?.dataset.template === spaceId, 4000, 'Space не выбрал шаблон');
+        await waitFor(() => doc.activeElement?.dataset?.template === spaceId, 4000, 'после Space фокус не вернулся на выбранную карточку');
+        assertSelectionContract(doc, spaceId);
+        pass('Space: шаблон выбран без повторных Tab-stop');
+
+        lastAction = 'template-keyboard.favorite';
+        const activeCard = doc.querySelector(`#templateList [data-template="${escapeSelector(spaceId)}"]`);
+        const favorite = activeCard?.querySelector('[data-favorite-template]');
+        assert(favorite?.tagName === 'BUTTON', 'кнопка избранного перестала быть отдельной кнопкой');
+        favorite.focus();
+        press(win, favorite, 'ArrowDown');
+        assert(doc.activeElement === favorite, 'обработчик карточек перехватил клавиши кнопки избранного');
+        assertSelectionContract(doc, spaceId);
+        pass('вложенная кнопка избранного не перехватывается навигацией карточек');
+
+        if(runtimeErrors.length) throw new Error(`runtime errors: ${runtimeErrors.join(' | ')}`);
+        lastAction = 'completed';
+        result.dataset.status = 'passed';
+        result.textContent = `PASSED\n${checks.map(item => `✓ ${item}`).join('\n')}`;
+      } catch(error){
+        result.dataset.status = 'failed';
+        result.dataset.lastAction = lastAction;
+        result.textContent = `FAILED\n${checks.map(item => `✓ ${item}`).join('\n')}\n✗ ${error.message || error}\nПоследнее действие: ${lastAction}\nСостояние: ${JSON.stringify(snapshot(doc))}`;
+      }
+    }, {once:true});
+
+    frame.src = '/index.html?smoke=template-keyboard';
+
+    window.setTimeout(() => {
+      if(result.dataset.status === 'pending'){
+        result.dataset.status = 'failed';
+        result.dataset.lastAction = lastAction;
+        result.textContent = `FAILED\n${checks.map(item => `✓ ${item}`).join('\n')}\n✗ timeout template keyboard smoke\nПоследнее действие: ${lastAction}`;
+      }
+    }, 25000);
+
+    function getCards(doc){ return [...doc.querySelectorAll('#templateList [data-template]')]; }
+    function pass(message){ checks.push(message); }
+    function assert(condition, message){ if(!condition) throw new Error(message); }
+    function press(win, target, key){
+      target.dispatchEvent(new win.KeyboardEvent('keydown', {key, bubbles:true, cancelable:true}));
+    }
+    function assertSelectionContract(doc, id){
+      const cards = getCards(doc);
+      assert(cards.filter(card => card.getAttribute('aria-selected') === 'true').length === 1, 'после выбора найдено несколько aria-selected=true');
+      assert(cards.find(card => card.getAttribute('aria-selected') === 'true')?.dataset.template === id, 'aria-selected не соответствует активному шаблону');
+      assert(cards.filter(card => card.tabIndex === 0).length === 1, 'после выбора найдено несколько Tab-stop');
+      assert(cards.find(card => card.tabIndex === 0)?.dataset.template === id, 'Tab-stop не соответствует выбранному шаблону');
+    }
+    function escapeSelector(value){
+      if(frame.contentWindow.CSS?.escape) return frame.contentWindow.CSS.escape(String(value || ''));
+      return String(value || '').replace(/["\\]/g, '\\$&');
+    }
+    function snapshot(doc){
+      const cards = getCards(doc);
+      return {
+        status:doc.getElementById('statusLine')?.textContent || '',
+        active:cards.find(card => card.classList.contains('active'))?.dataset.template || '',
+        focused:doc.activeElement?.dataset?.template || doc.activeElement?.id || doc.activeElement?.tagName || '',
+        tabStops:cards.filter(card => card.tabIndex === 0).map(card => card.dataset.template),
+        selected:cards.filter(card => card.getAttribute('aria-selected') === 'true').map(card => card.dataset.template)
+      };
+    }
+    function waitFor(check, timeoutMs, message){
+      const started = Date.now();
+      return new Promise((resolve, reject) => {
+        const tick = () => {
+          try{
+            if(check()) return resolve();
+          } catch(error){
+            return reject(error);
+          }
+          if(Date.now() - started >= timeoutMs) return reject(new Error(message));
+          setTimeout(tick, 50);
+        };
+        tick();
+      });
+    }
+  </script>
+</body>
+</html>

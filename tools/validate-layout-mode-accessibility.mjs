@@ -5,9 +5,12 @@ const rootDir = process.cwd();
 const errors = [];
 const files = {
   helper: 'assets/js/spnLayoutModeAccessibility.js',
+  templateHelper: 'assets/js/spnTemplateKeyboard.js',
   entry: 'assets/js/spnUiMode.js',
   smoke: 'tools/browser-smoke.html',
-  checklist: 'docs/layout-mode-accessibility-checklist.md'
+  templateSmoke: 'tools/template-keyboard-smoke.html',
+  checklist: 'docs/layout-mode-accessibility-checklist.md',
+  templateChecklist: 'docs/template-keyboard-accessibility.md'
 };
 
 const sources = Object.fromEntries(
@@ -34,8 +37,33 @@ forbidSnippets(files.helper, sources.helper, [
   "window.addEventListener('keydown'"
 ]);
 
+requireSnippets(files.templateHelper, sources.templateHelper, [
+  "list.setAttribute('role', 'listbox')",
+  "card.setAttribute('role', 'option')",
+  "card.setAttribute('aria-selected'",
+  'card.tabIndex = card === tabCard ? 0 : -1',
+  "event.key === 'Enter' || event.key === ' '",
+  "key === 'ArrowDown' || key === 'ArrowRight'",
+  "key === 'ArrowUp' || key === 'ArrowLeft'",
+  "key === 'Home'",
+  "key === 'End'",
+  'card.click()',
+  'requestAnimationFrame(() => requestAnimationFrame',
+  "event.target.closest(FAVORITE_SELECTOR)",
+  "new MutationObserver(() => enhanceCards(list))",
+  ":focus-visible"
+]);
+
+forbidSnippets(files.templateHelper, sources.templateHelper, [
+  "document.addEventListener('keydown'",
+  "window.addEventListener('keydown'",
+  'localStorage.setItem',
+  'applyTemplate('
+]);
+
 requireSnippets(files.entry, sources.entry, [
-  "import './spnLayoutModeAccessibility.js';"
+  "import './spnLayoutModeAccessibility.js';",
+  "import './spnTemplateKeyboard.js';"
 ]);
 
 requireSnippets(files.smoke, sources.smoke, [
@@ -43,6 +71,20 @@ requireSnippets(files.smoke, sources.smoke, [
   'keyboard: Home вернул первую компоновку',
   'keyboard: ArrowRight выбрал следующую компоновку',
   'aria-checked="true"'
+]);
+
+requireSnippets(files.templateSmoke, sources.templateSmoke, [
+  'id="uiActionsSmokeResult"',
+  "list.getAttribute('role') === 'listbox'",
+  "card.getAttribute('role') === 'option'",
+  "card.getAttribute('aria-selected') === 'true'",
+  "press(win, start, 'End')",
+  "press(win, doc.activeElement, 'Home')",
+  "press(win, doc.activeElement, 'ArrowRight')",
+  "press(win, enterTarget, 'Enter')",
+  "press(win, spaceTarget, ' ')",
+  'после Enter фокус не вернулся на выбранную карточку',
+  'обработчик карточек перехватил клавиши кнопки избранного'
 ]);
 
 requireSnippets(files.checklist, sources.checklist, [
@@ -56,13 +98,28 @@ requireSnippets(files.checklist, sources.checklist, [
   'глобальные сочетания клавиш вне'
 ]);
 
+requireSnippets(files.templateChecklist, sources.templateChecklist, [
+  '# Клавиатурный выбор шаблонов',
+  'ArrowDown',
+  'ArrowRight',
+  'ArrowUp',
+  'ArrowLeft',
+  '`Home`',
+  '`End`',
+  '`Enter` или `Space`',
+  'role="listbox"',
+  'role="option"',
+  'aria-selected="true|false"',
+  'Кнопка избранного остаётся самостоятельной кнопкой'
+]);
+
 if(errors.length){
-  console.error('\nОшибки доступности выбора компоновки:');
+  console.error('\nОшибки keyboard/focus доступности:');
   errors.forEach(error => console.error(`- ${error}`));
   process.exit(1);
 }
 
-console.log('Проверка keyboard/focus выбора компоновки пройдена.');
+console.log('Проверка keyboard/focus выбора компоновки и шаблонов пройдена.');
 
 function requireSnippets(file, source, snippets){
   for(const snippet of snippets){
@@ -72,7 +129,7 @@ function requireSnippets(file, source, snippets){
 
 function forbidSnippets(file, source, snippets){
   for(const snippet of snippets){
-    if(source.includes(snippet)) errors.push(`${file}: найден глобальный обработчик — ${snippet}`);
+    if(source.includes(snippet)) errors.push(`${file}: найден запрещённый фрагмент — ${snippet}`);
   }
 }
 

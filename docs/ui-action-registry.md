@@ -11,6 +11,7 @@ data/ui-actions.json
 ```bash
 npm run test:ui-actions
 npm run smoke:browser
+npm run smoke:ui-actions
 npm run validate
 ```
 
@@ -43,11 +44,11 @@ npm run validate
 
 ## Smoke действий сохранения
 
-Команда `npm run smoke:browser` последовательно запускает:
+Browser job GitHub Actions последовательно запускает отдельными шагами:
 
 ```text
-tools/run-browser-smoke.mjs
-tools/run-ui-actions-smoke.mjs
+npm run smoke:browser
+npm run smoke:ui-actions
 ```
 
 Второй сценарий работает в отдельном временном профиле Chrome и проверяет реальными нажатиями:
@@ -73,7 +74,7 @@ tools/run-ui-actions-smoke.mjs
 - реестр ссылается на несуществующую статическую кнопку;
 - командный `#uploadFile` потерян либо перестал быть `type=file`;
 - отсутствует одна из обязательных динамических групп рабочего пути;
-- `smoke:browser` перестал запускать основной и профильный smoke в установленном порядке.
+- package scripts или browser job перестали запускать основной и профильный smoke в установленном порядке.
 
 ## Правило сопровождения
 

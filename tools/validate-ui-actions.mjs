@@ -4,6 +4,7 @@ import path from 'node:path';
 const rootDir = process.cwd();
 const registryPath = path.join(rootDir, 'data/ui-actions.json');
 const indexPath = path.join(rootDir, 'index.html');
+const packagePath = path.join(rootDir, 'package.json');
 const errors = [];
 const allowedKinds = new Set(['static-button', 'dynamic-button', 'dynamic-group', 'command-input']);
 const allowedVerificationTypes = new Set(['browser', 'screenshot', 'contract', 'manual', 'planned']);
@@ -28,9 +29,12 @@ const requiredDynamicSelectors = [
 
 const registrySource = readRequired(registryPath);
 const indexSource = readRequired(indexPath);
+const packageSource = readRequired(packagePath);
 const registry = parseJson(registrySource, 'data/ui-actions.json');
+const pkg = parseJson(packageSource, 'package.json');
 
 if (registry) validateRegistry(registry, indexSource);
+if (pkg) validateSmokeCommand(pkg);
 
 if (errors.length) {
   console.error('\nОшибки реестра действий интерфейса:');
@@ -103,6 +107,14 @@ function validateRegistry(data, html) {
   }
 
   if (!selectors.has('#uploadFile')) errors.push('data/ui-actions.json: командный input #uploadFile должен быть описан отдельно от кнопки #uploadBtn');
+}
+
+function validateSmokeCommand(pkg) {
+  const command = String(pkg?.scripts?.['smoke:browser'] || '').trim();
+  const expected = 'node tools/run-browser-smoke.mjs && node tools/run-ui-actions-smoke.mjs';
+  if (command !== expected) {
+    errors.push(`package.json: smoke:browser должен последовательно запускать основной smoke и smoke действий — ${expected}`);
+  }
 }
 
 function validateOwner(prefix, owner, token) {

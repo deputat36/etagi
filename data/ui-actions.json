@@ -81,7 +81,7 @@
       "ownerToken": "makeShortBtn",
       "effect": "Сокращает только поле описания до установленного лимита.",
       "risk": "replace-text",
-      "verification": {"type": "planned", "source": "issue:#66", "marker": "browser smoke сокращения описания"}
+      "verification": {"type": "browser", "source": "tools/ui-actions-smoke.html", "marker": "текст: сокращение описания до лимита"}
     },
     {
       "id": "text.strengthen",
@@ -91,7 +91,7 @@
       "ownerToken": "makeStrongerBtn",
       "effect": "Добавляет призыв и базовые преимущества, если описание заполнено.",
       "risk": "replace-text",
-      "verification": {"type": "planned", "source": "issue:#66", "marker": "browser smoke усиления текста"}
+      "verification": {"type": "browser", "source": "tools/ui-actions-smoke.html", "marker": "текст: усиление добавляет призыв и преимущества без дублей"}
     },
     {
       "id": "quality.run",

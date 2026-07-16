@@ -12,6 +12,7 @@
     "screenshots:print": "node tools/run-print-screenshots.mjs",
     "screenshots:manifest": "node tools/collect-print-screenshots.mjs",
     "test:cdp-failure-artifact": "node tools/test-cdp-failure-artifact.mjs",
+    "test:ui-actions-failure-artifact": "node tools/test-ui-actions-failure-artifact.mjs",
     "test:release-status-details": "node tools/test-release-status-details.mjs",
     "test:release-readiness-states": "node tools/test-release-readiness-states.mjs",
     "test:inline-preview-editing": "node tools/validate-inline-preview-editing.mjs",
@@ -67,6 +68,7 @@
     "validate:newbie-mode-docs": "node tools/validate-newbie-mode-docs.mjs",
     "validate:print-screenshots": "node tools/validate-print-screenshots.mjs",
     "validate:ink-efficiency": "node tools/validate-ink-efficiency.mjs",
+    "validate:ui-actions-failure-artifact": "node tools/validate-ui-actions-failure-artifact.mjs",
     "validate:ci-config": "node tools/validate-ci-config.mjs",
     "validate": "node tools/run-validate.mjs"
   },

@@ -9,7 +9,15 @@ const failureLogPath = path.join(rootDir, 'browser-smoke-failure.log');
 const chrome = findChrome();
 if(!chrome) failImmediately('UI actions smoke: Chrome/Chromium не найден. Укажите CHROME_BIN или установите системный браузер.');
 
-const smokePages = [
+const failureFixtureMode = process.argv.includes('--failure-fixture');
+const smokePages = failureFixtureMode ? [
+  {
+    label:'UI actions failure fixture',
+    path:'tools/ui-actions-failure-fixture.html',
+    virtualTimeBudget:1500,
+    timeoutMs:12000
+  }
+] : [
   {
     label:'UI actions smoke',
     path:'tools/ui-actions-smoke.html',

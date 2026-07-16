@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Etagi inline tab order smoke</title>
+  <style>
+    body{font-family:Arial,sans-serif;margin:16px}
+    #appFrame{width:1280px;height:900px;border:1px solid #cbd5e1}
+    #uiActionsSmokeResult{white-space:pre-wrap;padding:12px;border:1px solid #cbd5e1;border-radius:8px;background:#f8fafc}
+  </style>
+</head>
+<body>
+  <pre id="uiActionsSmokeResult" data-status="pending">Inline tab order smoke is running…</pre>
+  <iframe id="appFrame" title="Генератор расклеек"></iframe>
+  <script>
+    const result = document.getElementById('uiActionsSmokeResult');
+    const frame = document.getElementById('appFrame');
+    const checks = [];
+    const runtimeErrors = [];
+    let lastAction = 'startup';
+
+    frame.addEventListener('load', async () => {
+      const win = frame.contentWindow;
+      const doc = frame.contentDocument;
+      const earlyErrors = Array.isArray(win.__ETAGI_EARLY_ERRORS__) ? [...win.__ETAGI_EARLY_ERRORS__] : [];
+      runtimeErrors.push(...earlyErrors);
+      win.addEventListener('error', event => runtimeErrors.push(event.message || 'window error'));
+      win.addEventListener('unhandledrejection', event => runtimeErrors.push(String(event.reason || 'unhandled rejection')));
+
+      try{
+        await waitFor(() => doc.querySelectorAll('.tpl-card').length > 0, 12000, 'шаблоны не появились');
+        await waitFor(() => doc.querySelector('#printSheet .flyer'), 12000, 'предпросмотр А4 не появился');
+
+        lastAction = 'inline-tab.four-copies';
+        setField(win, doc, '#headline', 'Заголовок для Tab-пути');
+        setField(win, doc, '#description', 'Описание для проверки клавиатурного маршрута.');
+        setField(win, doc, '#benefits', 'Первое преимущество\nВторое преимущество');
+        setField(win, doc, '#area', 'Центр');
+        setField(win, doc, '#propertyType', 'Квартира');
+        setField(win, doc, '#price', '4 900 000 ₽');
+        setField(win, doc, '#agentName', 'Анна Tab');
+        setField(win, doc, '#agentPhone', '+7 900 321-45-67');
+        click(doc, '[data-count="4"]');
+
+        await waitFor(() => doc.querySelectorAll('#printSheet .flyer').length === 4, 4000, 'не появились четыре копии макета');
+        const flyers = [...doc.querySelectorAll('#printSheet .flyer')];
+        const firstEditables = [...flyers[0].querySelectorAll('[data-inline-field]')];
+        const duplicateEditables = flyers.slice(1).flatMap(flyer => [...flyer.querySelectorAll('[data-inline-field]')]);
+        assert(firstEditables.length >= 8, 'в первой копии недостаточно редактируемых полей для проверки');
+        assert(firstEditables.every(node => node.tabIndex === 0), 'в первой копии есть поле вне Tab-порядка');
+        assert(duplicateEditables.length > firstEditables.length, 'не найдены повторяющиеся поля остальных копий');
+        assert(duplicateEditables.every(node => node.tabIndex === -1), 'копии макета повторно попадают в Tab-порядок');
+        assert(doc.querySelectorAll('#printSheet [data-inline-field][tabindex="0"]').length === firstEditables.length, 'число Tab-stop умножилось на количество копий');
+        pass('Tab-путь: только первая копия содержит tabindex=0');
+
+        lastAction = 'inline-tab.edit-secondary-copy';
+        const secondaryHeadline = flyers[1].querySelector('[data-inline-field="headline"]');
+        assert(secondaryHeadline, 'во второй копии нет редактируемого заголовка');
+        assert(secondaryHeadline.isContentEditable, 'поле второй копии перестало быть contenteditable');
+        assert(secondaryHeadline.tabIndex === -1, 'поле второй копии ошибочно находится в Tab-порядке');
+        secondaryHeadline.focus();
+        assert(doc.activeElement === secondaryHeadline, 'поле второй копии нельзя сфокусировать прямым действием');
+        secondaryHeadline.textContent = 'Изменено во второй копии';
+        secondaryHeadline.blur();
+
+        const expectedHeadline = 'ИЗМЕНЕНО ВО ВТОРОЙ КОПИИ';
+        await waitFor(() => doc.getElementById('headline')?.value === expectedHeadline, 3000, 'редактирование второй копии не обновило поле формы');
+        await waitFor(() => [...doc.querySelectorAll('#printSheet [data-inline-field="headline"]')].every(node => node.textContent.trim() === expectedHeadline), 3000, 'редактирование второй копии не обновило остальные копии');
+
+        const rerenderedFlyers = [...doc.querySelectorAll('#printSheet .flyer')];
+        assert([...rerenderedFlyers[0].querySelectorAll('[data-inline-field]')].every(node => node.tabIndex === 0), 'после рендера первая копия потеряла Tab-stop');
+        assert(rerenderedFlyers.slice(1).flatMap(flyer => [...flyer.querySelectorAll('[data-inline-field]')]).every(node => node.tabIndex === -1), 'после рендера повторные Tab-stop вернулись');
+        pass('вторая копия: прямое редактирование сохранено вне Tab-порядка');
+
+        if(runtimeErrors.length) throw new Error(`runtime errors: ${runtimeErrors.join(' | ')}`);
+        lastAction = 'completed';
+        result.dataset.status = 'passed';
+        result.textContent = `PASSED\n${checks.map(item => `✓ ${item}`).join('\n')}`;
+      } catch(error){
+        result.dataset.status = 'failed';
+        result.dataset.lastAction = lastAction;
+        result.textContent = `FAILED\n${checks.map(item => `✓ ${item}`).join('\n')}\n✗ ${error.message || error}\nПоследнее действие: ${lastAction}\nСостояние: ${JSON.stringify(snapshot(doc))}`;
+      }
+    }, {once:true});
+
+    frame.src = '/index.html?smoke=inline-tab-order';
+
+    window.setTimeout(() => {
+      if(result.dataset.status === 'pending'){
+        result.dataset.status = 'failed';
+        result.dataset.lastAction = lastAction;
+        result.textContent = `FAILED\n${checks.map(item => `✓ ${item}`).join('\n')}\n✗ timeout inline tab order smoke\nПоследнее действие: ${lastAction}`;
+      }
+    }, 22000);
+
+    function pass(message){ checks.push(message); }
+    function assert(condition, message){ if(!condition) throw new Error(message); }
+    function click(doc, selector){
+      const element = doc.querySelector(selector);
+      assert(element, `не найден элемент ${selector}`);
+      element.click();
+    }
+    function setField(win, doc, selector, value){
+      const input = doc.querySelector(selector);
+      assert(input, `не найден элемент ${selector}`);
+      input.value = value;
+      input.dispatchEvent(new win.Event('input', {bubbles:true}));
+      input.dispatchEvent(new win.Event('change', {bubbles:true}));
+    }
+    function snapshot(doc){
+      const flyers = [...doc.querySelectorAll('#printSheet .flyer')];
+      return {
+        status:doc.getElementById('statusLine')?.textContent || '',
+        headline:doc.getElementById('headline')?.value || '',
+        flyerCount:flyers.length,
+        tabStops:flyers.map(flyer => [...flyer.querySelectorAll('[data-inline-field]')].map(node => node.tabIndex))
+      };
+    }
+    function waitFor(check, timeoutMs, message){
+      const started = Date.now();
+      return new Promise((resolve, reject) => {
+        const tick = () => {
+          try{
+            if(check()) return resolve();
+          } catch(error){
+            return reject(error);
+          }
+          if(Date.now() - started >= timeoutMs) return reject(new Error(message));
+          setTimeout(tick, 50);
+        };
+        tick();
+      });
+    }
+  </script>
+</body>
+</html>

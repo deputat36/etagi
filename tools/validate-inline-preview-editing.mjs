@@ -11,6 +11,7 @@ const files = {
   package: 'package.json',
   screenshot: 'tools/print-screenshot.html',
   qrSmoke: 'tools/qr-inline-error-smoke.html',
+  tabSmoke: 'tools/inline-tab-order-smoke.html',
   uiSmokeRunner: 'tools/run-ui-actions-smoke.mjs',
   guide: 'docs/inline-preview-editing.md'
 };
@@ -57,7 +58,11 @@ requireSnippets(files.render, sources.render, [
   "inlineEditAttrs('qrCaption', 'Подпись QR')",
   'class="qr-copy"',
   'class="qr-caption"',
-  'class="qr-error-note" contenteditable="false" role="note"'
+  'class="qr-error-note" contenteditable="false" role="note"',
+  'normalizeInlineTabStops(sheet)',
+  'function normalizeInlineTabStops(sheet)',
+  "flyer.querySelectorAll('[data-inline-field]')",
+  'editable.tabIndex = flyerIndex === 0 ? 0 : -1'
 ]);
 forbidSnippets(files.render, sources.render, [
   '${caption}<br>ссылка слишком длинная</span>'
@@ -98,9 +103,25 @@ requireSnippets(files.qrSmoke, sources.qrSmoke, [
   'после короткой ссылки ошибка QR не исчезла',
   'длинный QR: inline-редактор сохраняет только подпись'
 ]);
+
+requireSnippets(files.tabSmoke, sources.tabSmoke, [
+  'id="uiActionsSmokeResult"',
+  "click(doc, '[data-count=\"4\"]')",
+  'firstEditables.every(node => node.tabIndex === 0)',
+  'duplicateEditables.every(node => node.tabIndex === -1)',
+  'secondaryHeadline.isContentEditable',
+  'doc.activeElement === secondaryHeadline',
+  "const expectedHeadline = 'ИЗМЕНЕНО ВО ВТОРОЙ КОПИИ'",
+  "doc.getElementById('headline')?.value === expectedHeadline",
+  'после рендера повторные Tab-stop вернулись',
+  'вторая копия: прямое редактирование сохранено вне Tab-порядка'
+]);
+
 requireSnippets(files.uiSmokeRunner, sources.uiSmokeRunner, [
   "label:'QR inline error smoke'",
-  "path:'tools/qr-inline-error-smoke.html'"
+  "path:'tools/qr-inline-error-smoke.html'",
+  "label:'Inline tab order smoke'",
+  "path:'tools/inline-tab-order-smoke.html'"
 ]);
 
 requireSnippets(files.guide, sources.guide, [
@@ -110,6 +131,8 @@ requireSnippets(files.guide, sources.guide, [
   'Esc отменяет',
   'Вставка выполняется как обычный текст без HTML-разметки',
   'Предупреждение о слишком длинной QR-ссылке не является частью подписи',
+  'В клавиатурный Tab-порядок входит только первая копия макета',
+  'Остальные копии остаются редактируемыми кликом или касанием',
   'npm run test:inline-preview-editing',
   'npm run validate:ink-efficiency'
 ]);

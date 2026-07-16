@@ -121,7 +121,7 @@
       "ownerToken": "printBtn",
       "effect": "Проверяет критичные ошибки и открывает диалог подготовки печати.",
       "risk": "safe",
-      "verification": {"type": "planned", "source": "issue:#66", "marker": "browser smoke печатного диалога"}
+      "verification": {"type": "browser", "source": "tools/print-dialog-smoke.html", "marker": "печать: диалог открывается после проверки без системной печати"}
     },
     {
       "id": "print.cancel-dialog",
@@ -131,7 +131,7 @@
       "ownerToken": "cancelPrintBtn",
       "effect": "Закрывает диалог печати без запуска системной печати.",
       "risk": "safe",
-      "verification": {"type": "planned", "source": "issue:#66", "marker": "browser smoke печатного диалога"}
+      "verification": {"type": "browser", "source": "tools/print-dialog-smoke.html", "marker": "печать: Вернуться закрывает диалог без системной печати"}
     },
     {
       "id": "print.confirm-system",

@@ -30,6 +30,7 @@
       try {
         await waitFor(() => doc.querySelectorAll('.tpl-card').length > 0, 12000, 'шаблоны не появились');
         await waitFor(() => doc.querySelector('#printSheet .flyer'), 12000, 'предпросмотр А4 не появился');
+        await waitFor(() => doc.getElementById('contactCtaText') && doc.getElementById('tearOffLabel') && doc.getElementById('brandNameText') && doc.getElementById('brandSideText'), 5000, 'редакторы служебных подписей не появились');
         win.localStorage.removeItem('etagi-raskleyka-profile-v1');
         win.localStorage.removeItem('etagi-raskleyka-saved-v1');
         win.localStorage.removeItem('etagi-raskleyka-layouts-v1');
@@ -170,6 +171,92 @@
         assert((doc.getElementById('description').value.match(/Позвоните — подскажу детали и помогу разобраться\./g) || []).length === 1, 'повторное усиление продублировало призыв');
         pass('текст: усиление добавляет призыв и преимущества без дублей');
 
+        lastAction = 'layout.file-download';
+        const exportedValues = {
+          layoutName:'JSON smoke макет',
+          agentName:'Ирина JSON',
+          agentPhone:'+7 900 555-44-33',
+          area:'Центр JSON',
+          propertyType:'Дом',
+          price:'6 750 000 ₽',
+          params:'96 м², участок 8 соток',
+          headline:'Экспортируемый заголовок',
+          description:'Экспортируемое описание объекта.',
+          benefits:'Проверенные документы\nУдобный подъезд',
+          customBlockTitle:'',
+          customBlockText:'',
+          qrLink:'https://example.com/json-smoke',
+          qrCaption:'Открыть JSON объект'
+        };
+        for(const [id, value] of Object.entries(exportedValues)) setField(win, doc, `#${id}`, value);
+        setField(win, doc, '#contactCtaText', 'Позвоните по JSON-макету');
+        setField(win, doc, '#tearOffLabel', 'Дом JSON');
+        setField(win, doc, '#brandNameText', 'Этажи JSON');
+        setField(win, doc, '#brandSideText', 'json.etagi.test');
+        setCheck(win, doc, '#showQr', true);
+        setCheck(win, doc, '#showCustomBlock', false);
+        click(doc, '[data-count="4"]');
+        click(doc, '[data-block-move="down"][data-block-id="headline"]');
+
+        const downloadCapture = installDownloadCapture(win);
+        click(doc, '#downloadBtn');
+        await waitFor(() => downloadCapture.blob && downloadCapture.filename, 3000, 'экспорт не создал скачиваемый JSON');
+        const exportedText = await downloadCapture.blob.text();
+        const exportedState = JSON.parse(exportedText);
+        downloadCapture.restore();
+        assert(/^etagi-raskleyka-\d{4}-\d{2}-\d{2}\.json$/.test(downloadCapture.filename), 'имя экспортируемого файла имеет неверный формат');
+        assert(downloadCapture.blob.type.includes('application/json'), 'экспортированный Blob имеет неверный MIME-тип');
+        for(const [id, value] of Object.entries(exportedValues)) assert(exportedState[id] === value, `в экспортированном JSON неверное поле ${id}`);
+        assert(exportedState.printCount === 4, 'экспорт не сохранил 4 копии на А4');
+        assert(exportedState.blockOrder?.[0] === 'price', 'экспорт не сохранил изменённый порядок блоков');
+        assert(exportedState.showQr === true && exportedState.showCustomBlock === false, 'экспорт не сохранил видимость QR и дополнительного блока');
+        assert(exportedState.contactCta === 'Позвоните по JSON-макету', 'экспорт не содержит призыв блока контактов');
+        assert(exportedState.tearOffLabel === 'Дом JSON', 'экспорт не содержит подпись отрывной полосы');
+        assert(exportedState.brandName === 'Этажи JSON', 'экспорт не содержит название бренда');
+        assert(exportedState.brandSideText === 'json.etagi.test', 'экспорт не содержит боковую подпись бренда');
+        pass('JSON: экспорт Blob содержит состояние и служебные поля');
+
+        lastAction = 'layout.file-open-trigger';
+        let uploadTriggerClicks = 0;
+        doc.getElementById('uploadFile').addEventListener('click', () => { uploadTriggerClicks += 1; }, {once:true});
+        click(doc, '#uploadBtn');
+        await waitFor(() => uploadTriggerClicks === 1, 1000, 'кнопка импорта не вызвала выбор JSON-файла');
+        pass('JSON: кнопка импорта открывает выбор файла');
+
+        lastAction = 'layout.file-import';
+        setField(win, doc, '#layoutName', 'Чужой текущий макет');
+        setField(win, doc, '#agentName', 'Чужое имя');
+        setField(win, doc, '#agentPhone', '+7 999 999-99-99');
+        setField(win, doc, '#headline', 'Чужой заголовок');
+        setField(win, doc, '#price', '1 ₽');
+        setField(win, doc, '#customBlockTitle', 'Чужой блок');
+        setField(win, doc, '#customBlockText', 'Эти данные не должны смешаться');
+        setField(win, doc, '#qrLink', 'https://example.com/current-state');
+        setField(win, doc, '#contactCtaText', 'Чужой призыв');
+        setField(win, doc, '#tearOffLabel', 'Чужая подпись');
+        setField(win, doc, '#brandNameText', 'Чужой бренд');
+        setField(win, doc, '#brandSideText', 'wrong.example');
+        setCheck(win, doc, '#showCustomBlock', true);
+        click(doc, '[data-count="1"]');
+        doc.getElementById('savedLayouts').value = namedLayoutId;
+        await setFile(win, doc, '#uploadFile', downloadCapture.filename, exportedText, 'application/json');
+        await waitFor(() => doc.getElementById('statusLine')?.textContent.includes('Файл макета открыт без смешивания'), 4000, 'импорт JSON не завершился');
+        await waitFor(() => doc.getElementById('contactCtaText')?.value === 'Позвоните по JSON-макету' && doc.getElementById('tearOffLabel')?.value === 'Дом JSON', 4000, 'служебные подписи не восстановились после импорта');
+
+        for(const [id, value] of Object.entries(exportedValues)) assert(doc.getElementById(id)?.value === value, `импорт не восстановил поле ${id}`);
+        assert(doc.getElementById('customBlockTitle')?.value === '' && doc.getElementById('customBlockText')?.value === '', 'импорт смешал отсутствующий дополнительный блок с текущими данными');
+        assert(doc.getElementById('showCustomBlock')?.checked === false, 'импорт оставил включённым чужой дополнительный блок');
+        assert(doc.getElementById('showQr')?.checked === true && doc.querySelector('#printSheet .qr-row'), 'импорт не восстановил QR');
+        assert(doc.getElementById('savedLayouts')?.value === '', 'импорт не сбросил выбор сохранённого макета');
+        assert(doc.querySelector('[data-count="4"]')?.classList.contains('active'), 'импорт не восстановил 4 копии на А4');
+        assert(doc.querySelectorAll('#printSheet .flyer').length === 4, 'после импорта в предпросмотре не четыре копии');
+        assert(doc.querySelector('#blockOrderList [data-block-id]')?.dataset.blockId === 'price', 'импорт не восстановил порядок блоков');
+        assert(doc.getElementById('contactCtaText')?.value === 'Позвоните по JSON-макету', 'импорт не восстановил призыв контактов');
+        assert(doc.getElementById('tearOffLabel')?.value === 'Дом JSON', 'импорт не восстановил подпись отрывной полосы');
+        assert(doc.getElementById('brandNameText')?.value === 'Этажи JSON', 'импорт не восстановил название бренда');
+        assert(doc.getElementById('brandSideText')?.value === 'json.etagi.test', 'импорт не восстановил боковую подпись бренда');
+        pass('JSON: импорт восстанавливает макет без смешивания');
+
         if(runtimeErrors.length) throw new Error(`runtime errors: ${runtimeErrors.join(' | ')}`);
         lastAction = 'completed';
         result.dataset.status = 'passed';
@@ -190,7 +277,7 @@
         result.dataset.lastAction = lastAction;
         result.textContent = `FAILED\n${checks.map(item => `✓ ${item}`).join('\n')}\n✗ общий timeout UI actions smoke\nПоследнее действие: ${lastAction}`;
       }
-    }, 30000);
+    }, 38000);
 
     function pass(message){ checks.push(message); }
     function assert(condition, message){ if(!condition) throw new Error(message); }
@@ -212,14 +299,32 @@
       input.checked = checked;
       input.dispatchEvent(new win.Event('change', {bubbles:true}));
     }
-    async function setFile(win, doc, selector, name, content){
+    async function setFile(win, doc, selector, name, content, type='image/svg+xml'){
       const input = doc.querySelector(selector);
       assert(input, `не найден элемент ${selector}`);
       const transfer = new win.DataTransfer();
-      transfer.items.add(new win.File([content], name, {type:'image/svg+xml'}));
+      transfer.items.add(new win.File([content], name, {type}));
       input.files = transfer.files;
       input.dispatchEvent(new win.Event('change', {bubbles:true}));
       await waitFor(() => input.files?.length === 1, 1000, `файл ${name} не выбран`);
+    }
+    function installDownloadCapture(win){
+      const originalCreateObjectURL = win.URL.createObjectURL;
+      const originalRevokeObjectURL = win.URL.revokeObjectURL;
+      const originalAnchorClick = win.HTMLAnchorElement.prototype.click;
+      const capture = {blob:null, filename:'', href:''};
+      win.URL.createObjectURL = blob => { capture.blob = blob; return 'blob:etagi-ui-actions-smoke'; };
+      win.URL.revokeObjectURL = () => {};
+      win.HTMLAnchorElement.prototype.click = function(){
+        capture.filename = this.download || '';
+        capture.href = this.href || '';
+      };
+      capture.restore = () => {
+        win.URL.createObjectURL = originalCreateObjectURL;
+        win.URL.revokeObjectURL = originalRevokeObjectURL;
+        win.HTMLAnchorElement.prototype.click = originalAnchorClick;
+      };
+      return capture;
     }
     function snapshot(doc){
       const value = id => doc.getElementById(id)?.value || '';
@@ -234,10 +339,15 @@
         price:value('price'),
         description:value('description'),
         benefits:value('benefits'),
+        customBlockText:value('customBlockText'),
         qrLink:value('qrLink'),
+        contactCta:value('contactCtaText'),
+        tearOffLabel:value('tearOffLabel'),
         showDescription:Boolean(doc.getElementById('showDescription')?.checked),
         showBenefits:Boolean(doc.getElementById('showBenefits')?.checked),
+        showCustomBlock:Boolean(doc.getElementById('showCustomBlock')?.checked),
         photoMode:doc.querySelector('[data-photo].active')?.dataset.photo || '',
+        printCount:doc.querySelector('[data-count].active')?.dataset.count || '',
         photoImages:doc.querySelectorAll('#printSheet .photo-box img').length,
         hasQr:Boolean(doc.querySelector('#printSheet .qr-row'))
       };

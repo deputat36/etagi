@@ -8,6 +8,7 @@ const failureLogPath = path.join(rootDir, 'validation-failure.log');
 const pkg = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
 const scripts = pkg.scripts || {};
 const validateNames = Object.keys(scripts).filter(name => name.startsWith('validate:'));
+const extraChecks = ['test:ui-actions'];
 
 try { fs.rmSync(failureLogPath, {force:true}); } catch(error){}
 
@@ -22,9 +23,15 @@ for (const scriptName of validateNames) {
   }
 }
 
+for (const scriptName of extraChecks) {
+  if (!String(scripts[scriptName] || '').trim()) {
+    failValidation(`Missing required extra validation script: ${scriptName}`);
+  }
+}
+
 let passedCount = 0;
 
-for (const scriptName of validateNames) {
+for (const scriptName of [...validateNames, ...extraChecks]) {
   const result = spawnSync('npm', ['run', scriptName], {
     cwd: rootDir,
     encoding: 'utf8',

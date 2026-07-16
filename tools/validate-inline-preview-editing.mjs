@@ -111,7 +111,8 @@ requireSnippets(files.tabSmoke, sources.tabSmoke, [
   'duplicateEditables.every(node => node.tabIndex === -1)',
   'secondaryHeadline.isContentEditable',
   'doc.activeElement === secondaryHeadline',
-  "doc.getElementById('headline')?.value === 'Изменено во второй копии'",
+  "const expectedHeadline = 'ИЗМЕНЕНО ВО ВТОРОЙ КОПИИ'",
+  "doc.getElementById('headline')?.value === expectedHeadline",
   'после рендера повторные Tab-stop вернулись',
   'вторая копия: прямое редактирование сохранено вне Tab-порядка'
 ]);

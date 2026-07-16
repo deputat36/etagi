@@ -11,7 +11,7 @@
       "ownerToken": "saveProfileBtn",
       "effect": "Сохраняет имя и телефон СПН отдельно от данных макета.",
       "risk": "safe",
-      "verification": {"type": "planned", "source": "issue:#66", "marker": "browser smoke профиля СПН"}
+      "verification": {"type": "browser", "source": "tools/ui-actions-smoke.html", "marker": "profile: сохранение и загрузка"}
     },
     {
       "id": "profile.load",
@@ -21,7 +21,7 @@
       "ownerToken": "loadProfileBtn",
       "effect": "Подставляет сохранённый профиль СПН в текущий макет.",
       "risk": "replace-current-fields",
-      "verification": {"type": "planned", "source": "issue:#66", "marker": "browser smoke профиля СПН"}
+      "verification": {"type": "browser", "source": "tools/ui-actions-smoke.html", "marker": "profile: сохранение и загрузка"}
     },
     {
       "id": "object.clear",
@@ -151,7 +151,7 @@
       "ownerToken": "saveNamedLayoutBtn",
       "effect": "Сохраняет текущий макет под указанным названием.",
       "risk": "overwrite-storage",
-      "verification": {"type": "planned", "source": "issue:#66", "marker": "browser smoke именованных макетов"}
+      "verification": {"type": "browser", "source": "tools/ui-actions-smoke.html", "marker": "именованные макеты: сохранение и загрузка"}
     },
     {
       "id": "layout.named-load",
@@ -161,7 +161,7 @@
       "ownerToken": "loadNamedLayoutBtn",
       "effect": "Заменяет текущее состояние выбранным именованным макетом.",
       "risk": "replace-state",
-      "verification": {"type": "planned", "source": "issue:#66", "marker": "browser smoke именованных макетов"}
+      "verification": {"type": "browser", "source": "tools/ui-actions-smoke.html", "marker": "именованные макеты: сохранение и загрузка"}
     },
     {
       "id": "layout.named-delete",
@@ -181,7 +181,7 @@
       "ownerToken": "saveLocalBtn",
       "effect": "Сохраняет текущий макет как последний в этом браузере.",
       "risk": "overwrite-storage",
-      "verification": {"type": "planned", "source": "issue:#66", "marker": "browser smoke последнего макета"}
+      "verification": {"type": "browser", "source": "tools/ui-actions-smoke.html", "marker": "последний макет: сохранение и загрузка"}
     },
     {
       "id": "layout.last-load",
@@ -191,7 +191,7 @@
       "ownerToken": "loadLocalBtn",
       "effect": "Заменяет текущее состояние последним сохранённым макетом.",
       "risk": "replace-state",
-      "verification": {"type": "planned", "source": "issue:#66", "marker": "browser smoke последнего макета"}
+      "verification": {"type": "browser", "source": "tools/ui-actions-smoke.html", "marker": "последний макет: сохранение и загрузка"}
     },
     {
       "id": "layout.file-download",

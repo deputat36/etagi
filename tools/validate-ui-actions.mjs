@@ -87,7 +87,7 @@ function validateRegistry(data, html) {
     if (!verificationMarker) errors.push(`${prefix}: отсутствует verification.marker`);
 
     validateOwner(prefix, owner, ownerToken);
-    validateVerification(prefix, verificationType, verificationSource, verificationMarker);
+    validateVerification(prefix, verificationType, verificationSource, verificationMarker, ownerToken);
 
     if (kind === 'static-button') validateStaticButton(prefix, selector, html);
     if (kind === 'command-input') validateCommandInput(prefix, selector, html);
@@ -114,7 +114,7 @@ function validateOwner(prefix, owner, token) {
   }
 }
 
-function validateVerification(prefix, type, sourcePath, marker) {
+function validateVerification(prefix, type, sourcePath, marker, ownerToken) {
   if (!type || !sourcePath || !marker) return;
   if (type === 'planned') {
     if (sourcePath !== 'issue:#66') errors.push(`${prefix}: planned-проверка должна ссылаться на issue:#66`);
@@ -123,8 +123,12 @@ function validateVerification(prefix, type, sourcePath, marker) {
 
   const fullPath = path.join(rootDir, sourcePath);
   const source = readRequired(fullPath);
-  if (source && !source.includes(marker)) {
-    errors.push(`${prefix}: verification.source ${sourcePath} не содержит marker ${marker}`);
+  if (!source) return;
+
+  const hasExactMarker = source.includes(marker);
+  const hasContractOwnerToken = type === 'contract' && ownerToken && source.includes(ownerToken);
+  if (!hasExactMarker && !hasContractOwnerToken) {
+    errors.push(`${prefix}: verification.source ${sourcePath} не содержит marker ${marker} или contract ownerToken ${ownerToken || '—'}`);
   }
 }
 

@@ -2,22 +2,23 @@ import fs from 'node:fs';
 import http from 'node:http';
 import os from 'node:os';
 import path from 'node:path';
-import { spawnSync } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 
 const rootDir = process.cwd();
 const failureLogPath = path.join(rootDir, 'browser-smoke-failure.log');
 const chrome = findChrome();
-if(!chrome) fail('UI actions smoke: Chrome/Chromium не найден. Укажите CHROME_BIN или установите системный браузер.');
+if(!chrome) failImmediately('UI actions smoke: Chrome/Chromium не найден. Укажите CHROME_BIN или установите системный браузер.');
 
 const server = createStaticServer(rootDir);
 server.keepAliveTimeout = 1;
 server.headersTimeout = 5000;
 const port = await listen(server);
 const profileDir = fs.mkdtempSync(path.join(os.tmpdir(), 'etagi-ui-actions-smoke-'));
+let failure = '';
 
 try{
   const url = `http://127.0.0.1:${port}/tools/ui-actions-smoke.html`;
-  const result = spawnSync(chrome, [
+  const result = await runChrome(chrome, [
     '--headless=new',
     '--no-sandbox',
     '--disable-gpu',
@@ -35,29 +36,92 @@ try{
     '--virtual-time-budget=30000',
     '--dump-dom',
     url
-  ], {
-    cwd:rootDir,
-    encoding:'utf8',
-    timeout:45000,
-    maxBuffer:8 * 1024 * 1024
-  });
+  ], 45000);
 
-  if(result.error) fail(`UI actions smoke: ${result.error.message}`);
   const dom = String(result.stdout || '');
   const stderr = String(result.stderr || '').trim();
   const smoke = parseSmokeResult(dom);
 
-  if(result.status !== 0 && smoke.status !== 'passed'){
-    fail([`UI actions smoke: Chrome завершился с кодом ${result.status}.`, smoke.text, stderr].filter(Boolean).join('\n'));
+  if(result.code !== 0 && smoke.status !== 'passed'){
+    throw new Error([`UI actions smoke: Chrome завершился с кодом ${result.code}.`, smoke.text, stderr].filter(Boolean).join('\n'));
   }
   if(smoke.status !== 'passed'){
-    fail([`UI actions smoke: статус ${smoke.status}.`, smoke.text, stderr].filter(Boolean).join('\n'));
+    throw new Error([`UI actions smoke: статус ${smoke.status}.`, smoke.text, stderr].filter(Boolean).join('\n'));
   }
 
   console.log(smoke.text || 'UI actions smoke passed.');
+} catch(error){
+  failure = String(error?.message || error || 'UI actions smoke failed.').trim();
+  writeFailureLog(failure);
 } finally {
   fs.rmSync(profileDir, {recursive:true, force:true});
   await closeServer(server);
+}
+
+if(failure){
+  console.error(failure);
+  process.exit(1);
+}
+
+function runChrome(command, args, timeoutMs){
+  return new Promise((resolve, reject) => {
+    const child = spawn(command, args, {
+      cwd:rootDir,
+      stdio:['ignore', 'pipe', 'pipe']
+    });
+    let stdout = '';
+    let stderr = '';
+    let settled = false;
+    const maxBuffer = 8 * 1024 * 1024;
+    const timer = setTimeout(() => {
+      if(settled) return;
+      settled = true;
+      terminateProcess(child);
+      reject(new Error(`UI actions smoke: Chrome не завершился за ${timeoutMs} мс.`));
+    }, timeoutMs);
+
+    child.stdout.setEncoding('utf8');
+    child.stderr.setEncoding('utf8');
+    child.stdout.on('data', chunk => {
+      stdout += chunk;
+      if(stdout.length > maxBuffer && !settled){
+        settled = true;
+        clearTimeout(timer);
+        terminateProcess(child);
+        reject(new Error('UI actions smoke: stdout Chrome превысил 8 МБ.'));
+      }
+    });
+    child.stderr.on('data', chunk => {
+      stderr += chunk;
+      if(stderr.length > maxBuffer && !settled){
+        settled = true;
+        clearTimeout(timer);
+        terminateProcess(child);
+        reject(new Error('UI actions smoke: stderr Chrome превысил 8 МБ.'));
+      }
+    });
+    child.once('error', error => {
+      if(settled) return;
+      settled = true;
+      clearTimeout(timer);
+      reject(error);
+    });
+    child.once('close', code => {
+      if(settled) return;
+      settled = true;
+      clearTimeout(timer);
+      resolve({code:Number.isInteger(code) ? code : 1, stdout, stderr});
+    });
+  });
+}
+
+function terminateProcess(child){
+  if(!child || child.killed) return;
+  try{ child.kill('SIGTERM'); } catch(error){}
+  const timer = setTimeout(() => {
+    try{ child.kill('SIGKILL'); } catch(error){}
+  }, 1000);
+  timer.unref?.();
 }
 
 function parseSmokeResult(dom){
@@ -155,9 +219,13 @@ function decodeHtml(value){
     .replace(/&amp;/g, '&');
 }
 
-function fail(message){
+function writeFailureLog(message){
+  try{ fs.writeFileSync(failureLogPath, `${String(message || '').trim()}\n`, 'utf8'); } catch(error){}
+}
+
+function failImmediately(message){
   const text = String(message || 'UI actions smoke failed.').trim();
-  try{ fs.writeFileSync(failureLogPath, `${text}\n`, 'utf8'); } catch(error){}
+  writeFailureLog(text);
   console.error(text);
   process.exit(1);
 }

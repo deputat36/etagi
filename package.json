@@ -8,6 +8,7 @@
     "assets:stamp": "node tools/stamp-asset-version.mjs",
     "release:status": "node tools/report-release-readiness.mjs",
     "smoke:browser": "node tools/run-browser-smoke.mjs",
+    "smoke:ui-actions": "node tools/run-ui-actions-smoke.mjs",
     "screenshots:print": "node tools/run-print-screenshots.mjs",
     "screenshots:manifest": "node tools/collect-print-screenshots.mjs",
     "test:cdp-failure-artifact": "node tools/test-cdp-failure-artifact.mjs",

@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Etagi UI actions smoke</title>
+  <style>
+    body{font-family:Arial,sans-serif;margin:16px}
+    #appFrame{width:1280px;height:900px;border:1px solid #cbd5e1}
+    #uiActionsSmokeResult{white-space:pre-wrap;padding:12px;border:1px solid #cbd5e1;border-radius:8px;background:#f8fafc}
+  </style>
+</head>
+<body>
+  <pre id="uiActionsSmokeResult" data-status="pending">UI actions smoke is running…</pre>
+  <iframe id="appFrame" title="Генератор расклеек"></iframe>
+  <script>
+    const result = document.getElementById('uiActionsSmokeResult');
+    const frame = document.getElementById('appFrame');
+    const checks = [];
+    const runtimeErrors = [];
+    let lastAction = 'startup';
+
+    frame.addEventListener('load', async () => {
+      const win = frame.contentWindow;
+      const doc = frame.contentDocument;
+      const earlyErrors = Array.isArray(win.__ETAGI_EARLY_ERRORS__) ? [...win.__ETAGI_EARLY_ERRORS__] : [];
+      runtimeErrors.push(...earlyErrors);
+      win.addEventListener('error', event => runtimeErrors.push(event.message || 'window error'));
+      win.addEventListener('unhandledrejection', event => runtimeErrors.push(String(event.reason || 'unhandled rejection')));
+
+      try {
+        await waitFor(() => doc.querySelectorAll('.tpl-card').length > 0, 12000, 'шаблоны не появились');
+        await waitFor(() => doc.querySelector('#printSheet .flyer'), 12000, 'предпросмотр А4 не появился');
+        win.localStorage.removeItem('etagi-raskleyka-profile-v1');
+        win.localStorage.removeItem('etagi-raskleyka-saved-v1');
+        win.localStorage.removeItem('etagi-raskleyka-layouts-v1');
+
+        lastAction = 'profile.save';
+        setField(win, doc, '#agentName', 'Анна Smoke');
+        setField(win, doc, '#agentPhone', '+7 900 123-45-67');
+        click(doc, '#saveProfileBtn');
+        await waitFor(() => doc.getElementById('statusLine')?.textContent.includes('Профиль СПН сохранён'), 3000, 'профиль не сохранился');
+        assert(win.localStorage.getItem('etagi-raskleyka-profile-v1')?.includes('Анна Smoke'), 'профиль отсутствует в localStorage');
+
+        lastAction = 'profile.load';
+        setField(win, doc, '#agentName', 'Временное имя');
+        setField(win, doc, '#agentPhone', '+7 999 000-00-00');
+        click(doc, '#loadProfileBtn');
+        await waitFor(() => doc.getElementById('agentName')?.value === 'Анна Smoke' && doc.getElementById('agentPhone')?.value === '+7 900 123-45-67', 3000, 'профиль не восстановил имя и телефон');
+        pass('profile: сохранение и загрузка');
+
+        lastAction = 'layout.named-save';
+        setField(win, doc, '#layoutName', 'Smoke именованный макет');
+        setField(win, doc, '#headline', 'Заголовок именованного макета');
+        setField(win, doc, '#area', 'Северный smoke');
+        click(doc, '#saveNamedLayoutBtn');
+        await waitFor(() => {
+          const select = doc.getElementById('savedLayouts');
+          return select?.value && select.options.length === 2 && doc.getElementById('statusLine')?.textContent.includes('сохранён');
+        }, 3000, 'именованный макет не появился в списке');
+        const namedLayoutId = doc.getElementById('savedLayouts').value;
+        assert(namedLayoutId, 'именованный макет не получил id');
+        assert(win.localStorage.getItem('etagi-raskleyka-layouts-v1')?.includes('Smoke именованный макет'), 'именованный макет отсутствует в localStorage');
+
+        lastAction = 'layout.named-load';
+        setField(win, doc, '#headline', 'Временный заголовок');
+        setField(win, doc, '#area', 'Временный район');
+        doc.getElementById('savedLayouts').value = namedLayoutId;
+        click(doc, '#loadNamedLayoutBtn');
+        await waitFor(() => doc.getElementById('headline')?.value === 'Заголовок именованного макета' && doc.getElementById('area')?.value === 'Северный smoke', 3000, 'именованный макет не восстановил поля');
+        pass('именованные макеты: сохранение и загрузка');
+
+        lastAction = 'layout.last-save';
+        setField(win, doc, '#headline', 'Заголовок последнего макета');
+        setField(win, doc, '#price', '3 500 000 ₽');
+        click(doc, '#saveLocalBtn');
+        await waitFor(() => doc.getElementById('statusLine')?.textContent.includes('Последний макет сохранён'), 3000, 'последний макет не сохранился');
+        assert(win.localStorage.getItem('etagi-raskleyka-saved-v1')?.includes('Заголовок последнего макета'), 'последний макет отсутствует в localStorage');
+
+        lastAction = 'layout.last-load';
+        setField(win, doc, '#headline', 'Изменённый заголовок');
+        setField(win, doc, '#price', '1 ₽');
+        click(doc, '#loadLocalBtn');
+        await waitFor(() => doc.getElementById('headline')?.value === 'Заголовок последнего макета' && doc.getElementById('price')?.value === '3 500 000 ₽', 3000, 'последний макет не восстановил поля');
+        pass('последний макет: сохранение и загрузка');
+
+        if(runtimeErrors.length) throw new Error(`runtime errors: ${runtimeErrors.join(' | ')}`);
+        lastAction = 'completed';
+        result.dataset.status = 'passed';
+        result.textContent = `PASSED\n${checks.map(item => `✓ ${item}`).join('\n')}`;
+      }
+      catch(error) {
+        result.dataset.status = 'failed';
+        result.dataset.lastAction = lastAction;
+        result.textContent = `FAILED\n${checks.map(item => `✓ ${item}`).join('\n')}\n✗ ${error.message || error}\nПоследнее действие: ${lastAction}\nСостояние: ${JSON.stringify(snapshot(doc))}`;
+      }
+    }, {once:true});
+
+    frame.src = '/index.html?smoke=ui-actions';
+
+    window.setTimeout(() => {
+      if(result.dataset.status === 'pending'){
+        result.dataset.status = 'failed';
+        result.dataset.lastAction = lastAction;
+        result.textContent = `FAILED\n${checks.map(item => `✓ ${item}`).join('\n')}\n✗ общий timeout UI actions smoke\nПоследнее действие: ${lastAction}`;
+      }
+    }, 30000);
+
+    function pass(message){ checks.push(message); }
+    function assert(condition, message){ if(!condition) throw new Error(message); }
+    function click(doc, selector){
+      const element = doc.querySelector(selector);
+      assert(element, `не найден элемент ${selector}`);
+      element.click();
+    }
+    function setField(win, doc, selector, value){
+      const input = doc.querySelector(selector);
+      assert(input, `не найден элемент ${selector}`);
+      input.value = value;
+      input.dispatchEvent(new win.Event('input', {bubbles:true}));
+      input.dispatchEvent(new win.Event('change', {bubbles:true}));
+    }
+    function snapshot(doc){
+      const value = id => doc.getElementById(id)?.value || '';
+      return {
+        status:value('statusLine'),
+        agentName:value('agentName'),
+        agentPhone:value('agentPhone'),
+        layoutName:value('layoutName'),
+        savedLayout:value('savedLayouts'),
+        headline:value('headline'),
+        area:value('area'),
+        price:value('price')
+      };
+    }
+    async function waitFor(predicate, timeout, message){
+      const started = Date.now();
+      while(Date.now() - started < timeout){
+        if(predicate()) return;
+        await new Promise(resolve => setTimeout(resolve, 80));
+      }
+      throw new Error(typeof message === 'function' ? message() : message);
+    }
+  </script>
+</body>
+</html>

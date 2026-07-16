@@ -95,6 +95,9 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Validate UI actions failure artifact contract
+        run: node tools/validate-ui-actions-failure-artifact.mjs
+
       - name: Verify UI actions failure artifact
         run: npm run test:ui-actions-failure-artifact
 

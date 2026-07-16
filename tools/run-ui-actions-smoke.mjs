@@ -37,6 +37,12 @@ const smokePages = failureFixtureMode ? [
     timeoutMs:30000
   },
   {
+    label:'Template keyboard smoke',
+    path:'tools/template-keyboard-smoke.html',
+    virtualTimeBudget:22000,
+    timeoutMs:34000
+  },
+  {
     label:'Print dialog smoke',
     path:'tools/print-dialog-smoke.html',
     virtualTimeBudget:20000,

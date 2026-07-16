@@ -1,0 +1,377 @@
+{
+  "schemaVersion": 1,
+  "scope": "Основные статические команды index.html и устойчивые динамические группы рабочего пути СПН",
+  "notes": "Обычные поля формы контролируются массивами fields/checks в assets/js/app.js. Этот реестр описывает команды: кнопки, командный file input и динамические группы действий. Тип planned означает, что обработчик существует, но полноценный browser smoke ещё должен быть добавлен по issue #66.",
+  "actions": [
+    {
+      "id": "profile.save",
+      "selector": "#saveProfileBtn",
+      "kind": "static-button",
+      "owner": "assets/js/app.js",
+      "ownerToken": "saveProfileBtn",
+      "effect": "Сохраняет имя и телефон СПН отдельно от данных макета.",
+      "risk": "safe",
+      "verification": {"type": "planned", "source": "issue:#66", "marker": "browser smoke профиля СПН"}
+    },
+    {
+      "id": "profile.load",
+      "selector": "#loadProfileBtn",
+      "kind": "static-button",
+      "owner": "assets/js/app.js",
+      "ownerToken": "loadProfileBtn",
+      "effect": "Подставляет сохранённый профиль СПН в текущий макет.",
+      "risk": "replace-current-fields",
+      "verification": {"type": "planned", "source": "issue:#66", "marker": "browser smoke профиля СПН"}
+    },
+    {
+      "id": "object.clear",
+      "selector": "#clearObjectBtn",
+      "kind": "static-button",
+      "owner": "assets/js/app.js",
+      "ownerToken": "clearObjectBtn",
+      "effect": "Очищает объектные данные, фото и QR, сохраняя профиль СПН.",
+      "risk": "destructive",
+      "verification": {"type": "planned", "source": "issue:#66", "marker": "browser smoke очистки объекта"}
+    },
+    {
+      "id": "layout.auto",
+      "selector": "#autoLayoutBtn",
+      "kind": "static-button",
+      "owner": "assets/js/app.js",
+      "ownerToken": "autoLayoutBtn",
+      "effect": "Применяет автоматическую компоновку текущего состояния.",
+      "risk": "replace-layout",
+      "verification": {"type": "planned", "source": "issue:#66", "marker": "browser smoke автоматической компоновки"}
+    },
+    {
+      "id": "layout.auto-preserve-media",
+      "selector": "#preserveMediaLayoutBtn",
+      "kind": "static-button",
+      "owner": "assets/js/app.js",
+      "ownerToken": "preserveMediaLayoutBtn",
+      "effect": "Подстраивает компоновку без отключения выбранных фото и QR.",
+      "risk": "replace-layout",
+      "verification": {"type": "contract", "source": "tools/validate-layout-media-preservation.mjs", "marker": "preserveMediaLayoutBtn"}
+    },
+    {
+      "id": "blocks.reset-order",
+      "selector": "#resetBlockOrderBtn",
+      "kind": "static-button",
+      "owner": "assets/js/app.js",
+      "ownerToken": "resetBlockOrderBtn",
+      "effect": "Возвращает стандартный порядок блоков листовки.",
+      "risk": "replace-layout",
+      "verification": {"type": "contract", "source": "tools/validate-assets.mjs", "marker": "resetBlockOrderBtn"}
+    },
+    {
+      "id": "blocks.move",
+      "selector": "[data-block-move]",
+      "kind": "dynamic-group",
+      "owner": "assets/js/app.js",
+      "ownerToken": "data-block-move",
+      "effect": "Перемещает выбранный блок макета вверх или вниз.",
+      "risk": "replace-layout",
+      "verification": {"type": "contract", "source": "tools/validate-assets.mjs", "marker": "handleBlockOrderClick"}
+    },
+    {
+      "id": "text.shorten-description",
+      "selector": "#makeShortBtn",
+      "kind": "static-button",
+      "owner": "assets/js/app.js",
+      "ownerToken": "makeShortBtn",
+      "effect": "Сокращает только поле описания до установленного лимита.",
+      "risk": "replace-text",
+      "verification": {"type": "planned", "source": "issue:#66", "marker": "browser smoke сокращения описания"}
+    },
+    {
+      "id": "text.strengthen",
+      "selector": "#makeStrongerBtn",
+      "kind": "static-button",
+      "owner": "assets/js/app.js",
+      "ownerToken": "makeStrongerBtn",
+      "effect": "Добавляет призыв и базовые преимущества, если описание заполнено.",
+      "risk": "replace-text",
+      "verification": {"type": "planned", "source": "issue:#66", "marker": "browser smoke усиления текста"}
+    },
+    {
+      "id": "quality.run",
+      "selector": "#qualityBtn",
+      "kind": "static-button",
+      "owner": "assets/js/app.js",
+      "ownerToken": "qualityBtn",
+      "effect": "Запускает проверку качества и показывает замечания.",
+      "risk": "safe",
+      "verification": {"type": "contract", "source": "tools/validate-assets.mjs", "marker": "$('qualityBtn').onclick = () => runQuality(true);"}
+    },
+    {
+      "id": "quality.apply-fix",
+      "selector": "[data-fix]",
+      "kind": "dynamic-group",
+      "owner": "assets/js/app.js",
+      "ownerToken": "data-fix",
+      "effect": "Применяет выбранное штатное исправление замечания качества.",
+      "risk": "replace-current-fields",
+      "verification": {"type": "contract", "source": "tools/validate-quality-actions.mjs", "marker": "data-fix"}
+    },
+    {
+      "id": "print.open-dialog",
+      "selector": "#printBtn",
+      "kind": "static-button",
+      "owner": "assets/js/app.js",
+      "ownerToken": "printBtn",
+      "effect": "Проверяет критичные ошибки и открывает диалог подготовки печати.",
+      "risk": "safe",
+      "verification": {"type": "planned", "source": "issue:#66", "marker": "browser smoke печатного диалога"}
+    },
+    {
+      "id": "print.cancel-dialog",
+      "selector": "#cancelPrintBtn",
+      "kind": "static-button",
+      "owner": "assets/js/app.js",
+      "ownerToken": "cancelPrintBtn",
+      "effect": "Закрывает диалог печати без запуска системной печати.",
+      "risk": "safe",
+      "verification": {"type": "planned", "source": "issue:#66", "marker": "browser smoke печатного диалога"}
+    },
+    {
+      "id": "print.confirm-system",
+      "selector": "#confirmPrintBtn",
+      "kind": "static-button",
+      "owner": "assets/js/app.js",
+      "ownerToken": "confirmPrintBtn",
+      "effect": "Закрывает диалог и вызывает системную печать браузера.",
+      "risk": "external-side-effect",
+      "verification": {"type": "manual", "source": "docs/manual-print-test-pack-3.86.0.md", "marker": "Печать"}
+    },
+    {
+      "id": "layout.named-save",
+      "selector": "#saveNamedLayoutBtn",
+      "kind": "static-button",
+      "owner": "assets/js/app.js",
+      "ownerToken": "saveNamedLayoutBtn",
+      "effect": "Сохраняет текущий макет под указанным названием.",
+      "risk": "overwrite-storage",
+      "verification": {"type": "planned", "source": "issue:#66", "marker": "browser smoke именованных макетов"}
+    },
+    {
+      "id": "layout.named-load",
+      "selector": "#loadNamedLayoutBtn",
+      "kind": "static-button",
+      "owner": "assets/js/app.js",
+      "ownerToken": "loadNamedLayoutBtn",
+      "effect": "Заменяет текущее состояние выбранным именованным макетом.",
+      "risk": "replace-state",
+      "verification": {"type": "planned", "source": "issue:#66", "marker": "browser smoke именованных макетов"}
+    },
+    {
+      "id": "layout.named-delete",
+      "selector": "#deleteNamedLayoutBtn",
+      "kind": "static-button",
+      "owner": "assets/js/app.js",
+      "ownerToken": "deleteNamedLayoutBtn",
+      "effect": "Удаляет выбранный именованный макет из браузера.",
+      "risk": "destructive",
+      "verification": {"type": "planned", "source": "issue:#66", "marker": "browser smoke именованных макетов"}
+    },
+    {
+      "id": "layout.last-save",
+      "selector": "#saveLocalBtn",
+      "kind": "static-button",
+      "owner": "assets/js/app.js",
+      "ownerToken": "saveLocalBtn",
+      "effect": "Сохраняет текущий макет как последний в этом браузере.",
+      "risk": "overwrite-storage",
+      "verification": {"type": "planned", "source": "issue:#66", "marker": "browser smoke последнего макета"}
+    },
+    {
+      "id": "layout.last-load",
+      "selector": "#loadLocalBtn",
+      "kind": "static-button",
+      "owner": "assets/js/app.js",
+      "ownerToken": "loadLocalBtn",
+      "effect": "Заменяет текущее состояние последним сохранённым макетом.",
+      "risk": "replace-state",
+      "verification": {"type": "planned", "source": "issue:#66", "marker": "browser smoke последнего макета"}
+    },
+    {
+      "id": "layout.file-download",
+      "selector": "#downloadBtn",
+      "kind": "static-button",
+      "owner": "assets/js/app.js",
+      "ownerToken": "downloadBtn",
+      "effect": "Скачивает текущий макет как отдельный JSON-файл.",
+      "risk": "download",
+      "verification": {"type": "planned", "source": "issue:#66", "marker": "browser smoke экспорта JSON"}
+    },
+    {
+      "id": "layout.file-open-trigger",
+      "selector": "#uploadBtn",
+      "kind": "static-button",
+      "owner": "assets/js/app.js",
+      "ownerToken": "uploadBtn",
+      "effect": "Открывает системный выбор JSON-файла макета.",
+      "risk": "external-side-effect",
+      "verification": {"type": "planned", "source": "issue:#66", "marker": "browser smoke импорта JSON"}
+    },
+    {
+      "id": "layout.file-import",
+      "selector": "#uploadFile",
+      "kind": "command-input",
+      "owner": "assets/js/app.js",
+      "ownerToken": "uploadFile",
+      "effect": "Читает выбранный JSON и заменяет текущее состояние макета.",
+      "risk": "replace-state",
+      "verification": {"type": "planned", "source": "issue:#66", "marker": "browser smoke импорта JSON"}
+    },
+    {
+      "id": "preview.fit",
+      "selector": "#fitPreviewBtn",
+      "kind": "static-button",
+      "owner": "assets/js/app.js",
+      "ownerToken": "fitPreviewBtn",
+      "effect": "Устанавливает масштаб предпросмотра для размещения листа в рабочей области.",
+      "risk": "safe",
+      "verification": {"type": "planned", "source": "issue:#66", "marker": "browser smoke вычисляемого масштаба"}
+    },
+    {
+      "id": "goal.select",
+      "selector": "[data-goal]",
+      "kind": "dynamic-group",
+      "owner": "assets/js/app.js",
+      "ownerToken": "data-goal",
+      "effect": "Переключает задачу и выбирает первый подходящий шаблон.",
+      "risk": "replace-state",
+      "verification": {"type": "contract", "source": "tools/validate-assets.mjs", "marker": "goalGrid"}
+    },
+    {
+      "id": "template.select",
+      "selector": "[data-template]",
+      "kind": "dynamic-group",
+      "owner": "assets/js/app.js",
+      "ownerToken": "data-template",
+      "effect": "Применяет выбранный шаблон с сохранением профиля и загруженных фото.",
+      "risk": "replace-state",
+      "verification": {"type": "contract", "source": "tools/validate-assets.mjs", "marker": "templateList"}
+    },
+    {
+      "id": "template.favorite",
+      "selector": "[data-favorite-template]",
+      "kind": "dynamic-group",
+      "owner": "assets/js/app.js",
+      "ownerToken": "data-favorite-template",
+      "effect": "Добавляет или удаляет шаблон из локального избранного.",
+      "risk": "overwrite-storage",
+      "verification": {"type": "planned", "source": "issue:#66", "marker": "browser smoke избранных шаблонов"}
+    },
+    {
+      "id": "scenario.select",
+      "selector": "[data-scenario]",
+      "kind": "dynamic-group",
+      "owner": "assets/js/app.js",
+      "ownerToken": "data-scenario",
+      "effect": "Фильтрует шаблоны по выбранному рабочему сценарию.",
+      "risk": "safe",
+      "verification": {"type": "contract", "source": "tools/validate-assets.mjs", "marker": "scenarioFilterRow"}
+    },
+    {
+      "id": "property.preset",
+      "selector": "[data-property]",
+      "kind": "dynamic-group",
+      "owner": "assets/js/app.js",
+      "ownerToken": "data-property",
+      "effect": "Подставляет тип объекта и включает параметры макета.",
+      "risk": "replace-current-fields",
+      "verification": {"type": "contract", "source": "tools/validate-assets.mjs", "marker": "propertyPresets"}
+    },
+    {
+      "id": "photo.mode",
+      "selector": "[data-photo]",
+      "kind": "dynamic-group",
+      "owner": "assets/js/app.js",
+      "ownerToken": "data-photo",
+      "effect": "Переключает режим без фото, одного фото, двух фото или планировки.",
+      "risk": "replace-media-mode",
+      "verification": {"type": "browser", "source": "tools/browser-smoke.html", "marker": "photo_card: планировка без overlay и обрезки"}
+    },
+    {
+      "id": "print.count",
+      "selector": "[data-count]",
+      "kind": "dynamic-group",
+      "owner": "assets/js/app.js",
+      "ownerToken": "data-count",
+      "effect": "Меняет количество копий макета на листе А4.",
+      "risk": "replace-layout",
+      "verification": {"type": "browser", "source": "tools/browser-smoke.html", "marker": "newbuild_visual: 1 на А4 и планировка без обрезки"}
+    },
+    {
+      "id": "layout.mode",
+      "selector": "[data-layout-mode]",
+      "kind": "dynamic-group",
+      "owner": "assets/js/app.js",
+      "ownerToken": "data-layout-mode",
+      "effect": "Применяет выбранную специализированную компоновку.",
+      "risk": "replace-layout",
+      "verification": {"type": "browser", "source": "tools/browser-smoke.html", "marker": "keyboard: End выбрал последнюю компоновку"}
+    },
+    {
+      "id": "ui.mode",
+      "selector": "[data-spn-ui-mode]",
+      "kind": "dynamic-group",
+      "owner": "assets/js/spnUiMode.js",
+      "ownerToken": "data-spn-ui-mode",
+      "effect": "Переключает режим интерфейса Новичок, Быстро или Расширенно.",
+      "risk": "safe",
+      "verification": {"type": "browser", "source": "tools/browser-smoke.html", "marker": "режимы Быстро и Расширенно переключаются"}
+    },
+    {
+      "id": "office-situation.select",
+      "selector": "[data-spn-situation]",
+      "kind": "dynamic-group",
+      "owner": "assets/js/spnWizard.js",
+      "ownerToken": "data-spn-situation",
+      "effect": "Выбирает офисную рабочую ситуацию и настраивает подбор шаблонов.",
+      "risk": "replace-state",
+      "verification": {"type": "planned", "source": "issue:#66", "marker": "browser smoke офисного подбора"}
+    },
+    {
+      "id": "office-situation.reset",
+      "selector": "[data-spn-reset]",
+      "kind": "dynamic-group",
+      "owner": "assets/js/spnWizard.js",
+      "ownerToken": "data-spn-reset",
+      "effect": "Очищает офисный подбор и возвращает ручной поиск шаблона.",
+      "risk": "replace-filter",
+      "verification": {"type": "planned", "source": "issue:#66", "marker": "browser smoke сброса офисного подбора"}
+    },
+    {
+      "id": "wizard.step",
+      "selector": "[data-wizard-step]",
+      "kind": "dynamic-group",
+      "owner": "assets/js/spnWizardFlow.js",
+      "ownerToken": "data-wizard-step",
+      "effect": "Открывает выбранный шаг рабочего маршрута.",
+      "risk": "safe",
+      "verification": {"type": "browser", "source": "tools/browser-smoke.html", "marker": "Проверка → Задание"}
+    },
+    {
+      "id": "wizard.next",
+      "selector": "#spnWizardNext",
+      "kind": "dynamic-button",
+      "owner": "assets/js/spnWizardFlow.js",
+      "ownerToken": "spnWizardNext",
+      "effect": "Переходит к следующему доступному шагу рабочего маршрута.",
+      "risk": "safe",
+      "verification": {"type": "browser", "source": "tools/browser-smoke.html", "marker": "Задание → Отчёт"}
+    },
+    {
+      "id": "preview.inline-edit",
+      "selector": "[data-inline-field]",
+      "kind": "dynamic-group",
+      "owner": "assets/js/spnInlinePreviewEditor.js",
+      "ownerToken": "data-inline-field",
+      "effect": "Редактирует текст непосредственно в макете и синхронизирует форму.",
+      "risk": "replace-current-fields",
+      "verification": {"type": "contract", "source": "tools/validate-inline-preview-editing.mjs", "marker": "data-inline-field"}
+    }
+  ]
+}

@@ -124,6 +124,50 @@
         assert(doc.querySelector('#blockOrderList [data-block-id]')?.dataset.blockId === 'headline', 'после очистки не восстановлен стандартный порядок блоков');
         pass('очистка объекта: данные, фото и QR удалены, профиль сохранён');
 
+        lastAction = 'text.shorten-description';
+        const originalHeadline = 'Заголовок должен сохраниться';
+        const originalBenefits = 'Преимущество не должно измениться';
+        const longDescription = 'Просторная квартира с удобной планировкой, светлыми комнатами и спокойным двором. '.repeat(5).trim();
+        assert(longDescription.length > 190, 'тестовое описание должно быть длиннее лимита');
+        setField(win, doc, '#headline', originalHeadline);
+        setField(win, doc, '#benefits', originalBenefits);
+        setField(win, doc, '#description', longDescription);
+        setCheck(win, doc, '#showDescription', false);
+        click(doc, '#makeShortBtn');
+        await waitFor(() => {
+          const value = doc.getElementById('description')?.value || '';
+          return value.length > 0 && value.length <= 190 && value !== longDescription;
+        }, 3000, 'описание не сократилось до лимита');
+        const shortenedDescription = doc.getElementById('description').value;
+        assert(shortenedDescription.endsWith('...'), 'сокращённое описание не завершено многоточием');
+        assert(doc.getElementById('headline')?.value === originalHeadline, 'сокращение изменило заголовок');
+        assert(doc.getElementById('benefits')?.value === originalBenefits, 'сокращение изменило преимущества');
+        assert(doc.getElementById('showDescription')?.checked === true, 'сокращённое описание не включено в макете');
+        assert(doc.querySelector('#printSheet .desc')?.textContent === shortenedDescription, 'предпросмотр не показывает сокращённое описание');
+        pass('текст: сокращение описания до лимита');
+
+        lastAction = 'text.strengthen';
+        setField(win, doc, '#description', 'Квартира готова к просмотру.');
+        setField(win, doc, '#benefits', '');
+        setCheck(win, doc, '#showDescription', false);
+        setCheck(win, doc, '#showBenefits', false);
+        click(doc, '#makeStrongerBtn');
+        await waitFor(() => {
+          const description = doc.getElementById('description')?.value || '';
+          const benefits = doc.getElementById('benefits')?.value || '';
+          return description.includes('Позвоните — подскажу детали и помогу разобраться.') && benefits.includes('Безопасное сопровождение');
+        }, 3000, 'усиление не добавило призыв и преимущества');
+        const strengthenedDescription = doc.getElementById('description').value;
+        const strengthenedBenefits = doc.getElementById('benefits').value;
+        assert(doc.getElementById('showDescription')?.checked === true, 'усиленное описание не включено');
+        assert(doc.getElementById('showBenefits')?.checked === true, 'добавленные преимущества не включены');
+        assert(doc.querySelectorAll('#printSheet .benefits .benefit').length === 3, 'в предпросмотре нет трёх преимуществ');
+        assert((strengthenedDescription.match(/Позвоните — подскажу детали и помогу разобраться\./g) || []).length === 1, 'призыв добавлен больше одного раза');
+        click(doc, '#makeStrongerBtn');
+        await waitFor(() => doc.getElementById('description')?.value === strengthenedDescription && doc.getElementById('benefits')?.value === strengthenedBenefits, 1000, 'повторное усиление изменило уже подготовленный текст');
+        assert((doc.getElementById('description').value.match(/Позвоните — подскажу детали и помогу разобраться\./g) || []).length === 1, 'повторное усиление продублировало призыв');
+        pass('текст: усиление добавляет призыв и преимущества без дублей');
+
         if(runtimeErrors.length) throw new Error(`runtime errors: ${runtimeErrors.join(' | ')}`);
         lastAction = 'completed';
         result.dataset.status = 'passed';
@@ -187,7 +231,10 @@
         area:value('area'),
         price:value('price'),
         description:value('description'),
+        benefits:value('benefits'),
         qrLink:value('qrLink'),
+        showDescription:Boolean(doc.getElementById('showDescription')?.checked),
+        showBenefits:Boolean(doc.getElementById('showBenefits')?.checked),
         photoMode:doc.querySelector('[data-photo].active')?.dataset.photo || '',
         photoImages:doc.querySelectorAll('#printSheet .photo-box img').length,
         hasQr:Boolean(doc.querySelector('#printSheet .qr-row'))

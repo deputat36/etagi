@@ -83,6 +83,47 @@
         await waitFor(() => doc.getElementById('headline')?.value === 'Заголовок последнего макета' && doc.getElementById('price')?.value === '3 500 000 ₽', 3000, 'последний макет не восстановил поля');
         pass('последний макет: сохранение и загрузка');
 
+        lastAction = 'object.clear';
+        const objectValues = {
+          layoutName:'Макет для очистки',
+          area:'Южный smoke',
+          propertyType:'Квартира',
+          price:'4 200 000 ₽',
+          params:'2 комнаты, 58 м²',
+          headline:'Объект перед очисткой',
+          description:'Описание объекта перед очисткой с подробностями.',
+          benefits:'Тихий двор\nУдобный этаж',
+          customBlockTitle:'Особое условие',
+          customBlockText:'Текст дополнительного блока',
+          qrLink:'https://example.com/smoke-clear-object',
+          qrCaption:'Открыть объект'
+        };
+        for(const [id, value] of Object.entries(objectValues)) setField(win, doc, `#${id}`, value);
+        setCheck(win, doc, '#showCustomBlock', true);
+        setCheck(win, doc, '#showQr', true);
+        doc.getElementById('savedLayouts').value = namedLayoutId;
+        click(doc, '[data-block-move="down"][data-block-id="headline"]');
+        await setFile(win, doc, '#photoOne', 'smoke-one.svg', '<svg xmlns="http://www.w3.org/2000/svg" width="40" height="30"><rect width="40" height="30" fill="white"/></svg>');
+        await setFile(win, doc, '#photoTwo', 'smoke-two.svg', '<svg xmlns="http://www.w3.org/2000/svg" width="40" height="30"><rect width="40" height="30" fill="black"/></svg>');
+        await waitFor(() => doc.querySelectorAll('#printSheet .photo-box img').length >= 2, 3000, 'два тестовых фото не появились в макете');
+        assert(doc.querySelector('#printSheet .qr-row'), 'QR не появился перед очисткой');
+        click(doc, '#clearObjectBtn');
+        await waitFor(() => doc.getElementById('statusLine')?.textContent.includes('Данные объекта очищены'), 3000, 'очистка объекта не завершилась');
+
+        const clearedIds = ['layoutName','area','propertyType','price','params','headline','description','benefits','customBlockTitle','customBlockText','qrLink','qrCaption'];
+        assert(clearedIds.every(id => doc.getElementById(id)?.value === ''), 'после очистки остались объектные поля или QR');
+        assert(doc.getElementById('agentName')?.value === 'Анна Smoke', 'очистка удалила имя СПН');
+        assert(doc.getElementById('agentPhone')?.value === '+7 900 123-45-67', 'очистка удалила телефон СПН');
+        assert(doc.getElementById('savedLayouts')?.value === '', 'после очистки остался выбран сохранённый макет');
+        assert(doc.getElementById('showPhoto')?.checked === false, 'после очистки фото остаётся включённым');
+        assert(doc.getElementById('showCustomBlock')?.checked === false, 'после очистки дополнительный блок остаётся включённым');
+        assert(doc.querySelector('[data-photo="none"]')?.classList.contains('active'), 'после очистки не выбран режим без фото');
+        assert(doc.getElementById('printSheet')?.classList.contains('sheet-photo-none'), 'предпросмотр не перешёл в режим без фото');
+        assert(!doc.querySelector('#printSheet .photo-box img'), 'после очистки в макете осталось фото');
+        assert(!doc.querySelector('#printSheet .qr-row'), 'после очистки в макете остался QR');
+        assert(doc.querySelector('#blockOrderList [data-block-id]')?.dataset.blockId === 'headline', 'после очистки не восстановлен стандартный порядок блоков');
+        pass('очистка объекта: данные, фото и QR удалены, профиль сохранён');
+
         if(runtimeErrors.length) throw new Error(`runtime errors: ${runtimeErrors.join(' | ')}`);
         lastAction = 'completed';
         result.dataset.status = 'passed';
@@ -119,17 +160,37 @@
       input.dispatchEvent(new win.Event('input', {bubbles:true}));
       input.dispatchEvent(new win.Event('change', {bubbles:true}));
     }
+    function setCheck(win, doc, selector, checked){
+      const input = doc.querySelector(selector);
+      assert(input, `не найден элемент ${selector}`);
+      input.checked = checked;
+      input.dispatchEvent(new win.Event('change', {bubbles:true}));
+    }
+    async function setFile(win, doc, selector, name, content){
+      const input = doc.querySelector(selector);
+      assert(input, `не найден элемент ${selector}`);
+      const transfer = new win.DataTransfer();
+      transfer.items.add(new win.File([content], name, {type:'image/svg+xml'}));
+      input.files = transfer.files;
+      input.dispatchEvent(new win.Event('change', {bubbles:true}));
+      await waitFor(() => input.files?.length === 1, 1000, `файл ${name} не выбран`);
+    }
     function snapshot(doc){
       const value = id => doc.getElementById(id)?.value || '';
       return {
-        status:value('statusLine'),
+        status:doc.getElementById('statusLine')?.textContent || '',
         agentName:value('agentName'),
         agentPhone:value('agentPhone'),
         layoutName:value('layoutName'),
         savedLayout:value('savedLayouts'),
         headline:value('headline'),
         area:value('area'),
-        price:value('price')
+        price:value('price'),
+        description:value('description'),
+        qrLink:value('qrLink'),
+        photoMode:doc.querySelector('[data-photo].active')?.dataset.photo || '',
+        photoImages:doc.querySelectorAll('#printSheet .photo-box img').length,
+        hasQr:Boolean(doc.querySelector('#printSheet .qr-row'))
       };
     }
     async function waitFor(predicate, timeout, message){

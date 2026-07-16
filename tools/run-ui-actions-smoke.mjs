@@ -31,6 +31,12 @@ const smokePages = failureFixtureMode ? [
     timeoutMs:30000
   },
   {
+    label:'Inline tab order smoke',
+    path:'tools/inline-tab-order-smoke.html',
+    virtualTimeBudget:18000,
+    timeoutMs:30000
+  },
+  {
     label:'Print dialog smoke',
     path:'tools/print-dialog-smoke.html',
     virtualTimeBudget:20000,

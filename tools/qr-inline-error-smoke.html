@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Etagi QR inline error smoke</title>
+  <style>
+    body{font-family:Arial,sans-serif;margin:16px}
+    #appFrame{width:1280px;height:900px;border:1px solid #cbd5e1}
+    #uiActionsSmokeResult{white-space:pre-wrap;padding:12px;border:1px solid #cbd5e1;border-radius:8px;background:#f8fafc}
+  </style>
+</head>
+<body>
+  <pre id="uiActionsSmokeResult" data-status="pending">QR inline error smoke is running…</pre>
+  <iframe id="appFrame" title="Генератор расклеек"></iframe>
+  <script>
+    const result = document.getElementById('uiActionsSmokeResult');
+    const frame = document.getElementById('appFrame');
+    const checks = [];
+    const runtimeErrors = [];
+    let lastAction = 'startup';
+
+    frame.addEventListener('load', async () => {
+      const win = frame.contentWindow;
+      const doc = frame.contentDocument;
+      const earlyErrors = Array.isArray(win.__ETAGI_EARLY_ERRORS__) ? [...win.__ETAGI_EARLY_ERRORS__] : [];
+      runtimeErrors.push(...earlyErrors);
+      win.addEventListener('error', event => runtimeErrors.push(event.message || 'window error'));
+      win.addEventListener('unhandledrejection', event => runtimeErrors.push(String(event.reason || 'unhandled rejection')));
+
+      try{
+        await waitFor(() => doc.querySelectorAll('.tpl-card').length > 0, 12000, 'шаблоны не появились');
+        await waitFor(() => doc.querySelector('#printSheet .flyer'), 12000, 'предпросмотр А4 не появился');
+
+        lastAction = 'qr.long-link-render';
+        const longLink = `https://example.com/${'q'.repeat(140)}`;
+        setField(win, doc, '#qrCaption', 'Исходная подпись QR');
+        setField(win, doc, '#qrLink', longLink);
+        setCheck(win, doc, '#showQr', true);
+
+        await waitFor(() => doc.querySelector('#printSheet .qr-error-note'), 4000, 'предупреждение длинной QR-ссылки не появилось');
+        const flyers = [...doc.querySelectorAll('#printSheet .flyer')];
+        assert(flyers.length > 0, 'в предпросмотре нет макетов');
+        assert(flyers.every(flyer => flyer.querySelector('.qr-caption[data-inline-field="qrCaption"]')), 'не в каждой копии есть отдельная редактируемая подпись QR');
+        assert(flyers.every(flyer => flyer.querySelector('.qr-error-note')?.textContent.trim() === 'ссылка слишком длинная'), 'не в каждой копии сохранено предупреждение длинной ссылки');
+        assert(flyers.every(flyer => flyer.querySelector('.qr-error-note')?.getAttribute('contenteditable') === 'false'), 'предупреждение QR должно быть явно нередактируемым');
+        assert(flyers.every(flyer => !flyer.querySelector('.qr-error-note')?.hasAttribute('data-inline-field')), 'предупреждение QR ошибочно участвует в inline-редакторе');
+        assert(flyers.every(flyer => flyer.querySelector('.qr-caption')?.textContent.trim() === 'Исходная подпись QR'), 'редактируемая подпись QR содержит служебный текст ошибки');
+        pass('длинный QR: подпись и предупреждение разделены');
+
+        lastAction = 'qr.caption-inline-edit';
+        const editable = doc.querySelector('#printSheet .qr-caption[data-inline-field="qrCaption"]');
+        editable.focus();
+        editable.textContent = 'Новая подпись QR';
+        editable.blur();
+        await waitFor(() => doc.getElementById('qrCaption')?.value === 'Новая подпись QR', 3000, 'inline-редактор не сохранил новую подпись QR');
+        await waitFor(() => [...doc.querySelectorAll('#printSheet .qr-caption')].every(node => node.textContent.trim() === 'Новая подпись QR'), 3000, 'новая подпись не обновилась во всех копиях');
+        assert(!doc.getElementById('qrCaption').value.includes('ссылка слишком длинная'), 'служебная ошибка попала в поле подписи QR');
+        assert([...doc.querySelectorAll('#printSheet .qr-error-note')].every(node => node.textContent.trim() === 'ссылка слишком длинная'), 'редактирование подписи изменило служебное предупреждение');
+        pass('длинный QR: inline-редактор сохраняет только подпись');
+
+        lastAction = 'qr.short-link-render';
+        setField(win, doc, '#qrLink', 'https://example.com/short-qr');
+        await waitFor(() => doc.querySelector('#printSheet .real-qr') && !doc.querySelector('#printSheet .qr-error-note'), 4000, 'после короткой ссылки ошибка QR не исчезла');
+        assert([...doc.querySelectorAll('#printSheet .qr-caption')].every(node => node.textContent.trim() === 'Новая подпись QR'), 'после короткой ссылки потерялась подпись QR');
+        assert([...doc.querySelectorAll('#printSheet .qr-caption')].every(node => node.dataset.inlineField === 'qrCaption'), 'после короткой ссылки подпись перестала быть редактируемой');
+        pass('короткий QR: код восстановлен, подпись сохранена');
+
+        if(runtimeErrors.length) throw new Error(`runtime errors: ${runtimeErrors.join(' | ')}`);
+        lastAction = 'completed';
+        result.dataset.status = 'passed';
+        result.textContent = `PASSED\n${checks.map(item => `✓ ${item}`).join('\n')}`;
+      } catch(error){
+        result.dataset.status = 'failed';
+        result.dataset.lastAction = lastAction;
+        result.textContent = `FAILED\n${checks.map(item => `✓ ${item}`).join('\n')}\n✗ ${error.message || error}\nПоследнее действие: ${lastAction}\nСостояние: ${JSON.stringify(snapshot(doc))}`;
+      }
+    }, {once:true});
+
+    frame.src = '/index.html?smoke=qr-inline-error';
+
+    window.setTimeout(() => {
+      if(result.dataset.status === 'pending'){
+        result.dataset.status = 'failed';
+        result.dataset.lastAction = lastAction;
+        result.textContent = `FAILED\n${checks.map(item => `✓ ${item}`).join('\n')}\n✗ timeout QR inline error smoke\nПоследнее действие: ${lastAction}`;
+      }
+    }, 22000);
+
+    function pass(message){ checks.push(message); }
+    function assert(condition, message){ if(!condition) throw new Error(message); }
+    function setField(win, doc, selector, value){
+      const input = doc.querySelector(selector);
+      assert(input, `не найден элемент ${selector}`);
+      input.value = value;
+      input.dispatchEvent(new win.Event('input', {bubbles:true}));
+      input.dispatchEvent(new win.Event('change', {bubbles:true}));
+    }
+    function setCheck(win, doc, selector, checked){
+      const input = doc.querySelector(selector);
+      assert(input, `не найден элемент ${selector}`);
+      input.checked = checked;
+      input.dispatchEvent(new win.Event('change', {bubbles:true}));
+    }
+    function snapshot(doc){
+      return {
+        status:doc.getElementById('statusLine')?.textContent || '',
+        qrLink:doc.getElementById('qrLink')?.value || '',
+        qrCaption:doc.getElementById('qrCaption')?.value || '',
+        editable:[...doc.querySelectorAll('#printSheet .qr-caption')].map(node => node.textContent.trim()),
+        errors:[...doc.querySelectorAll('#printSheet .qr-error-note')].map(node => node.textContent.trim())
+      };
+    }
+    function waitFor(check, timeoutMs, message){
+      const started = Date.now();
+      return new Promise((resolve, reject) => {
+        const tick = () => {
+          try{
+            if(check()) return resolve();
+          } catch(error){
+            return reject(error);
+          }
+          if(Date.now() - started >= timeoutMs) return reject(new Error(message));
+          setTimeout(tick, 50);
+        };
+        tick();
+      });
+    }
+  </script>
+</body>
+</html>

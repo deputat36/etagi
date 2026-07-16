@@ -151,9 +151,9 @@ function renderQr(state){
   const caption = esc(state.qrCaption || 'Открыть ссылку');
   const captionAttrs = inlineEditAttrs('qrCaption', 'Подпись QR');
   if(!qr.ok){
-    return `<div class="qr-row qr-standalone"><div class="qr-box qr-error">QR</div><span${captionAttrs}>${caption}<br>ссылка слишком длинная</span></div>`;
+    return `<div class="qr-row qr-standalone"><div class="qr-box qr-error">QR</div><span class="qr-copy"><span class="qr-caption"${captionAttrs}>${caption}</span><br><small class="qr-error-note" contenteditable="false" role="note">ссылка слишком длинная</small></span></div>`;
   }
-  return `<div class="qr-row qr-standalone"><div class="qr-box real-qr">${qr.svg}</div><span${captionAttrs}>${caption}</span></div>`;
+  return `<div class="qr-row qr-standalone"><div class="qr-box real-qr">${qr.svg}</div><span class="qr-caption"${captionAttrs}>${caption}</span></div>`;
 }
 function renderTears(state){
   const phone = esc(state.agentPhone || 'телефон');

@@ -10,6 +10,8 @@ const files = {
   index: 'index.html',
   package: 'package.json',
   screenshot: 'tools/print-screenshot.html',
+  qrSmoke: 'tools/qr-inline-error-smoke.html',
+  uiSmokeRunner: 'tools/run-ui-actions-smoke.mjs',
   guide: 'docs/inline-preview-editing.md'
 };
 const sources = Object.fromEntries(
@@ -52,7 +54,13 @@ requireSnippets(files.render, sources.render, [
   "inlineEditAttrs('agentPhone', 'Телефон')",
   "inlineEditAttrs('agentName', 'Имя специалиста')",
   "inlineEditAttrs('contactCta', 'Призыв в контактах')",
-  "inlineEditAttrs('qrCaption', 'Подпись QR')"
+  "inlineEditAttrs('qrCaption', 'Подпись QR')",
+  'class="qr-copy"',
+  'class="qr-caption"',
+  'class="qr-error-note" contenteditable="false" role="note"'
+]);
+forbidSnippets(files.render, sources.render, [
+  '${caption}<br>ссылка слишком длинная</span>'
 ]);
 
 requireSnippets(files.entry, sources.entry, [
@@ -80,12 +88,28 @@ requireSnippets(files.screenshot, sources.screenshot, [
   'прямое редактирование не обновило все копии макета'
 ]);
 
+requireSnippets(files.qrSmoke, sources.qrSmoke, [
+  'id="uiActionsSmokeResult"',
+  "const longLink = `https://example.com/${'q'.repeat(140)}`",
+  '.qr-caption[data-inline-field="qrCaption"]',
+  '.qr-error-note',
+  "getAttribute('contenteditable') === 'false'",
+  "!doc.getElementById('qrCaption').value.includes('ссылка слишком длинная')",
+  'после короткой ссылки ошибка QR не исчезла',
+  'длинный QR: inline-редактор сохраняет только подпись'
+]);
+requireSnippets(files.uiSmokeRunner, sources.uiSmokeRunner, [
+  "label:'QR inline error smoke'",
+  "path:'tools/qr-inline-error-smoke.html'"
+]);
+
 requireSnippets(files.guide, sources.guide, [
   '# Редактирование текста прямо на макете',
   'Значение синхронизируется с полем слева',
   'обновится во всех копиях макета на листе',
   'Esc отменяет',
   'Вставка выполняется как обычный текст без HTML-разметки',
+  'Предупреждение о слишком длинной QR-ссылке не является частью подписи',
   'npm run test:inline-preview-editing',
   'npm run validate:ink-efficiency'
 ]);

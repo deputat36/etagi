@@ -63,21 +63,26 @@ requireSnippets(files.smoke, sources.smoke, [
   'resize изменил ручной масштаб после отключения Вписать',
   'повторное Вписать: вычисляемый режим восстановлен'
 ]);
-requireSnippets(files.registry, sources.registry, [
-  '"id": "preview.fit"',
-  '"type": "browser"',
-  '"source": "tools/fit-preview-smoke.html"',
-  '"marker": "Вписать: рассчитан фактический масштаб"'
-]);
 requireSnippets(files.guide, sources.guide, [
   '# Вычисляемое «Вписать»',
   'доступную ширину `.sheet-wrap`',
   'доступную высоту `.sheet-wrap`',
   '`ResizeObserver`',
-  'ручную переопределение',
+  'ручное переопределение',
   'npm run validate:fit-preview',
   '`Fit preview smoke`'
 ]);
+
+const registry = readJson(files.registry, sources.registry);
+const fitAction = registry?.actions?.find(action => action?.id === 'preview.fit');
+if(!fitAction){
+  errors.push(`${files.registry}: действие preview.fit не найдено`);
+} else {
+  if(fitAction.owner !== 'assets/js/spnFitPreview.js') errors.push(`${files.registry}: preview.fit должен принадлежать assets/js/spnFitPreview.js`);
+  if(fitAction.verification?.type !== 'browser') errors.push(`${files.registry}: preview.fit должен иметь browser-проверку`);
+  if(fitAction.verification?.source !== 'tools/fit-preview-smoke.html') errors.push(`${files.registry}: preview.fit должен ссылаться на tools/fit-preview-smoke.html`);
+  if(fitAction.verification?.marker !== 'Вписать: рассчитан фактический масштаб') errors.push(`${files.registry}: preview.fit содержит неверный marker`);
+}
 
 const pkg = readJson(files.package, sources.package);
 if(String(pkg?.scripts?.['validate:fit-preview'] || '').trim() !== 'node tools/validate-fit-preview.mjs'){

@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Etagi fit preview smoke</title>
+  <style>
+    body{font-family:Arial,sans-serif;margin:16px}
+    #appFrame{width:1280px;height:900px;border:1px solid #cbd5e1}
+    #uiActionsSmokeResult{white-space:pre-wrap;padding:12px;border:1px solid #cbd5e1;border-radius:8px;background:#f8fafc}
+  </style>
+</head>
+<body>
+  <pre id="uiActionsSmokeResult" data-status="pending">Fit preview smoke is running…</pre>
+  <iframe id="appFrame" title="Генератор расклеек"></iframe>
+  <script>
+    const result = document.getElementById('uiActionsSmokeResult');
+    const frame = document.getElementById('appFrame');
+    const checks = [];
+    const runtimeErrors = [];
+    let lastAction = 'startup';
+
+    frame.addEventListener('load', async () => {
+      const win = frame.contentWindow;
+      const doc = frame.contentDocument;
+      const earlyErrors = Array.isArray(win.__ETAGI_EARLY_ERRORS__) ? [...win.__ETAGI_EARLY_ERRORS__] : [];
+      runtimeErrors.push(...earlyErrors);
+      win.addEventListener('error', event => runtimeErrors.push(event.message || 'window error'));
+      win.addEventListener('unhandledrejection', event => runtimeErrors.push(String(event.reason || 'unhandled rejection')));
+
+      try{
+        await waitFor(() => doc.querySelectorAll('.tpl-card').length > 0, 12000, 'шаблоны не появились');
+        await waitFor(() => doc.getElementById('zoomValue'), 6000, 'индикатор масштаба не появился');
+
+        const button = doc.getElementById('fitPreviewBtn');
+        const zoom = doc.getElementById('zoom');
+        const output = doc.getElementById('zoomValue');
+        const wrap = doc.querySelector('.sheet-wrap');
+        const sheet = doc.getElementById('printSheet');
+        const scale = doc.getElementById('sheetScale');
+        assert(button && zoom && output && wrap && sheet && scale, 'не найдены элементы управления масштабом');
+        assert(zoom.min === '20' && zoom.max === '100', 'диапазон масштаба не поддерживает узкие экраны');
+        assert(button.getAttribute('aria-pressed') === 'false', 'режим Вписать ошибочно активен при старте');
+        assert(output.textContent.trim() === `${zoom.value}%`, 'индикатор масштаба не синхронизирован при старте');
+        pass('старт: диапазон, ARIA и индикатор масштаба готовы');
+
+        lastAction = 'fit.initial';
+        button.click();
+        await waitFor(() => button.getAttribute('aria-pressed') === 'true', 2000, 'кнопка не включила режим Вписать');
+        await waitFor(() => Number(zoom.value) === expectedFit(win, wrap, sheet, zoom), 3000, 'начальный масштаб рассчитан неверно');
+        assert(output.textContent.trim() === `${zoom.value}%`, 'индикатор не обновился после Вписать');
+        assert(scale.style.transform === `scale(${Number(zoom.value) / 100})`, 'transform не соответствует ползунку');
+        assertFits(win, wrap, sheet);
+        const initialFit = Number(zoom.value);
+        pass(`Вписать: рассчитан фактический масштаб ${initialFit}% без переполнения`);
+
+        lastAction = 'fit.resize-shorter';
+        frame.style.height = '520px';
+        win.dispatchEvent(new win.Event('resize'));
+        await waitFor(() => Number(zoom.value) === expectedFit(win, wrap, sheet, zoom), 4000, 'масштаб не пересчитался после resize');
+        const shorterFit = Number(zoom.value);
+        assert(shorterFit < initialFit, 'уменьшение высоты окна не уменьшило масштаб');
+        assert(button.getAttribute('aria-pressed') === 'true', 'resize отключил активный режим Вписать');
+        assertFits(win, wrap, sheet);
+        pass(`resize: масштаб автоматически уменьшен до ${shorterFit}%`);
+
+        lastAction = 'fit.manual-override';
+        zoom.value = '80';
+        zoom.dispatchEvent(new win.Event('input', {bubbles:true}));
+        assert(button.getAttribute('aria-pressed') === 'false', 'ручной ползунок не отключил режим Вписать');
+        assert(output.textContent.trim() === '80%', 'индикатор не показал ручной масштаб');
+        assert(scale.style.transform === 'scale(0.8)', 'ручной масштаб не применён к листу');
+        frame.style.height = '760px';
+        win.dispatchEvent(new win.Event('resize'));
+        await delay(350);
+        assert(zoom.value === '80', 'resize изменил ручной масштаб после отключения Вписать');
+        pass('ручной масштаб: автоподгонка отключена и значение сохранено');
+
+        lastAction = 'fit.reactivate';
+        button.click();
+        await waitFor(() => Number(zoom.value) === expectedFit(win, wrap, sheet, zoom), 3000, 'повторное Вписать не восстановило вычисляемый масштаб');
+        assert(button.getAttribute('aria-pressed') === 'true', 'повторное Вписать не включило режим');
+        assertFits(win, wrap, sheet);
+        pass('повторное Вписать: вычисляемый режим восстановлен');
+
+        if(runtimeErrors.length) throw new Error(`runtime errors: ${runtimeErrors.join(' | ')}`);
+        lastAction = 'completed';
+        result.dataset.status = 'passed';
+        result.textContent = `PASSED\n${checks.map(item => `✓ ${item}`).join('\n')}`;
+      } catch(error){
+        result.dataset.status = 'failed';
+        result.dataset.lastAction = lastAction;
+        result.textContent = `FAILED\n${checks.map(item => `✓ ${item}`).join('\n')}\n✗ ${error.message || error}\nПоследнее действие: ${lastAction}\nСостояние: ${JSON.stringify(snapshot(doc))}`;
+      }
+    }, {once:true});
+
+    frame.src = '/index.html?smoke=fit-preview';
+
+    window.setTimeout(() => {
+      if(result.dataset.status === 'pending'){
+        result.dataset.status = 'failed';
+        result.dataset.lastAction = lastAction;
+        result.textContent = `FAILED\n${checks.map(item => `✓ ${item}`).join('\n')}\n✗ timeout fit preview smoke\nПоследнее действие: ${lastAction}`;
+      }
+    }, 26000);
+
+    function expectedFit(win, wrap, sheet, zoom){
+      const style = win.getComputedStyle(wrap);
+      const width = Math.max(0, wrap.clientWidth - px(style.paddingLeft) - px(style.paddingRight) - 2);
+      const height = Math.max(0, wrap.clientHeight - px(style.paddingTop) - px(style.paddingBottom) - 2);
+      const raw = Math.floor(Math.min(width / sheet.offsetWidth, height / sheet.offsetHeight, 1) * 100);
+      return Math.max(Number(zoom.min), Math.min(Number(zoom.max), raw));
+    }
+
+    function assertFits(win, wrap, sheet){
+      const style = win.getComputedStyle(wrap);
+      const width = wrap.clientWidth - px(style.paddingLeft) - px(style.paddingRight);
+      const height = wrap.clientHeight - px(style.paddingTop) - px(style.paddingBottom);
+      const rect = sheet.getBoundingClientRect();
+      assert(rect.width <= width + 1, `лист шире рабочей области: ${rect.width} > ${width}`);
+      assert(rect.height <= height + 1, `лист выше рабочей области: ${rect.height} > ${height}`);
+    }
+
+    function snapshot(doc){
+      const zoom = doc.getElementById('zoom');
+      return {
+        status:doc.getElementById('statusLine')?.textContent || '',
+        zoom:zoom?.value || '',
+        min:zoom?.min || '',
+        fit:doc.getElementById('fitPreviewBtn')?.getAttribute('aria-pressed') || '',
+        output:doc.getElementById('zoomValue')?.textContent || '',
+        transform:doc.getElementById('sheetScale')?.style.transform || '',
+        wrapHeight:doc.querySelector('.sheet-wrap')?.clientHeight || 0
+      };
+    }
+
+    function px(value){
+      const number = Number.parseFloat(value);
+      return Number.isFinite(number) ? number : 0;
+    }
+    function pass(message){ checks.push(message); }
+    function assert(condition, message){ if(!condition) throw new Error(message); }
+    function delay(ms){ return new Promise(resolve => setTimeout(resolve, ms)); }
+    function waitFor(check, timeoutMs, message){
+      const started = Date.now();
+      return new Promise((resolve, reject) => {
+        const tick = () => {
+          try{
+            if(check()) return resolve();
+          } catch(error){
+            return reject(error);
+          }
+          if(Date.now() - started >= timeoutMs) return reject(new Error(message));
+          setTimeout(tick, 50);
+        };
+        tick();
+      });
+    }
+  </script>
+</body>
+</html>

@@ -30,10 +30,10 @@
 
 ## Проверка
 
-Статический контракт:
+Статический контракт входит в общую проверку элементов предпросмотра:
 
 ```bash
-npm run validate:fit-preview
+npm run validate:preview-quickbar
 ```
 
 Browser smoke:

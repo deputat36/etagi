@@ -43,6 +43,12 @@ const smokePages = failureFixtureMode ? [
     timeoutMs:34000
   },
   {
+    label:'Fit preview smoke',
+    path:'tools/fit-preview-smoke.html',
+    virtualTimeBudget:22000,
+    timeoutMs:36000
+  },
+  {
     label:'Print dialog smoke',
     path:'tools/print-dialog-smoke.html',
     virtualTimeBudget:20000,

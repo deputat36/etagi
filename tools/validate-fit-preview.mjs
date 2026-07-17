@@ -10,6 +10,7 @@ const files = {
   smoke: 'tools/fit-preview-smoke.html',
   registry: 'data/ui-actions.json',
   guide: 'docs/fit-preview.md',
+  wrapper: 'tools/validate-preview-controls.mjs',
   package: 'package.json'
 };
 const sources = Object.fromEntries(
@@ -69,8 +70,12 @@ requireSnippets(files.guide, sources.guide, [
   'доступную высоту `.sheet-wrap`',
   '`ResizeObserver`',
   'ручное переопределение',
-  'npm run validate:fit-preview',
+  'npm run validate:preview-quickbar',
   '`Fit preview smoke`'
+]);
+requireSnippets(files.wrapper, sources.wrapper, [
+  "import './validate-preview-quickbar.mjs';",
+  "import './validate-fit-preview.mjs';"
 ]);
 
 const registry = readJson(files.registry, sources.registry);
@@ -85,8 +90,11 @@ if(!fitAction){
 }
 
 const pkg = readJson(files.package, sources.package);
-if(String(pkg?.scripts?.['validate:fit-preview'] || '').trim() !== 'node tools/validate-fit-preview.mjs'){
-  errors.push(`${files.package}: validate:fit-preview должен запускать node tools/validate-fit-preview.mjs`);
+if(String(pkg?.scripts?.['validate:preview-quickbar'] || '').trim() !== 'node tools/validate-preview-controls.mjs'){
+  errors.push(`${files.package}: validate:preview-quickbar должен запускать node tools/validate-preview-controls.mjs`);
+}
+if(Object.hasOwn(pkg?.scripts || {}, 'validate:fit-preview')){
+  errors.push(`${files.package}: отдельный validate:fit-preview не нужен — проверка должна входить в validate:preview-quickbar`);
 }
 
 if(errors.length){

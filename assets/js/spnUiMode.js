@@ -38,6 +38,7 @@ import './spnAgentBrandModeGuard.js';
 import './spnInkEfficiency.js';
 import './spnLayoutModeAccessibility.js';
 import './spnFitPreview.js';
+import './spnDestructiveSnapshot.js';
 import './spnPreviewQuickBar.js';
 import './spnAdvancedWorkbench.js';
 import './spnWizardFlow.js';

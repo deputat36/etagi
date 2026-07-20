@@ -19,6 +19,7 @@ const files = {
   importModule:'assets/js/spnLayoutFileImport.js',
   utils:'assets/js/utils.js',
   entry:'assets/js/spnUiMode.js',
+  storageRunner:'tools/validate-storage-contracts.mjs',
   runner:'tools/run-ui-actions-smoke.mjs',
   smoke:'tools/layout-file-diagnostics-smoke.html',
   guide:'docs/layout-file-format.md',
@@ -81,6 +82,11 @@ requireSnippets(files.importModule, sources.importModule, [
   "document.getElementById('uploadBtn')?.focus"
 ]);
 requireSnippets(files.entry, sources.entry, ["import './spnLayoutFileImport.js';"]);
+requireSnippets(files.storageRunner, sources.storageRunner, [
+  "'tools/validate-storage-safety.mjs'",
+  "'tools/validate-layout-file-schema.mjs'",
+  'Все контракты хранения и переносимых файлов пройдены.'
+]);
 requireSnippets(files.runner, sources.runner, [
   "label:'Layout file diagnostics smoke'",
   "path:'tools/layout-file-diagnostics-smoke.html'"
@@ -98,12 +104,16 @@ requireSnippets(files.guide, sources.guide, [
   'data/layout-file.schema.json',
   'schemaVersion: 1',
   'При ошибке текущий макет не изменяется',
-  'npm run validate:layout-file-schema',
+  'npm run validate:storage-safety',
+  'tools/validate-layout-file-schema.mjs',
   'Layout file diagnostics smoke'
 ]);
 
-if(String(pkg?.scripts?.['validate:layout-file-schema'] || '').trim() !== 'node tools/validate-layout-file-schema.mjs'){
-  errors.push(`${files.package}: validate:layout-file-schema должен запускать node tools/validate-layout-file-schema.mjs`);
+if(String(pkg?.scripts?.['validate:storage-safety'] || '').trim() !== 'node tools/validate-storage-contracts.mjs'){
+  errors.push(`${files.package}: validate:storage-safety должен запускать node tools/validate-storage-contracts.mjs`);
+}
+if(Object.hasOwn(pkg?.scripts || {}, 'validate:layout-file-schema')){
+  errors.push(`${files.package}: отдельная команда validate:layout-file-schema не нужна — контракт должен входить в validate:storage-safety`);
 }
 
 if(errors.length){

@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Etagi destructive snapshot smoke</title>
+  <style>
+    body{font-family:Arial,sans-serif;margin:16px}
+    #appFrame{width:1280px;height:920px;border:1px solid #cbd5e1}
+    #uiActionsSmokeResult{white-space:pre-wrap;padding:12px;border:1px solid #cbd5e1;border-radius:8px;background:#f8fafc}
+  </style>
+</head>
+<body>
+  <pre id="uiActionsSmokeResult" data-status="pending">Destructive snapshot smoke is running…</pre>
+  <iframe id="appFrame" title="Генератор расклеек"></iframe>
+  <script>
+    const SNAPSHOT_KEY = 'etagi-raskleyka-destructive-snapshot-v1';
+    const result = document.getElementById('uiActionsSmokeResult');
+    const frame = document.getElementById('appFrame');
+    const checks = [];
+    let lastAction = 'startup';
+
+    frame.addEventListener('load', async () => {
+      const win = frame.contentWindow;
+      const doc = frame.contentDocument;
+      try{
+        await waitFor(() => doc.querySelectorAll('.tpl-card').length > 0, 12000, 'шаблоны не появились');
+        await waitFor(() => doc.querySelector('#printSheet .flyer'), 12000, 'предпросмотр не появился');
+        await waitFor(() => doc.body.dataset.destructiveSnapshotBound === 'true', 5000, 'модуль снимков не подключился');
+        win.localStorage.removeItem(SNAPSHOT_KEY);
+
+        lastAction = 'snapshot.clear-object';
+        setField(win, doc, '#agentName', 'Анна Snapshot');
+        setField(win, doc, '#agentPhone', '+7 900 111-22-33');
+        setField(win, doc, '#layoutName', 'До очистки');
+        setField(win, doc, '#headline', 'Заголовок до очистки');
+        setField(win, doc, '#description', 'Описание до очистки');
+        setField(win, doc, '#qrLink', 'https://example.com/before-clear');
+        setField(win, doc, '#qrCaption', 'Открыть до очистки');
+        setField(win, doc, '#contactCtaText', 'Позвоните до очистки');
+        click(doc, '[data-count="4"]');
+        click(doc, '[data-block-move="down"][data-block-id="headline"]');
+        await setFile(win, doc, '#photoOne', 'snapshot.svg', '<svg xmlns="http://www.w3.org/2000/svg" width="40" height="30"><rect width="40" height="30" fill="white"/></svg>', 'image/svg+xml');
+        await waitFor(() => doc.querySelector('#printSheet .flyer img[alt="Фото 1"]'), 3000, 'фото не появилось перед очисткой');
+        click(doc, '#clearObjectBtn');
+        await waitFor(() => doc.getElementById('statusLine')?.textContent.includes('Данные объекта очищены'), 3000, 'очистка не завершилась');
+        const clearSnapshot = readSnapshot(win);
+        assertSnapshot(clearSnapshot, 'clear-object', 'Заголовок до очистки');
+        assert(clearSnapshot.state.agentName === 'Анна Snapshot', 'снимок очистки не содержит профиль СПН');
+        assert(clearSnapshot.state.qrLink === 'https://example.com/before-clear', 'снимок очистки не содержит QR');
+        assert(clearSnapshot.state.printCount === 4, 'снимок очистки не содержит количество копий');
+        assert(clearSnapshot.state.blockOrder?.[0] === 'price', 'снимок очистки не содержит изменённый порядок блоков');
+        assert(String(clearSnapshot.state.photoOne || '').startsWith('data:image/svg+xml'), 'снимок очистки не содержит отображаемое фото');
+        assert(clearSnapshot.state.contactCta === 'Позвоните до очистки', 'снимок очистки не содержит служебную подпись');
+        pass('снимок: состояние сохранено перед очисткой объекта');
+
+        lastAction = 'snapshot.named-load';
+        setField(win, doc, '#layoutName', 'Целевой сохранённый макет');
+        setField(win, doc, '#headline', 'Целевой сохранённый заголовок');
+        setField(win, doc, '#area', 'Целевой район');
+        click(doc, '#saveNamedLayoutBtn');
+        await waitFor(() => doc.getElementById('savedLayouts')?.value, 3000, 'целевой именованный макет не сохранён');
+        const namedId = doc.getElementById('savedLayouts').value;
+        setField(win, doc, '#layoutName', 'Текущая работа перед именованной загрузкой');
+        setField(win, doc, '#headline', 'До загрузки именованного макета');
+        setField(win, doc, '#area', 'Текущий район');
+        doc.getElementById('savedLayouts').value = namedId;
+        click(doc, '#loadNamedLayoutBtn');
+        await waitFor(() => doc.getElementById('headline')?.value === 'Целевой сохранённый заголовок', 3000, 'именованный макет не загрузился');
+        const namedSnapshot = readSnapshot(win);
+        assertSnapshot(namedSnapshot, 'load-named-layout', 'До загрузки именованного макета');
+        assert(namedSnapshot.ui.savedLayoutId === namedId, 'снимок не запомнил выбранный именованный макет');
+        pass('снимок: состояние сохранено перед загрузкой именованного макета');
+
+        lastAction = 'snapshot.last-load';
+        setField(win, doc, '#headline', 'Целевой последний макет');
+        setField(win, doc, '#price', '7 700 000 ₽');
+        click(doc, '#saveLocalBtn');
+        await waitFor(() => doc.getElementById('statusLine')?.textContent.includes('Последний макет сохранён'), 2000, 'последний макет не сохранён');
+        setField(win, doc, '#headline', 'До загрузки последнего макета');
+        setField(win, doc, '#price', '1 ₽');
+        click(doc, '#loadLocalBtn');
+        await waitFor(() => doc.getElementById('headline')?.value === 'Целевой последний макет', 3000, 'последний макет не загрузился');
+        const lastSnapshot = readSnapshot(win);
+        assertSnapshot(lastSnapshot, 'load-last-layout', 'До загрузки последнего макета');
+        assert(lastSnapshot.state.price === '1 ₽', 'снимок последнего макета не содержит текущую цену');
+        pass('снимок: состояние сохранено перед загрузкой последнего макета');
+
+        lastAction = 'snapshot.import-layout';
+        setField(win, doc, '#layoutName', 'Целевой импорт');
+        setField(win, doc, '#headline', 'Заголовок после импорта');
+        setField(win, doc, '#price', '8 800 000 ₽');
+        const capture = installDownloadCapture(win);
+        click(doc, '#downloadBtn');
+        await waitFor(() => capture.blob && capture.filename, 3000, 'JSON для импорта не экспортирован');
+        const importText = await capture.blob.text();
+        capture.restore();
+        setField(win, doc, '#layoutName', 'Текущая работа перед импортом');
+        setField(win, doc, '#headline', 'До успешного импорта JSON');
+        setField(win, doc, '#price', '2 ₽');
+        await setFile(win, doc, '#uploadFile', capture.filename, importText, 'application/json');
+        await waitFor(() => doc.getElementById('statusLine')?.textContent.includes('Файл макета открыт без смешивания'), 5000, 'успешный импорт не завершился');
+        await waitFor(() => readSnapshot(win)?.reason === 'import-layout-file', 3000, 'снимок импорта не создан после успешной проверки файла');
+        const importSnapshot = readSnapshot(win);
+        assertSnapshot(importSnapshot, 'import-layout-file', 'До успешного импорта JSON');
+        assert(importSnapshot.state.price === '2 ₽', 'снимок импорта не содержит цену до замены');
+        assert(doc.getElementById('headline')?.value === 'Заголовок после импорта', 'целевой JSON не был применён');
+        pass('снимок: состояние сохранено перед успешным импортом JSON');
+
+        lastAction = 'snapshot.invalid-import';
+        const protectedSnapshotId = importSnapshot.id;
+        await setFile(win, doc, '#uploadFile', 'invalid.json', '{"fileFormat":', 'application/json');
+        await waitFor(() => doc.getElementById('statusLine')?.textContent.includes('Файл повреждён'), 3000, 'ошибочный импорт не получил диагностику');
+        await new Promise(resolve => setTimeout(resolve, 120));
+        assert(readSnapshot(win)?.id === protectedSnapshotId, 'ошибочный импорт перезаписал полезный снимок');
+        pass('снимок: ошибочный импорт не затирает предыдущую резервную точку');
+
+        assert(doc.body.dataset.destructiveSnapshotAvailable === 'true', 'индикатор доступного снимка не установлен');
+        assert(doc.body.dataset.destructiveSnapshotStatus.startsWith('saved'), 'сохранение снимка не отмечено успешным');
+        result.dataset.status = 'passed';
+        result.textContent = `PASSED\n${checks.map(item => `✓ ${item}`).join('\n')}`;
+      } catch(error){
+        result.dataset.status = 'failed';
+        result.dataset.lastAction = lastAction;
+        result.textContent = `FAILED\n${checks.map(item => `✓ ${item}`).join('\n')}\n✗ ${error.message || error}\nПоследнее действие: ${lastAction}\nСостояние: ${JSON.stringify(snapshotUi(doc, win))}`;
+      }
+    }, {once:true});
+
+    frame.src = '/index.html?smoke=destructive-snapshot';
+    window.setTimeout(() => {
+      if(result.dataset.status === 'pending'){
+        result.dataset.status = 'failed';
+        result.textContent = `FAILED\n✗ timeout destructive snapshot smoke\nПоследнее действие: ${lastAction}`;
+      }
+    }, 35000);
+
+    function pass(message){ checks.push(message); }
+    function assert(condition, message){ if(!condition) throw new Error(message); }
+    function assertSnapshot(snapshot, reason, headline){
+      assert(snapshot?.snapshotVersion === 1, `${reason}: неверная версия снимка`);
+      assert(snapshot.reason === reason, `${reason}: неверная причина снимка`);
+      assert(snapshot.state?.headline === headline, `${reason}: сохранено состояние после замены вместо состояния до неё`);
+      assert(!Number.isNaN(Date.parse(snapshot.createdAt)), `${reason}: отсутствует время снимка`);
+    }
+    function readSnapshot(win){
+      try { return JSON.parse(win.localStorage.getItem(SNAPSHOT_KEY) || 'null'); }
+      catch(error){ return null; }
+    }
+    function click(doc, selector){
+      const element = doc.querySelector(selector);
+      assert(element, `не найден элемент ${selector}`);
+      element.click();
+    }
+    function setField(win, doc, selector, value){
+      const input = doc.querySelector(selector);
+      assert(input, `не найден элемент ${selector}`);
+      input.value = value;
+      input.dispatchEvent(new win.Event('input', {bubbles:true}));
+      input.dispatchEvent(new win.Event('change', {bubbles:true}));
+    }
+    async function setFile(win, doc, selector, name, content, type){
+      const input = doc.querySelector(selector);
+      assert(input, `не найден элемент ${selector}`);
+      const transfer = new win.DataTransfer();
+      transfer.items.add(new win.File([content], name, {type}));
+      input.files = transfer.files;
+      input.dispatchEvent(new win.Event('change', {bubbles:true}));
+      await waitFor(() => input.files?.length === 1 || input.value === '', 1000, `файл ${name} не выбран`);
+    }
+    function installDownloadCapture(win){
+      const originalCreateObjectURL = win.URL.createObjectURL;
+      const originalRevokeObjectURL = win.URL.revokeObjectURL;
+      const originalAnchorClick = win.HTMLAnchorElement.prototype.click;
+      const capture = {blob:null, filename:''};
+      win.URL.createObjectURL = blob => { capture.blob = blob; return 'blob:destructive-snapshot-smoke'; };
+      win.URL.revokeObjectURL = () => {};
+      win.HTMLAnchorElement.prototype.click = function(){ capture.filename = this.download || ''; };
+      capture.restore = () => {
+        win.URL.createObjectURL = originalCreateObjectURL;
+        win.URL.revokeObjectURL = originalRevokeObjectURL;
+        win.HTMLAnchorElement.prototype.click = originalAnchorClick;
+      };
+      return capture;
+    }
+    function snapshotUi(doc, win){
+      return {
+        status:doc.getElementById('statusLine')?.textContent || '',
+        headline:doc.getElementById('headline')?.value || '',
+        snapshot:readSnapshot(win),
+        snapshotStatus:doc.body.dataset.destructiveSnapshotStatus || ''
+      };
+    }
+    async function waitFor(predicate, timeout, message){
+      const started = Date.now();
+      while(Date.now() - started < timeout){
+        if(predicate()) return;
+        await new Promise(resolve => setTimeout(resolve, 40));
+      }
+      throw new Error(message);
+    }
+  </script>
+</body>
+</html>

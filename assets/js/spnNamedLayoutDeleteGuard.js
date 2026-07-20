@@ -3,6 +3,7 @@ import { loadLayout } from './storage.js';
 let pendingLayoutId = '';
 let pendingLayoutName = '';
 let allowNativeDelete = false;
+let focusFrame = 0;
 
 document.addEventListener('DOMContentLoaded', initNamedLayoutDeleteGuard);
 
@@ -65,7 +66,7 @@ function ensureDeleteDialog(){
     cancelNamedLayoutDelete();
   });
   dialog?.addEventListener('close', () => {
-    if(!allowNativeDelete) document.getElementById('deleteNamedLayoutBtn')?.focus({preventScroll:true});
+    if(!allowNativeDelete) scheduleDeleteButtonFocus();
   });
 }
 
@@ -73,7 +74,7 @@ function cancelNamedLayoutDelete(){
   const name = pendingLayoutName;
   clearPendingDelete();
   document.getElementById('namedLayoutDeleteDialog')?.close('cancel');
-  document.getElementById('deleteNamedLayoutBtn')?.focus({preventScroll:true});
+  scheduleDeleteButtonFocus();
   setStatus(name ? `Удаление макета «${name}» отменено.` : 'Удаление макета отменено.');
 }
 
@@ -92,7 +93,15 @@ function confirmNamedLayoutDelete(){
   deleteButton.click();
   allowNativeDelete = false;
   clearPendingDelete();
-  deleteButton.focus({preventScroll:true});
+  scheduleDeleteButtonFocus();
+}
+
+function scheduleDeleteButtonFocus(){
+  window.cancelAnimationFrame(focusFrame);
+  focusFrame = window.requestAnimationFrame(() => {
+    focusFrame = 0;
+    document.getElementById('deleteNamedLayoutBtn')?.focus({preventScroll:true});
+  });
 }
 
 function clearPendingDelete(){

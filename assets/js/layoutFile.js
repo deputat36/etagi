@@ -1,6 +1,7 @@
 export const LAYOUT_FILE_KIND = 'etagi-raskleyka-layout';
 export const LAYOUT_FILE_SCHEMA_VERSION = 1;
 
+const METADATA_FIELDS = ['kind','schemaVersion','appVersion','exportedAt'];
 const BLOCK_IDS = ['headline','price','photo','description','meta','benefits','customBlock','contact'];
 const STRING_FIELDS = [
   'version','templateId','layoutName','agentName','agentPhone','area','propertyType','price','params',
@@ -37,6 +38,7 @@ const REQUIRED_LAYOUT_FIELDS = [
   'blockOrder'
 ];
 const ALLOWED_LAYOUT_FIELDS = new Set(REQUIRED_LAYOUT_FIELDS);
+const ALLOWED_FILE_FIELDS = new Set([...METADATA_FIELDS, ...REQUIRED_LAYOUT_FIELDS]);
 
 export class LayoutFileError extends Error {
   constructor(message, diagnostics = []){
@@ -48,14 +50,12 @@ export class LayoutFileError extends Error {
 }
 
 export function createLayoutFile(state){
-  const layout = {};
-  for(const field of REQUIRED_LAYOUT_FIELDS) layout[field] = cloneJsonValue(state?.[field]);
   return {
     kind:LAYOUT_FILE_KIND,
     schemaVersion:LAYOUT_FILE_SCHEMA_VERSION,
     appVersion:String(state?.version || ''),
     exportedAt:new Date().toISOString(),
-    layout
+    ...pickKnownLayoutFields(state || {})
   };
 }
 
@@ -74,8 +74,8 @@ export function parseLayoutFileObject(parsed, defaults = {}){
     throw new LayoutFileError('Не удалось открыть файл: корневой элемент JSON должен быть объектом.');
   }
 
-  const hasEnvelopeFields = Object.hasOwn(parsed, 'kind') || Object.hasOwn(parsed, 'schemaVersion') || Object.hasOwn(parsed, 'layout');
-  const legacy = !hasEnvelopeFields;
+  const hasMetadata = METADATA_FIELDS.some(field => Object.hasOwn(parsed, field));
+  const legacy = !hasMetadata;
   let layout;
   let metadata;
 
@@ -92,10 +92,12 @@ export function parseLayoutFileObject(parsed, defaults = {}){
     if(parsed.schemaVersion !== LAYOUT_FILE_SCHEMA_VERSION){
       throw new LayoutFileError(`Не удалось открыть файл: версия схемы ${parsed.schemaVersion} не поддерживается. Поддерживается версия ${LAYOUT_FILE_SCHEMA_VERSION}.`);
     }
-    if(!isPlainObject(parsed.layout)){
-      throw new LayoutFileError('Не удалось открыть файл: поле «layout» должно содержать объект макета.');
+    for(const field of Object.keys(parsed)){
+      if(!ALLOWED_FILE_FIELDS.has(field)){
+        throw new LayoutFileError(`Не удалось открыть файл: поле «${field}» не поддерживается схемой v${LAYOUT_FILE_SCHEMA_VERSION}.`);
+      }
     }
-    layout = parsed.layout;
+    layout = pickKnownLayoutFields(parsed);
     metadata = {
       kind:parsed.kind,
       schemaVersion:parsed.schemaVersion,
@@ -166,12 +168,7 @@ export function getRequiredLayoutFields(){
 }
 
 function pickKnownLayoutFields(source){
-  return Object.fromEntries(REQUIRED_LAYOUT_FIELDS.filter(field => Object.hasOwn(source, field)).map(field => [field, cloneJsonValue(source[field])]));
-}
-
-function cloneJsonValue(value){
-  if(value === undefined) return '';
-  return structuredClone(value);
+  return Object.fromEntries(REQUIRED_LAYOUT_FIELDS.filter(field => Object.hasOwn(source, field)).map(field => [field, structuredClone(source[field])]));
 }
 
 function isPlainObject(value){

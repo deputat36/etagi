@@ -125,13 +125,41 @@
         assert(doc.querySelector('#blockOrderList [data-block-id]')?.dataset.blockId === 'headline', 'после очистки не восстановлен стандартный порядок блоков');
         pass('очистка объекта: данные, фото и QR удалены, профиль сохранён');
 
-        lastAction = 'text.shorten-description';
+        lastAction = 'text.shorten-label';
+        const shortenButton = doc.getElementById('makeShortBtn');
+        assert(shortenButton?.textContent.trim() === 'Сократить описание', 'название команды не объясняет, какое поле изменяется');
+        assert(shortenButton?.title.includes('только описание'), 'у команды нет пояснения о границах действия');
+        pass('текст: название команды объясняет сокращение описания');
+
+        lastAction = 'text.shorten-empty';
         const originalHeadline = 'Заголовок должен сохраниться';
         const originalBenefits = 'Преимущество не должно измениться';
-        const longDescription = 'Просторная квартира с удобной планировкой, светлыми комнатами и спокойным двором. '.repeat(5).trim();
-        assert(longDescription.length > 190, 'тестовое описание должно быть длиннее лимита');
         setField(win, doc, '#headline', originalHeadline);
         setField(win, doc, '#benefits', originalBenefits);
+        setField(win, doc, '#description', '   ');
+        setCheck(win, doc, '#showDescription', false);
+        click(doc, '#makeShortBtn');
+        await waitFor(() => doc.getElementById('statusLine')?.textContent.includes('сокращать пока нечего'), 1000, 'для пустого описания не показано объяснение');
+        assert((doc.getElementById('description')?.value || '').trim() === '', 'пустое описание было неожиданно заполнено');
+        assert(doc.getElementById('headline')?.value === originalHeadline, 'пустое сокращение изменило заголовок');
+        assert(doc.getElementById('benefits')?.value === originalBenefits, 'пустое сокращение изменило преимущества');
+        assert(doc.getElementById('showDescription')?.checked === false, 'пустое сокращение включило блок описания');
+        assert(doc.activeElement?.id === 'description', 'после объяснения фокус не перешёл в описание');
+        pass('текст: пустое описание получает объяснение и фокус');
+
+        lastAction = 'text.shorten-already-short';
+        const shortDescription = 'Короткое описание уже готово.';
+        setField(win, doc, '#description', shortDescription);
+        setCheck(win, doc, '#showDescription', false);
+        click(doc, '#makeShortBtn');
+        await waitFor(() => doc.getElementById('statusLine')?.textContent.includes('уже короче 190 символов'), 1000, 'для короткого описания не показан результат');
+        assert(doc.getElementById('description')?.value === shortDescription, 'короткое описание было неожиданно изменено');
+        assert(doc.getElementById('showDescription')?.checked === false, 'команда без изменений включила скрытое описание');
+        pass('текст: готовое короткое описание не изменяется');
+
+        lastAction = 'text.shorten-description';
+        const longDescription = 'Просторная квартира с удобной планировкой, светлыми комнатами и спокойным двором. '.repeat(5).trim();
+        assert(longDescription.length > 190, 'тестовое описание должно быть длиннее лимита');
         setField(win, doc, '#description', longDescription);
         setCheck(win, doc, '#showDescription', false);
         click(doc, '#makeShortBtn');
@@ -139,6 +167,7 @@
           const value = doc.getElementById('description')?.value || '';
           return value.length > 0 && value.length <= 190 && value !== longDescription;
         }, 3000, 'описание не сократилось до лимита');
+        await waitFor(() => doc.getElementById('statusLine')?.textContent.includes('Описание сокращено до 190 символов'), 1000, 'не показано подтверждение сокращения');
         const shortenedDescription = doc.getElementById('description').value;
         assert(shortenedDescription.endsWith('...'), 'сокращённое описание не завершено многоточием');
         assert(doc.getElementById('headline')?.value === originalHeadline, 'сокращение изменило заголовок');

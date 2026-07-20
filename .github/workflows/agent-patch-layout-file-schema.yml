@@ -39,7 +39,26 @@ jobs:
         run: npm run validate
 
       - name: Verify UI actions in browser
+        id: ui_smoke
+        continue-on-error: true
         run: npm run smoke:ui-actions
+
+      - name: Show UI smoke failure
+        if: steps.ui_smoke.outcome == 'failure'
+        run: cat browser-smoke-failure.log || true
+
+      - name: Upload UI smoke failure
+        if: steps.ui_smoke.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: layout-file-ui-smoke-failure
+          path: browser-smoke-failure.log
+          if-no-files-found: error
+          retention-days: 3
+
+      - name: Fail after UI smoke
+        if: steps.ui_smoke.outcome == 'failure'
+        run: exit 1
 
       - name: Check diff
         run: git diff --check

@@ -284,6 +284,16 @@
     </div>
   </dialog>
 
+  <dialog id="layoutConflictDialog" class="print-dialog" aria-labelledby="layoutConflictTitle">
+    <h3 id="layoutConflictTitle">Макет с таким названием уже существует</h3>
+    <p>Макет «<strong id="layoutConflictName"></strong>» уже сохранён в этом браузере. Выберите, что сделать с текущими изменениями.</p>
+    <div class="main-actions">
+      <button type="button" data-layout-conflict-action="cancel">Отмена</button>
+      <button type="button" data-layout-conflict-action="copy">Сохранить копию</button>
+      <button class="primary dark" type="button" data-layout-conflict-action="update">Обновить существующий</button>
+    </div>
+  </dialog>
+
   <script type="module" src="assets/js/app.js?v=3.85.0"></script>
   <script type="module" src="assets/js/qualityLevelLabels.js?v=3.85.0"></script>
   <script type="module" src="assets/js/qualityIssueSummary.js?v=3.85.0"></script>

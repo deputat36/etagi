@@ -12,6 +12,7 @@ let templates = [];
 let lastQuality = null;
 let favoriteTemplateIds = new Set();
 let selectedScenario = 'all';
+let pendingLayoutConflict = null;
 const debouncedSave = debounce(()=>autoSave(state), 500);
 
 const profileFields = ['agentName','agentPhone'];
@@ -92,6 +93,11 @@ function bindStaticUi(){
   $('saveNamedLayoutBtn').onclick = saveCurrentNamedLayout;
   $('loadNamedLayoutBtn').onclick = loadSelectedLayout;
   $('deleteNamedLayoutBtn').onclick = deleteSelectedLayout;
+  $('layoutConflictDialog').addEventListener('click', handleLayoutConflictChoice);
+  $('layoutConflictDialog').addEventListener('cancel', () => {
+    pendingLayoutConflict = null;
+    setStatus('Сохранение макета отменено. Существующая версия не изменена.');
+  });
   $('saveLocalBtn').onclick = () => {
     const saved = saveNamed(state);
     setStatus(saved ? 'Последний макет сохранён в этом браузере.' : 'Не удалось сохранить последний макет. Возможно, в браузере закончилось место.');
@@ -232,12 +238,59 @@ function normalizeBlockOrder(order){
 function saveCurrentNamedLayout(){
   const name = (state.layoutName || state.headline || state.goal || 'Макет без названия').trim();
   if(!name){ setStatus('Укажите название макета.'); $('layoutName').focus(); return; }
+
+  const existing = listSavedLayouts().find(item => String(item.name || '').toLowerCase() === name.toLowerCase());
+  if(existing){
+    pendingLayoutConflict = {name, existingId: existing.id};
+    $('layoutConflictName').textContent = name;
+    $('layoutConflictDialog').showModal();
+    setStatus('Макет с таким названием уже существует. Выберите: обновить его или сохранить копию.');
+    return;
+  }
+
+  persistNamedLayout(name, 'saved');
+}
+function handleLayoutConflictChoice(event){
+  const button = event.target.closest('[data-layout-conflict-action]');
+  if(!button) return;
+
+  const action = button.dataset.layoutConflictAction;
+  const pending = pendingLayoutConflict;
+  pendingLayoutConflict = null;
+  $('layoutConflictDialog').close();
+
+  if(!pending || action === 'cancel'){
+    setStatus('Сохранение макета отменено. Существующая версия не изменена.');
+    return;
+  }
+
+  if(action === 'copy'){
+    const copyName = makeLayoutCopyName(pending.name);
+    persistNamedLayout(copyName, 'copy');
+    return;
+  }
+
+  persistNamedLayout(pending.name, 'updated');
+}
+function persistNamedLayout(name, mode){
   state.layoutName = name;
   const item = saveLayout(name, state);
   if(!item){ setStatus('Не удалось сохранить макет. Возможно, в браузере закончилось место.'); return; }
   renderSavedLayouts(item.id);
   syncFormFromState();
-  setStatus(`Макет «${name}» сохранён.`);
+  if(mode === 'copy') setStatus(`Сохранена отдельная копия «${name}». Исходный макет не изменён.`);
+  else if(mode === 'updated') setStatus(`Макет «${name}» обновлён.`);
+  else setStatus(`Макет «${name}» сохранён.`);
+}
+function makeLayoutCopyName(name){
+  const names = new Set(listSavedLayouts().map(item => String(item.name || '').toLowerCase()));
+  let index = 1;
+  let candidate = `${name} — копия`;
+  while(names.has(candidate.toLowerCase())){
+    index += 1;
+    candidate = `${name} — копия ${index}`;
+  }
+  return candidate;
 }
 function loadSelectedLayout(){
   const id = $('savedLayouts').value;

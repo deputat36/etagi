@@ -61,6 +61,7 @@
     "validate:package-scripts": "node tools/validate-package-scripts.mjs",
     "validate:changelog": "node tools/validate-changelog.mjs",
     "validate:release-candidate": "node tools/validate-release-candidate.mjs",
+    "validate:layout-file": "node tools/validate-layout-file.mjs",
     "validate:layout-extras": "node tools/validate-layout-extras.mjs",
     "validate:layout-media-preservation": "node tools/validate-layout-media-preservation.mjs",
     "validate:phone-helper": "node tools/validate-phone-helper.mjs",

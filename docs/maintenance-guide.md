@@ -66,6 +66,7 @@ npm run validate:asset-version
 npm run validate:package-scripts
 npm run validate:changelog
 npm run validate:release-candidate
+npm run validate:layout-file
 npm run validate:layout-extras
 npm run validate:layout-media-preservation
 npm run validate:phone-helper

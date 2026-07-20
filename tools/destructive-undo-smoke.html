@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Etagi destructive undo smoke</title>
+  <style>body{font-family:Arial,sans-serif;margin:16px}iframe{width:1280px;height:920px;border:1px solid #cbd5e1}pre{white-space:pre-wrap;padding:12px;background:#f8fafc}</style>
+</head>
+<body>
+  <pre id="uiActionsSmokeResult" data-status="pending">Destructive undo smoke is running…</pre>
+  <iframe id="appFrame" title="Генератор расклеек"></iframe>
+  <script>
+    const KEY='etagi-raskleyka-destructive-snapshot-v1';
+    const result=document.getElementById('uiActionsSmokeResult');
+    const frame=document.getElementById('appFrame');
+    const checks=[];
+    let lastAction='startup';
+    localStorage.removeItem(KEY);
+
+    frame.addEventListener('load',async()=>{
+      const win=frame.contentWindow;
+      const doc=frame.contentDocument;
+      try{
+        await waitFor(()=>doc.querySelectorAll('.tpl-card').length>0,12000,'шаблоны не появились');
+        await waitFor(()=>doc.getElementById('undoDestructiveActionBtn'),5000,'кнопка отмены не появилась');
+        assert(doc.getElementById('undoDestructiveActionBtn').disabled,'отмена активна без снимка');
+
+        lastAction='undo.clear';
+        setField(win,doc,'headline','До очистки');
+        setField(win,doc,'qrLink','https://example.com/undo-clear');
+        setField(win,doc,'contactCtaText','Вернуть подпись');
+        click(doc,'[data-count="4"]');
+        click(doc,'[data-block-move="down"][data-block-id="headline"]');
+        await setFile(win,doc,'photoOne','undo.svg','<svg xmlns="http://www.w3.org/2000/svg" width="30" height="20"><rect width="30" height="20" fill="white"/></svg>','image/svg+xml');
+        await waitFor(()=>doc.querySelector('#printSheet img[alt="Фото 1"]'),3000,'фото не появилось');
+        click(doc,'#clearObjectBtn');
+        await waitFor(()=>readSnapshot(win)?.reason==='clear-object',2000,'снимок очистки не создан');
+        assertUndoAvailable(doc,'очистку объекта');
+        click(doc,'#undoDestructiveActionBtn');
+        await waitFor(()=>doc.getElementById('headline')?.value==='До очистки',5000,'заголовок после очистки не восстановлен');
+        assert(doc.getElementById('qrLink')?.value==='https://example.com/undo-clear','QR после очистки не восстановлен');
+        assert(doc.getElementById('contactCtaText')?.value==='Вернуть подпись','подпись после очистки не восстановлена');
+        assert(doc.querySelector('[data-count="4"]')?.classList.contains('active'),'4 копии после очистки не восстановлены');
+        assert(doc.querySelector('#blockOrderList [data-block-id]')?.dataset.blockId==='price','порядок после очистки не восстановлен');
+        assert(doc.querySelector('#printSheet img[alt="Фото 1"]'),'фото после очистки не восстановлено');
+        assertConsumed(win,doc);
+        pass('отмена: очистка объекта восстановлена полностью');
+
+        lastAction='undo.named-load';
+        setField(win,doc,'layoutName','Undo target named');
+        setField(win,doc,'headline','Целевой именованный');
+        setField(win,doc,'area','Целевой район');
+        click(doc,'#saveNamedLayoutBtn');
+        await waitFor(()=>doc.getElementById('savedLayouts')?.value,3000,'именованный макет не сохранён');
+        const namedId=doc.getElementById('savedLayouts').value;
+        setField(win,doc,'layoutName','До именованной загрузки');
+        setField(win,doc,'headline','Текущий перед именованной загрузкой');
+        setField(win,doc,'area','Текущий район');
+        doc.getElementById('savedLayouts').value=namedId;
+        click(doc,'#loadNamedLayoutBtn');
+        await waitFor(()=>doc.getElementById('headline')?.value==='Целевой именованный',3000,'именованный макет не загружен');
+        click(doc,'#undoDestructiveActionBtn');
+        await waitFor(()=>doc.getElementById('headline')?.value==='Текущий перед именованной загрузкой',5000,'именованная загрузка не отменена');
+        assert(doc.getElementById('area')?.value==='Текущий район','район до именованной загрузки не восстановлен');
+        assert(doc.getElementById('savedLayouts')?.value===namedId,'выбор именованного макета не восстановлен');
+        assertConsumed(win,doc);
+        pass('отмена: состояние до именованной загрузки восстановлено');
+
+        lastAction='undo.last-load';
+        setField(win,doc,'headline','Целевой последний');
+        setField(win,doc,'price','7 700 000 ₽');
+        click(doc,'#saveLocalBtn');
+        await waitFor(()=>doc.getElementById('statusLine')?.textContent.includes('Последний макет сохранён'),2000,'последний макет не сохранён');
+        setField(win,doc,'headline','Текущий перед последней загрузкой');
+        setField(win,doc,'price','1 ₽');
+        click(doc,'#loadLocalBtn');
+        await waitFor(()=>doc.getElementById('headline')?.value==='Целевой последний',3000,'последний макет не загружен');
+        click(doc,'#undoDestructiveActionBtn');
+        await waitFor(()=>doc.getElementById('headline')?.value==='Текущий перед последней загрузкой',5000,'последняя загрузка не отменена');
+        assert(doc.getElementById('price')?.value==='1 ₽','цена до последней загрузки не восстановлена');
+        assertConsumed(win,doc);
+        pass('отмена: состояние до загрузки последнего макета восстановлено');
+
+        lastAction='undo.import';
+        setField(win,doc,'layoutName','Undo import target');
+        setField(win,doc,'headline','Целевой импорт');
+        setField(win,doc,'price','8 800 000 ₽');
+        const capture=captureDownload(win);
+        click(doc,'#downloadBtn');
+        await waitFor(()=>capture.blob&&capture.filename,3000,'JSON не экспортирован');
+        const json=await capture.blob.text();
+        capture.restore();
+        setField(win,doc,'headline','Текущий перед импортом');
+        setField(win,doc,'price','2 ₽');
+        await setFile(win,doc,'uploadFile',capture.filename,json,'application/json');
+        await waitFor(()=>doc.getElementById('headline')?.value==='Целевой импорт',5000,'JSON не импортирован');
+        const snapshotId=readSnapshot(win)?.id;
+        await setFile(win,doc,'uploadFile','broken.json','{"fileFormat":','application/json');
+        await waitFor(()=>doc.getElementById('statusLine')?.textContent.includes('Файл повреждён'),3000,'ошибка JSON не показана');
+        assert(readSnapshot(win)?.id===snapshotId,'ошибка JSON затёрла снимок');
+        click(doc,'#undoDestructiveActionBtn');
+        await waitFor(()=>doc.getElementById('headline')?.value==='Текущий перед импортом',5000,'импорт не отменён');
+        assert(doc.getElementById('price')?.value==='2 ₽','цена до импорта не восстановлена');
+        assertConsumed(win,doc);
+        pass('отмена: состояние до импорта восстановлено после ошибочной повторной попытки');
+
+        result.dataset.status='passed';
+        result.textContent=`PASSED\n${checks.map(x=>`✓ ${x}`).join('\n')}`;
+      }catch(error){
+        result.dataset.status='failed';
+        result.textContent=`FAILED\n${checks.map(x=>`✓ ${x}`).join('\n')}\n✗ ${error.message||error}\nПоследнее действие: ${lastAction}\nСостояние: ${JSON.stringify(state(doc,win))}`;
+      }
+    },{once:true});
+
+    frame.src='/index.html?smoke=destructive-undo';
+    setTimeout(()=>{if(result.dataset.status==='pending'){result.dataset.status='failed';result.textContent=`FAILED\n✗ timeout\nПоследнее действие: ${lastAction}`;}},42000);
+
+    function pass(text){checks.push(text)}
+    function assert(value,message){if(!value)throw new Error(message)}
+    function click(doc,selector){const el=doc.querySelector(selector);assert(el,`не найден ${selector}`);el.click()}
+    function setField(win,doc,id,value){const el=doc.getElementById(id);assert(el,`не найден #${id}`);el.value=value;el.dispatchEvent(new win.Event('input',{bubbles:true}));el.dispatchEvent(new win.Event('change',{bubbles:true}))}
+    function readSnapshot(win){try{return JSON.parse(win.localStorage.getItem(KEY)||'null')}catch{return null}}
+    function assertUndoAvailable(doc,label){const btn=doc.getElementById('undoDestructiveActionBtn');assert(btn&&!btn.disabled,'кнопка отмены недоступна');assert(btn.textContent.includes(label),'кнопка не объясняет действие');assert(doc.getElementById('destructiveSnapshotHint')?.textContent,'нет описания снимка')}
+    function assertConsumed(win,doc){assert(readSnapshot(win)===null,'использованный снимок не удалён');assert(doc.getElementById('undoDestructiveActionBtn')?.disabled,'кнопка не отключилась');assert(doc.body.dataset.destructiveSnapshotAvailable==='false','индикатор снимка не сброшен')}
+    async function setFile(win,doc,id,name,content,type){const input=doc.getElementById(id);const dt=new win.DataTransfer();dt.items.add(new win.File([content],name,{type}));input.files=dt.files;input.dispatchEvent(new win.Event('change',{bubbles:true}));await waitFor(()=>input.files?.length===1||input.value==='',1000,`файл ${name} не выбран`)}
+    function captureDownload(win){const create=win.URL.createObjectURL,revoke=win.URL.revokeObjectURL,click=win.HTMLAnchorElement.prototype.click;const out={blob:null,filename:''};win.URL.createObjectURL=blob=>(out.blob=blob,'blob:undo');win.URL.revokeObjectURL=()=>{};win.HTMLAnchorElement.prototype.click=function(){out.filename=this.download||''};out.restore=()=>{win.URL.createObjectURL=create;win.URL.revokeObjectURL=revoke;win.HTMLAnchorElement.prototype.click=click};return out}
+    function state(doc,win){return{status:doc.getElementById('statusLine')?.textContent,headline:doc.getElementById('headline')?.value,snapshot:readSnapshot(win),undo:doc.getElementById('undoDestructiveActionBtn')?.textContent}}
+    async function waitFor(fn,timeout,message){const start=Date.now();while(Date.now()-start<timeout){if(fn())return;await new Promise(r=>setTimeout(r,40))}throw new Error(message)}
+  </script>
+</body>
+</html>

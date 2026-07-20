@@ -55,6 +55,12 @@ const smokePages = failureFixtureMode ? [
     timeoutMs:50000
   },
   {
+    label:'Destructive undo smoke',
+    path:'tools/destructive-undo-smoke.html',
+    virtualTimeBudget:45000,
+    timeoutMs:58000
+  },
+  {
     label:'Print dialog smoke',
     path:'tools/print-dialog-smoke.html',
     virtualTimeBudget:20000,

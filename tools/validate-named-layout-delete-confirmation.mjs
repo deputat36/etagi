@@ -50,8 +50,10 @@ requireSnippets(files.smoke, sources.smoke, [
   'удаление: кнопка Оставить макет ничего не удаляет',
   'удаление: Escape отменяет действие',
   'удаление: подтверждение удаляет только выбранный макет',
+  "click(doc,'[data-spn-ui-mode=\"advanced\"]')",
+  "getComputedStyle(doc.querySelector('.save-card')).display!=='none'",
   "doc.activeElement?.id==='cancelNamedLayoutDeleteBtn'",
-  "waitFor(()=>doc.activeElement?.id==='deleteNamedLayoutBtn'",
+  "waitFor(()=>doc.activeElement?.id==='deleteNamedLayoutDeleteBtn'",
   'assertSameCurrent(doc,currentState',
   'assert(hasLayout(win,idB)'
 ]);

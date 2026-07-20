@@ -62,9 +62,13 @@ schemaVersion: 1
 
 ## Проверки
 
+Статический контракт входит в общий домен безопасности хранения:
+
 ```bash
-npm run validate:layout-file-schema
+npm run validate:storage-safety
 npm run smoke:ui-actions
 ```
+
+Команда `validate:storage-safety` последовательно запускает прежние проверки localStorage и `tools/validate-layout-file-schema.mjs`.
 
 Browser-сценарий `Layout file diagnostics smoke` проверяет экспорт v1, импорт старого формата и отказ для повреждённого JSON, массива вместо объекта, чужого типа файла, будущей версии и неверного типа поля. После каждого отказа состояние макета должно оставаться прежним.

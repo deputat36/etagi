@@ -518,23 +518,31 @@ function loadFromFile(e){
   if(!file) return;
   const reader = new FileReader();
   reader.onload = () => {
-    const result = parseLayoutFileText(reader.result);
-    if(!result.ok){
-      setStatus(result.message);
-      return;
+    try {
+      const result = parseLayoutFileText(reader.result);
+      if(!result.ok){
+        setStatus(result.message);
+        return;
+      }
+
+      state = cleanLoadedState(result.state);
+      if($('savedLayouts')) $('savedLayouts').value='';
+      syncFormFromState();
+      renderAll();
+
+      const notes = [];
+      if(result.legacy) notes.push('Старый формат распознан и безопасно обновлён.');
+      if(result.warnings.length) notes.push(result.warnings.join(' '));
+      setStatus('Файл макета открыт без смешивания с предыдущим макетом.' + (notes.length ? ' ' + notes.join(' ') : ''));
     }
-
-    state = cleanLoadedState(result.state);
-    if($('savedLayouts')) $('savedLayouts').value='';
-    syncFormFromState();
-    renderAll();
-
-    const notes = [];
-    if(result.legacy) notes.push('Старый формат распознан и безопасно обновлён.');
-    if(result.warnings.length) notes.push(result.warnings.join(' '));
-    setStatus('Файл макета открыт без смешивания с предыдущим макетом.' + (notes.length ? ' ' + notes.join(' ') : ''));
+    finally {
+      e.target.value = '';
+    }
   };
-  reader.onerror = () => setStatus('Браузер не смог прочитать выбранный файл. Выберите JSON-макет заново.');
+  reader.onerror = () => {
+    e.target.value = '';
+    setStatus('Браузер не смог прочитать выбранный файл. Выберите JSON-макет заново.');
+  };
   reader.readAsText(file);
 }
 

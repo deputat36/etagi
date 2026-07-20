@@ -62,12 +62,40 @@
         assert(namedLayoutId, 'именованный макет не получил id');
         assert(win.localStorage.getItem('etagi-raskleyka-layouts-v1')?.includes('Smoke именованный макет'), 'именованный макет отсутствует в localStorage');
 
+        lastAction = 'layout.named-conflict-copy';
+        setField(win, doc, '#headline', 'Изменение для отдельной копии');
+        click(doc, '#saveNamedLayoutBtn');
+        await waitFor(() => doc.getElementById('layoutConflictDialog')?.open, 1000, 'при совпадении названия не открыт выбор действия');
+        let storedLayouts = JSON.parse(win.localStorage.getItem('etagi-raskleyka-layouts-v1') || '[]');
+        assert(storedLayouts.length === 1, 'макет перезаписан до выбора действия');
+        assert(storedLayouts[0]?.state?.headline === 'Заголовок именованного макета', 'исходный макет изменён до подтверждения');
+        click(doc, '[data-layout-conflict-action="copy"]');
+        await waitFor(() => doc.getElementById('savedLayouts')?.options.length === 3, 3000, 'отдельная копия не появилась в списке');
+        storedLayouts = JSON.parse(win.localStorage.getItem('etagi-raskleyka-layouts-v1') || '[]');
+        const originalAfterCopy = storedLayouts.find(item => item.id === namedLayoutId);
+        const copiedLayout = storedLayouts.find(item => item.id !== namedLayoutId);
+        assert(originalAfterCopy?.state?.headline === 'Заголовок именованного макета', 'сохранение копии изменило исходный макет');
+        assert(copiedLayout?.name === 'Smoke именованный макет — копия', 'копия не получила понятное уникальное название');
+        assert(copiedLayout?.state?.headline === 'Изменение для отдельной копии', 'копия не сохранила текущие изменения');
+
+        lastAction = 'layout.named-conflict-update';
+        setField(win, doc, '#layoutName', 'Smoke именованный макет');
+        setField(win, doc, '#headline', 'Обновлённый заголовок именованного макета');
+        click(doc, '#saveNamedLayoutBtn');
+        await waitFor(() => doc.getElementById('layoutConflictDialog')?.open, 1000, 'повторный конфликт названия не показал выбор');
+        click(doc, '[data-layout-conflict-action="update"]');
+        await waitFor(() => doc.getElementById('statusLine')?.textContent.includes('обновлён'), 2000, 'существующий макет не обновлён после явного выбора');
+        storedLayouts = JSON.parse(win.localStorage.getItem('etagi-raskleyka-layouts-v1') || '[]');
+        assert(storedLayouts.length === 2, 'обновление существующего макета создало лишнюю запись');
+        assert(storedLayouts.find(item => item.id === namedLayoutId)?.state?.headline === 'Обновлённый заголовок именованного макета', 'явное обновление не сохранило изменения');
+        pass('именованные макеты: конфликт названия требует выбора');
+
         lastAction = 'layout.named-load';
         setField(win, doc, '#headline', 'Временный заголовок');
         setField(win, doc, '#area', 'Временный район');
         doc.getElementById('savedLayouts').value = namedLayoutId;
         click(doc, '#loadNamedLayoutBtn');
-        await waitFor(() => doc.getElementById('headline')?.value === 'Заголовок именованного макета' && doc.getElementById('area')?.value === 'Северный smoke', 3000, 'именованный макет не восстановил поля');
+        await waitFor(() => doc.getElementById('headline')?.value === 'Обновлённый заголовок именованного макета' && doc.getElementById('area')?.value === 'Северный smoke', 3000, 'именованный макет не восстановил явно обновлённые поля');
         pass('именованные макеты: сохранение и загрузка');
 
         lastAction = 'layout.last-save';

@@ -73,6 +73,7 @@ function cancelNamedLayoutDelete(){
   const name = pendingLayoutName;
   clearPendingDelete();
   document.getElementById('namedLayoutDeleteDialog')?.close('cancel');
+  document.getElementById('deleteNamedLayoutBtn')?.focus({preventScroll:true});
   setStatus(name ? `Удаление макета «${name}» отменено.` : 'Удаление макета отменено.');
 }
 

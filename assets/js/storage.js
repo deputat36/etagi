@@ -91,6 +91,28 @@ export function deleteLayout(id){
     return null;
   }
 }
+export function restoreLayout(item){
+  try {
+    if(!item || typeof item !== 'object' || !item.state) return null;
+    const layouts = listSavedLayouts();
+    const originalName = String(item.name || item.state.layoutName || 'Восстановленный макет').trim() || 'Восстановленный макет';
+    const name = makeRestoredLayoutName(originalName, layouts);
+    const originalId = String(item.id || '').trim();
+    const id = originalId && !layouts.some(layout => layout.id === originalId) ? originalId : makeLayoutId(name, layouts);
+    const restored = {
+      id,
+      name,
+      updatedAt:new Date().toISOString(),
+      state:{...stripHeavyFields(item.state), layoutName:name}
+    };
+    localStorage.setItem(LAYOUTS_KEY, JSON.stringify([restored, ...layouts].slice(0, 50)));
+    return restored;
+  }
+  catch(e) {
+    console.warn('restore named layout failed', e);
+    return null;
+  }
+}
 export function listFavoriteTemplates(){
   try { return JSON.parse(localStorage.getItem(FAVORITE_TEMPLATES_KEY) || '[]'); }
   catch(e) { return []; }
@@ -123,6 +145,16 @@ export function clearAll(){
 }
 function stripHeavyFields(state){
   return enrichLayoutExtras({...state, photoOne:'', photoTwo:''});
+}
+function makeRestoredLayoutName(name, layouts){
+  const taken = new Set(layouts.map(item => String(item.name || '').trim().toLowerCase()));
+  if(!taken.has(name.toLowerCase())) return name;
+
+  const base = `${name} (восстановлен)`;
+  let candidate = base;
+  let index = 2;
+  while(taken.has(candidate.toLowerCase())) candidate = `${base} ${index++}`;
+  return candidate;
 }
 function makeLayoutId(name, layouts){
   const base = String(name || 'layout')

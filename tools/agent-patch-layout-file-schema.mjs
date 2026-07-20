@@ -56,7 +56,7 @@ replaceOnce(
     const notes = [];
     if(result.legacy) notes.push('Старый формат распознан и безопасно обновлён.');
     if(result.warnings.length) notes.push(result.warnings.join(' '));
-    setStatus(\`Файл макета открыт без смешивания с предыдущим макетом.\${notes.length ? ` \${notes.join(' ')}` : ''}\`);
+    setStatus('Файл макета открыт без смешивания с предыдущим макетом.' + (notes.length ? ' ' + notes.join(' ') : ''));
   };
   reader.onerror = () => setStatus('Браузер не смог прочитать выбранный файл. Выберите JSON-макет заново.');
   reader.readAsText(file);

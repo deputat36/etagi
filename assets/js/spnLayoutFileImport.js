@@ -28,8 +28,8 @@ async function validateBeforeImport(event){
     input.removeAttribute('aria-invalid');
 
     const successText = parsed.legacy
-      ? 'Файл старого формата проверен и открыт. При следующем скачивании он будет сохранён по схеме v1.'
-      : `Файл макета проверен и открыт. Схема v${parsed.metadata.schemaVersion}.`;
+      ? 'Файл макета открыт без смешивания с предыдущим макетом. Старый формат проверен и при следующем скачивании будет сохранён по схеме v1.'
+      : `Файл макета открыт без смешивания с предыдущим макетом. Проверка схемы v${parsed.metadata.schemaVersion} пройдена.`;
     replaceStatusAfterNativeImport(successText);
 
     forwardingValidatedFile = true;

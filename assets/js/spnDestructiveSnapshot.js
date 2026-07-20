@@ -1,4 +1,5 @@
 import { cloneDefaultState } from './state.js';
+import { createLayoutFilePayload } from './layoutFile.js';
 
 export const DESTRUCTIVE_SNAPSHOT_KEY = 'etagi-raskleyka-destructive-snapshot-v1';
 export const DESTRUCTIVE_SNAPSHOT_VERSION = 1;
@@ -26,6 +27,12 @@ const REASONS = {
   'load-last-layout':'Перед загрузкой последнего макета',
   'import-layout-file':'Перед импортом JSON-макета'
 };
+const UNDO_LABELS = {
+  'clear-object':'очистку объекта',
+  'load-named-layout':'загрузку именованного макета',
+  'load-last-layout':'загрузку последнего макета',
+  'import-layout-file':'импорт JSON-макета'
+};
 const IMPORT_FAILURE_MARKERS = [
   'Файл повреждён',
   'В файле должен находиться',
@@ -38,6 +45,9 @@ const IMPORT_FAILURE_MARKERS = [
 ];
 
 let pendingImportSnapshot = null;
+let pendingRestoreSnapshot = null;
+let restoringSnapshot = false;
+let restoreTimeout = 0;
 let statusObserver = null;
 
 document.addEventListener('DOMContentLoaded', initDestructiveSnapshots);
@@ -46,6 +56,7 @@ export function initDestructiveSnapshots(){
   if(document.body?.dataset.destructiveSnapshotBound === 'true') return;
   document.body.dataset.destructiveSnapshotBound = 'true';
 
+  ensureUndoUi();
   document.addEventListener('click', handleDestructiveClick, true);
   document.getElementById('uploadFile')?.addEventListener('change', prepareImportSnapshot, true);
   observeImportResult();
@@ -89,6 +100,36 @@ export function readLatestDestructiveSnapshot(){
   }
 }
 
+export function restoreLatestDestructiveSnapshot(){
+  if(restoringSnapshot) return false;
+  const snapshot = readLatestDestructiveSnapshot();
+  const input = document.getElementById('uploadFile');
+  if(!snapshot?.state || !input){
+    updateSnapshotIndicator(null);
+    setStatus('Резервная точка для отмены не найдена.');
+    return false;
+  }
+
+  try{
+    const transfer = new DataTransfer();
+    const payload = createLayoutFilePayload(snapshot.state);
+    transfer.items.add(new File([JSON.stringify(payload)], 'etagi-raskleyka-undo.json', {type:'application/json'}));
+    input.files = transfer.files;
+    pendingRestoreSnapshot = snapshot;
+    restoringSnapshot = true;
+    updateUndoUi(snapshot);
+    input.dispatchEvent(new Event('change', {bubbles:true}));
+    restoreTimeout = window.setTimeout(() => failSnapshotRestore('Восстановление не завершилось вовремя. Резервная точка сохранена.'), 7000);
+    return true;
+  } catch(error){
+    pendingRestoreSnapshot = null;
+    restoringSnapshot = false;
+    updateUndoUi(snapshot);
+    setStatus('Не удалось подготовить восстановление. Резервная точка сохранена.');
+    return false;
+  }
+}
+
 export function collectCurrentLayoutState(doc = document){
   const defaults = cloneDefaultState();
   const autoSaved = readJsonStorage(AUTO_SAVE_KEY) || {};
@@ -126,9 +167,29 @@ export function collectCurrentLayoutState(doc = document){
   return state;
 }
 
+function ensureUndoUi(){
+  const actions = document.querySelector('.profile-actions');
+  if(!actions || document.getElementById('undoDestructiveActionBtn')) return;
+
+  const button = document.createElement('button');
+  button.id = 'undoDestructiveActionBtn';
+  button.type = 'button';
+  button.disabled = true;
+  button.setAttribute('aria-describedby', 'destructiveSnapshotHint');
+  button.textContent = 'Отменить последнее действие';
+  button.addEventListener('click', restoreLatestDestructiveSnapshot);
+  actions.append(button);
+
+  const hint = document.createElement('p');
+  hint.id = 'destructiveSnapshotHint';
+  hint.className = 'hint-text';
+  hint.setAttribute('aria-live', 'polite');
+  actions.insertAdjacentElement('afterend', hint);
+}
+
 function handleDestructiveClick(event){
   const button = event.target.closest('button');
-  if(!button) return;
+  if(!button || button.id === 'undoDestructiveActionBtn') return;
 
   if(button.id === 'clearObjectBtn'){
     saveDestructiveSnapshot('clear-object');
@@ -144,7 +205,7 @@ function handleDestructiveClick(event){
 }
 
 function prepareImportSnapshot(event){
-  if(!event.target?.files?.length) return;
+  if(restoringSnapshot || !event.target?.files?.length) return;
   pendingImportSnapshot = createDestructiveSnapshot('import-layout-file');
 }
 
@@ -153,8 +214,13 @@ function observeImportResult(){
   if(!status || statusObserver) return;
 
   statusObserver = new MutationObserver(() => {
-    if(!pendingImportSnapshot) return;
     const text = status.textContent || '';
+    if(pendingRestoreSnapshot){
+      if(text.includes('Файл макета открыт без смешивания')) finishSnapshotRestore();
+      else if(IMPORT_FAILURE_MARKERS.some(marker => text.includes(marker))) failSnapshotRestore('Не удалось восстановить резервную точку. Она сохранена для повторной попытки.');
+      return;
+    }
+    if(!pendingImportSnapshot) return;
     if(text.includes('Файл макета открыт без смешивания')){
       const snapshot = pendingImportSnapshot;
       pendingImportSnapshot = null;
@@ -164,6 +230,38 @@ function observeImportResult(){
     if(IMPORT_FAILURE_MARKERS.some(marker => text.includes(marker))) pendingImportSnapshot = null;
   });
   statusObserver.observe(status, {childList:true, subtree:true, characterData:true});
+}
+
+function finishSnapshotRestore(){
+  const snapshot = pendingRestoreSnapshot;
+  pendingRestoreSnapshot = null;
+  restoringSnapshot = false;
+  window.clearTimeout(restoreTimeout);
+
+  restoreSnapshotUi(snapshot);
+  localStorage.removeItem(DESTRUCTIVE_SNAPSHOT_KEY);
+  updateSnapshotIndicator(null);
+  const photoNote = snapshot.photosOmitted ? ' Фотографии не входили в облегчённый снимок.' : '';
+  setStatus(`Последнее разрушительное действие отменено: ${UNDO_LABELS[snapshot.reason] || 'изменение макета'}.${photoNote}`);
+  window.dispatchEvent(new CustomEvent('etagi:destructive-snapshot-restored', {detail:{id:snapshot.id, reason:snapshot.reason}}));
+}
+
+function failSnapshotRestore(message){
+  window.clearTimeout(restoreTimeout);
+  pendingRestoreSnapshot = null;
+  restoringSnapshot = false;
+  updateUndoUi(readLatestDestructiveSnapshot());
+  setStatus(message);
+}
+
+function restoreSnapshotUi(snapshot){
+  const select = document.getElementById('savedLayouts');
+  if(select && snapshot.ui?.savedLayoutId && [...select.options].some(option => option.value === snapshot.ui.savedLayoutId)){
+    select.value = snapshot.ui.savedLayoutId;
+  }
+  const scenario = snapshot.ui?.scenario;
+  const scenarioButton = scenario ? document.querySelector(`[data-scenario="${CSS.escape(scenario)}"]`) : null;
+  scenarioButton?.click();
 }
 
 function persistSnapshot(snapshot){
@@ -202,7 +300,8 @@ async function enrichSnapshotFromSelectedFiles(snapshot, doc){
   if(!latest || latest.id !== snapshot.id) return;
   if(photoOne) latest.state.photoOne = photoOne;
   if(photoTwo) latest.state.photoTwo = photoTwo;
-  persistSnapshot({...latest, photosOmitted:false});
+  const enriched = persistSnapshot({...latest, photosOmitted:false});
+  if(enriched) updateSnapshotIndicator(enriched);
 }
 
 function readSelectedFile(file){
@@ -221,7 +320,40 @@ function updateSnapshotIndicator(snapshot){
   if(snapshot){
     document.body.dataset.destructiveSnapshotReason = snapshot.reason;
     document.body.dataset.destructiveSnapshotAt = snapshot.createdAt;
+  } else {
+    delete document.body.dataset.destructiveSnapshotReason;
+    delete document.body.dataset.destructiveSnapshotAt;
   }
+  updateUndoUi(snapshot);
+}
+
+function updateUndoUi(snapshot){
+  const button = document.getElementById('undoDestructiveActionBtn');
+  const hint = document.getElementById('destructiveSnapshotHint');
+  if(!button || !hint) return;
+
+  button.disabled = !snapshot || restoringSnapshot;
+  if(restoringSnapshot){
+    button.textContent = 'Восстанавливаю…';
+    hint.textContent = 'Применяется последняя резервная точка.';
+    return;
+  }
+  if(!snapshot){
+    button.textContent = 'Отменить последнее действие';
+    hint.textContent = 'Резервная точка появится после очистки, загрузки или импорта макета.';
+    return;
+  }
+
+  button.textContent = `Отменить: ${UNDO_LABELS[snapshot.reason] || 'последнее изменение'}`;
+  const date = new Date(snapshot.createdAt);
+  const time = Number.isNaN(date.getTime()) ? '' : ` · ${date.toLocaleString('ru-RU', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'})}`;
+  const photoNote = snapshot.photosOmitted ? ' · без фотографий' : '';
+  hint.textContent = `${snapshot.reasonLabel}${time}${photoNote}.`;
+}
+
+function setStatus(message){
+  const status = document.getElementById('statusLine');
+  if(status) status.textContent = message;
 }
 
 function readJsonStorage(key){

@@ -53,7 +53,9 @@ requireSnippets(files.smoke, sources.smoke, [
   "click(doc,'[data-spn-ui-mode=\"advanced\"]')",
   "getComputedStyle(doc.querySelector('.save-card')).display!=='none'",
   "doc.activeElement?.id==='cancelNamedLayoutDeleteBtn'",
-  "waitFor(()=>doc.activeElement?.id==='deleteNamedLayoutDeleteBtn'",
+  'фокус не вернулся к кнопке удаления',
+  'Escape не вернул фокус к кнопке удаления',
+  'после удаления фокус не вернулся к кнопке',
   'assertSameCurrent(doc,currentState',
   'assert(hasLayout(win,idB)'
 ]);

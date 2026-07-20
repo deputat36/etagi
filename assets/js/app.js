@@ -427,13 +427,18 @@ function applyFix(action){
   renderAll();
 }
 function strengthenText(){
-  if(!state.description) return;
+  if(!String(state.description || '').trim()){
+    setStatus('Сначала добавьте описание объекта — пустой текст усилить нельзя.');
+    $('description').focus();
+    return;
+  }
   if(!/позвон|напишите|подскажу/i.test(state.description)) state.description += ' Позвоните — подскажу детали и помогу разобраться.';
   if(!state.benefits) state.benefits = 'Безопасное сопровождение\nПомощь с документами\nКонсультация по цене';
   state.showDescription = true;
   state.showBenefits = true;
   state.layoutMode='manual';
   syncFormFromState(); renderAll();
+  setStatus('Текст усилен: добавлены призыв и базовые преимущества. Проверьте формулировки перед печатью.');
 }
 function saveCurrentProfile(){
   const profile = pickProfile(state);

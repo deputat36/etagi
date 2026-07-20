@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - agent/fix-strengthen-empty-description
+  pull_request:
+    branches:
+      - main
 
 permissions:
   contents: write
@@ -13,9 +16,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: Checkout branch
+      - name: Checkout source branch
         uses: actions/checkout@v4
         with:
+          ref: ${{ github.event.pull_request.head.ref || github.ref_name }}
           fetch-depth: 0
 
       - name: Setup Node.js
@@ -39,9 +43,11 @@ jobs:
         run: git diff --check
 
       - name: Commit verified fix
+        env:
+          TARGET_BRANCH: ${{ github.event.pull_request.head.ref || github.ref_name }}
         run: |
           git config user.name "OpenAI Agent"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add assets/js/app.js tools/ui-actions-smoke.html data/ui-actions.json
           git commit -m "fix: explain empty strengthen action"
-          git push origin HEAD
+          git push origin HEAD:${TARGET_BRANCH}

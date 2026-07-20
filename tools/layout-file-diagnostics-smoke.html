@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Etagi layout file diagnostics smoke</title>
+  <style>
+    body{font-family:Arial,sans-serif;margin:16px}
+    #appFrame{width:1280px;height:900px;border:1px solid #cbd5e1}
+    #uiActionsSmokeResult{white-space:pre-wrap;padding:12px;border:1px solid #cbd5e1;border-radius:8px;background:#f8fafc}
+  </style>
+</head>
+<body>
+  <pre id="uiActionsSmokeResult" data-status="pending">Layout file diagnostics smoke is running…</pre>
+  <iframe id="appFrame" title="Генератор расклеек"></iframe>
+  <script>
+    const result = document.getElementById('uiActionsSmokeResult');
+    const frame = document.getElementById('appFrame');
+    const checks = [];
+    let lastAction = 'startup';
+
+    frame.addEventListener('load', async () => {
+      const win = frame.contentWindow;
+      const doc = frame.contentDocument;
+      try {
+        await waitFor(() => doc.querySelectorAll('.tpl-card').length > 0, 12000, 'шаблоны не появились');
+        await waitFor(() => doc.querySelector('#printSheet .flyer'), 12000, 'предпросмотр не появился');
+
+        lastAction = 'schema.export';
+        setField(win, doc, '#layoutName', 'Схема JSON smoke');
+        setField(win, doc, '#headline', 'Макет по схеме v1');
+        setField(win, doc, '#price', '5 100 000 ₽');
+        click(doc, '[data-count="4"]');
+        const capture = installDownloadCapture(win);
+        click(doc, '#downloadBtn');
+        await waitFor(() => capture.blob && capture.filename, 3000, 'скачивание JSON не создано');
+        const exportedText = await capture.blob.text();
+        const exported = JSON.parse(exportedText);
+        capture.restore();
+        assert(exported.kind === 'etagi-raskleyka-layout', 'экспорт не содержит kind макета');
+        assert(exported.schemaVersion === 1, 'экспорт не содержит schemaVersion 1');
+        assert(typeof exported.appVersion === 'string' && exported.appVersion, 'экспорт не содержит appVersion');
+        assert(!Number.isNaN(Date.parse(exported.exportedAt)), 'exportedAt не является датой ISO');
+        assert(exported.headline === 'Макет по схеме v1' && exported.printCount === 4, 'состояние не находится в плоском файле схемы v1');
+        assert(!Object.hasOwn(exported, 'layout'), 'формат неожиданно дублирует состояние внутри layout');
+        pass('JSON-схема: экспорт содержит kind, версию, дату и плоское состояние');
+
+        lastAction = 'schema.legacy';
+        const legacy = {...exported};
+        delete legacy.kind;
+        delete legacy.schemaVersion;
+        delete legacy.appVersion;
+        delete legacy.exportedAt;
+        legacy.headline = 'Макет старого формата';
+        await setFile(win, doc, '#uploadFile', 'legacy-layout.json', JSON.stringify(legacy));
+        await waitFor(() => doc.getElementById('statusLine')?.textContent.includes('Старый формат проверен'), 4000, 'старый формат не получил подтверждение совместимости');
+        assert(doc.getElementById('headline')?.value === 'Макет старого формата', 'старый формат не восстановил макет');
+        pass('JSON-схема: старый необёрнутый файл остаётся совместимым');
+
+        const protectedState = snapshot(doc);
+        const invalidCases = [
+          {name:'broken.json', text:'{"kind":', status:'JSON повреждён или записан не полностью', label:'повреждённый JSON'},
+          {name:'array.json', text:'[]', status:'корневой элемент JSON должен быть объектом', label:'массив вместо объекта'},
+          {name:'foreign.json', text:JSON.stringify({...exported, kind:'foreign-layout'}), status:'это не макет генератора', label:'чужой тип файла'},
+          {name:'future.json', text:JSON.stringify({...exported, schemaVersion:99}), status:'версия схемы 99 не поддерживается', label:'неподдерживаемая версия'},
+          {name:'wrong-type.json', text:JSON.stringify({...exported, printCount:'четыре'}), status:'поле «printCount» должно быть числом', label:'неверный тип поля'}
+        ];
+
+        for(const testCase of invalidCases){
+          lastAction = `schema.reject.${testCase.name}`;
+          await setFile(win, doc, '#uploadFile', testCase.name, testCase.text);
+          await waitFor(() => doc.getElementById('statusLine')?.textContent.includes(testCase.status), 3000, `${testCase.label}: нет понятной диагностики`);
+          assertSameState(doc, protectedState, `${testCase.label}: текущий макет был изменён`);
+          assert(doc.getElementById('uploadFile')?.getAttribute('aria-invalid') === 'true', `${testCase.label}: file input не отмечен ошибочным`);
+          assert(doc.activeElement?.id === 'uploadBtn', `${testCase.label}: фокус не возвращён к кнопке открытия файла`);
+        }
+        pass('JSON-диагностика: пять ошибочных файлов отклонены без замены макета');
+
+        result.dataset.status = 'passed';
+        result.textContent = `PASSED\n${checks.map(item => `✓ ${item}`).join('\n')}`;
+      } catch(error){
+        result.dataset.status = 'failed';
+        result.dataset.lastAction = lastAction;
+        result.textContent = `FAILED\n${checks.map(item => `✓ ${item}`).join('\n')}\n✗ ${error.message || error}\nПоследнее действие: ${lastAction}\nСостояние: ${JSON.stringify(snapshot(doc))}`;
+      }
+    }, {once:true});
+
+    frame.src = '/index.html?smoke=layout-file-diagnostics';
+    window.setTimeout(() => {
+      if(result.dataset.status === 'pending'){
+        result.dataset.status = 'failed';
+        result.textContent = `FAILED\n✗ timeout layout file diagnostics smoke\nПоследнее действие: ${lastAction}`;
+      }
+    }, 26000);
+
+    function pass(message){ checks.push(message); }
+    function assert(condition, message){ if(!condition) throw new Error(message); }
+    function click(doc, selector){
+      const element = doc.querySelector(selector);
+      assert(element, `не найден элемент ${selector}`);
+      element.click();
+    }
+    function setField(win, doc, selector, value){
+      const input = doc.querySelector(selector);
+      assert(input, `не найден элемент ${selector}`);
+      input.value = value;
+      input.dispatchEvent(new win.Event('input', {bubbles:true}));
+      input.dispatchEvent(new win.Event('change', {bubbles:true}));
+    }
+    async function setFile(win, doc, selector, name, content){
+      const input = doc.querySelector(selector);
+      assert(input, `не найден элемент ${selector}`);
+      const transfer = new win.DataTransfer();
+      transfer.items.add(new win.File([content], name, {type:'application/json'}));
+      input.files = transfer.files;
+      input.dispatchEvent(new win.Event('change', {bubbles:true}));
+      await waitFor(() => input.files?.length === 1, 1000, `файл ${name} не выбран`);
+    }
+    function installDownloadCapture(win){
+      const originalCreateObjectURL = win.URL.createObjectURL;
+      const originalRevokeObjectURL = win.URL.revokeObjectURL;
+      const originalAnchorClick = win.HTMLAnchorElement.prototype.click;
+      const capture = {blob:null, filename:''};
+      win.URL.createObjectURL = blob => { capture.blob = blob; return 'blob:layout-file-diagnostics'; };
+      win.URL.revokeObjectURL = () => {};
+      win.HTMLAnchorElement.prototype.click = function(){ capture.filename = this.download || ''; };
+      capture.restore = () => {
+        win.URL.createObjectURL = originalCreateObjectURL;
+        win.URL.revokeObjectURL = originalRevokeObjectURL;
+        win.HTMLAnchorElement.prototype.click = originalAnchorClick;
+      };
+      return capture;
+    }
+    function snapshot(doc){
+      return {
+        layoutName:doc.getElementById('layoutName')?.value || '',
+        headline:doc.getElementById('headline')?.value || '',
+        price:doc.getElementById('price')?.value || '',
+        printCount:[...doc.querySelectorAll('[data-count].active')].map(node => node.dataset.count).join(','),
+        flyers:doc.querySelectorAll('#printSheet .flyer').length
+      };
+    }
+    function assertSameState(doc, expected, message){
+      assert(JSON.stringify(snapshot(doc)) === JSON.stringify(expected), message);
+    }
+    async function waitFor(predicate, timeout, message){
+      const started = Date.now();
+      while(Date.now() - started < timeout){
+        if(predicate()) return;
+        await new Promise(resolve => setTimeout(resolve, 40));
+      }
+      throw new Error(message);
+    }
+  </script>
+</body>
+</html>

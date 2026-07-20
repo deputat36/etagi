@@ -1,4 +1,5 @@
 import { enrichLayoutExtras } from './layoutExtras.js';
+import { createLayoutFile } from './layoutFile.js';
 
 export const $ = (id) => document.getElementById(id);
 export const esc = (value='') => String(value).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]));
@@ -14,7 +15,7 @@ export function readFileAsDataURL(file){
   });
 }
 export function downloadText(filename, text, type='application/json'){
-  const output = shouldEnrichLayoutDownload(filename, type) ? addLayoutExtrasToJson(text) : text;
+  const output = shouldEnrichLayoutDownload(filename, type) ? buildLayoutFileJson(text) : text;
   const blob = new Blob([output], {type});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -35,9 +36,10 @@ function shouldEnrichLayoutDownload(filename, type){
   return String(type || '').includes('json') && String(filename || '').startsWith('etagi-raskleyka-');
 }
 
-function addLayoutExtrasToJson(text){
+function buildLayoutFileJson(text){
   try{
-    return JSON.stringify(enrichLayoutExtras(JSON.parse(text)), null, 2);
+    const state = enrichLayoutExtras(JSON.parse(text));
+    return JSON.stringify(createLayoutFile(state), null, 2);
   } catch(e){
     return text;
   }

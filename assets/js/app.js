@@ -1,5 +1,6 @@
 import { goals, photoModes, printPresets, propertyPresets, layoutModes, scenarioPresets, cloneDefaultState } from './state.js';
 import { $, esc, readFileAsDataURL, downloadText, debounce } from './utils.js';
+import { createLayoutFilePayload, parseLayoutFileText } from './layoutFile.js';
 import { loadTemplates, filterTemplates } from './templates.js';
 import { applyCss, renderSheet, getGrid } from './render.js';
 import { checkQuality } from './quality.js';
@@ -104,7 +105,7 @@ function bindStaticUi(){
       setStatus('Последний макет загружен без смешивания с текущим макетом.');
     } else setStatus('Последний сохранённый макет не найден.');
   };
-  $('downloadBtn').onclick = () => downloadText(`etagi-raskleyka-${new Date().toISOString().slice(0,10)}.json`, JSON.stringify(state,null,2));
+  $('downloadBtn').onclick = () => downloadText(`etagi-raskleyka-${new Date().toISOString().slice(0,10)}.json`, JSON.stringify(createLayoutFilePayload(state),null,2));
   $('uploadBtn').onclick = () => $('uploadFile').click();
   $('uploadFile').onchange = loadFromFile;
 }
@@ -517,14 +518,23 @@ function loadFromFile(e){
   if(!file) return;
   const reader = new FileReader();
   reader.onload = () => {
-    try {
-      const imported = JSON.parse(reader.result);
-      state = cleanLoadedState(imported);
-      if($('savedLayouts')) $('savedLayouts').value='';
-      syncFormFromState(); renderAll(); setStatus('Файл макета открыт без смешивания с предыдущим макетом.');
+    const result = parseLayoutFileText(reader.result);
+    if(!result.ok){
+      setStatus(result.message);
+      return;
     }
-    catch(err){ setStatus('Не удалось открыть файл.'); }
+
+    state = cleanLoadedState(result.state);
+    if($('savedLayouts')) $('savedLayouts').value='';
+    syncFormFromState();
+    renderAll();
+
+    const notes = [];
+    if(result.legacy) notes.push('Старый формат распознан и безопасно обновлён.');
+    if(result.warnings.length) notes.push(result.warnings.join(' '));
+    setStatus('Файл макета открыт без смешивания с предыдущим макетом.' + (notes.length ? ' ' + notes.join(' ') : ''));
   };
+  reader.onerror = () => setStatus('Браузер не смог прочитать выбранный файл. Выберите JSON-макет заново.');
   reader.readAsText(file);
 }
 

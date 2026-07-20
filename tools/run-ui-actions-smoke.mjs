@@ -49,6 +49,12 @@ const smokePages = failureFixtureMode ? [
     timeoutMs:36000
   },
   {
+    label:'Layout file diagnostics smoke',
+    path:'tools/layout-file-diagnostics-smoke.html',
+    virtualTimeBudget:30000,
+    timeoutMs:42000
+  },
+  {
     label:'Print dialog smoke',
     path:'tools/print-dialog-smoke.html',
     virtualTimeBudget:20000,

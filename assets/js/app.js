@@ -81,7 +81,7 @@ function bindStaticUi(){
   $('confirmPrintBtn').onclick = () => { $('printDialog').close(); setTimeout(()=>window.print(), 80); };
   $('fitPreviewBtn').onclick = () => { $('zoom').value = 64; applyZoom(); };
   $('zoom').oninput = applyZoom;
-  $('makeShortBtn').onclick = () => { state.description = shorten(state.description, 190); state.showDescription = true; state.layoutMode='manual'; syncFormFromState(); renderAll(); };
+  $('makeShortBtn').onclick = shortenDescription;
   $('makeStrongerBtn').onclick = strengthenText;
   $('saveProfileBtn').onclick = saveCurrentProfile;
   $('loadProfileBtn').onclick = loadSavedProfile;
@@ -425,6 +425,25 @@ function applyFix(action){
   state.blockOrder = normalizeBlockOrder(state.blockOrder);
   state.layoutMode = action === 'autoFix' ? 'auto' : 'manual';
   renderAll();
+}
+function shortenDescription(){
+  const current = String(state.description || '').trim();
+  if(!current){
+    setStatus('Сначала добавьте описание объекта — сокращать пока нечего.');
+    $('description').focus();
+    return;
+  }
+  const next = shorten(current, 190);
+  if(next === current){
+    setStatus('Описание уже короче 190 символов. Заголовок и преимущества не изменены.');
+    $('description').focus();
+    return;
+  }
+  state.description = next;
+  state.showDescription = true;
+  state.layoutMode='manual';
+  syncFormFromState(); renderAll();
+  setStatus('Описание сокращено до 190 символов. Заголовок и преимущества не изменены.');
 }
 function strengthenText(){
   if(!String(state.description || '').trim()){

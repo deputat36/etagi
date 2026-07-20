@@ -50,9 +50,9 @@
         assert(hasLayout(win,idA)&&hasLayout(win,idB),'макет удалён до подтверждения');
         click(doc,'#cancelNamedLayoutDeleteBtn');
         await waitFor(()=>!dialog.open,1000,'диалог не закрылся после отмены');
+        await waitFor(()=>doc.activeElement?.id==='deleteNamedLayoutBtn',1000,'фокус не вернулся к кнопке удаления');
         assert(hasLayout(win,idA)&&hasLayout(win,idB),'отмена кнопкой удалила макет');
         assert(doc.getElementById('statusLine')?.textContent.includes('Удаление макета «Макет для удаления» отменено'), 'нет подтверждения отмены');
-        assert(doc.activeElement?.id==='deleteNamedLayoutBtn','фокус не вернулся к кнопке удаления');
         assertSameCurrent(doc,currentState,'отмена изменила текущий макет');
         pass('удаление: кнопка Оставить макет ничего не удаляет');
 
@@ -62,6 +62,7 @@
         await waitFor(()=>dialog.open,1000,'диалог не открылся повторно');
         dialog.dispatchEvent(new win.Event('cancel',{cancelable:true}));
         await waitFor(()=>!dialog.open,1000,'Escape не закрыл диалог');
+        await waitFor(()=>doc.activeElement?.id==='deleteNamedLayoutBtn',1000,'Escape не вернул фокус к кнопке удаления');
         assert(hasLayout(win,idA)&&hasLayout(win,idB),'Escape удалил макет');
         assertSameCurrent(doc,currentState,'Escape изменил текущий макет');
         pass('удаление: Escape отменяет действие');
@@ -72,11 +73,11 @@
         await waitFor(()=>dialog.open,1000,'диалог не открылся перед подтверждением');
         click(doc,'#confirmNamedLayoutDeleteBtn');
         await waitFor(()=>!hasLayout(win,idA),3000,'подтверждённый макет не удалён');
+        await waitFor(()=>doc.activeElement?.id==='deleteNamedLayoutBtn',1000,'после удаления фокус не вернулся к кнопке');
         assert(hasLayout(win,idB),'подтверждение удалило соседний макет');
         assert(!dialog.open,'диалог остался открыт после удаления');
         assert(doc.getElementById('savedLayouts')?.value==='','список не сбросил удалённый выбор');
         assert(doc.getElementById('statusLine')?.textContent.includes('Сохранённый макет удалён'),'нет штатного подтверждения удаления');
-        assert(doc.activeElement?.id==='deleteNamedLayoutBtn','после удаления фокус не вернулся к кнопке');
         assertSameCurrent(doc,currentState,'удаление сохранённого макета изменило текущий лист');
         pass('удаление: подтверждение удаляет только выбранный макет');
 
@@ -84,7 +85,7 @@
         result.textContent=`PASSED\n${checks.map(x=>`✓ ${x}`).join('\n')}`;
       }catch(error){
         result.dataset.status='failed';
-        result.textContent=`FAILED\n${checks.map(x=>`✓ ${x}`).join('\n')}\n✗ ${error.message||error}\nПоследнее действие: ${lastAction}\nСостояние: ${JSON.stringify({status:doc.getElementById('statusLine')?.textContent,dialogOpen:doc.getElementById('namedLayoutDeleteDialog')?.open,layouts:readLayouts(win),current:snapshotCurrent(doc)})}`;
+        result.textContent=`FAILED\n${checks.map(x=>`✓ ${x}`).join('\n')}\n✗ ${error.message||error}\nПоследнее действие: ${lastAction}\nСостояние: ${JSON.stringify({status:doc.getElementById('statusLine')?.textContent,dialogOpen:doc.getElementById('namedLayoutDeleteDialog')?.open,activeElement:doc.activeElement?.id,layouts:readLayouts(win),current:snapshotCurrent(doc)})}`;
       }
     },{once:true});
 

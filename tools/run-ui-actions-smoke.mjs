@@ -49,6 +49,12 @@ const smokePages = failureFixtureMode ? [
     timeoutMs:36000
   },
   {
+    label:'Destructive snapshot smoke',
+    path:'tools/destructive-snapshot-smoke.html',
+    virtualTimeBudget:38000,
+    timeoutMs:50000
+  },
+  {
     label:'Print dialog smoke',
     path:'tools/print-dialog-smoke.html',
     virtualTimeBudget:20000,

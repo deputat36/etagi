@@ -22,6 +22,9 @@
       try{
         await waitFor(()=>doc.querySelectorAll('.tpl-card').length>0,12000,'шаблоны не появились');
         await waitFor(()=>doc.getElementById('namedLayoutDeleteDialog'),5000,'диалог подтверждения не появился');
+        click(doc,'[data-spn-ui-mode="advanced"]');
+        await waitFor(()=>doc.body.dataset.spnUiMode==='advanced',2000,'расширенный режим не включился');
+        await waitFor(()=>win.getComputedStyle(doc.querySelector('.save-card')).display!=='none',2000,'блок сохранения остался скрытым');
         const dialog=doc.getElementById('namedLayoutDeleteDialog');
         assert(dialog.getAttribute('aria-labelledby')==='namedLayoutDeleteTitle','диалог не связан с заголовком');
         assert(dialog.getAttribute('aria-describedby')==='namedLayoutDeleteDescription','диалог не связан с описанием');
@@ -85,7 +88,7 @@
         result.textContent=`PASSED\n${checks.map(x=>`✓ ${x}`).join('\n')}`;
       }catch(error){
         result.dataset.status='failed';
-        result.textContent=`FAILED\n${checks.map(x=>`✓ ${x}`).join('\n')}\n✗ ${error.message||error}\nПоследнее действие: ${lastAction}\nСостояние: ${JSON.stringify({status:doc.getElementById('statusLine')?.textContent,dialogOpen:doc.getElementById('namedLayoutDeleteDialog')?.open,activeElement:doc.activeElement?.id,layouts:readLayouts(win),current:snapshotCurrent(doc)})}`;
+        result.textContent=`FAILED\n${checks.map(x=>`✓ ${x}`).join('\n')}\n✗ ${error.message||error}\nПоследнее действие: ${lastAction}\nСостояние: ${JSON.stringify({mode:doc.body.dataset.spnUiMode,status:doc.getElementById('statusLine')?.textContent,dialogOpen:doc.getElementById('namedLayoutDeleteDialog')?.open,activeElement:doc.activeElement?.id,layouts:readLayouts(win),current:snapshotCurrent(doc)})}`;
       }
     },{once:true});
 

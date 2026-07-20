@@ -29,7 +29,10 @@ requireSnippets(files.module, sources.module, [
   'allowNativeDelete = true',
   'deleteButton.click()',
   'allowNativeDelete = false',
-  "deleteButton.focus({preventScroll:true})"
+  'function scheduleDeleteButtonFocus()',
+  'window.cancelAnimationFrame(focusFrame)',
+  'window.requestAnimationFrame(() =>',
+  "document.getElementById('deleteNamedLayoutBtn')?.focus({preventScroll:true})"
 ]);
 forbidSnippets(files.module, sources.module, [
   'window.confirm(',
@@ -48,6 +51,7 @@ requireSnippets(files.smoke, sources.smoke, [
   'удаление: Escape отменяет действие',
   'удаление: подтверждение удаляет только выбранный макет',
   "doc.activeElement?.id==='cancelNamedLayoutDeleteBtn'",
+  "waitFor(()=>doc.activeElement?.id==='deleteNamedLayoutBtn'",
   'assertSameCurrent(doc,currentState',
   'assert(hasLayout(win,idB)'
 ]);

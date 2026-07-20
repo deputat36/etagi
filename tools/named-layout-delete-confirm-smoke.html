@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Etagi named layout delete confirmation smoke</title>
+  <style>body{font-family:Arial,sans-serif;margin:16px}iframe{width:1280px;height:900px;border:1px solid #cbd5e1}pre{white-space:pre-wrap;padding:12px;background:#f8fafc}</style>
+</head>
+<body>
+  <pre id="uiActionsSmokeResult" data-status="pending">Named layout delete confirmation smoke is running…</pre>
+  <iframe id="appFrame" title="Генератор расклеек"></iframe>
+  <script>
+    const LAYOUTS_KEY='etagi-raskleyka-layouts-v1';
+    const result=document.getElementById('uiActionsSmokeResult');
+    const frame=document.getElementById('appFrame');
+    const checks=[];
+    let lastAction='startup';
+    localStorage.removeItem(LAYOUTS_KEY);
+
+    frame.addEventListener('load',async()=>{
+      const win=frame.contentWindow;
+      const doc=frame.contentDocument;
+      try{
+        await waitFor(()=>doc.querySelectorAll('.tpl-card').length>0,12000,'шаблоны не появились');
+        await waitFor(()=>doc.getElementById('namedLayoutDeleteDialog'),5000,'диалог подтверждения не появился');
+        click(doc,'[data-spn-ui-mode="advanced"]');
+        await waitFor(()=>doc.body.dataset.spnUiMode==='advanced',2000,'расширенный режим не включился');
+        await waitFor(()=>win.getComputedStyle(doc.querySelector('.save-card')).display!=='none',2000,'блок сохранения остался скрытым');
+        const dialog=doc.getElementById('namedLayoutDeleteDialog');
+        assert(dialog.getAttribute('aria-labelledby')==='namedLayoutDeleteTitle','диалог не связан с заголовком');
+        assert(dialog.getAttribute('aria-describedby')==='namedLayoutDeleteDescription','диалог не связан с описанием');
+
+        lastAction='delete.without-selection';
+        doc.getElementById('savedLayouts').value='';
+        click(doc,'#deleteNamedLayoutBtn');
+        await waitFor(()=>doc.getElementById('statusLine')?.textContent.includes('Сначала выберите макет для удаления'),2000,'нет штатной подсказки без выбора');
+        assert(!dialog.open,'диалог открылся без выбранного макета');
+        pass('удаление: без выбора остаётся штатная подсказка');
+
+        lastAction='delete.prepare-layouts';
+        const idA=await saveLayout(win,doc,'Макет для удаления','Удаляемый заголовок');
+        const idB=await saveLayout(win,doc,'Макет для сохранения','Сохраняемый заголовок');
+        setField(win,doc,'layoutName','Текущий лист не менять');
+        setField(win,doc,'headline','Текущий лист остаётся');
+        setField(win,doc,'price','4 400 000 ₽');
+        const currentState=snapshotCurrent(doc);
+
+        lastAction='delete.cancel-button';
+        selectLayout(doc,idA);
+        click(doc,'#deleteNamedLayoutBtn');
+        await waitFor(()=>dialog.open,2000,'диалог удаления не открылся');
+        assert(doc.getElementById('namedLayoutDeleteName')?.textContent==='«Макет для удаления»','диалог не показывает точное название');
+        assert(doc.activeElement?.id==='cancelNamedLayoutDeleteBtn','безопасная кнопка отмены не получила фокус');
+        assert(hasLayout(win,idA)&&hasLayout(win,idB),'макет удалён до подтверждения');
+        click(doc,'#cancelNamedLayoutDeleteBtn');
+        await waitFor(()=>!dialog.open,1000,'диалог не закрылся после отмены');
+        await waitFor(()=>doc.activeElement?.id==='deleteNamedLayoutBtn',1000,'фокус не вернулся к кнопке удаления');
+        assert(hasLayout(win,idA)&&hasLayout(win,idB),'отмена кнопкой удалила макет');
+        assert(doc.getElementById('statusLine')?.textContent.includes('Удаление макета «Макет для удаления» отменено'), 'нет подтверждения отмены');
+        assertSameCurrent(doc,currentState,'отмена изменила текущий макет');
+        pass('удаление: кнопка Оставить макет ничего не удаляет');
+
+        lastAction='delete.cancel-escape';
+        selectLayout(doc,idA);
+        click(doc,'#deleteNamedLayoutBtn');
+        await waitFor(()=>dialog.open,1000,'диалог не открылся повторно');
+        dialog.dispatchEvent(new win.Event('cancel',{cancelable:true}));
+        await waitFor(()=>!dialog.open,1000,'Escape не закрыл диалог');
+        await waitFor(()=>doc.activeElement?.id==='deleteNamedLayoutBtn',1000,'Escape не вернул фокус к кнопке удаления');
+        assert(hasLayout(win,idA)&&hasLayout(win,idB),'Escape удалил макет');
+        assertSameCurrent(doc,currentState,'Escape изменил текущий макет');
+        pass('удаление: Escape отменяет действие');
+
+        lastAction='delete.confirm';
+        selectLayout(doc,idA);
+        click(doc,'#deleteNamedLayoutBtn');
+        await waitFor(()=>dialog.open,1000,'диалог не открылся перед подтверждением');
+        click(doc,'#confirmNamedLayoutDeleteBtn');
+        await waitFor(()=>!hasLayout(win,idA),3000,'подтверждённый макет не удалён');
+        await waitFor(()=>doc.activeElement?.id==='deleteNamedLayoutBtn',1000,'после удаления фокус не вернулся к кнопке');
+        assert(hasLayout(win,idB),'подтверждение удалило соседний макет');
+        assert(!dialog.open,'диалог остался открыт после удаления');
+        assert(doc.getElementById('savedLayouts')?.value==='','список не сбросил удалённый выбор');
+        assert(doc.getElementById('statusLine')?.textContent.includes('Сохранённый макет удалён'),'нет штатного подтверждения удаления');
+        assertSameCurrent(doc,currentState,'удаление сохранённого макета изменило текущий лист');
+        pass('удаление: подтверждение удаляет только выбранный макет');
+
+        result.dataset.status='passed';
+        result.textContent=`PASSED\n${checks.map(x=>`✓ ${x}`).join('\n')}`;
+      }catch(error){
+        result.dataset.status='failed';
+        result.textContent=`FAILED\n${checks.map(x=>`✓ ${x}`).join('\n')}\n✗ ${error.message||error}\nПоследнее действие: ${lastAction}\nСостояние: ${JSON.stringify({mode:doc.body.dataset.spnUiMode,status:doc.getElementById('statusLine')?.textContent,dialogOpen:doc.getElementById('namedLayoutDeleteDialog')?.open,activeElement:doc.activeElement?.id,layouts:readLayouts(win),current:snapshotCurrent(doc)})}`;
+      }
+    },{once:true});
+
+    frame.src='/index.html?smoke=named-layout-delete-confirm';
+    setTimeout(()=>{if(result.dataset.status==='pending'){result.dataset.status='failed';result.textContent=`FAILED\n✗ timeout\nПоследнее действие: ${lastAction}`;}},30000);
+
+    async function saveLayout(win,doc,name,headline){
+      setField(win,doc,'layoutName',name);
+      setField(win,doc,'headline',headline);
+      click(doc,'#saveNamedLayoutBtn');
+      await waitFor(()=>readLayouts(win).some(item=>item.name===name),3000,`макет ${name} не сохранён`);
+      return readLayouts(win).find(item=>item.name===name).id;
+    }
+    function selectLayout(doc,id){const select=doc.getElementById('savedLayouts');select.value=id;assert(select.value===id,`не выбран макет ${id}`)}
+    function readLayouts(win){try{return JSON.parse(win.localStorage.getItem(LAYOUTS_KEY)||'[]')}catch{return[]}}
+    function hasLayout(win,id){return readLayouts(win).some(item=>item.id===id)}
+    function snapshotCurrent(doc){return{layoutName:doc.getElementById('layoutName')?.value||'',headline:doc.getElementById('headline')?.value||'',price:doc.getElementById('price')?.value||'',flyers:doc.querySelectorAll('#printSheet .flyer').length}}
+    function assertSameCurrent(doc,expected,message){assert(JSON.stringify(snapshotCurrent(doc))===JSON.stringify(expected),message)}
+    function setField(win,doc,id,value){const input=doc.getElementById(id);assert(input,`не найден #${id}`);input.value=value;input.dispatchEvent(new win.Event('input',{bubbles:true}));input.dispatchEvent(new win.Event('change',{bubbles:true}))}
+    function click(doc,selector){const el=doc.querySelector(selector);assert(el,`не найден ${selector}`);el.click()}
+    function pass(text){checks.push(text)}
+    function assert(value,message){if(!value)throw new Error(message)}
+    async function waitFor(fn,timeout,message){const start=Date.now();while(Date.now()-start<timeout){if(fn())return;await new Promise(r=>setTimeout(r,40))}throw new Error(message)}
+  </script>
+</body>
+</html>

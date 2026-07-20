@@ -61,6 +61,12 @@ const smokePages = failureFixtureMode ? [
     timeoutMs:58000
   },
   {
+    label:'Named layout delete confirmation smoke',
+    path:'tools/named-layout-delete-confirm-smoke.html',
+    virtualTimeBudget:30000,
+    timeoutMs:42000
+  },
+  {
     label:'Print dialog smoke',
     path:'tools/print-dialog-smoke.html',
     virtualTimeBudget:20000,

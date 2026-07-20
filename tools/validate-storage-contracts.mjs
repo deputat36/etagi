@@ -2,7 +2,8 @@ import { spawnSync } from 'node:child_process';
 
 const checks = [
   'tools/validate-storage-safety.mjs',
-  'tools/validate-destructive-snapshot.mjs'
+  'tools/validate-destructive-snapshot.mjs',
+  'tools/validate-named-layout-delete-confirmation.mjs'
 ];
 
 for(const target of checks){

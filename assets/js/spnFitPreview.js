@@ -34,6 +34,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   zoom.oninput = () => {
     fitActive = false;
+    window.cancelAnimationFrame(resizeFrame);
+    resizeFrame = 0;
     syncFitState(button);
     applyZoomValue(scale, zoom, output, Number(zoom.value));
   };
@@ -42,6 +44,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if(!fitActive) return;
     window.cancelAnimationFrame(resizeFrame);
     resizeFrame = window.requestAnimationFrame(() => {
+      resizeFrame = 0;
+      if(!fitActive) return;
       applyFittedZoom({wrap, sheet, scale, zoom, output});
     });
   };

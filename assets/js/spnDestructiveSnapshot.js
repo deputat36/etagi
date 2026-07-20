@@ -26,6 +26,16 @@ const REASONS = {
   'load-last-layout':'Перед загрузкой последнего макета',
   'import-layout-file':'Перед импортом JSON-макета'
 };
+const IMPORT_FAILURE_MARKERS = [
+  'Файл повреждён',
+  'В файле должен находиться',
+  'Этот JSON относится',
+  'Версия формата файла указана неверно',
+  'Файл создан в более новой версии',
+  'Файл не похож на макет',
+  'Файл макета содержит неверные данные',
+  'Браузер не смог прочитать'
+];
 
 let pendingImportSnapshot = null;
 let statusObserver = null;
@@ -151,9 +161,7 @@ function observeImportResult(){
       saveDestructiveSnapshot('import-layout-file', {snapshot});
       return;
     }
-    if(text.includes('Файл повреждён') || text.includes('не похож на макет') || text.includes('неверные данные') || text.includes('другому типу файла') || text.includes('более новой версии') || text.includes('не смог прочитать')){
-      pendingImportSnapshot = null;
-    }
+    if(IMPORT_FAILURE_MARKERS.some(marker => text.includes(marker))) pendingImportSnapshot = null;
   });
   statusObserver.observe(status, {childList:true, subtree:true, characterData:true});
 }

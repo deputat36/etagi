@@ -39,14 +39,16 @@
         assert(explicitTemplateClicks === 0, 'ситуация сгенерировала пользовательский клик по карточке шаблона');
         assert(value(doc, 'layoutName') && value(doc, 'layoutName') !== initialLayoutName, 'задача не применила первый шаблон автоматически');
         assert(doc.querySelector('[data-scenario="all"]')?.classList.contains('active'), 'после ситуации сценарий не остался Все');
+        assert(!doc.querySelector('#templateList [data-template].active'), 'автоматически применённый шаблон неожиданно остался видимым после поисковой фильтрации');
         pass('ситуация: автоматически выбраны задача, шаблон, поиск и настройки');
+        pass('ситуация: автоматически применённый шаблон скрыт последующим поиском');
 
         lastAction = 'scenario.newbuild';
         const beforeScenarioLayout = value(doc, 'layoutName');
         const scenarioButton = doc.querySelector('[data-scenario="newbuild"]');
         assert(scenarioButton && !scenarioButton.disabled, 'сценарий Новостройки недоступен после выбора ситуации');
         click(doc, '[data-scenario="newbuild"]');
-        await waitFor(() => scenarioButton.classList.contains('active'), 2000, 'сценарий Новостройки не стал активным');
+        await waitFor(() => doc.querySelector('[data-scenario="newbuild"]')?.classList.contains('active'), 2000, 'сценарий Новостройки не стал активным');
         assert(value(doc, 'layoutName') === beforeScenarioLayout, 'сценарный фильтр неожиданно заменил макет');
         assert(explicitTemplateClicks === 0, 'сценарный фильтр вызвал клик по шаблону');
         pass('сценарий: только фильтрует список и не применяет шаблон');

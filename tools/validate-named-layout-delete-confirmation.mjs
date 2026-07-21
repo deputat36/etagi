@@ -55,11 +55,14 @@ forbidSnippets(files.module, sources.module, [
   'deleteLayout('
 ]);
 requireSnippets(files.storage, sources.storage, [
+  'const MAX_SAVED_LAYOUTS = 50;',
+  'layouts.slice(0, MAX_SAVED_LAYOUTS)',
   'export function restoreLayout(item)',
+  'if(layouts.length >= MAX_SAVED_LAYOUTS) return null;',
   'const name = makeRestoredLayoutName(originalName, layouts);',
   'const id = originalId && !layouts.some(layout => layout.id === originalId) ? originalId : makeLayoutId(name, layouts);',
   'state:{...stripHeavyFields(item.state), layoutName:name}',
-  'JSON.stringify([restored, ...layouts].slice(0, 50))',
+  'JSON.stringify([restored, ...layouts])',
   'function makeRestoredLayoutName(name, layouts)',
   '`${name} (восстановлен)`'
 ]);
@@ -74,6 +77,7 @@ requireSnippets(files.smoke, sources.smoke, [
   'удаление: Escape отменяет действие',
   'удаление: подтверждение удаляет только выбранный макет и создаёт резерв',
   'восстановление: удалённый макет возвращён и загружается',
+  'восстановление: полный список не вытесняет существующие макеты',
   'восстановление: конфликт имени создаёт отдельный безопасный макет',
   "click(doc,'[data-spn-ui-mode=\"advanced\"]')",
   "getComputedStyle(doc.querySelector('.save-card')).display!=='none'",
@@ -82,6 +86,8 @@ requireSnippets(files.smoke, sources.smoke, [
   'Escape не вернул фокус к кнопке удаления',
   'после удаления фокус не вернулся к кнопке',
   'readDeleted(win)===null',
+  'fillLayoutsToLimit(win)',
+  'readLayouts(win).length===50',
   'assertSameCurrent(doc,currentState',
   'assertSameCurrent(doc,currentBeforeConflict',
   'assert(hasLayout(win,idB)',
@@ -94,6 +100,7 @@ requireSnippets(files.docs, sources.docs, [
   'Escape равнозначен отмене',
   'Восстановить «Название»',
   'Название (восстановлен)',
+  '50',
   'window.confirm',
   'Named layout delete confirmation smoke'
 ]);

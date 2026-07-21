@@ -1,4 +1,5 @@
 import './spnTearOffEditor.js';
+import './spnDensePrintPolicy.js';
 import './spnBlockControls.js';
 import './spnQrStandaloneStyle.js';
 import './spnContactEditor.js';

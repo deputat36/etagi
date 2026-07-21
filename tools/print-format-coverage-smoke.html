@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Etagi print format coverage smoke</title>
+  <style>body{font-family:Arial,sans-serif;margin:16px}iframe{width:1280px;height:900px;border:1px solid #cbd5e1}pre{white-space:pre-wrap;padding:12px;background:#f8fafc}</style>
+</head>
+<body>
+  <pre id="printFormatCoverageResult" data-status="pending">Print format coverage smoke is running…</pre>
+  <iframe id="appFrame" title="Генератор расклеек"></iframe>
+  <script>
+    const result = document.getElementById('printFormatCoverageResult');
+    const frame = document.getElementById('appFrame');
+    const checks = [];
+    const supportedCounts = [1, 2, 3, 4, 6, 8];
+    const phoneThresholds = {1:30, 2:28, 3:24, 4:20, 6:18, 8:16};
+    let currentCount = 0;
+    let lastAction = 'startup';
+
+    frame.addEventListener('load', async () => {
+      const win = frame.contentWindow;
+      const doc = frame.contentDocument;
+      try{
+        await waitFor(() => doc.querySelectorAll('.tpl-card').length > 0, 12000, 'шаблоны не появились');
+        await waitFor(() => doc.querySelector('#printSheet .flyer'), 12000, 'лист А4 не появился');
+        click(doc, '[data-spn-ui-mode="advanced"]');
+        await waitFor(() => doc.body.dataset.spnUiMode === 'advanced', 3000, 'расширенный режим не включился');
+
+        setField(win, doc, '#agentName', 'Анна Качкина');
+        setField(win, doc, '#agentPhone', '+7 960 125-18-77');
+        setField(win, doc, '#headline', 'ПРОДАМ КВАРТИРУ');
+        setField(win, doc, '#description', 'Борисоглебск. Звоните — расскажу подробности.');
+        setField(win, doc, '#area', 'Борисоглебск');
+        setField(win, doc, '#benefits', 'Цена и показ\nДокументы\nСопровождение');
+        click(doc, '[data-photo="none"]');
+
+        for(const count of supportedCounts){
+          currentCount = count;
+          lastAction = `format.${count}.prepare`;
+          if(count <= 4) await prepareTearOffFormat(win, doc, count);
+          else await prepareDenseFormat(win, doc, count);
+
+          lastAction = `format.${count}.verify`;
+          await nextPaint(win);
+          verifyFormat(win, doc, count);
+          pass(`формат ${count}: телефон, контакты, overflow и полосы`);
+        }
+
+        result.dataset.status = 'passed';
+        result.textContent = `PASSED\n${checks.map(item => `✓ ${item}`).join('\n')}`;
+      } catch(error){
+        result.dataset.status = 'failed';
+        result.dataset.lastAction = lastAction;
+        result.textContent = `FAILED\n${checks.map(item => `✓ ${item}`).join('\n')}\n✗ ${error.message || error}\nПоследнее действие: ${lastAction}\nСостояние: ${JSON.stringify(snapshot(doc))}`;
+      }
+    }, {once:true});
+
+    frame.src = '/index.html?smoke=print-format-coverage';
+
+    setTimeout(() => {
+      if(result.dataset.status === 'pending'){
+        result.dataset.status = 'failed';
+        result.dataset.lastAction = lastAction;
+        result.textContent = `FAILED\n✗ timeout\nПоследнее действие: ${lastAction}`;
+      }
+    }, 50000);
+
+    async function prepareTearOffFormat(win, doc, count){
+      click(doc, '[data-layout-mode="entrance"]');
+      click(doc, `[data-count="${count}"]`);
+      const tearOffs = doc.getElementById('tearOffs');
+      assert(tearOffs && !tearOffs.disabled, `формат ${count}: отрывные полосы ошибочно недоступны`);
+      setCheck(win, tearOffs, true);
+      await waitFor(() => {
+        const flyers = doc.querySelectorAll(`#printSheet .flyer.count-${count}`);
+        return flyers.length === count && [...flyers].every(flyer => flyer.querySelectorAll('.tear').length === 8);
+      }, 4000, `формат ${count}: не сформированы восемь отрывных полос`);
+    }
+
+    async function prepareDenseFormat(win, doc, count){
+      const tearOffs = doc.getElementById('tearOffs');
+      if(tearOffs && !tearOffs.disabled) setCheck(win, tearOffs, true);
+      click(doc, '[data-layout-mode="economy"]');
+      click(doc, `[data-count="${count}"]`);
+      await waitFor(() => {
+        const flyers = doc.querySelectorAll(`#printSheet .flyer.count-${count}`);
+        return flyers.length === count && tearOffs?.disabled && !tearOffs.checked;
+      }, 4000, `формат ${count}: плотная политика не отключила полосы`);
+      assert(!doc.querySelector(`#printSheet .flyer.count-${count} .tears`), `формат ${count}: отрывные полосы остались в плотном макете`);
+    }
+
+    function verifyFormat(win, doc, count){
+      const sheet = doc.getElementById('printSheet');
+      const flyers = [...doc.querySelectorAll(`#printSheet .flyer.count-${count}`)];
+      assert(flyers.length === count, `формат ${count}: ожидалось ${count} карточек, получено ${flyers.length}`);
+      assert(!flyers.some(flyer => flyer.classList.contains('overflow')), `формат ${count}: обнаружен overflow`);
+      const sheetRect = sheet.getBoundingClientRect();
+
+      for(const flyer of flyers){
+        const flyerRect = flyer.getBoundingClientRect();
+        assert(flyerRect.left >= sheetRect.left - 1 && flyerRect.top >= sheetRect.top - 1 && flyerRect.right <= sheetRect.right + 1 && flyerRect.bottom <= sheetRect.bottom + 1, `формат ${count}: карточка вышла за A4`);
+
+        const contact = flyer.querySelector('.contact');
+        const phone = contact?.querySelector('.phone');
+        assert(contact && phone, `формат ${count}: отсутствует контактный блок`);
+        const contactRect = contact.getBoundingClientRect();
+        assert(contactRect.left >= flyerRect.left - 1 && contactRect.right <= flyerRect.right + 1 && contactRect.bottom <= flyerRect.bottom + 1, `формат ${count}: контакты вышли за карточку`);
+        assert(phone.textContent.trim() === '+7 960 125-18-77', `формат ${count}: потерян полный телефон`);
+        assert(contact.textContent.includes('Анна Качкина'), `формат ${count}: потеряно имя СПН`);
+        assert(parseFloat(win.getComputedStyle(phone).fontSize) >= phoneThresholds[count], `формат ${count}: телефон меньше ${phoneThresholds[count]} px`);
+
+        const tears = flyer.querySelector('.tears');
+        if(count <= 4){
+          assert(tears, `формат ${count}: отсутствует блок отрывных полос`);
+          const tearItems = [...tears.querySelectorAll('.tear')];
+          assert(tearItems.length === 8, `формат ${count}: ожидалось 8 полос, получено ${tearItems.length}`);
+          const tearsRect = tears.getBoundingClientRect();
+          assert(tearsRect.left >= flyerRect.left - 1 && tearsRect.right <= flyerRect.right + 1 && tearsRect.bottom <= flyerRect.bottom + 1, `формат ${count}: блок полос вышел за карточку`);
+          for(const tear of tearItems){
+            const tearRect = tear.getBoundingClientRect();
+            assert(tearRect.left >= flyerRect.left - 1 && tearRect.right <= flyerRect.right + 1 && tearRect.bottom <= flyerRect.bottom + 1, `формат ${count}: отдельная полоса вышла за карточку`);
+            assert(tear.textContent.includes('+7 960 125-18-77'), `формат ${count}: полоса потеряла телефон`);
+          }
+        } else {
+          assert(!tears, `формат ${count}: плотный макет содержит полосы`);
+        }
+      }
+    }
+
+    function snapshot(doc){
+      const tearOffs = doc.getElementById('tearOffs');
+      const flyers = [...doc.querySelectorAll('#printSheet .flyer')];
+      return {
+        count:currentCount,
+        status:doc.getElementById('statusLine')?.textContent || '',
+        flyers:flyers.length,
+        overflow:flyers.filter(flyer => flyer.classList.contains('overflow')).length,
+        tears:flyers.map(flyer => flyer.querySelectorAll('.tear').length),
+        tearOffsChecked:Boolean(tearOffs?.checked),
+        tearOffsDisabled:Boolean(tearOffs?.disabled)
+      };
+    }
+
+    function click(doc, selector){
+      const element = doc.querySelector(selector);
+      assert(element, `не найден ${selector}`);
+      element.click();
+    }
+    function setField(win, doc, selector, value){
+      const input = doc.querySelector(selector);
+      assert(input, `не найден ${selector}`);
+      input.value = value;
+      input.dispatchEvent(new win.Event('input', {bubbles:true}));
+      input.dispatchEvent(new win.Event('change', {bubbles:true}));
+    }
+    function setCheck(win, input, checked){
+      input.checked = checked;
+      input.dispatchEvent(new win.Event('change', {bubbles:true}));
+    }
+    function nextPaint(win){
+      return new Promise(resolve => win.requestAnimationFrame(() => win.requestAnimationFrame(resolve)));
+    }
+    function pass(message){ checks.push(message); }
+    function assert(condition, message){ if(!condition) throw new Error(message); }
+    async function waitFor(predicate, timeout, message){
+      const started = Date.now();
+      while(Date.now() - started < timeout){
+        if(predicate()) return;
+        await new Promise(resolve => setTimeout(resolve, 80));
+      }
+      throw new Error(message);
+    }
+  </script>
+</body>
+</html>

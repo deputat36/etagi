@@ -46,7 +46,8 @@ requireSnippets(files.rules, sources.rules, [
 ]);
 
 requireSnippets(files.render, sources.render, [
-  'const countToken = Number(state.printCount) || 2;',
+  "import { normalizePrintCount } from './state.js';",
+  'const countToken = normalizePrintCount(state.printCount);',
   "const photoToken = safeClassToken(state.photoMode || 'none');",
   "const layoutToken = safeClassToken(state.layoutMode || 'manual');",
   'sheet-count-${countToken}',

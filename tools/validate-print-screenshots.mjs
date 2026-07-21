@@ -13,6 +13,7 @@ const files = {
   fakeChrome: 'tools/fake-chrome-cdp-failure.mjs',
   faultTest: 'tools/test-cdp-failure-artifact.mjs',
   collector: 'tools/collect-print-screenshots.mjs',
+  matrixValidator: 'tools/validate-print-matrix.mjs',
   tearStyles: 'assets/css/tear-offs.css',
   workflow: '.github/workflows/validate.yml',
   package: 'package.json',
@@ -132,6 +133,13 @@ requireSnippets(files.faultTest, sources.faultTest, [
   'Fault-injection проверка пройдена'
 ]);
 
+requireSnippets(files.matrixValidator, sources.matrixValidator, [
+  "'./validate-print-screenshots.mjs'",
+  "'./validate-dense-print-policy.mjs'",
+  'await import(new URL(check, import.meta.url))',
+  'Проверка печатной матрицы и плотных форматов пройдена.'
+]);
+
 validatePipeErrorGuard();
 
 forbidSnippets(files.runner, sources.runner, [
@@ -196,7 +204,7 @@ if(pkg){
   requireScript('screenshots:print', 'node tools/run-print-screenshots.mjs', pkg.scripts || {});
   requireScript('screenshots:manifest', 'node tools/collect-print-screenshots.mjs', pkg.scripts || {});
   requireScript('test:cdp-failure-artifact', 'node tools/test-cdp-failure-artifact.mjs', pkg.scripts || {});
-  requireScript('validate:print-screenshots', 'node tools/validate-print-screenshots.mjs', pkg.scripts || {});
+  requireScript('validate:print-screenshots', 'node tools/validate-print-matrix.mjs', pkg.scripts || {});
 }
 
 requireSnippets(files.guide, sources.guide, [

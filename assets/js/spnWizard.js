@@ -3,6 +3,7 @@ const situations = [
     id: 'owner-price',
     title: 'Узнать цену у собственника',
     goal: 'seller',
+    scenario: 'owner',
     query: 'продающий собственник цена оценка',
     printCount: 2,
     layoutMode: 'readable',
@@ -18,6 +19,7 @@ const situations = [
     id: 'direct-buyer',
     title: 'Есть покупатель',
     goal: 'seller',
+    scenario: 'owner',
     query: 'продающий есть покупатель куплю собственник',
     printCount: 4,
     layoutMode: 'entrance',
@@ -33,6 +35,7 @@ const situations = [
     id: 'entrance-soft',
     title: 'Подъезд / соседи',
     goal: 'seller',
+    scenario: 'entrance',
     query: 'продающий подъезд соседи без давления',
     printCount: 4,
     layoutMode: 'entrance',
@@ -48,6 +51,7 @@ const situations = [
     id: 'object-sale',
     title: 'Продать объект',
     goal: 'object',
+    scenario: 'object',
     query: 'продающий объект фото витрина продажа',
     printCount: 1,
     layoutMode: 'showcase',
@@ -63,6 +67,7 @@ const situations = [
     id: 'tellerman-sad',
     title: 'ЖК Теллерманов сад',
     goal: 'newbuild',
+    scenario: 'newbuild',
     query: 'Теллерманов сад новостройка семейная ипотека материнский капитал',
     printCount: 2,
     layoutMode: 'newbuild_visual',
@@ -78,6 +83,7 @@ const situations = [
     id: 'newbuild-mortgage',
     title: 'Новостройка / ипотека',
     goal: 'newbuild',
+    scenario: 'newbuild',
     query: 'новостройка семейная ипотека маткапитал молодая семья подбор',
     printCount: 2,
     layoutMode: 'readable',
@@ -93,6 +99,7 @@ const situations = [
     id: 'buyer-family',
     title: 'Найти покупателя',
     goal: 'buyer',
+    scenario: 'buyer',
     query: 'продающий покупатель семья квартира дом',
     printCount: 2,
     layoutMode: 'readable',
@@ -108,6 +115,7 @@ const situations = [
     id: 'safe-deal',
     title: 'Консультация / безопасность',
     goal: 'service',
+    scenario: 'all',
     query: 'продающий безопасная сделка документы консультация',
     printCount: 2,
     layoutMode: 'readable',
@@ -123,6 +131,7 @@ const situations = [
     id: 'brand-district',
     title: 'Личный бренд СПН',
     goal: 'brand',
+    scenario: 'photo',
     query: 'личный бренд специалист район консультация оценка',
     printCount: 2,
     layoutMode: 'agent_brand_photo',
@@ -138,6 +147,7 @@ const situations = [
     id: 'blank-custom',
     title: 'Нестандартный макет',
     goal: 'all',
+    scenario: 'all',
     query: 'пустой нестандартный с нуля',
     printCount: 2,
     layoutMode: 'readable',
@@ -195,6 +205,7 @@ document.addEventListener('DOMContentLoaded', () => {
       detail: {
         situationId: item.id,
         goal: item.goal,
+        scenario: item.scenario,
         query: item.query,
         printCount: item.printCount,
         layoutMode: item.layoutMode,
@@ -225,7 +236,7 @@ function renderWizard(){
       <button type="button" data-spn-reset>Сбросить</button>
     </div>
     <div class="spn-wizard-grid">
-      ${situations.map(item => `<button type="button" data-spn-situation="${item.id}"><span>${item.title}</span><small>${item.hint}</small></button>`).join('')}
+      ${situations.map(item => `<button type="button" data-spn-situation="${item.id}" data-spn-scenario="${item.scenario || 'all'}"><span>${item.title}</span><small>${item.hint}</small></button>`).join('')}
     </div>
     <div class="spn-recommendation" id="spnRecommendation">
       <b>Выберите ситуацию</b>

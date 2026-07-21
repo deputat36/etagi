@@ -7,6 +7,8 @@ const files = {
   audit:'data/workflow-selection-audit.json',
   wizard:'assets/js/spnWizard.js',
   app:'assets/js/app.js',
+  uiMode:'assets/js/spnUiMode.js',
+  uiModeCss:'assets/css/spn-ui-mode.css',
   docs:'docs/workflow-selection-audit.md',
   smoke:'tools/workflow-selection-smoke.html',
   runner:'tools/run-workflow-selection-smoke.mjs',
@@ -26,13 +28,10 @@ if(audit){
   for(const id of ['WF-01','WF-02','WF-03','WF-04','WF-05','WF-06']){
     if(!byId.has(id)) errors.push(`${files.audit}: отсутствует finding ${id}`);
   }
-  for(const id of ['WF-01','WF-02','WF-04','WF-06']){
+  for(const id of ['WF-01','WF-02','WF-03','WF-04','WF-05','WF-06']){
     if(byId.get(id)?.status !== 'resolved') errors.push(`${files.audit}: ${id} должен иметь status=resolved`);
   }
-  for(const id of ['WF-03','WF-05']){
-    if(byId.get(id)?.status !== 'open') errors.push(`${files.audit}: ${id} должен оставаться open`);
-  }
-  if(audit.decisionForNextPr?.priority !== 'WF-03 + WF-05') errors.push(`${files.audit}: следующий приоритет должен быть WF-03 + WF-05`);
+  if(audit.decisionForNextPr?.priority !== 'Этап 4: названия wizard + сохранение и перенос') errors.push(`${files.audit}: неверный следующий приоритет этапа 4`);
 }
 
 requireSnippets(files.wizard, sources.wizard, [
@@ -41,6 +40,8 @@ requireSnippets(files.wizard, sources.wizard, [
   "goal: 'newbuild'",
   "new CustomEvent('spn:workflow-selection'",
   'situationId: item.id,',
+  'scenario: item.scenario,',
+  `data-spn-scenario="\${item.scenario || 'all'}"`,
   'printCount: item.printCount,',
   'layoutMode: item.layoutMode,',
   "document.addEventListener('spn:task-selection'",
@@ -57,10 +58,15 @@ requireSnippets(files.app, sources.app, [
   "document.addEventListener('spn:workflow-selection', applyWorkflowSelection);",
   'function applyWorkflowSelection(event)',
   "state.templateId = '';",
+  "selectedScenario = scenarioPresets.some(item => item.id === detail.scenario) ? detail.scenario : 'all';",
   "$('templateSearch').value = String(detail.query || '');",
   "$('templateDensityFilter').value = 'all';",
   'if(nextLayoutMode) state = applyLayoutModePreservingMedia(state, nextLayoutMode);',
   'state.printCount = nextPrintCount;',
+  'function handleUiModeChange(event)',
+  `inferTemplateScenario(activeTemplate, 'all')`,
+  'function inferTemplateScenario(t, currentScenario = selectedScenario)',
+  'selectedScenario = inferTemplateScenario(t);',
   "new CustomEvent('spn:task-selection'",
   'selectedScenario = btn.dataset.scenario;',
   'goal: t.goal,',
@@ -75,10 +81,12 @@ requireSnippets(files.docs, sources.docs, [
   'рабочая ситуация → задача → сценарий → шаблон',
   'WF-01 — исправлено',
   'WF-02 — исправлено',
+  'WF-03 — исправлено',
   'WF-04 — исправлено',
+  'WF-05 — исправлено',
   'WF-06 — исправлено',
   'Текущий макет не заменяется до явного выбора шаблона.',
-  'WF-03 и WF-05 остаются открытыми'
+  'WF-01–WF-06 закрыты автоматическими контрактами'
 ]);
 requireSnippets(files.smoke, sources.smoke, [
   'id="workflowSelectionSmokeResult"',
@@ -88,13 +96,23 @@ requireSnippets(files.smoke, sources.smoke, [
   'до явного выбора неожиданно остался активный шаблон',
   'ситуация: задача, поиск и настройки применены одной транзакцией',
   'задача: фильтрует библиотеку без автоматического шаблона',
-  'сценарий: только фильтрует список и не применяет шаблон',
-  'шаблон: применяется только после явного клика пользователя',
+  'сценарий: остаётся дополнительным фильтром и не применяет шаблон',
+  'шаблон: применяется явно и синхронизирует сценарий',
+  'режимы: повторный сценарный выбор скрыт в простом пути',
   'маршрут: ручной поиск не подменяет явный выбор ситуации',
   'Последнее действие:',
   'Состояние:'
 ]);
 forbidSnippets(files.smoke, sources.smoke, ['fetch(', 'XMLHttpRequest', 'localStorage.setItem']);
+requireSnippets(files.uiMode, sources.uiMode, [
+  "new CustomEvent('spn:ui-mode-change'",
+  'detail:{mode:next}'
+]);
+requireSnippets(files.uiModeCss, sources.uiModeCss, [
+  'body[data-spn-ui-mode="quick"] .scenario-filter-row',
+  'body[data-spn-ui-mode="newbie"] .scenario-filter-row',
+  '.scenario-filter-label'
+]);
 requireSnippets(files.runner, sources.runner, [
   "path.join(rootDir, 'workflow-selection-failure.log')",
   'for(let attempt = 1; attempt <= 2; attempt += 1)',
@@ -122,7 +140,7 @@ if(errors.length){
   process.exit(1);
 }
 
-console.log('Исправления WF-01, WF-02, WF-04 и WF-06 подтверждены; WF-03 и WF-05 остаются следующими.');
+console.log('Цепочка выбора WF-01–WF-06 упрощена и подтверждена; следующий этап — названия wizard и сохранение/перенос.');
 
 function extractBetween(source, start, end){
   const startIndex = source.indexOf(start);

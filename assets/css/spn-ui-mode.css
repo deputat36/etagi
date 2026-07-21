@@ -31,6 +31,9 @@ body[data-spn-ui-mode="quick"] .block-manager,
 body[data-spn-ui-mode="newbie"] .block-manager{padding-bottom:10px}
 body[data-spn-ui-mode="quick"] .quality-card,
 body[data-spn-ui-mode="newbie"] .quality-card{margin-bottom:18px}
+body[data-spn-ui-mode="quick"] .scenario-filter-row,
+body[data-spn-ui-mode="newbie"] .scenario-filter-row{display:none!important}
+.scenario-filter-label{align-self:center;color:#64748b;font-size:11px;font-weight:900}
 body[data-spn-ui-mode="newbie"] .spn-newbie-hidden-template{display:none!important}
 body[data-spn-ui-mode="newbie"] .spn-ui-mode{border-color:#bbf7d0;background:linear-gradient(180deg,#fff,#f0fdf4)}
 @media(max-width:520px){.spn-ui-mode{grid-template-columns:1fr}.spn-ui-mode-actions button{flex:1}}

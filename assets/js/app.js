@@ -115,6 +115,7 @@ function bindStaticUi(){
   $('uploadBtn').onclick = () => $('uploadFile').click();
   $('uploadFile').onchange = loadFromFile;
   document.addEventListener('spn:workflow-selection', applyWorkflowSelection);
+  document.addEventListener('spn:ui-mode-change', handleUiModeChange);
 }
 
 function renderGoals(){
@@ -136,7 +137,7 @@ function applyWorkflowSelection(event){
 
   state.goal = nextGoal;
   state.templateId = '';
-  selectedScenario = 'all';
+  selectedScenario = scenarioPresets.some(item => item.id === detail.scenario) ? detail.scenario : 'all';
   $('templateSearch').value = String(detail.query || '');
   $('templateDensityFilter').value = 'all';
 
@@ -145,6 +146,17 @@ function applyWorkflowSelection(event){
   state.blockOrder = normalizeBlockOrder(state.blockOrder);
   renderAll();
   setStatus(`Офисный подбор: ${detail.title || 'рабочая ситуация'}. Текущий текст сохранён; выберите подходящий шаблон явно.`);
+}
+
+function handleUiModeChange(event){
+  const mode = event.detail?.mode || document.body.dataset.spnUiMode || 'quick';
+  if(mode !== 'advanced'){
+    const activeSituation = document.querySelector('[data-spn-situation].active');
+    const activeTemplate = templates.find(item => item.id === state.templateId);
+    const contextualScenario = activeSituation?.dataset.spnScenario || inferTemplateScenario(activeTemplate, 'all');
+    selectedScenario = scenarioPresets.some(item => item.id === contextualScenario) ? contextualScenario : 'all';
+  }
+  renderTemplates();
 }
 
 function renderPhotoModes(){
@@ -172,7 +184,7 @@ function renderTemplateFavoriteToolbar(){
 function renderScenarioFilters(){
   const toolbar = $('templateSearch').closest('.toolbar-row');
   if(!toolbar || $('scenarioFilterRow')) return;
-  toolbar.insertAdjacentHTML('afterend', '<div class="chip-row scenario-filter-row" id="scenarioFilterRow"></div><div class="template-count-line" id="templateCountLine"></div>');
+  toolbar.insertAdjacentHTML('afterend', '<div class="chip-row scenario-filter-row" id="scenarioFilterRow" aria-label="Дополнительный фильтр шаблонов"></div><div class="template-count-line" id="templateCountLine"></div>');
   $('scenarioFilterRow').addEventListener('click', event => {
     const btn = event.target.closest('[data-scenario]');
     if(!btn || btn.disabled) return;
@@ -191,7 +203,7 @@ function updateScenarioFilters(baseList = getBaseTemplateList()){
   const row = $('scenarioFilterRow');
   if(!row) return;
   const counts = Object.fromEntries(scenarioPresets.map(item => [item.id, countScenario(baseList, item.id)]));
-  row.innerHTML = scenarioPresets.map(item => {
+  row.innerHTML = '<span class="scenario-filter-label">Дополнительный фильтр:</span>' + scenarioPresets.map(item => {
     const count = counts[item.id] || 0;
     const active = selectedScenario === item.id;
     const disabled = item.id !== 'all' && count === 0;
@@ -207,7 +219,9 @@ function updateTemplateCountLine(visibleCount, baseCount){
   if(!el) return;
   const scenarioTitle = scenarioPresets.find(item => item.id === selectedScenario)?.title || 'Все';
   const favoriteText = $('showFavoriteTemplatesOnly')?.checked ? ' · только избранные' : '';
-  el.textContent = `Найдено шаблонов: ${visibleCount} из ${baseCount}. Сценарий: ${scenarioTitle}${favoriteText}.`;
+  const advanced = document.body.dataset.spnUiMode === 'advanced';
+  const scenarioText = advanced ? `Дополнительный фильтр: ${scenarioTitle}` : selectedScenario === 'all' ? 'Подбор без дополнительного фильтра' : `Подбор по ситуации: ${scenarioTitle}`;
+  el.textContent = `Найдено шаблонов: ${visibleCount} из ${baseCount}. ${scenarioText}${favoriteText}.`;
 }
 function renderSavedLayouts(selectedId = ''){
   const select = $('savedLayouts');
@@ -383,6 +397,16 @@ function matchScenario(t, scenario){
   if(scenario === 'economy') return Number(t.printCount) >= 4 || t.density === 'dense' || text.includes('эконом');
   return true;
 }
+function inferTemplateScenario(t, currentScenario = selectedScenario){
+  if(!t) return 'all';
+  if(currentScenario && currentScenario !== 'all' && matchScenario(t, currentScenario)) return currentScenario;
+  const byGoal = {seller:'owner', buyer:'buyer', object:'object', newbuild:'newbuild', private:'private'};
+  if(byGoal[t.goal]) return byGoal[t.goal];
+  if(t.photo && t.photo !== 'none') return 'photo';
+  if(Number(t.printCount) >= 4 || t.density === 'dense') return 'economy';
+  return 'all';
+}
+
 function templateCard(t){
   const miniClass = t.photo === 'two' ? 'two-photo' : (t.photo && t.photo !== 'none' ? 'has-photo' : '');
   const isFavorite = favoriteTemplateIds.has(t.id);
@@ -414,6 +438,7 @@ function applyTemplate(t){
   if(t.density) state.layoutDensity = t.density;
   if(state.photoMode === 'none') state.showPhoto = false;
   if(state.showPhoto && state.photoMode !== 'none' && (state.photoOne || state.photoTwo)) state.showPhoto = true;
+  selectedScenario = inferTemplateScenario(t);
   syncFormFromState();
 }
 function pickProfile(source){

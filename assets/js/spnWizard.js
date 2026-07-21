@@ -190,22 +190,25 @@ document.addEventListener('DOMContentLoaded', () => {
     wizard.querySelectorAll('[data-spn-situation]').forEach(item => item.classList.remove('active'));
     btn.classList.add('active');
     renderRecommendation(item);
+
+    document.dispatchEvent(new CustomEvent('spn:workflow-selection', {
+      detail: {
+        situationId: item.id,
+        goal: item.goal,
+        query: item.query,
+        printCount: item.printCount,
+        layoutMode: item.layoutMode,
+        title: item.title,
+        hint: item.hint
+      }
+    }));
     updateRoute();
+  });
 
-    if(item.goal !== 'all'){
-      const goalBtn = document.querySelector(`[data-goal="${item.goal}"]`);
-      if(goalBtn) goalBtn.click();
-    }
-
-    window.setTimeout(() => {
-      search.value = item.query;
-      if(density) density.value = 'all';
-      search.dispatchEvent(new Event('input', {bubbles:true}));
-      if(density) density.dispatchEvent(new Event('change', {bubbles:true}));
-      applyRecommendedSettings(item);
-      updateRoute();
-      setStatus(`Офисный подбор: ${item.title}. ${item.hint}`);
-    }, 90);
+  document.addEventListener('spn:task-selection', () => {
+    wizard.querySelectorAll('[data-spn-situation]').forEach(item => item.classList.remove('active'));
+    renderRecommendation(null);
+    updateRoute();
   });
 
   bindRouteUpdates();
@@ -326,17 +329,6 @@ function renderRecommendation(item){
     <span><strong>Смысл:</strong> ${item.recommendation.message}</span>
     <span><strong>Проверка:</strong> ${item.recommendation.manager}</span>
     <span><strong>Отслеживать:</strong> ${item.recommendation.metric}</span>`;
-}
-
-function applyRecommendedSettings(item){
-  if(item.printCount){
-    const countBtn = document.querySelector(`[data-count="${item.printCount}"]`);
-    if(countBtn) countBtn.click();
-  }
-  if(item.layoutMode){
-    const modeBtn = document.querySelector(`[data-layout-mode="${item.layoutMode}"]`);
-    if(modeBtn) modeBtn.click();
-  }
 }
 
 function value(id){

@@ -21,56 +21,74 @@ if(audit){
   const levels = Array.isArray(audit.levels) ? audit.levels : [];
   const levelIds = levels.map(item => item.id);
   if(JSON.stringify(levelIds) !== JSON.stringify(['situation','task','scenario','template'])) errors.push(`${files.audit}: уровни должны идти situation → task → scenario → template`);
-  const findingIds = (Array.isArray(audit.findings) ? audit.findings : []).map(item => item.id);
+  const findings = Array.isArray(audit.findings) ? audit.findings : [];
+  const byId = new Map(findings.map(item => [item.id, item]));
   for(const id of ['WF-01','WF-02','WF-03','WF-04','WF-05','WF-06']){
-    if(!findingIds.includes(id)) errors.push(`${files.audit}: отсутствует finding ${id}`);
+    if(!byId.has(id)) errors.push(`${files.audit}: отсутствует finding ${id}`);
   }
-  if(audit.decisionForNextPr?.priority !== 'WF-01 + WF-02 + WF-06') errors.push(`${files.audit}: следующий приоритет должен быть WF-01 + WF-02 + WF-06`);
+  for(const id of ['WF-01','WF-02','WF-06']){
+    if(byId.get(id)?.status !== 'resolved') errors.push(`${files.audit}: ${id} должен иметь status=resolved`);
+  }
+  for(const id of ['WF-03','WF-04','WF-05']){
+    if(byId.get(id)?.status !== 'open') errors.push(`${files.audit}: ${id} должен оставаться open`);
+  }
+  if(audit.decisionForNextPr?.priority !== 'WF-03 + WF-04 + WF-05') errors.push(`${files.audit}: следующий приоритет должен быть WF-03 + WF-04 + WF-05`);
 }
 
 requireSnippets(files.wizard, sources.wizard, [
   "const situations = [",
   "id: 'tellerman-sad'",
   "goal: 'newbuild'",
-  'goalBtn.click()',
-  'window.setTimeout(() => {',
-  'search.value = item.query;',
-  'applyRecommendedSettings(item);',
+  "new CustomEvent('spn:workflow-selection'",
+  'situationId: item.id,',
+  'printCount: item.printCount,',
+  'layoutMode: item.layoutMode,',
+  "document.addEventListener('spn:task-selection'",
   "Boolean(document.querySelector('[data-spn-situation].active')) || Boolean(value('templateSearch'))"
 ]);
+forbidSnippets(files.wizard, sources.wizard, [
+  'goalBtn.click()',
+  'window.setTimeout(() => {',
+  'applyRecommendedSettings(item)'
+]);
+
 requireSnippets(files.app, sources.app, [
-  "selectedScenario = 'all';",
-  'const first = filterTemplates(templates, state.goal)[0];',
-  'if(first) applyTemplate(first);',
+  "document.addEventListener('spn:workflow-selection', applyWorkflowSelection);",
+  'function applyWorkflowSelection(event)',
+  "state.templateId = '';",
+  "$('templateSearch').value = String(detail.query || '');",
+  "$('templateDensityFilter').value = 'all';",
+  'if(nextLayoutMode) state = applyLayoutModePreservingMedia(state, nextLayoutMode);',
+  'state.printCount = nextPrintCount;',
+  "new CustomEvent('spn:task-selection'",
   'selectedScenario = btn.dataset.scenario;',
-  'renderTemplates();',
   'goal: t.goal,',
   'templateId: t.id,'
 ]);
+const renderGoalsSource = extractBetween(sources.app, 'function renderGoals(){', 'function applyWorkflowSelection(event)');
+if(!renderGoalsSource) errors.push(`${files.app}: не найден блок renderGoals`);
+else if(renderGoalsSource.includes('applyTemplate(')) errors.push(`${files.app}: выбор задачи не должен применять шаблон автоматически`);
+
 requireSnippets(files.docs, sources.docs, [
-  '# Аудит цепочки выбора рабочего пути СПН',
+  '# Цепочка выбора рабочего пути СПН',
   'рабочая ситуация → задача → сценарий → шаблон',
-  'WF-01. Автоматический первый шаблон',
-  'WF-02. Две фазы ситуации',
-  'WF-03. Поиск и сценарий',
-  'WF-04. Поиск засчитывается как ситуация',
-  'WF-05. Задача и сценарий после шаблона',
-  'WF-06. Скрытый автоматически выбранный шаблон',
+  'WF-01 — исправлено',
+  'WF-02 — исправлено',
+  'WF-06 — исправлено',
   'Текущий макет не заменяется до явного выбора шаблона.',
-  'Активная карточка всегда соответствует фактически применённому шаблону'
+  'WF-03, WF-04 и WF-05 остаются открытыми'
 ]);
 requireSnippets(files.smoke, sources.smoke, [
   'id="workflowSelectionSmokeResult"',
   "click(doc, '[data-spn-situation=\"tellerman-sad\"]')",
   'explicitTemplateClicks === 0',
-  'задача не применила первый шаблон автоматически',
-  'после ситуации сценарий не остался Все',
-  'автоматически применённый шаблон неожиданно остался видимым',
-  'ситуация: автоматически применённый шаблон скрыт последующим поиском',
-  "doc.querySelector('[data-scenario=\"newbuild\"]')?.classList.contains('active')",
+  'ситуация заменила текст текущего макета',
+  'до явного выбора неожиданно остался активный шаблон',
+  'ситуация: задача, поиск и настройки применены одной транзакцией',
+  'задача: фильтрует библиотеку без автоматического шаблона',
   'сценарий: только фильтрует список и не применяет шаблон',
   'шаблон: применяется только после явного клика пользователя',
-  'маршрут: ручной поиск засчитывается как выбранная ситуация',
+  'маршрут: ручной поиск пока засчитывается как выбранная ситуация',
   'Последнее действие:',
   'Состояние:'
 ]);
@@ -97,13 +115,19 @@ const browserStep = sources.workflow.indexOf('run: node tools/run-workflow-selec
 if(staticStep < 0 || browserStep < 0 || staticStep > browserStep) errors.push(`${files.workflow}: статическая проверка должна выполняться до browser smoke`);
 
 if(errors.length){
-  console.error('\nОшибки аудита цепочки выбора:');
+  console.error('\nОшибки цепочки выбора:');
   errors.forEach(error => console.error(`- ${error}`));
   process.exit(1);
 }
 
-console.log('Аудит цепочки ситуация → задача → сценарий → шаблон подтверждён.');
+console.log('Исправления WF-01, WF-02 и WF-06 подтверждены; WF-03, WF-04 и WF-05 остаются следующими.');
 
+function extractBetween(source, start, end){
+  const startIndex = source.indexOf(start);
+  const endIndex = source.indexOf(end, startIndex + start.length);
+  if(startIndex < 0 || endIndex < 0) return '';
+  return source.slice(startIndex, endIndex);
+}
 function requireSnippets(file, source, snippets){
   for(const snippet of snippets){
     if(!source.includes(snippet)) errors.push(`${file}: отсутствует обязательный фрагмент — ${snippet}`);

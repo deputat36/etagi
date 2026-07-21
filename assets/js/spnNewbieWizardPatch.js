@@ -4,6 +4,8 @@ let redirectingHiddenStep = false;
 let lastMode = '';
 let pendingNewbieAutoEnable = false;
 let autoEnableAttempts = 0;
+let newbieAutoEnabledWizard = false;
+let autoToggleInProgress = false;
 
 window.addEventListener('DOMContentLoaded', () => {
   injectStyles();
@@ -27,6 +29,11 @@ function bindWizardNavigationPatch(){
 
 function handleNewbieWizardNavigation(event){
   if(document.body.dataset.spnUiMode !== 'newbie') return;
+
+  const toggle = event.target.closest('#spnWizardToggle');
+  if(toggle && !autoToggleInProgress){
+    newbieAutoEnabledWizard = false;
+  }
 
   const currentStep = document.body.dataset.wizardStep || 'goal';
   const next = event.target.closest('#spnWizardNext');
@@ -57,11 +64,17 @@ function syncNewbieWizardState(){
   const mode = document.body.dataset.spnUiMode || '';
   const isNewbie = mode === 'newbie';
   const enteredNewbie = isNewbie && lastMode !== 'newbie';
+  const leftNewbie = !isNewbie && lastMode === 'newbie';
   const step = document.body.dataset.wizardStep;
 
   if(enteredNewbie){
     pendingNewbieAutoEnable = true;
     autoEnableAttempts = 0;
+    newbieAutoEnabledWizard = false;
+  }
+
+  if(leftNewbie){
+    disableWizardAutoEnabledByNewbie();
   }
 
   if(!isNewbie){
@@ -83,7 +96,13 @@ function tryEnableWizardForNewbie(){
 
   const toggle = document.getElementById('spnWizardToggle');
   if(toggle){
-    toggle.click();
+    autoToggleInProgress = true;
+    try{
+      toggle.click();
+    } finally {
+      autoToggleInProgress = false;
+    }
+    newbieAutoEnabledWizard = document.body.dataset.wizardFlow === 'on';
     pendingNewbieAutoEnable = false;
     return;
   }
@@ -91,6 +110,13 @@ function tryEnableWizardForNewbie(){
   autoEnableAttempts += 1;
   if(autoEnableAttempts < 10) scheduleNewbieWizardSync();
   else pendingNewbieAutoEnable = false;
+}
+
+function disableWizardAutoEnabledByNewbie(){
+  if(!newbieAutoEnabledWizard) return;
+  newbieAutoEnabledWizard = false;
+  if(document.body.dataset.wizardFlow !== 'on') return;
+  document.getElementById('spnWizardToggle')?.click();
 }
 
 function redirectHiddenSaveStep(){

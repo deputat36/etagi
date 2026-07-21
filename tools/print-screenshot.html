@@ -38,6 +38,7 @@
         else if(scenario === 'one-showcase') await prepareOneShowcase(win, doc);
         else if(scenario === 'two-photo') await prepareTwoPhoto(win, doc);
         else if(scenario === 'four-contacts') await prepareFourContacts(doc);
+        else if(scenario === 'six-economy') await prepareSixEconomy(win, doc);
         else throw new Error(`неизвестный сценарий ${scenario}`);
 
         await waitFor(() => doc.querySelectorAll('#printSheet .flyer').length > 0, 3000, 'макеты исчезли');
@@ -119,6 +120,22 @@
       await waitFor(() => doc.querySelectorAll('#printSheet .flyer.color-economy.count-4').length === 4, 3000, 'не создано 4 экономных макета');
     }
 
+    async function prepareSixEconomy(win, doc){
+      setField(win, doc, '#headline', 'ПРОДАМ КВАРТИРУ');
+      setField(win, doc, '#description', 'Борисоглебск. Позвоните — расскажу подробности.');
+      setField(win, doc, '#benefits', 'Быстрый ответ по цене\nПомогу с документами\nБезопасное сопровождение');
+      click(doc, '[data-photo="none"]');
+      click(doc, '[data-layout-mode="economy"]');
+      click(doc, '[data-count="6"]');
+      await waitFor(() => doc.getElementById('colorMode')?.value === 'economy', 3000, 'формат 6 на А4 не включил экономный цвет');
+      await waitFor(() => doc.querySelectorAll('#printSheet .flyer.color-economy.count-6.no-photo').length === 6, 3000, 'не создано 6 экономных макетов');
+      if(doc.querySelector('#printSheet .flyer.count-6 .tears')) throw new Error('формат 6 на А4 неожиданно содержит отрывные полосы');
+      const phone = doc.querySelector('#printSheet .flyer.count-6 .phone');
+      const headline = doc.querySelector('#printSheet .flyer.count-6 .headline');
+      if(!phone || parseFloat(frame.contentWindow.getComputedStyle(phone).fontSize) < 18) throw new Error('телефон в формате 6 на А4 недостаточно читаемый');
+      if(!headline || parseFloat(frame.contentWindow.getComputedStyle(headline).fontSize) < 14) throw new Error('заголовок в формате 6 на А4 недостаточно читаемый');
+    }
+
     function assertSheet(doc, currentScenario){
       const flyers = [...doc.querySelectorAll('#printSheet .flyer')];
       if(!flyers.length) throw new Error('нет макетов для проверки');
@@ -130,11 +147,12 @@
         const contactRect = contact.getBoundingClientRect();
         if(contactRect.bottom > flyerRect.bottom + 1 || contactRect.right > flyerRect.right + 1) throw new Error('контакты выходят за границы макета');
       }
-      const expected = {'one-no-photo':1,'two-big-phone':2,'three-tearoffs':3,'one-showcase':1,'two-photo':2,'four-contacts':4}[currentScenario];
+      const expected = {'one-no-photo':1,'two-big-phone':2,'three-tearoffs':3,'one-showcase':1,'two-photo':2,'four-contacts':4,'six-economy':6}[currentScenario];
       if(flyers.length !== expected) throw new Error(`ожидалось ${expected} макетов, получено ${flyers.length}`);
       assertLightweightContacts(flyers);
       if(currentScenario === 'three-tearoffs') assertTearOffs(flyers);
-      if(['three-tearoffs','four-contacts'].includes(currentScenario)) assertInkEfficientContacts(flyers);
+      if(['three-tearoffs','four-contacts','six-economy'].includes(currentScenario)) assertInkEfficientContacts(flyers);
+      if(currentScenario === 'six-economy') assertSixEconomy(flyers);
     }
 
     function assertTearOffs(flyers){
@@ -151,6 +169,16 @@
           if(rect.left < flyerRect.left - 1 || rect.right > flyerRect.right + 1 || rect.bottom > flyerRect.bottom + 1) throw new Error('отдельная отрывная полоса вышла за границы');
           if(!item.textContent.includes('+7 960 125-18-77')) throw new Error('отрывная полоса потеряла телефон');
         }
+      }
+    }
+
+    function assertSixEconomy(flyers){
+      for(const flyer of flyers){
+        if(flyer.querySelector('.tears')) throw new Error('экономный макет 6 на А4 содержит отрывные полосы');
+        const phone = flyer.querySelector('.phone');
+        const contact = flyer.querySelector('.contact');
+        if(!phone || phone.textContent.trim() !== '+7 960 125-18-77') throw new Error('макет 6 на А4 потерял телефон');
+        if(!contact?.textContent.includes('Анна Качкина')) throw new Error('макет 6 на А4 потерял имя специалиста');
       }
     }
 

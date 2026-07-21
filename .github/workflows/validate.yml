@@ -151,6 +151,7 @@ jobs:
           - one-showcase
           - two-photo
           - four-contacts
+          - six-economy
     steps:
       - name: Checkout
         uses: actions/checkout@v4

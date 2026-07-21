@@ -14,7 +14,8 @@ const scenarios = [
   {id:'three-tearoffs', title:'3 на А4 с контактами и отрывными полосами'},
   {id:'one-showcase', title:'1 на А4 — Витрина'},
   {id:'two-photo', title:'2 на А4 — С фото'},
-  {id:'four-contacts', title:'4 на А4 без наложения контактов'}
+  {id:'four-contacts', title:'4 на А4 без наложения контактов'},
+  {id:'six-economy', title:'6 на А4 — экономный контактный макет'}
 ];
 const requestedScenario = getRequestedScenario();
 const selectedScenarios = requestedScenario

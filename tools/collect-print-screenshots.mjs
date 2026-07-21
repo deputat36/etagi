@@ -9,7 +9,8 @@ const expected = [
   'three-tearoffs',
   'one-showcase',
   'two-photo',
-  'four-contacts'
+  'four-contacts',
+  'six-economy'
 ];
 const scenarios = [];
 

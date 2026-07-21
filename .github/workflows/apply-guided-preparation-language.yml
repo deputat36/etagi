@@ -1,0 +1,45 @@
+name: Apply guided preparation language
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.agent/**'
+      - '.github/workflows/apply-guided-preparation-language.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply-language:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: agent/clarify-guided-preparation-language
+          fetch-depth: 0
+
+      - name: Apply naming update
+        run: python .agent/apply_guided_preparation_language.py
+
+      - name: Validate naming update
+        run: |
+          node --check assets/js/spnWizardFlow.js
+          node --check assets/js/spnUiMode.js
+          node --check tools/validate-newbie-mode-docs.mjs
+          node --check tools/validate-wizard-step-status.mjs
+          npm run validate
+          git diff --check -- . ':(exclude).agent/**'
+
+      - name: Commit user-facing changes
+        run: |
+          rm -rf .agent
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "fix: уточнить названия пошаговой подготовки"
+          git push origin HEAD:agent/clarify-guided-preparation-language

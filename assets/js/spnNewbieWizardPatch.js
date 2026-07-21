@@ -10,6 +10,7 @@ let autoToggleInProgress = false;
 window.addEventListener('DOMContentLoaded', () => {
   injectStyles();
   bindNewbieWizardGuards();
+  document.addEventListener('spn:ui-mode-change', syncNewbieWizardState);
   scheduleNewbieWizardSync();
 });
 

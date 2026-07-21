@@ -3,20 +3,36 @@
 <head>
   <meta charset="utf-8">
   <title>Etagi print format policy smoke</title>
-  <style>body{font-family:Arial,sans-serif;margin:16px}iframe{width:1280px;height:900px;border:1px solid #cbd5e1}pre{white-space:pre-wrap;padding:12px;background:#f8fafc}</style>
+  <style>body{font-family:Arial,sans-serif;margin:16px}#appFrame{width:1280px;height:900px;border:1px solid #cbd5e1}#storageFrame{display:none}pre{white-space:pre-wrap;padding:12px;background:#f8fafc}</style>
 </head>
 <body>
   <pre id="uiActionsSmokeResult" data-status="pending">Print format policy smoke is running…</pre>
+  <iframe id="storageFrame" title="Проверка хранения"></iframe>
   <iframe id="appFrame" title="Генератор расклеек"></iframe>
   <script>
-    const AUTO_SAVE_KEY='etagi-raskleyka-state-v1';
     const result=document.getElementById('uiActionsSmokeResult');
+    const storageFrame=document.getElementById('storageFrame');
     const frame=document.getElementById('appFrame');
     const checks=[];
-    let lastAction='startup';
+    let lastAction='policy.local-normalization';
+
+    storageFrame.addEventListener('load',async()=>{
+      try{
+        const fixture=storageFrame.contentDocument?.getElementById('storageFixtureResult');
+        await waitFor(()=>fixture?.dataset.status&&fixture.dataset.status!=='pending',4000,'storage fixture не завершился');
+        assert(fixture.dataset.status==='passed',`старый autosave не нормализован: ${fixture.textContent||'нет результата'}`);
+        const loaded=JSON.parse(fixture.textContent||'null');
+        assert(loaded?.printCount===2,'старый формат не нормализован до 2 на А4');
+        assert(loaded?.layoutName==='Старый локальный макет','нормализация потеряла название макета');
+        assert(loaded?.headline==='Старый формат должен нормализоваться','нормализация потеряла заголовок макета');
+        assert(loaded?.price==='5 500 000 ₽','нормализация потеряла цену макета');
+        pass('A4: старые локальные 10/12 нормализуются до 2 без потери текста');
+        frame.src='/index.html?smoke=print-format-policy';
+      }catch(error){ fail(error); }
+    },{once:true});
 
     frame.addEventListener('load',async()=>{
-      if(result.dataset.status!=='pending') return;
+      if(!frame.getAttribute('src')||result.dataset.status!=='pending') return;
       const win=frame.contentWindow;
       const doc=frame.contentDocument;
       try{
@@ -28,22 +44,6 @@
         assert(JSON.stringify(counts)===JSON.stringify([1,2,3,4,6,8]),`в UI неверный список форматов: ${counts.join(',')}`);
         assert(!doc.querySelector('[data-count="10"]')&&!doc.querySelector('[data-count="12"]'),'в UI появились неподдерживаемые 10/12');
         pass('A4: интерфейс показывает только 1, 2, 3, 4, 6 и 8');
-
-        lastAction='policy.local-normalization';
-        const previousAutoSave=win.localStorage.getItem(AUTO_SAVE_KEY);
-        win.localStorage.setItem(AUTO_SAVE_KEY,JSON.stringify({
-          version:'legacy',templateId:'legacy-print-format-smoke',layoutName:'Старый локальный макет',
-          headline:'Старый формат должен нормализоваться',price:'5 500 000 ₽',printCount:12
-        }));
-        const storageModule=await import('/assets/js/storage.js');
-        const loaded=storageModule.loadAutoSave();
-        assert(loaded?.printCount===2,'старый формат не нормализован до 2 на А4');
-        assert(loaded?.layoutName==='Старый локальный макет','нормализация потеряла название макета');
-        assert(loaded?.headline==='Старый формат должен нормализоваться','нормализация потеряла заголовок макета');
-        assert(loaded?.price==='5 500 000 ₽','нормализация потеряла цену макета');
-        if(previousAutoSave===null) win.localStorage.removeItem(AUTO_SAVE_KEY);
-        else win.localStorage.setItem(AUTO_SAVE_KEY,previousAutoSave);
-        pass('A4: старые локальные 10/12 нормализуются до 2 без потери текста');
 
         lastAction='policy.prepare-current';
         setField(win,doc,'#layoutName','Текущий защищённый макет');
@@ -75,21 +75,18 @@
         lastAction='completed';
         result.dataset.status='passed';
         result.textContent=`PASSED\n${checks.map(item=>`✓ ${item}`).join('\n')}`;
-      }catch(error){
-        result.dataset.status='failed';
-        result.dataset.lastAction=lastAction;
-        result.textContent=`FAILED\n${checks.map(item=>`✓ ${item}`).join('\n')}\n✗ ${error.message||error}\nПоследнее действие: ${lastAction}\nСостояние: ${JSON.stringify(snapshot(doc))}`;
-      }
-    },{once:true});
+      }catch(error){ fail(error,doc); }
+    });
 
-    frame.src='/index.html?smoke=print-format-policy';
-    setTimeout(()=>{if(result.dataset.status==='pending'){result.dataset.status='failed';result.dataset.lastAction=lastAction;result.textContent=`FAILED\n✗ timeout\nПоследнее действие: ${lastAction}`;}},26000);
+    storageFrame.src='/tools/print-format-storage-fixture.html';
+    setTimeout(()=>{if(result.dataset.status==='pending') fail(new Error('timeout'));},28000);
 
     function snapshot(doc){return{
       layoutName:doc?.getElementById('layoutName')?.value||'',headline:doc?.getElementById('headline')?.value||'',price:doc?.getElementById('price')?.value||'',
       activeCount:doc?.querySelector('#printPresetRow [data-count].active')?.dataset.count||'',flyers:doc?.querySelectorAll('#printSheet .flyer').length||0,
       sheetClass:doc?.getElementById('printSheet')?.className||''
     }}
+    function fail(error,doc){result.dataset.status='failed';result.dataset.lastAction=lastAction;result.textContent=`FAILED\n${checks.map(item=>`✓ ${item}`).join('\n')}\n✗ ${error.message||error}\nПоследнее действие: ${lastAction}\nСостояние: ${JSON.stringify(snapshot(doc))}`}
     function setField(win,doc,selector,value){const input=doc.querySelector(selector);assert(input,`не найден ${selector}`);input.value=value;input.dispatchEvent(new win.Event('input',{bubbles:true}));input.dispatchEvent(new win.Event('change',{bubbles:true}))}
     function click(doc,selector){const element=doc.querySelector(selector);assert(element,`не найден ${selector}`);element.click()}
     async function setFile(win,doc,selector,name,content,type){const input=doc.querySelector(selector);assert(input,`не найден ${selector}`);const transfer=new win.DataTransfer();transfer.items.add(new win.File([content],name,{type}));input.files=transfer.files;input.dispatchEvent(new win.Event('change',{bubbles:true}));await waitFor(()=>input.files?.length===1,1000,`файл ${name} не выбран`)}

@@ -29,6 +29,9 @@ jobs:
           ref: agent/workflow-scenario-context
           fetch-depth: 0
 
+      - name: Repair migration script
+        run: python .agent/fix_workflow_path_replacement.py
+
       - name: Apply prepared change
         run: |
           set -o pipefail

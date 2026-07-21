@@ -13,6 +13,7 @@ const files = {
   fakeChrome: 'tools/fake-chrome-cdp-failure.mjs',
   faultTest: 'tools/test-cdp-failure-artifact.mjs',
   collector: 'tools/collect-print-screenshots.mjs',
+  tearStyles: 'assets/css/tear-offs.css',
   workflow: '.github/workflows/validate.yml',
   package: 'package.json',
   guide: 'docs/print-screenshot-regression.md',
@@ -138,6 +139,15 @@ requireSnippets(files.collector, sources.collector, [
   'Не найден ${id}.json после matrix job.',
   "path.join(outputDir, 'manifest.json')",
   'Print screenshot artifacts collected'
+]);
+
+requireSnippets(files.tearStyles, sources.tearStyles, [
+  '.flyer.count-3.compact{gap:1.15mm}',
+  '.flyer.count-3.compact .headline{font-size:calc(18pt * var(--headline-scale));line-height:.96}',
+  '.flyer.count-3.compact .benefit:nth-child(n+4){display:none}',
+  '.flyer.count-3.compact .contact .phone{font-size:calc(18pt * var(--phone-scale))}',
+  '.flyer.count-3.compact .tear{min-height:15.5mm',
+  '.flyer.count-3.compact .tear-phone{font-size:6.3pt;max-height:13.2mm}'
 ]);
 
 requireSnippets(files.workflow, sources.workflow, [

@@ -11,6 +11,7 @@ const failureLogPath = path.join(rootDir, 'print-screenshots-failure.log');
 const scenarios = [
   {id:'one-no-photo', title:'1 на А4 без фото'},
   {id:'two-big-phone', title:'2 на А4 с крупным телефоном'},
+  {id:'three-tearoffs', title:'3 на А4 с контактами и отрывными полосами'},
   {id:'one-showcase', title:'1 на А4 — Витрина'},
   {id:'two-photo', title:'2 на А4 — С фото'},
   {id:'four-contacts', title:'4 на А4 без наложения контактов'}

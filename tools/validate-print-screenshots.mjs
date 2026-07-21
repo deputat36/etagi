@@ -13,6 +13,7 @@ const files = {
   fakeChrome: 'tools/fake-chrome-cdp-failure.mjs',
   faultTest: 'tools/test-cdp-failure-artifact.mjs',
   collector: 'tools/collect-print-screenshots.mjs',
+  tearStyles: 'assets/css/tear-offs.css',
   workflow: '.github/workflows/validate.yml',
   package: 'package.json',
   guide: 'docs/print-screenshot-regression.md',
@@ -27,9 +28,19 @@ requireSnippets(files.harness, sources.harness, [
   'data-status="pending"',
   "scenario === 'one-no-photo'",
   "scenario === 'two-big-phone'",
+  "scenario === 'three-tearoffs'",
   "scenario === 'one-showcase'",
   "scenario === 'two-photo'",
   "scenario === 'four-contacts'",
+  'prepareThreeTearoffs(doc)',
+  "click(doc, '[data-count=\"3\"]')",
+  'телефон в формате 3 на А4 недостаточно крупный',
+  "'three-tearoffs':3",
+  "if(currentScenario === 'three-tearoffs') assertTearOffs(flyers);",
+  'function assertTearOffs(flyers)',
+  'отрывные полосы выходят за границы макета',
+  'ожидалось 8 отрывных полос',
+  'отрывная полоса потеряла телефон',
   'assertSheet(doc, scenario)',
   "flyer.classList.contains('overflow')",
   'контакты выходят за границы макета',
@@ -49,6 +60,7 @@ requireSnippets(files.runner, sources.runner, [
   "path.join(rootDir, 'print-screenshots-failure.log')",
   "{id:'one-no-photo'",
   "{id:'two-big-phone'",
+  "{id:'three-tearoffs'",
   "{id:'one-showcase'",
   "{id:'two-photo'",
   "{id:'four-contacts'",
@@ -119,6 +131,7 @@ forbidSnippets(files.runner, sources.runner, [
 requireSnippets(files.collector, sources.collector, [
   "'one-no-photo'",
   "'two-big-phone'",
+  "'three-tearoffs'",
   "'one-showcase'",
   "'two-photo'",
   "'four-contacts'",
@@ -126,6 +139,15 @@ requireSnippets(files.collector, sources.collector, [
   'Не найден ${id}.json после matrix job.',
   "path.join(outputDir, 'manifest.json')",
   'Print screenshot artifacts collected'
+]);
+
+requireSnippets(files.tearStyles, sources.tearStyles, [
+  '.flyer.count-3.compact{gap:1.15mm}',
+  '.flyer.count-3.compact .headline{font-size:calc(18pt * var(--headline-scale));line-height:.96}',
+  '.flyer.count-3.compact .benefit:nth-child(n+4){display:none}',
+  '.flyer.count-3.compact .contact .phone{font-size:calc(18pt * var(--phone-scale))}',
+  '.flyer.count-3.compact .tear{min-height:15.5mm',
+  '.flyer.count-3.compact .tear-phone{font-size:6.3pt;max-height:13.2mm}'
 ]);
 
 requireSnippets(files.workflow, sources.workflow, [
@@ -141,6 +163,7 @@ requireSnippets(files.workflow, sources.workflow, [
   'fail-fast: false',
   'matrix:',
   'scenario:',
+  '- three-tearoffs',
   'PRINT_SCREENSHOT_SCENARIO: ${{ matrix.scenario }}',
   'run: npm run screenshots:print',
   'name: print-screenshot-${{ matrix.scenario }}',
@@ -168,9 +191,12 @@ requireSnippets(files.guide, sources.guide, [
   'npm run test:cdp-failure-artifact',
   '`one-no-photo.png`',
   '`two-big-phone.png`',
+  '`three-tearoffs.png`',
   '`one-showcase.png`',
   '`two-photo.png`',
   '`four-contacts.png`',
+  'шести job',
+  'шесть PNG',
   'Chrome DevTools Protocol',
   'print-screenshots-failure.log',
   '`ECONNRESET`',

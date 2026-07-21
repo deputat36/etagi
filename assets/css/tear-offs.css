@@ -7,4 +7,21 @@
 .flyer.compact .tear{min-height:20mm;padding:.55mm .15mm .45mm;gap:.35mm}
 .flyer.compact .tear-topic{font-size:4.1pt;line-height:.9;letter-spacing:-.04em}
 .flyer.compact .tear-phone{font-size:6.8pt;max-height:17mm}
+.flyer.count-3.compact{gap:1.15mm}
+.flyer.count-3.compact .brand-mark{width:6.5mm;height:6.5mm;font-size:11pt}
+.flyer.count-3.compact .brand{font-size:9pt}
+.flyer.count-3.compact .headline{font-size:calc(18pt * var(--headline-scale));line-height:.96}
+.flyer.count-3.compact .desc{font-size:7.8pt;line-height:1.08}
+.flyer.count-3.compact .benefits{gap:.55mm}
+.flyer.count-3.compact .benefit{font-size:6.8pt;line-height:1.05}
+.flyer.count-3.compact .benefit:nth-child(n+4){display:none}
+.flyer.count-3.compact .benefit:before{width:3.2mm;height:3.2mm;font-size:5.6pt}
+.flyer.count-3.compact .contact{padding:1.35mm 2mm!important;gap:.35mm!important}
+.flyer.count-3.compact .contact .phone{font-size:calc(18pt * var(--phone-scale))}
+.flyer.count-3.compact .contact .person{font-size:7.2pt}
+.flyer.count-3.compact .contact .cta{font-size:6.8pt}
+.flyer.count-3.compact .tears{gap:.45mm;margin-top:.45mm}
+.flyer.count-3.compact .tear{min-height:15.5mm;padding:.35mm .1mm .3mm;gap:.2mm}
+.flyer.count-3.compact .tear-topic{font-size:3.8pt;line-height:.88}
+.flyer.count-3.compact .tear-phone{font-size:6.3pt;max-height:13.2mm}
 @media print{.tear-topic{-webkit-print-color-adjust:exact;print-color-adjust:exact}.tear-phone{font-weight:900}}

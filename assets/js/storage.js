@@ -5,6 +5,7 @@ const SAVED_KEY = 'etagi-raskleyka-saved-v1';
 const PROFILE_KEY = 'etagi-raskleyka-profile-v1';
 const LAYOUTS_KEY = 'etagi-raskleyka-layouts-v1';
 const FAVORITE_TEMPLATES_KEY = 'etagi-raskleyka-favorite-templates-v1';
+const MAX_SAVED_LAYOUTS = 50;
 
 export function autoSave(state){
   try { localStorage.setItem(KEY, JSON.stringify(stripHeavyFields(state))); }
@@ -67,7 +68,7 @@ export function saveLayout(name, state){
     if(existingByName >= 0) layouts[existingByName] = item;
     else layouts.unshift(item);
 
-    localStorage.setItem(LAYOUTS_KEY, JSON.stringify(layouts.slice(0, 50)));
+    localStorage.setItem(LAYOUTS_KEY, JSON.stringify(layouts.slice(0, MAX_SAVED_LAYOUTS)));
     return item;
   }
   catch(e) {
@@ -95,6 +96,7 @@ export function restoreLayout(item){
   try {
     if(!item || typeof item !== 'object' || !item.state) return null;
     const layouts = listSavedLayouts();
+    if(layouts.length >= MAX_SAVED_LAYOUTS) return null;
     const originalName = String(item.name || item.state.layoutName || 'Восстановленный макет').trim() || 'Восстановленный макет';
     const name = makeRestoredLayoutName(originalName, layouts);
     const originalId = String(item.id || '').trim();
@@ -105,7 +107,7 @@ export function restoreLayout(item){
       updatedAt:new Date().toISOString(),
       state:{...stripHeavyFields(item.state), layoutName:name}
     };
-    localStorage.setItem(LAYOUTS_KEY, JSON.stringify([restored, ...layouts].slice(0, 50)));
+    localStorage.setItem(LAYOUTS_KEY, JSON.stringify([restored, ...layouts]));
     return restored;
   }
   catch(e) {

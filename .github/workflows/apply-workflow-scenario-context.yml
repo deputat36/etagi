@@ -7,6 +7,12 @@ on:
     paths:
       - '.agent/**'
       - '.github/workflows/apply-workflow-scenario-context.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.agent/**'
+      - '.github/workflows/apply-workflow-scenario-context.yml'
 
 permissions:
   contents: write

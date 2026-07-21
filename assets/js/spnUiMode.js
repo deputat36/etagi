@@ -52,7 +52,7 @@ import './spnMetaCompactStyle.js';
 const MODE_KEY = 'etagi-raskleyka-ui-mode-v1';
 const MODES = ['newbie', 'quick', 'advanced'];
 
- document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', () => {
   const header = document.querySelector('.app-header');
   if(!header || document.getElementById('spnUiMode')) return;
   markModeSpecificControls();

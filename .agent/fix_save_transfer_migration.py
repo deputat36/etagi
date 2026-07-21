@@ -12,6 +12,11 @@ for fragment in [
         raise SystemExit(f'Не найден лишний документационный фрагмент: {fragment.strip()}')
     source = source.replace(fragment, '', 1)
 
+trailing_fragment = "  '>Открыть файл<' \n"
+if source.count(trailing_fragment) != 1:
+    raise SystemExit(f'Не найден пробел в контракте старой кнопки: {source.count(trailing_fragment)}')
+source = source.replace(trailing_fragment, "  '>Открыть файл<'\n", 1)
+
 anchor = """replace_all('docs/workspace-backup.md', [
 """
 insert = '''replace_once(

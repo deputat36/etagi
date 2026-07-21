@@ -1,0 +1,42 @@
+name: Apply manual reserve smoke labels
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.agent/fix_manual_reserve_smokes.py'
+      - '.github/workflows/apply-manual-reserve-smokes.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply-smokes:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: agent/clarify-save-and-transfer
+          fetch-depth: 0
+
+      - name: Update smoke expectations
+        run: python .agent/fix_manual_reserve_smokes.py
+
+      - name: Validate smoke files
+        run: |
+          node --check tools/destructive-snapshot-smoke.html
+          node --check tools/destructive-undo-smoke.html
+          git diff --check -- . ':(exclude).agent/**'
+
+      - name: Commit smoke updates
+        run: |
+          rm -rf .agent
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "test: обновить smoke ручного резерва"
+          git push origin HEAD:agent/clarify-save-and-transfer

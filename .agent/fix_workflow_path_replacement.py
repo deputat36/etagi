@@ -47,10 +47,21 @@ if source.count(old) != 1:
     raise SystemExit(f'Не найден единственный проблемный блок миграции: {source.count(old)}')
 source = source.replace(old, new, 1)
 
-bad_quote = r'''  'data-spn-scenario="${item.scenario || \'all\'}"','''
-good_quote = r'''  `data-spn-scenario="${item.scenario || 'all'}"`,'''
-if source.count(bad_quote) != 1:
-    raise SystemExit(f'Не найден проблемный контракт data-spn-scenario: {source.count(bad_quote)}')
-source = source.replace(bad_quote, good_quote, 1)
+replacements = [
+    (
+        r'''  'data-spn-scenario="${item.scenario || \'all\'}"',''',
+        r'''  `data-spn-scenario="${item.scenario || 'all'}"`,''',
+        'контракт data-spn-scenario'
+    ),
+    (
+        r'''  'inferTemplateScenario(activeTemplate, \'all\')',''',
+        r'''  `inferTemplateScenario(activeTemplate, 'all')`,''',
+        'контракт inferTemplateScenario'
+    )
+]
+for bad, good, label in replacements:
+    if source.count(bad) != 1:
+        raise SystemExit(f'Не найден проблемный {label}: {source.count(bad)}')
+    source = source.replace(bad, good, 1)
 
 path.write_text(source, encoding='utf-8')

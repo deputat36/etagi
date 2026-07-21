@@ -52,9 +52,10 @@ import './spnMetaCompactStyle.js';
 const MODE_KEY = 'etagi-raskleyka-ui-mode-v1';
 const MODES = ['newbie', 'quick', 'advanced'];
 
-document.addEventListener('DOMContentLoaded', () => {
+ document.addEventListener('DOMContentLoaded', () => {
   const header = document.querySelector('.app-header');
   if(!header || document.getElementById('spnUiMode')) return;
+  markModeSpecificControls();
   header.insertAdjacentHTML('afterend', renderModePanel());
   const savedMode = localStorage.getItem(MODE_KEY) || 'quick';
   setMode(MODES.includes(savedMode) ? savedMode : 'quick');
@@ -64,6 +65,12 @@ document.addEventListener('DOMContentLoaded', () => {
     setMode(btn.dataset.spnUiMode);
   });
 });
+
+function markModeSpecificControls(){
+  ['splitMode', 'printCheckMode'].forEach(id => {
+    document.getElementById(id)?.closest('label')?.classList.add('spn-newbie-advanced-print');
+  });
+}
 
 function renderModePanel(){
   return `<section class="spn-ui-mode" id="spnUiMode" aria-label="Режим интерфейса">
@@ -97,7 +104,7 @@ function setMode(mode){
 }
 
 function hintText(mode){
-  if(mode === 'newbie') return 'Новичок: пошаговая подготовка, безопасные шаблоны и проверка перед печатью.';
+  if(mode === 'newbie') return 'Новичок: пошаговая подготовка, безопасные шаблоны и основные настройки печати.';
   if(mode === 'advanced') return 'Расширенно: все настройки, сохранение, отчёты и контроль качества.';
   return 'Быстро: основные настройки и готовые сценарии без перегрузки.';
 }

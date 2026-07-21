@@ -2,72 +2,118 @@
 
 Статус: ПРОЙДЕНА
 
-Проверяемая база: `main` на коммите `ded9531015d891e73a374de5af83cefdae0a3d59`
+Проверяемая база: `main` на коммите `6158012ad1ae5f4b35952a7ea41308517a147bd3`
 
-Проверочная ветка: `ci/verify-3.86.0-gate`
+Проверочная ветка: `agent/print-format-coverage-smoke`
 
-Pull request: #52
+Pull request: #91
 
-Успешный workflow run: #1474
+Успешный workflow run: #1883
 
-Workflow run ID: `29342160983`
+Workflow run ID: `29824496781`
 
-Проверенный head SHA: `985ffb45af54c1ccb3dc4f3af4c97ec69d4a5b5f`
+Проверенный head SHA: `85406931140f369bcabe297d7dd4ba21ee10c237`
 
-Дата проверки: 14 июля 2026 года
+Дата проверки: 21 июля 2026 года
 
-Цель документа — получить наблюдаемый `pull_request`-запуск GitHub Actions после последних изменений release gate, evidence-пакета, README и актуального статуса проекта.
+Цель документа — зафиксировать технический срез после завершения этапов сохранности данных и полной автоматической печатной матрицы. Документ не заменяет ручную приёмку issue #40 и менеджерское решение issue #51.
 
-## Почему используется pull request
+## История усиления release gate
 
-Подключённый GitHub-коннектор не возвращает workflow runs для обычных push-коммитов `main`, но поддерживает чтение запусков, связанных с pull request. Поэтому отдельный PR используется как техническое доказательство, а не как замена ручной приёмки.
+Workflow run #1458 корректно обнаружил пропущенный чувствительный шаблон `seller_empty_flat`. Исправление не ослабило автоматическое обнаружение: шаблон был добавлен двенадцатым элементом в бланк и evidence-пакет.
 
-## Первый запуск
+Исторический run #1474 закрепил первый полный release-gate с пятью screenshot-сценариями. После него проект получил дополнительные browser-контракты, защиту данных и форматы 3/6/8.
 
-Workflow run #1458, ID `29341384135`, корректно завершился ошибкой на job `validate`.
+## Результат run #1883
 
-Validator обнаружил, что шаблон `seller_empty_flat` соответствует правилам чувствительного сценария `test / manager / high / recommended=false`, содержит прямой заголовок «Куплю» и упоминание наследственных объектов, но отсутствовал в ручном бланке и evidence-пакете.
-
-Исправление не ослабило автоматическое обнаружение: `seller_empty_flat` добавлен двенадцатым шаблоном во все связанные документы.
-
-## Результат run #1474
-
-- [x] `validate` — выполнен `npm run validate`;
+- [x] `validate` — выполнен полный `npm run validate`;
+- [x] `Verify release status details` — подтверждён список ручных блокеров;
 - [x] `browser-smoke` — пройден настоящий Chrome smoke;
+- [x] `UI actions smoke` — пройдены действия, сохранение и восстановление;
+- [x] `cdp-failure-artifact`;
+- [x] `ui-actions-failure-artifact`;
 - [x] `print-screenshot / one-no-photo`;
 - [x] `print-screenshot / two-big-phone`;
+- [x] `print-screenshot / three-tearoffs`;
 - [x] `print-screenshot / one-showcase`;
 - [x] `print-screenshot / two-photo`;
 - [x] `print-screenshot / four-contacts`;
-- [x] `collect-print-screenshots` — собран итоговый artifact.
+- [x] `print-screenshot / six-economy`;
+- [x] `collect-print-screenshots`.
 
-## Artifacts
+## Основной artifact
 
 Итоговый artifact: `print-screenshots`
 
-Artifact ID: `8314615905`
+Artifact ID: `8492754380`
 
-Digest: `sha256:53fe79556a557486633ad4acbe6e339236e9a3f82b56ad67978b5f78fb405274`
+Digest: `sha256:2edc6a1d42effe845a16687d20c6398e7a492f10aec9805f660964d556de5c03`
 
 Проверенное содержимое:
 
-- `one-no-photo.png` и `one-no-photo.json`;
-- `two-big-phone.png` и `two-big-phone.json`;
-- `one-showcase.png` и `one-showcase.json`;
-- `two-photo.png` и `two-photo.json`;
-- `four-contacts.png` и `four-contacts.json`;
+- `one-no-photo.png` и JSON;
+- `two-big-phone.png` и JSON;
+- `three-tearoffs.png` и JSON;
+- `one-showcase.png` и JSON;
+- `two-photo.png` и JSON;
+- `four-contacts.png` и JSON;
+- `six-economy.png` и JSON;
 - `manifest.json`.
 
-Все пять сценариев зафиксированы через `captureMethod: cdp-pipe`. Job `one-showcase` завершился успешно после точечного rerun из-за подтверждённой нестабильности окружения; остальные обязательные jobs были успешны без повторного запуска.
+Все семь сценариев используют `captureMethod: cdp-pipe`.
+
+## Дополнительные печатные доказательства
+
+### Формат 8 на A4
+
+Workflow: `Validate 8 on A4`
+
+Успешный run: #10
+
+Workflow run ID: `29823514538`
+
+Artifact: `print-screenshot-eight-economy`
+
+Artifact ID: `8492331845`
+
+Digest: `sha256:2c502f7c59670f18d5b6329f34c5200dcea41ce330661c384bc40ed7f2f8dfc8`
+
+Проверены восемь карточек 2×4, отсутствие overflow, границы контактов, полный телефон, имя СПН, телефон не меньше 16 px и заголовок не меньше 12 px.
+
+### Единое покрытие форматов
+
+Workflow: `Validate print format coverage`
+
+Успешный run: #7
+
+Workflow run ID: `29824496884`
+
+Последовательно проверены форматы `1 / 2 / 3 / 4 / 6 / 8`:
+
+- точное количество карточек;
+- полный телефон и имя СПН;
+- отсутствие overflow;
+- контакты внутри карточек;
+- восемь отрывных полос для 1/2/3/4;
+- отключение полос для 6/8;
+- минимальные размеры телефона 30/28/24/20/18/16 px.
 
 ## Подтверждено
 
-- актуальный статус синхронизирован с `package.json`, release candidate и инвентаризацией;
-- evidence-пакет 12 чувствительных шаблонов совпадает с исходными JSON и office-политикой;
 - релиз остаётся `DRAFT`, версия остаётся `3.85.0`;
-- ручные issues #40 и #51 не закрыты автоматическим запуском;
-- screenshot matrix создала пять независимых PNG и итоговый manifest.
+- evidence-пакет 12 чувствительных шаблонов остаётся обязательным;
+- официальные форматы — 1, 2, 3, 4, 6 и 8 на A4;
+- значения 10/12 блокируются;
+- screenshot matrix и browser coverage проходят;
+- ручные issues #40 и #51 не закрыты автоматическим запуском.
 
 ## Ограничение результата
 
-Успешный CI подтверждает техническую целостность, browser smoke и автоматическую печатную screenshot-регрессию. Он не заменяет реальный телефон, рабочий компьютер, офисный принтер, проверку QR камерой и решение менеджера по чувствительным рекламным формулировкам.
+Успешный CI подтверждает техническую целостность, browser smoke и автоматическую печатную регрессию. Он не заменяет:
+
+- реальный телефон и рабочий компьютер;
+- офисный принтер и фактические поля драйвера;
+- проверку читаемости с расстояния;
+- QR камерой двух телефонов;
+- оценку расхода чернил;
+- решение менеджера по чувствительным рекламным формулировкам.

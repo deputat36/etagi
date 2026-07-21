@@ -1,0 +1,55 @@
+name: Validate workflow selection audit
+
+on:
+  push:
+    paths:
+      - 'assets/js/app.js'
+      - 'assets/js/spnWizard.js'
+      - 'data/workflow-selection-audit.json'
+      - 'docs/workflow-selection-audit.md'
+      - 'tools/workflow-selection-smoke.html'
+      - 'tools/run-workflow-selection-smoke.mjs'
+      - 'tools/validate-workflow-selection-audit.mjs'
+      - '.github/workflows/validate-workflow-selection.yml'
+  pull_request:
+    paths:
+      - 'assets/js/app.js'
+      - 'assets/js/spnWizard.js'
+      - 'data/workflow-selection-audit.json'
+      - 'docs/workflow-selection-audit.md'
+      - 'tools/workflow-selection-smoke.html'
+      - 'tools/run-workflow-selection-smoke.mjs'
+      - 'tools/validate-workflow-selection-audit.mjs'
+      - '.github/workflows/validate-workflow-selection.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  workflow-selection-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Validate workflow selection map
+        run: node tools/validate-workflow-selection-audit.mjs
+
+      - name: Verify workflow selection in browser
+        run: node tools/run-workflow-selection-smoke.mjs
+
+      - name: Upload workflow selection failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: workflow-selection-failure
+          path: workflow-selection-failure.log
+          if-no-files-found: warn
+          retention-days: 3

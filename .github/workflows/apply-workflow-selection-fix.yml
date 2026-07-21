@@ -1,0 +1,45 @@
+name: Apply workflow selection fix
+
+on:
+  push:
+    branches:
+      - agent/workflow-selection-safe-choice
+    paths:
+      - '.agent/**'
+      - '.github/workflows/apply-workflow-selection-fix.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply-fix:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: agent/workflow-selection-safe-choice
+          fetch-depth: 0
+
+      - name: Apply prepared change
+        run: python .agent/apply_workflow_selection_fix.py
+
+      - name: Validate prepared files
+        run: |
+          node --check assets/js/app.js
+          node --check assets/js/spnWizard.js
+          node --check tools/validate-workflow-selection-audit.mjs
+          node tools/validate-workflow-selection-audit.mjs
+          git diff --check
+
+      - name: Commit final change
+        run: |
+          rm -rf .agent
+          rm .github/workflows/apply-workflow-selection-fix.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "fix: сделать выбор ситуации безопасным"
+          git push origin HEAD:agent/workflow-selection-safe-choice

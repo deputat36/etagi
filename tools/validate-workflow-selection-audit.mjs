@@ -22,10 +22,10 @@ if(audit){
   const levelIds = levels.map(item => item.id);
   if(JSON.stringify(levelIds) !== JSON.stringify(['situation','task','scenario','template'])) errors.push(`${files.audit}: уровни должны идти situation → task → scenario → template`);
   const findingIds = (Array.isArray(audit.findings) ? audit.findings : []).map(item => item.id);
-  for(const id of ['WF-01','WF-02','WF-03','WF-04','WF-05']){
+  for(const id of ['WF-01','WF-02','WF-03','WF-04','WF-05','WF-06']){
     if(!findingIds.includes(id)) errors.push(`${files.audit}: отсутствует finding ${id}`);
   }
-  if(audit.decisionForNextPr?.priority !== 'WF-01 + WF-02') errors.push(`${files.audit}: следующий приоритет должен быть WF-01 + WF-02`);
+  if(audit.decisionForNextPr?.priority !== 'WF-01 + WF-02 + WF-06') errors.push(`${files.audit}: следующий приоритет должен быть WF-01 + WF-02 + WF-06`);
 }
 
 requireSnippets(files.wizard, sources.wizard, [
@@ -55,7 +55,9 @@ requireSnippets(files.docs, sources.docs, [
   'WF-03. Поиск и сценарий',
   'WF-04. Поиск засчитывается как ситуация',
   'WF-05. Задача и сценарий после шаблона',
-  'Текущий макет не заменяется до явного выбора шаблона.'
+  'WF-06. Скрытый автоматически выбранный шаблон',
+  'Текущий макет не заменяется до явного выбора шаблона.',
+  'Активная карточка всегда соответствует фактически применённому шаблону'
 ]);
 requireSnippets(files.smoke, sources.smoke, [
   'id="workflowSelectionSmokeResult"',
@@ -63,6 +65,9 @@ requireSnippets(files.smoke, sources.smoke, [
   'explicitTemplateClicks === 0',
   'задача не применила первый шаблон автоматически',
   'после ситуации сценарий не остался Все',
+  'автоматически применённый шаблон неожиданно остался видимым',
+  'ситуация: автоматически применённый шаблон скрыт последующим поиском',
+  "doc.querySelector('[data-scenario=\"newbuild\"]')?.classList.contains('active')",
   'сценарий: только фильтрует список и не применяет шаблон',
   'шаблон: применяется только после явного клика пользователя',
   'маршрут: ручной поиск засчитывается как выбранная ситуация',

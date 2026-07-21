@@ -1,0 +1,64 @@
+name: Validate 8 on A4
+
+on:
+  push:
+    paths:
+      - 'index.html'
+      - 'assets/**'
+      - 'docs/print-format-policy.md'
+      - 'docs/print-screenshot-regression.md'
+      - 'tools/eight-print-screenshot.html'
+      - 'tools/run-eight-print-screenshot.mjs'
+      - 'tools/validate-eight-print-screenshot.mjs'
+      - '.github/workflows/validate-eight-print.yml'
+  pull_request:
+    paths:
+      - 'index.html'
+      - 'assets/**'
+      - 'docs/print-format-policy.md'
+      - 'docs/print-screenshot-regression.md'
+      - 'tools/eight-print-screenshot.html'
+      - 'tools/run-eight-print-screenshot.mjs'
+      - 'tools/validate-eight-print-screenshot.mjs'
+      - '.github/workflows/validate-eight-print.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  eight-print-screenshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Validate 8 on A4 contract
+        run: node tools/validate-eight-print-screenshot.mjs
+
+      - name: Generate 8 on A4 screenshot
+        run: node tools/run-eight-print-screenshot.mjs
+
+      - name: Upload 8 on A4 screenshot
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: print-screenshot-eight-economy
+          path: artifacts/eight-print-screenshot/
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Upload 8 on A4 failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: print-screenshot-failure-eight-economy
+          path: eight-print-screenshot-failure.log
+          if-no-files-found: warn
+          retention-days: 3

@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Печатный screenshot 8 на А4</title>
+  <style>
+    html,body{margin:0;width:210mm;height:297mm;overflow:hidden;background:#fff}
+    #captureStatus{display:none}
+    #appFrame{display:block;width:210mm;height:297mm;border:0;background:#fff}
+  </style>
+</head>
+<body>
+  <pre id="captureStatus" data-status="pending">Подготовка сценария 8 на А4…</pre>
+  <iframe id="appFrame" title="Печатный лист А4 — восемь макетов"></iframe>
+  <script>
+    const status = document.getElementById('captureStatus');
+    const frame = document.getElementById('appFrame');
+
+    frame.addEventListener('load', async () => {
+      const win = frame.contentWindow;
+      const doc = frame.contentDocument;
+      try{
+        await waitFor(() => doc.querySelectorAll('.tpl-card').length > 0, 12000, 'шаблоны не появились');
+        await waitFor(() => doc.querySelector('#printSheet .flyer'), 12000, 'лист А4 не появился');
+        click(doc, '[data-spn-ui-mode="advanced"]');
+        await waitFor(() => doc.body.dataset.spnUiMode === 'advanced', 3000, 'расширенный режим не включился');
+
+        setField(win, doc, '#agentName', 'Анна Качкина');
+        setField(win, doc, '#agentPhone', '+7 960 125-18-77');
+        setField(win, doc, '#headline', 'ПРОДАМ КВАРТИРУ');
+        setField(win, doc, '#description', 'Борисоглебск. Звоните.');
+        setField(win, doc, '#area', 'Борисоглебск');
+        setField(win, doc, '#benefits', 'Цена и показ\nДокументы\nСопровождение');
+
+        click(doc, '[data-photo="none"]');
+        click(doc, '[data-layout-mode="economy"]');
+        click(doc, '[data-count="8"]');
+
+        await waitFor(() => doc.getElementById('colorMode')?.value === 'economy', 3000, 'формат 8 на А4 не включил экономный цвет');
+        await waitFor(() => doc.querySelectorAll('#printSheet .flyer.color-economy.count-8.no-photo').length === 8, 3000, 'не создано 8 экономных макетов');
+        await new Promise(resolve => win.requestAnimationFrame(() => win.requestAnimationFrame(resolve)));
+
+        assertEightEconomy(win, doc);
+        prepareCaptureView(doc);
+        status.dataset.status = 'passed';
+        status.textContent = 'PASSED eight-economy';
+      } catch(error){
+        status.dataset.status = 'failed';
+        status.textContent = `FAILED eight-economy: ${error.message || error}`;
+      }
+    }, {once:true});
+
+    frame.src = '/index.html?smoke=eight-print';
+
+    function assertEightEconomy(win, doc){
+      const sheet = doc.getElementById('printSheet');
+      const flyers = [...doc.querySelectorAll('#printSheet .flyer')];
+      if(flyers.length !== 8) throw new Error(`ожидалось 8 макетов, получено ${flyers.length}`);
+      if(flyers.some(flyer => flyer.classList.contains('overflow'))) throw new Error('обнаружен overflow макета 8 на А4');
+      if(flyers.some(flyer => !flyer.classList.contains('color-economy'))) throw new Error('формат 8 на А4 потерял экономный режим');
+      if(flyers.some(flyer => flyer.querySelector('.tears'))) throw new Error('формат 8 на А4 содержит отрывные полосы');
+      if(flyers.some(flyer => flyer.querySelector('.photos'))) throw new Error('формат 8 на А4 содержит фотографии');
+
+      const sheetRect = sheet.getBoundingClientRect();
+      for(const flyer of flyers){
+        const flyerRect = flyer.getBoundingClientRect();
+        if(flyerRect.left < sheetRect.left - 1 || flyerRect.top < sheetRect.top - 1 || flyerRect.right > sheetRect.right + 1 || flyerRect.bottom > sheetRect.bottom + 1){
+          throw new Error('карточка 8 на А4 вышла за границы листа');
+        }
+
+        const contact = flyer.querySelector('.contact');
+        const phone = contact?.querySelector('.phone');
+        const headline = flyer.querySelector('.headline');
+        if(!contact || !phone || !headline) throw new Error('макет 8 на А4 потерял обязательный блок');
+
+        const contactRect = contact.getBoundingClientRect();
+        if(contactRect.left < flyerRect.left - 1 || contactRect.right > flyerRect.right + 1 || contactRect.bottom > flyerRect.bottom + 1){
+          throw new Error('контакты выходят за границы макета 8 на А4');
+        }
+        if(phone.textContent.trim() !== '+7 960 125-18-77') throw new Error('макет 8 на А4 потерял телефон');
+        if(!contact.textContent.includes('Анна Качкина')) throw new Error('макет 8 на А4 потерял имя специалиста');
+        if(parseFloat(win.getComputedStyle(phone).fontSize) < 16) throw new Error('телефон в формате 8 на А4 недостаточно читаемый');
+        if(parseFloat(win.getComputedStyle(headline).fontSize) < 12) throw new Error('заголовок в формате 8 на А4 недостаточно читаемый');
+
+        const contactStyle = win.getComputedStyle(contact);
+        if(relativeLuminance(contactStyle.backgroundColor) < 0.82) throw new Error('контактная зона 8 на А4 содержит большую тёмную заливку');
+        if(parseFloat(contactStyle.borderTopWidth) < 1) throw new Error('контактная зона 8 на А4 потеряла рамку');
+      }
+    }
+
+    function relativeLuminance(value){
+      const rgb = String(value || '').match(/[\d.]+/g)?.slice(0,3).map(Number) || [0,0,0];
+      const channels = rgb.map(channel => {
+        const normalized = channel / 255;
+        return normalized <= .03928 ? normalized / 12.92 : Math.pow((normalized + .055) / 1.055, 2.4);
+      });
+      return .2126 * channels[0] + .7152 * channels[1] + .0722 * channels[2];
+    }
+
+    function prepareCaptureView(doc){
+      const style = doc.createElement('style');
+      style.textContent = `
+        html,body{margin:0!important;background:#fff!important;overflow:hidden!important}
+        .app{display:block!important;min-height:0!important;padding:0!important}
+        .sidebar{display:none!important}
+        .workspace{display:block!important;width:210mm!important;height:297mm!important;max-height:none!important;padding:0!important;border:0!important;border-radius:0!important;box-shadow:none!important;overflow:hidden!important}
+        .preview-top,.status-line{display:none!important}
+        .sheet-wrap{width:210mm!important;height:297mm!important;padding:0!important;border:0!important;border-radius:0!important;background:#fff!important;overflow:hidden!important}
+        .sheet-scale{width:210mm!important;margin:0!important;transform:none!important}
+        .sheet{width:210mm!important;height:297mm!important;min-height:297mm!important;box-shadow:none!important}
+      `;
+      doc.head.appendChild(style);
+      const zoom = doc.getElementById('zoom');
+      if(zoom) zoom.value = '100';
+    }
+
+    function click(doc, selector){
+      const element = doc.querySelector(selector);
+      if(!element) throw new Error(`не найден ${selector}`);
+      element.click();
+    }
+
+    function setField(win, doc, selector, value){
+      const input = doc.querySelector(selector);
+      if(!input) throw new Error(`не найден ${selector}`);
+      input.value = value;
+      input.dispatchEvent(new win.Event('input', {bubbles:true}));
+      input.dispatchEvent(new win.Event('change', {bubbles:true}));
+    }
+
+    async function waitFor(predicate, timeout, message){
+      const started = Date.now();
+      while(Date.now() - started < timeout){
+        if(predicate()) return;
+        await new Promise(resolve => setTimeout(resolve, 80));
+      }
+      throw new Error(message);
+    }
+  </script>
+</body>
+</html>

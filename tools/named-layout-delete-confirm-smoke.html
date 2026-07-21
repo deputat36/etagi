@@ -2,19 +2,21 @@
 <html lang="ru">
 <head>
   <meta charset="utf-8">
-  <title>Etagi named layout delete confirmation smoke</title>
+  <title>Etagi named layout delete confirmation and restore smoke</title>
   <style>body{font-family:Arial,sans-serif;margin:16px}iframe{width:1280px;height:900px;border:1px solid #cbd5e1}pre{white-space:pre-wrap;padding:12px;background:#f8fafc}</style>
 </head>
 <body>
-  <pre id="uiActionsSmokeResult" data-status="pending">Named layout delete confirmation smoke is running…</pre>
+  <pre id="uiActionsSmokeResult" data-status="pending">Named layout delete confirmation and restore smoke is running…</pre>
   <iframe id="appFrame" title="Генератор расклеек"></iframe>
   <script>
     const LAYOUTS_KEY='etagi-raskleyka-layouts-v1';
+    const DELETED_KEY='etagi-raskleyka-deleted-layout-v1';
     const result=document.getElementById('uiActionsSmokeResult');
     const frame=document.getElementById('appFrame');
     const checks=[];
     let lastAction='startup';
     localStorage.removeItem(LAYOUTS_KEY);
+    localStorage.removeItem(DELETED_KEY);
 
     frame.addEventListener('load',async()=>{
       const win=frame.contentWindow;
@@ -22,12 +24,15 @@
       try{
         await waitFor(()=>doc.querySelectorAll('.tpl-card').length>0,12000,'шаблоны не появились');
         await waitFor(()=>doc.getElementById('namedLayoutDeleteDialog'),5000,'диалог подтверждения не появился');
+        await waitFor(()=>doc.getElementById('restoreDeletedLayoutBtn'),5000,'кнопка восстановления не появилась');
         click(doc,'[data-spn-ui-mode="advanced"]');
         await waitFor(()=>doc.body.dataset.spnUiMode==='advanced',2000,'расширенный режим не включился');
         await waitFor(()=>win.getComputedStyle(doc.querySelector('.save-card')).display!=='none',2000,'блок сохранения остался скрытым');
         const dialog=doc.getElementById('namedLayoutDeleteDialog');
+        const restoreButton=doc.getElementById('restoreDeletedLayoutBtn');
         assert(dialog.getAttribute('aria-labelledby')==='namedLayoutDeleteTitle','диалог не связан с заголовком');
         assert(dialog.getAttribute('aria-describedby')==='namedLayoutDeleteDescription','диалог не связан с описанием');
+        assert(restoreButton.disabled,'восстановление активно без удалённой записи');
 
         lastAction='delete.without-selection';
         doc.getElementById('savedLayouts').value='';
@@ -37,8 +42,8 @@
         pass('удаление: без выбора остаётся штатная подсказка');
 
         lastAction='delete.prepare-layouts';
-        const idA=await saveLayout(win,doc,'Макет для удаления','Удаляемый заголовок');
-        const idB=await saveLayout(win,doc,'Макет для сохранения','Сохраняемый заголовок');
+        const idA=await saveLayout(win,doc,'Макет для удаления','Удаляемый заголовок','6 600 000 ₽');
+        const idB=await saveLayout(win,doc,'Макет для сохранения','Сохраняемый заголовок','3 300 000 ₽');
         setField(win,doc,'layoutName','Текущий лист не менять');
         setField(win,doc,'headline','Текущий лист остаётся');
         setField(win,doc,'price','4 400 000 ₽');
@@ -55,7 +60,8 @@
         await waitFor(()=>!dialog.open,1000,'диалог не закрылся после отмены');
         await waitFor(()=>doc.activeElement?.id==='deleteNamedLayoutBtn',1000,'фокус не вернулся к кнопке удаления');
         assert(hasLayout(win,idA)&&hasLayout(win,idB),'отмена кнопкой удалила макет');
-        assert(doc.getElementById('statusLine')?.textContent.includes('Удаление макета «Макет для удаления» отменено'), 'нет подтверждения отмены');
+        assert(readDeleted(win)===null,'отмена создала резерв удалённого макета');
+        assert(doc.getElementById('statusLine')?.textContent.includes('Удаление макета «Макет для удаления» отменено'),'нет подтверждения отмены');
         assertSameCurrent(doc,currentState,'отмена изменила текущий макет');
         pass('удаление: кнопка Оставить макет ничего не удаляет');
 
@@ -67,43 +73,99 @@
         await waitFor(()=>!dialog.open,1000,'Escape не закрыл диалог');
         await waitFor(()=>doc.activeElement?.id==='deleteNamedLayoutBtn',1000,'Escape не вернул фокус к кнопке удаления');
         assert(hasLayout(win,idA)&&hasLayout(win,idB),'Escape удалил макет');
+        assert(readDeleted(win)===null,'Escape создал резерв удалённого макета');
         assertSameCurrent(doc,currentState,'Escape изменил текущий макет');
         pass('удаление: Escape отменяет действие');
 
         lastAction='delete.confirm';
-        selectLayout(doc,idA);
-        click(doc,'#deleteNamedLayoutBtn');
-        await waitFor(()=>dialog.open,1000,'диалог не открылся перед подтверждением');
-        click(doc,'#confirmNamedLayoutDeleteBtn');
+        await deleteLayout(doc,idA);
         await waitFor(()=>!hasLayout(win,idA),3000,'подтверждённый макет не удалён');
+        await waitFor(()=>readDeleted(win)?.item?.id===idA,3000,'удалённый макет не попал в резерв');
+        await waitFor(()=>!restoreButton.disabled,1000,'кнопка восстановления не активировалась');
         await waitFor(()=>doc.activeElement?.id==='deleteNamedLayoutBtn',1000,'после удаления фокус не вернулся к кнопке');
         assert(hasLayout(win,idB),'подтверждение удалило соседний макет');
         assert(!dialog.open,'диалог остался открыт после удаления');
         assert(doc.getElementById('savedLayouts')?.value==='','список не сбросил удалённый выбор');
-        assert(doc.getElementById('statusLine')?.textContent.includes('Сохранённый макет удалён'),'нет штатного подтверждения удаления');
+        assert(readDeleted(win)?.item?.state?.headline==='Удаляемый заголовок','резерв потерял состояние удалённого макета');
+        assert(restoreButton.textContent.includes('Макет для удаления'),'кнопка не показывает название удалённой записи');
+        assert(doc.getElementById('statusLine')?.textContent.includes('Последнее удаление можно восстановить'),'нет сообщения о восстановлении');
         assertSameCurrent(doc,currentState,'удаление сохранённого макета изменило текущий лист');
-        pass('удаление: подтверждение удаляет только выбранный макет');
+        pass('удаление: подтверждение удаляет только выбранный макет и создаёт резерв');
+
+        lastAction='restore.basic';
+        click(doc,'#restoreDeletedLayoutBtn');
+        await waitFor(()=>hasLayout(win,idA),3000,'удалённый макет не восстановлен');
+        await waitFor(()=>readDeleted(win)===null,1000,'резерв не удалён после восстановления');
+        assert(restoreButton.disabled,'кнопка восстановления не отключилась после успеха');
+        assert(doc.getElementById('savedLayouts')?.value===idA,'восстановленная запись не выбрана');
+        assert(doc.activeElement?.id==='savedLayouts','фокус не переведён к восстановленной записи');
+        assert(hasLayout(win,idB),'восстановление затронуло соседний макет');
+        assertSameCurrent(doc,currentState,'восстановление записи изменило текущий лист');
+        click(doc,'#loadNamedLayoutBtn');
+        await waitFor(()=>doc.getElementById('headline')?.value==='Удаляемый заголовок',3000,'восстановленный макет не загрузился');
+        assert(doc.getElementById('price')?.value==='6 600 000 ₽','восстановленный макет потерял цену');
+        pass('восстановление: удалённый макет возвращён и загружается');
+
+        lastAction='restore.conflict-prepare';
+        await deleteLayout(doc,idA);
+        await waitFor(()=>readDeleted(win)?.item?.id===idA,3000,'повторное удаление не создало резерв');
+        setField(win,doc,'layoutName','Макет для удаления');
+        setField(win,doc,'headline','Новый макет с занятым названием');
+        setField(win,doc,'price','9 900 000 ₽');
+        click(doc,'#saveNamedLayoutBtn');
+        await waitFor(()=>readLayouts(win).some(item=>item.name==='Макет для удаления'&&item.state?.headline==='Новый макет с занятым названием'),3000,'новый макет с исходным названием не сохранён');
+        const newSameName=readLayouts(win).find(item=>item.name==='Макет для удаления');
+        const currentBeforeConflict=snapshotCurrent(doc);
+
+        lastAction='restore.full-limit';
+        fillLayoutsToLimit(win);
+        assert(readLayouts(win).length===50,'не подготовлен полный список из 50 макетов');
+        click(doc,'#restoreDeletedLayoutBtn');
+        await waitFor(()=>doc.getElementById('statusLine')?.textContent.includes('Не удалось восстановить макет'),2000,'нет понятного отказа при заполненном списке');
+        assert(readLayouts(win).length===50,'отказ восстановления изменил число макетов');
+        assert(readDeleted(win)?.item?.id===idA,'отказ восстановления удалил резерв');
+        assert(hasLayout(win,newSameName.id)&&hasLayout(win,idB),'отказ восстановления вытеснил существующий макет');
+        assertSameCurrent(doc,currentBeforeConflict,'отказ восстановления изменил текущий лист');
+        pass('восстановление: полный список не вытесняет существующие макеты');
+        keepLayouts(win,[idB,newSameName.id]);
+
+        lastAction='restore.conflict';
+        click(doc,'#restoreDeletedLayoutBtn');
+        await waitFor(()=>readLayouts(win).some(item=>item.name==='Макет для удаления (восстановлен)'),3000,'конфликтный макет не восстановлен под уникальным названием');
+        const restoredConflict=readLayouts(win).find(item=>item.name==='Макет для удаления (восстановлен)');
+        assert(newSameName&&hasLayout(win,newSameName.id),'новый макет с занятым названием был перезаписан');
+        assert(restoredConflict?.state?.headline==='Удаляемый заголовок','конфликтное восстановление вернуло неверное состояние');
+        assert(readDeleted(win)===null,'конфликтный резерв не удалён после успеха');
+        assert(doc.getElementById('savedLayouts')?.value===restoredConflict.id,'переименованная запись не выбрана');
+        assert(doc.getElementById('statusLine')?.textContent.includes('потому что исходное название уже занято'),'нет объяснения переименования');
+        assertSameCurrent(doc,currentBeforeConflict,'конфликтное восстановление изменило текущий лист');
+        click(doc,'#loadNamedLayoutBtn');
+        await waitFor(()=>doc.getElementById('headline')?.value==='Удаляемый заголовок',3000,'переименованный восстановленный макет не загружается');
+        assert(doc.getElementById('price')?.value==='6 600 000 ₽','переименованный макет потерял состояние');
+        pass('восстановление: конфликт имени создаёт отдельный безопасный макет');
 
         result.dataset.status='passed';
         result.textContent=`PASSED\n${checks.map(x=>`✓ ${x}`).join('\n')}`;
       }catch(error){
         result.dataset.status='failed';
-        result.textContent=`FAILED\n${checks.map(x=>`✓ ${x}`).join('\n')}\n✗ ${error.message||error}\nПоследнее действие: ${lastAction}\nСостояние: ${JSON.stringify({mode:doc.body.dataset.spnUiMode,status:doc.getElementById('statusLine')?.textContent,dialogOpen:doc.getElementById('namedLayoutDeleteDialog')?.open,activeElement:doc.activeElement?.id,layouts:readLayouts(win),current:snapshotCurrent(doc)})}`;
+        result.textContent=`FAILED\n${checks.map(x=>`✓ ${x}`).join('\n')}\n✗ ${error.message||error}\nПоследнее действие: ${lastAction}\nСостояние: ${JSON.stringify({mode:doc.body.dataset.spnUiMode,status:doc.getElementById('statusLine')?.textContent,dialogOpen:doc.getElementById('namedLayoutDeleteDialog')?.open,activeElement:doc.activeElement?.id,deleted:readDeleted(win),layouts:readLayouts(win),current:snapshotCurrent(doc),selected:doc.getElementById('savedLayouts')?.value})}`;
       }
     },{once:true});
 
-    frame.src='/index.html?smoke=named-layout-delete-confirm';
-    setTimeout(()=>{if(result.dataset.status==='pending'){result.dataset.status='failed';result.textContent=`FAILED\n✗ timeout\nПоследнее действие: ${lastAction}`;}},30000);
+    frame.src='/index.html?smoke=named-layout-delete-confirm-restore';
+    setTimeout(()=>{if(result.dataset.status==='pending'){result.dataset.status='failed';result.textContent=`FAILED\n✗ timeout\nПоследнее действие: ${lastAction}`;}},42000);
 
-    async function saveLayout(win,doc,name,headline){
-      setField(win,doc,'layoutName',name);
-      setField(win,doc,'headline',headline);
-      click(doc,'#saveNamedLayoutBtn');
-      await waitFor(()=>readLayouts(win).some(item=>item.name===name),3000,`макет ${name} не сохранён`);
-      return readLayouts(win).find(item=>item.name===name).id;
+    async function saveLayout(win,doc,name,headline,price=''){
+      setField(win,doc,'layoutName',name);setField(win,doc,'headline',headline);setField(win,doc,'price',price);click(doc,'#saveNamedLayoutBtn');
+      await waitFor(()=>readLayouts(win).some(item=>item.name===name&&item.state?.headline===headline),3000,`макет ${name} не сохранён`);
+      return readLayouts(win).find(item=>item.name===name&&item.state?.headline===headline).id;
     }
+    async function deleteLayout(doc,id){selectLayout(doc,id);click(doc,'#deleteNamedLayoutBtn');await waitFor(()=>doc.getElementById('namedLayoutDeleteDialog')?.open,1000,'диалог удаления не открыт');click(doc,'#confirmNamedLayoutDeleteBtn')}
+    function fillLayoutsToLimit(win){const layouts=readLayouts(win);let i=1;while(layouts.length<50){layouts.push({id:`limit-${i}`,name:`Лимит ${i}`,updatedAt:new Date().toISOString(),state:{layoutName:`Лимит ${i}`,headline:`Лимит ${i}`}});i++}win.localStorage.setItem(LAYOUTS_KEY,JSON.stringify(layouts))}
+    function keepLayouts(win,ids){const keep=new Set(ids);win.localStorage.setItem(LAYOUTS_KEY,JSON.stringify(readLayouts(win).filter(item=>keep.has(item.id))))}
     function selectLayout(doc,id){const select=doc.getElementById('savedLayouts');select.value=id;assert(select.value===id,`не выбран макет ${id}`)}
     function readLayouts(win){try{return JSON.parse(win.localStorage.getItem(LAYOUTS_KEY)||'[]')}catch{return[]}}
+    function readDeleted(win){try{return JSON.parse(win.localStorage.getItem(DELETED_KEY)||'null')}catch{return null}}
     function hasLayout(win,id){return readLayouts(win).some(item=>item.id===id)}
     function snapshotCurrent(doc){return{layoutName:doc.getElementById('layoutName')?.value||'',headline:doc.getElementById('headline')?.value||'',price:doc.getElementById('price')?.value||'',flyers:doc.querySelectorAll('#printSheet .flyer').length}}
     function assertSameCurrent(doc,expected,message){assert(JSON.stringify(snapshotCurrent(doc))===JSON.stringify(expected),message)}

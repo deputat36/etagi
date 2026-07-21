@@ -5,6 +5,7 @@ const rootDir = process.cwd();
 const errors = [];
 const files = {
   module:'assets/js/spnNamedLayoutDeleteGuard.js',
+  storage:'assets/js/storage.js',
   entry:'assets/js/spnUiMode.js',
   runner:'tools/run-ui-actions-smoke.mjs',
   smoke:'tools/named-layout-delete-confirm-smoke.html',
@@ -18,27 +19,52 @@ const pkg = readJson(files.package, sources.package);
 const registry = readJson(files.registry, sources.registry);
 
 requireSnippets(files.module, sources.module, [
-  "import { loadLayout } from './storage.js';",
+  "import { listSavedLayouts, loadLayout, restoreLayout } from './storage.js';",
+  "export const DELETED_LAYOUT_KEY = 'etagi-raskleyka-deleted-layout-v1';",
+  'export const DELETED_LAYOUT_VERSION = 1;',
   'export function openNamedLayoutDeleteConfirmation()',
+  'export function restoreLastDeletedLayout()',
+  'export function readDeletedLayoutBackup()',
   "deleteButton.addEventListener('click', interceptDelete, true)",
   'event.stopImmediatePropagation()',
-  "dialog.showModal()",
+  'dialog.showModal()',
   "document.getElementById('cancelNamedLayoutDeleteBtn')?.focus",
   "dialog?.addEventListener('cancel'",
   "document.getElementById('namedLayoutDeleteDialog')?.close('confirm')",
   'allowNativeDelete = true',
   'deleteButton.click()',
   'allowNativeDelete = false',
+  'const deleted = !loadLayout(id);',
+  'if(deleted && item)',
+  'saveDeletedLayoutBackup(item)',
+  'localStorage.setItem(DELETED_LAYOUT_KEY, JSON.stringify(backup))',
+  'const restored = restoreLayout(backup.item);',
+  'localStorage.removeItem(DELETED_LAYOUT_KEY);',
+  'renderSavedLayouts(restored.id);',
+  "document.getElementById('savedLayouts')?.focus({preventScroll:true})",
+  "button.id = 'restoreDeletedLayoutBtn';",
+  "button.addEventListener('click', restoreLastDeletedLayout)",
   'function scheduleDeleteButtonFocus()',
   'window.cancelAnimationFrame(focusFrame)',
-  'window.requestAnimationFrame(() =>',
-  "document.getElementById('deleteNamedLayoutBtn')?.focus({preventScroll:true})"
+  'window.requestAnimationFrame(() =>'
 ]);
 forbidSnippets(files.module, sources.module, [
   'window.confirm(',
   'confirm(',
-  'localStorage.removeItem(',
+  'localStorage.removeItem(LAYOUTS_KEY)',
   'deleteLayout('
+]);
+requireSnippets(files.storage, sources.storage, [
+  'const MAX_SAVED_LAYOUTS = 50;',
+  'layouts.slice(0, MAX_SAVED_LAYOUTS)',
+  'export function restoreLayout(item)',
+  'if(layouts.length >= MAX_SAVED_LAYOUTS) return null;',
+  'const name = makeRestoredLayoutName(originalName, layouts);',
+  'const id = originalId && !layouts.some(layout => layout.id === originalId) ? originalId : makeLayoutId(name, layouts);',
+  'state:{...stripHeavyFields(item.state), layoutName:name}',
+  'JSON.stringify([restored, ...layouts])',
+  'function makeRestoredLayoutName(name, layouts)',
+  '`${name} (восстановлен)`'
 ]);
 requireSnippets(files.entry, sources.entry, ["import './spnNamedLayoutDeleteGuard.js';"]);
 requireSnippets(files.runner, sources.runner, [
@@ -49,21 +75,32 @@ requireSnippets(files.smoke, sources.smoke, [
   'удаление: без выбора остаётся штатная подсказка',
   'удаление: кнопка Оставить макет ничего не удаляет',
   'удаление: Escape отменяет действие',
-  'удаление: подтверждение удаляет только выбранный макет',
+  'удаление: подтверждение удаляет только выбранный макет и создаёт резерв',
+  'восстановление: удалённый макет возвращён и загружается',
+  'восстановление: полный список не вытесняет существующие макеты',
+  'восстановление: конфликт имени создаёт отдельный безопасный макет',
   "click(doc,'[data-spn-ui-mode=\"advanced\"]')",
   "getComputedStyle(doc.querySelector('.save-card')).display!=='none'",
   "doc.activeElement?.id==='cancelNamedLayoutDeleteBtn'",
   'фокус не вернулся к кнопке удаления',
   'Escape не вернул фокус к кнопке удаления',
   'после удаления фокус не вернулся к кнопке',
+  'readDeleted(win)===null',
+  'fillLayoutsToLimit(win)',
+  'readLayouts(win).length===50',
   'assertSameCurrent(doc,currentState',
-  'assert(hasLayout(win,idB)'
+  'assertSameCurrent(doc,currentBeforeConflict',
+  'assert(hasLayout(win,idB)',
+  "item.name==='Макет для удаления (восстановлен)'"
 ]);
 requireSnippets(files.docs, sources.docs, [
-  '# Подтверждение удаления именованного макета',
+  '# Подтверждение и восстановление удаления именованного макета',
   'Оставить макет',
   'Удалить макет',
   'Escape равнозначен отмене',
+  'Восстановить «Название»',
+  'Название (восстановлен)',
+  '50',
   'window.confirm',
   'Named layout delete confirmation smoke'
 ]);
@@ -74,30 +111,34 @@ requireSnippets(files.storageRunner, sources.storageRunner, [
 ]);
 
 const actions = Array.isArray(registry?.actions) ? registry.actions : [];
-const deleteAction = actions.find(action => action.id === 'layout.named-delete');
-if(!deleteAction) errors.push(`${files.registry}: отсутствует layout.named-delete`);
-else {
-  if(deleteAction.owner !== files.module) errors.push(`${files.registry}: layout.named-delete должен принадлежать ${files.module}`);
-  if(deleteAction.ownerToken !== 'openNamedLayoutDeleteConfirmation') errors.push(`${files.registry}: неверный ownerToken удаления`);
-  if(deleteAction.verification?.type !== 'browser') errors.push(`${files.registry}: удаление должно иметь browser-проверку`);
-  if(deleteAction.verification?.source !== files.smoke) errors.push(`${files.registry}: неверный smoke удаления`);
-}
-for(const id of ['layout.named-delete-cancel','layout.named-delete-confirm']){
-  if(!actions.some(action => action.id === id)) errors.push(`${files.registry}: отсутствует ${id}`);
-}
+validateAction('layout.named-delete', 'openNamedLayoutDeleteConfirmation');
+validateAction('layout.named-delete-cancel', 'cancelNamedLayoutDelete');
+validateAction('layout.named-delete-confirm', 'confirmNamedLayoutDelete');
+validateAction('layout.named-delete-restore', 'restoreLastDeletedLayout');
 
 if(String(pkg?.scripts?.['validate:storage-safety'] || '').trim() !== 'node tools/validate-storage-contracts.mjs'){
   errors.push(`${files.package}: validate:storage-safety должен запускать node tools/validate-storage-contracts.mjs`);
 }
 
 if(errors.length){
-  console.error('\nОшибки подтверждения удаления именованного макета:');
+  console.error('\nОшибки подтверждения и восстановления удаления именованного макета:');
   errors.forEach(error => console.error(`- ${error}`));
   process.exit(1);
 }
 
-console.log('Проверка подтверждения удаления именованного макета пройдена.');
+console.log('Проверка подтверждения и восстановления удаления именованного макета пройдена.');
 
+function validateAction(id, ownerToken){
+  const action = actions.find(item => item.id === id);
+  if(!action){
+    errors.push(`${files.registry}: отсутствует ${id}`);
+    return;
+  }
+  if(action.owner !== files.module) errors.push(`${files.registry}: ${id} должен принадлежать ${files.module}`);
+  if(action.ownerToken !== ownerToken) errors.push(`${files.registry}: у ${id} неверный ownerToken`);
+  if(action.verification?.type !== 'browser') errors.push(`${files.registry}: ${id} должен иметь browser-проверку`);
+  if(action.verification?.source !== files.smoke) errors.push(`${files.registry}: у ${id} неверный smoke`);
+}
 function requireSnippets(file, source, snippets){
   for(const snippet of snippets){
     if(!source.includes(snippet)) errors.push(`${file}: отсутствует обязательный контракт — ${snippet}`);

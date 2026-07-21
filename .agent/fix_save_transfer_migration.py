@@ -42,4 +42,19 @@ insert = '''replace_once(
 if source.count(anchor) != 1:
     raise SystemExit(f'Не найдена точка вставки контракта документа: {source.count(anchor)}')
 source = source.replace(anchor, insert + anchor, 1)
+
+source += '''
+
+replace_once(
+    'README.md',
+    '- полный backup позволяет перенести и восстановить рабочее пространство;',
+    '- полная копия позволяет перенести и восстановить рабочее пространство;'
+)
+
+replace_all('tools/validate-readme-quality-docs.mjs', [
+    ("'### Backup рабочего пространства'", "'### Полная копия рабочего пространства'"),
+    ("'полный backup позволяет перенести и восстановить рабочее пространство'", "'полная копия позволяет перенести и восстановить рабочее пространство'")
+])
+'''
+
 path.write_text(source, encoding='utf-8')

@@ -72,6 +72,7 @@ npm run validate:layout-media-preservation
 npm run validate:phone-helper
 npm run validate:report-history-docs
 npm run validate:newbie-mode-docs
+npm run validate:newbie-print-simplification
 npm run validate:print-screenshots
 npm run validate:ink-efficiency
 npm run validate:ci-config

@@ -55,6 +55,7 @@ const MODES = ['newbie', 'quick', 'advanced'];
 document.addEventListener('DOMContentLoaded', () => {
   const header = document.querySelector('.app-header');
   if(!header || document.getElementById('spnUiMode')) return;
+  markModeSpecificControls();
   header.insertAdjacentHTML('afterend', renderModePanel());
   const savedMode = localStorage.getItem(MODE_KEY) || 'quick';
   setMode(MODES.includes(savedMode) ? savedMode : 'quick');
@@ -64,6 +65,12 @@ document.addEventListener('DOMContentLoaded', () => {
     setMode(btn.dataset.spnUiMode);
   });
 });
+
+function markModeSpecificControls(){
+  ['splitMode', 'printCheckMode'].forEach(id => {
+    document.getElementById(id)?.closest('label')?.classList.add('spn-newbie-advanced-print');
+  });
+}
 
 function renderModePanel(){
   return `<section class="spn-ui-mode" id="spnUiMode" aria-label="Режим интерфейса">

@@ -30,7 +30,9 @@ jobs:
           fetch-depth: 0
 
       - name: Apply prepared change
-        run: python .agent/apply_workflow_scenario_context.py
+        run: |
+          set -o pipefail
+          python .agent/apply_workflow_scenario_context.py 2>&1 | tee workflow-scenario-apply.log
 
       - name: Validate prepared files
         run: |
@@ -41,10 +43,20 @@ jobs:
           node tools/validate-workflow-selection-audit.mjs
           git diff --check
 
+      - name: Upload apply failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: workflow-scenario-apply-failure
+          path: workflow-scenario-apply.log
+          if-no-files-found: warn
+          retention-days: 3
+
       - name: Commit final change
         run: |
           rm -rf .agent
           rm .github/workflows/apply-workflow-scenario-context.yml
+          rm -f workflow-scenario-apply.log
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A

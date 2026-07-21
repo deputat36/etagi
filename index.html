@@ -210,23 +210,48 @@
         <div id="qualityList" class="quality-list"></div>
       </section>
 
-      <section class="card save-card">
-        <div class="step-title"><span>↓</span>Сохранение</div>
-        <label>Название макета<input id="layoutName" type="text" placeholder="Например: Куплю 2-комнатную у школы"></label>
-        <div class="saved-layout-controls">
-          <select id="savedLayouts" aria-label="Сохранённые макеты"><option value="">Сохранённые макеты</option></select>
-          <button id="saveNamedLayoutBtn" type="button">Сохранить как макет</button>
-          <button id="loadNamedLayoutBtn" type="button">Загрузить выбранный</button>
-          <button id="deleteNamedLayoutBtn" type="button">Удалить выбранный</button>
+      <section class="card save-card" aria-labelledby="saveTransferTitle">
+        <div class="step-title" id="saveTransferTitle"><span>↓</span>Сохранение и перенос</div>
+        <p class="save-transfer-intro">Выберите способ по задаче: продолжить работу на этом устройстве, сохранить несколько вариантов, передать один макет или перенести всё рабочее пространство.</p>
+
+        <div class="save-transfer-section" data-save-transfer-section="current">
+          <div class="save-transfer-section-head">
+            <b>Текущая работа</b>
+            <span>Автосохранение работает в этом браузере. Ручной резерв создаёт отдельную копию одного текущего макета.</span>
+          </div>
+          <div class="quick-actions save-transfer-actions">
+            <button id="saveLocalBtn" type="button">Сохранить ручной резерв</button>
+            <button id="loadLocalBtn" type="button">Открыть ручной резерв</button>
+          </div>
         </div>
-        <div class="quick-actions">
-          <button id="saveLocalBtn" type="button">Сохранить последний</button>
-          <button id="loadLocalBtn" type="button">Загрузить последний</button>
-          <button id="downloadBtn" type="button">Скачать файл</button>
-          <button id="uploadBtn" type="button">Открыть файл</button>
+
+        <div class="save-transfer-section" data-save-transfer-section="named">
+          <div class="save-transfer-section-head">
+            <b>Мои макеты</b>
+            <span>Несколько макетов с названиями на этом устройстве. Подходит для повторяющихся районов и задач.</span>
+          </div>
+          <label>Название макета<input id="layoutName" type="text" placeholder="Например: Куплю 2-комнатную у школы"></label>
+          <div class="saved-layout-controls">
+            <select id="savedLayouts" aria-label="Мои сохранённые макеты"><option value="">Мои сохранённые макеты</option></select>
+            <button id="saveNamedLayoutBtn" type="button">Сохранить в «Мои макеты»</button>
+            <button id="loadNamedLayoutBtn" type="button">Открыть выбранный</button>
+            <button id="deleteNamedLayoutBtn" type="button">Удалить выбранный</button>
+          </div>
         </div>
-        <input id="uploadFile" type="file" accept="application/json" hidden>
-        <p class="muted">Именованные макеты хранятся в этом браузере. Фото не сохраняются, чтобы не переполнять память браузера.</p>
+
+        <div class="save-transfer-section" data-save-transfer-section="layout-file">
+          <div class="save-transfer-section-head">
+            <b>Файл одного макета</b>
+            <span>Для передачи одного макета на другой компьютер. История, задания и остальные сохранения в файл не входят.</span>
+          </div>
+          <div class="quick-actions save-transfer-actions">
+            <button id="downloadBtn" type="button">Скачать один макет</button>
+            <button id="uploadBtn" type="button">Открыть файл макета</button>
+          </div>
+          <input id="uploadFile" type="file" accept="application/json" hidden>
+        </div>
+
+        <p class="muted save-transfer-privacy">Локальные сохранения остаются только в этом браузере. Фото не сохраняются, чтобы не переполнять его память.</p>
       </section>
 
       <section class="card help-card">

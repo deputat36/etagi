@@ -17,25 +17,25 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 function renderBackupPanel(){
-  return `<div class="spn-workspace-backup" id="spnWorkspaceBackup">
+  return `<section class="spn-workspace-backup save-transfer-section" id="spnWorkspaceBackup" data-save-transfer-section="workspace">
     <div class="spn-workspace-backup-head">
       <div>
-        <b>Backup рабочего пространства</b>
-        <span>Профиль, макеты, избранное, настройки, задания и история отчётов.</span>
+        <b>Полная копия рабочего пространства</b>
+        <span>Для переноса всех локальных данных: профиля, макетов, настроек, заданий и истории отчётов.</span>
       </div>
       <strong id="workspaceBackupSummary">—</strong>
     </div>
     <div class="spn-workspace-backup-controls">
-      <button type="button" id="exportWorkspaceBackupBtn">Скачать backup</button>
-      <button type="button" id="importWorkspaceBackupBtn">Открыть backup</button>
+      <button type="button" id="exportWorkspaceBackupBtn">Скачать полную копию</button>
+      <button type="button" id="importWorkspaceBackupBtn">Восстановить из полной копии</button>
       <select id="workspaceBackupImportMode" aria-label="Режим восстановления backup">
         <option value="merge">Объединить с текущими данными</option>
         <option value="replace">Заменить рабочее пространство</option>
       </select>
     </div>
     <input id="workspaceBackupFile" type="file" accept="application/json,.json" hidden>
-    <p>Фото не входят в backup: генератор намеренно не хранит изображения в localStorage.</p>
-  </div>`;
+    <p>Фото не входят в полную копию: генератор намеренно не хранит изображения в localStorage.</p>
+  </section>`;
 }
 
 function exportWorkspaceBackup(){
@@ -194,7 +194,7 @@ function injectStyles(){
   const style = document.createElement('style');
   style.id = STYLE_ID;
   style.textContent = `
-    .spn-workspace-backup{margin-top:12px;padding:10px;border:1px solid #c7d2fe;border-radius:14px;background:#eef2ff}
+    .save-transfer-intro{margin:0 0 10px;font-size:11.5px;line-height:1.4;color:#475569}.save-transfer-section{margin-top:10px;padding:10px;border:1px solid #dbe3ee;border-radius:14px;background:#f8fafc}.save-transfer-section-head b{display:block;font-size:12px;font-weight:900;color:#1e293b}.save-transfer-section-head span{display:block;margin-top:3px;font-size:10.5px;line-height:1.35;color:#64748b;font-weight:700}.save-transfer-actions{margin-top:8px}.save-transfer-privacy{margin-top:10px}.saved-layout-controls{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px}.saved-layout-controls select{grid-column:1 / -1}.spn-workspace-backup{border-color:#c7d2fe;background:#eef2ff}
     .spn-workspace-backup-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
     .spn-workspace-backup-head b{display:block;font-size:12px;font-weight:900;color:#312e81}
     .spn-workspace-backup-head span{display:block;margin-top:3px;font-size:10.5px;line-height:1.25;color:#4f46e5;font-weight:700}
@@ -203,7 +203,7 @@ function injectStyles(){
     .spn-workspace-backup-controls select{grid-column:1 / -1;font-size:12px}
     .spn-workspace-backup-controls button{background:#fff;border:1px solid #c7d2fe;color:#3730a3;box-shadow:none}
     .spn-workspace-backup p{margin:7px 0 0;font-size:10px;line-height:1.3;color:#6366f1;font-weight:700}
-    @media(max-width:520px){.spn-workspace-backup-controls{grid-template-columns:1fr}}
+    @media(max-width:520px){.spn-workspace-backup-controls,.saved-layout-controls{grid-template-columns:1fr}.saved-layout-controls select{grid-column:auto}}
     @media print{.spn-workspace-backup{display:none!important}}
   `;
   document.head.appendChild(style);

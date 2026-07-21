@@ -8,6 +8,8 @@ const files = {
   entry: 'assets/js/spnUiMode.js',
   index: 'index.html',
   smoke: 'tools/browser-smoke.html',
+  uiActions: 'tools/ui-actions-smoke.html',
+  saveGuide: 'docs/save-and-transfer.md',
   guide: 'docs/workspace-backup.md',
   checklist: 'docs/workspace-backup-regression-checklist.md'
 };
@@ -38,7 +40,11 @@ requireSnippets(files.backup, sources.backup, [
   "typeof item !== 'string'",
   'file.size > MAX_BACKUP_BYTES',
   'window.location.reload()',
-  'Фото не входят в backup'
+  'Фото не входят в полную копию',
+  'Полная копия рабочего пространства',
+  'Скачать полную копию',
+  'Восстановить из полной копии',
+  'data-save-transfer-section="workspace"'
 ]);
 
 forbidSnippets(files.backup, sources.backup, [
@@ -54,24 +60,56 @@ requireSnippets(files.entry, sources.entry, [
   "import './spnWorkspaceBackup.js';"
 ]);
 
+requireSnippets(files.index, sources.index, [
+  'Сохранение и перенос',
+  'data-save-transfer-section="current"',
+  'Автосохранение работает в этом браузере',
+  'Сохранить ручной резерв',
+  'data-save-transfer-section="named"',
+  'Сохранить в «Мои макеты»',
+  'data-save-transfer-section="layout-file"',
+  'Скачать один макет',
+  'Открыть файл макета'
+]);
 forbidSnippets(files.index, sources.index, [
   'src="assets/js/spnWorkspaceBackup.js"',
-  "src='assets/js/spnWorkspaceBackup.js'"
+  "src='assets/js/spnWorkspaceBackup.js'",
+  '>Сохранить последний<',
+  '>Загрузить последний<',
+  '>Скачать файл<',
+  '>Открыть файл<'
 ]);
 
 requireSnippets(files.smoke, sources.smoke, [
   "doc.getElementById('spnWorkspaceBackup')",
   'backup рабочего пространства доступен'
 ]);
+requireSnippets(files.uiActions, sources.uiActions, [
+  'сохранение и перенос: четыре назначения объяснены отдельно',
+  'Автосохранение работает в этом браузере',
+  'Сохранить ручной резерв',
+  'Скачать один макет',
+  'Скачать полную копию',
+  'ручной резерв: сохранение и загрузка'
+]);
+requireSnippets(files.saveGuide, sources.saveGuide, [
+  '# Сохранение и перенос',
+  'Автосохранение',
+  'Ручной резерв',
+  'Мои макеты',
+  'Файл одного макета',
+  'Полная копия рабочего пространства',
+  'Что выбрать'
+]);
 
 requireSnippets(files.guide, sources.guide, [
-  '# Backup рабочего пространства',
+  '# Полная копия рабочего пространства',
   'etagi-raskleyka-',
   'Объединить с текущими данными',
   'Заменить рабочее пространство',
   'проверяет',
   'предыдущие данные',
-  'Фото не входят в backup',
+  'Фото не входят в полную копию',
   'нельзя публиковать'
 ]);
 

@@ -50,7 +50,7 @@ source = source.replace(old, new, 1)
 replacements = [
     (
         r'''  'data-spn-scenario="${item.scenario || \'all\'}"',''',
-        r'''  `data-spn-scenario="${item.scenario || 'all'}"`,''',
+        r'''  `data-spn-scenario="\${item.scenario || 'all'}"`,''',
         'контракт data-spn-scenario'
     ),
     (

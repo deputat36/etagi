@@ -69,7 +69,7 @@
         setField(win,doc,'headline','Целевой последний');
         setField(win,doc,'price','7 700 000 ₽');
         click(doc,'#saveLocalBtn');
-        await waitFor(()=>doc.getElementById('statusLine')?.textContent.includes('Последний макет сохранён'),2000,'последний макет не сохранён');
+        await waitFor(()=>doc.getElementById('statusLine')?.textContent.includes('Ручной резерв текущего макета сохранён'),2000,'ручной резерв не сохранён');
         setField(win,doc,'headline','Текущий перед последней загрузкой');
         setField(win,doc,'price','1 ₽');
         click(doc,'#loadLocalBtn');

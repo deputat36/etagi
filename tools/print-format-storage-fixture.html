@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="ru">
+<head><meta charset="utf-8"><title>Print format storage fixture</title></head>
+<body>
+<pre id="storageFixtureResult" data-status="pending">running</pre>
+<script type="module">
+  const KEY='etagi-raskleyka-state-v1';
+  const output=document.getElementById('storageFixtureResult');
+  const previous=localStorage.getItem(KEY);
+  try{
+    localStorage.setItem(KEY,JSON.stringify({
+      version:'legacy',templateId:'legacy-print-format-smoke',layoutName:'Старый локальный макет',
+      headline:'Старый формат должен нормализоваться',price:'5 500 000 ₽',printCount:12
+    }));
+    const {loadAutoSave}=await import('/assets/js/storage.js');
+    const state=loadAutoSave();
+    const passed=state?.printCount===2
+      && state?.layoutName==='Старый локальный макет'
+      && state?.headline==='Старый формат должен нормализоваться'
+      && state?.price==='5 500 000 ₽';
+    output.dataset.status=passed?'passed':'failed';
+    output.textContent=JSON.stringify(state||null);
+  }catch(error){
+    output.dataset.status='failed';
+    output.textContent=String(error?.message||error);
+  }finally{
+    if(previous===null) localStorage.removeItem(KEY);
+    else localStorage.setItem(KEY,previous);
+  }
+</script>
+</body>
+</html>

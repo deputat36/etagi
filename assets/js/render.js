@@ -1,6 +1,7 @@
 import { esc, nl } from './utils.js';
 import { createQrSvg } from './qr.js';
 import { getLayoutExtra } from './layoutExtras.js';
+import { normalizePrintCount } from './state.js';
 
 const DEFAULT_BLOCK_ORDER = ['headline','price','photo','description','meta','benefits','customBlock','contact'];
 const RENDER_EXTRA_OPTIONS = { ignoreInputFallback: true };
@@ -17,7 +18,7 @@ export function applyCss(state){
 }
 
 export function getGrid(count, splitMode){
-  const n = Number(count) || 2;
+  const n = normalizePrintCount(count);
   if(n === 1) return {cols:1, rows:1, label:'1 крупный'};
   if(n === 2){
     if(splitMode === 'vertical') return {cols:2, rows:1, label:'слева / справа'};
@@ -27,14 +28,12 @@ export function getGrid(count, splitMode){
   if(n === 4) return {cols:2, rows:2, label:'сетка 2×2'};
   if(n === 6) return {cols:2, rows:3, label:'сетка 2×3'};
   if(n === 8) return {cols:2, rows:4, label:'сетка 2×4'};
-  if(n === 10) return {cols:2, rows:5, label:'сетка 2×5'};
-  if(n === 12) return {cols:2, rows:6, label:'сетка 2×6'};
-  return {cols:2, rows:2, label:'сетка'};
+  return {cols:1, rows:2, label:'сверху / снизу'};
 }
 
 export function renderSheet(sheet, state){
-  const grid = getGrid(state.printCount, state.splitMode);
-  const countToken = Number(state.printCount) || 2;
+  const countToken = normalizePrintCount(state.printCount);
+  const grid = getGrid(countToken, state.splitMode);
   const photoToken = safeClassToken(state.photoMode || 'none');
   const layoutToken = safeClassToken(state.layoutMode || 'manual');
   sheet.className = `sheet sheet-count-${countToken} sheet-photo-${photoToken} sheet-layout-${layoutToken}`;
@@ -44,8 +43,8 @@ export function renderSheet(sheet, state){
   sheet.style.gridTemplateColumns = `repeat(${grid.cols}, 1fr)`;
   sheet.style.gridTemplateRows = `repeat(${grid.rows}, 1fr)`;
   sheet.innerHTML = '';
-  for(let i=0;i<Number(state.printCount);i++){
-    sheet.insertAdjacentHTML('beforeend', renderFlyer(state));
+  for(let i=0;i<countToken;i++){
+    sheet.insertAdjacentHTML('beforeend', renderFlyer({...state, printCount:countToken}));
   }
   normalizeInlineTabStops(sheet);
   requestAnimationFrame(()=>markOverflow(sheet));
@@ -53,7 +52,7 @@ export function renderSheet(sheet, state){
 }
 
 function renderFlyer(state){
-  const countToken = Number(state.printCount) || 2;
+  const countToken = normalizePrintCount(state.printCount);
   const photoToken = safeClassToken(state.photoMode || 'none');
   const layoutToken = safeClassToken(state.layoutMode || 'manual');
   const classes = ['flyer', `count-${countToken}`, `photo-mode-${photoToken}`, `layout-${layoutToken}`];
@@ -61,7 +60,7 @@ function renderFlyer(state){
   if(state.colorMode === 'economy') classes.push('color-economy');
   if(state.colorMode === 'bw') classes.push('bw');
   if(state.colorMode === 'private') classes.push('private');
-  if(state.layoutDensity === 'dense' || Number(state.printCount) >= 4) classes.push('compact');
+  if(state.layoutDensity === 'dense' || countToken >= 4) classes.push('compact');
   if(!state.showContact) classes.push('no-contact');
   classes.push(hasPhoto ? 'has-photo' : 'no-photo');
   if(state.tearOffs) classes.push('has-tears');
@@ -102,7 +101,7 @@ function renderBlock(blockId, state){
 }
 
 function renderBenefits(state){
-  const benefits = nl(state.benefits).slice(0, Number(state.printCount)>=4 ? 3 : 5);
+  const benefits = nl(state.benefits).slice(0, normalizePrintCount(state.printCount)>=4 ? 3 : 5);
   if(!benefits.length) return '';
   return `<div class="benefits">${benefits.map((value, index)=>`<div class="benefit"${inlineEditAttrs('benefits', `Преимущество ${index + 1}`, {index})}>${esc(value)}</div>`).join('')}</div>`;
 }
@@ -131,7 +130,7 @@ function renderMeta(state){
   return `<div class="meta">${items.slice(0,4).map(([label,field,value])=>`<div><span class="meta-label">${esc(label)}</span><br><span class="meta-value"${inlineEditAttrs(field, label)}>${esc(value)}</span></div>`).join('')}</div>`;
 }
 function shouldUseCompactMeta(state){
-  return Number(state.printCount) >= 4 || state.layoutDensity === 'dense';
+  return normalizePrintCount(state.printCount) >= 4 || state.layoutDensity === 'dense';
 }
 function renderCustomBlock(state){
   const title = String(state.customBlockTitle || '').trim();

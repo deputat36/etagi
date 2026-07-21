@@ -1,4 +1,4 @@
-import { defaultState, goals, photoModes, layoutModes } from './state.js';
+import { defaultState, goals, photoModes, layoutModes, SUPPORTED_PRINT_COUNTS } from './state.js';
 
 export const LAYOUT_FILE_FORMAT = 'etagi-raskleyka-layout';
 export const LAYOUT_FILE_FORMAT_VERSION = 1;
@@ -12,7 +12,7 @@ const ENUM_FIELDS = {
   goal: new Set(goals.map(item => item.id)),
   layoutMode: new Set(['manual', ...layoutModes.map(item => item.id)]),
   photoMode: new Set(photoModes.map(item => item.id)),
-  printCount: new Set([1, 2, 3, 4, 6, 8]),
+  printCount: new Set(SUPPORTED_PRINT_COUNTS),
   splitMode: new Set(['auto', 'horizontal', 'vertical', 'grid']),
   colorMode: new Set(['brand', 'economy', 'bw', 'private']),
   layoutDensity: new Set(['auto', 'airy', 'normal', 'dense']),
@@ -177,7 +177,11 @@ function validateField(field, value, errors) {
 
   const allowed = ENUM_FIELDS[field];
   if(allowed && !allowed.has(value)) {
-    errors.push(`Поле «${label}» содержит неподдерживаемое значение «${String(value)}».`);
+    if(field === 'printCount') {
+      errors.push(`Поле «${label}» поддерживает только форматы ${SUPPORTED_PRINT_COUNTS.join(', ')} на А4. Значение «${String(value)}» не поддерживается.`);
+    } else {
+      errors.push(`Поле «${label}» содержит неподдерживаемое значение «${String(value)}».`);
+    }
     return;
   }
 

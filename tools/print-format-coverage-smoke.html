@@ -41,7 +41,6 @@
           else await prepareDenseFormat(win, doc, count);
 
           lastAction = `format.${count}.verify`;
-          await nextPaint(win);
           verifyFormat(win, doc, count);
           pass(`формат ${count}: телефон, контакты, overflow и полосы`);
         }
@@ -156,9 +155,6 @@
     function setCheck(win, input, checked){
       input.checked = checked;
       input.dispatchEvent(new win.Event('change', {bubbles:true}));
-    }
-    function nextPaint(win){
-      return new Promise(resolve => win.requestAnimationFrame(() => win.requestAnimationFrame(resolve)));
     }
     function pass(message){ checks.push(message); }
     function assert(condition, message){ if(!condition) throw new Error(message); }

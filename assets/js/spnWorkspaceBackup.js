@@ -28,7 +28,7 @@ function renderBackupPanel(){
     <div class="spn-workspace-backup-controls">
       <button type="button" id="exportWorkspaceBackupBtn">Скачать полную копию</button>
       <button type="button" id="importWorkspaceBackupBtn">Восстановить из полной копии</button>
-      <select id="workspaceBackupImportMode" aria-label="Режим восстановления backup">
+      <select id="workspaceBackupImportMode" aria-label="Режим восстановления полной копии">
         <option value="merge">Объединить с текущими данными</option>
         <option value="replace">Заменить рабочее пространство</option>
       </select>
@@ -50,7 +50,7 @@ function exportWorkspaceBackup(){
   };
   const content = JSON.stringify(backup, null, 2);
   downloadJson(`etagi-workspace-backup-${new Date().toISOString().slice(0, 10)}.json`, content);
-  setStatus(`Backup скачан: ${backup.entryCount} разделов localStorage.`);
+  setStatus(`Полная копия скачана: ${backup.entryCount} разделов локальных данных.`);
 }
 
 async function importWorkspaceBackup(event){
@@ -60,7 +60,7 @@ async function importWorkspaceBackup(event){
   if(!file) return;
 
   if(file.size > MAX_BACKUP_BYTES){
-    setStatus('Backup слишком большой. Максимальный размер — 3 МБ.');
+    setStatus('Полная копия слишком большая. Максимальный размер — 3 МБ.');
     return;
   }
 
@@ -68,13 +68,13 @@ async function importWorkspaceBackup(event){
   try{
     parsed = JSON.parse(await file.text());
   } catch(error){
-    setStatus('Не удалось открыть backup: файл не является корректным JSON.');
+    setStatus('Не удалось открыть полную копию: файл не является корректным JSON.');
     return;
   }
 
   const validation = validateBackup(parsed);
   if(!validation.ok){
-    setStatus(`Backup отклонён: ${validation.error}`);
+    setStatus(`Полная копия отклонена: ${validation.error}`);
     return;
   }
 
@@ -83,24 +83,24 @@ async function importWorkspaceBackup(event){
   const currentCount = Object.keys(previousEntries).length;
   const nextCount = Object.keys(validation.entries).length;
   const action = mode === 'replace'
-    ? `Удалить ${currentCount} текущих разделов и восстановить ${nextCount} из backup?`
-    : `Объединить ${nextCount} разделов backup с ${currentCount} текущими? Совпадающие ключи будут обновлены.`;
+    ? `Удалить ${currentCount} текущих разделов и восстановить ${nextCount} из полной копии?`
+    : `Объединить ${nextCount} разделов полной копии с ${currentCount} текущими? Совпадающие ключи будут обновлены.`;
 
   if(!window.confirm(`${action}\n\nПосле восстановления страница будет перезагружена.`)){
-    setStatus('Восстановление backup отменено.');
+    setStatus('Восстановление полной копии отменено.');
     return;
   }
 
   try{
     if(mode === 'replace') removeWorkspaceEntries();
     writeWorkspaceEntries(validation.entries);
-    setStatus(`Backup восстановлен: ${nextCount} разделов. Перезагрузка…`);
+    setStatus(`Полная копия восстановлена: ${nextCount} разделов. Перезагрузка…`);
     window.setTimeout(() => window.location.reload(), 120);
   } catch(error){
     const rolledBack = rollbackWorkspace(previousEntries);
     setStatus(rolledBack
       ? 'Восстановление не выполнено. Предыдущие данные возвращены без изменений.'
-      : 'Ошибка восстановления и отката. Не закрывайте вкладку: исходный backup лучше сохранить отдельно.');
+      : 'Ошибка восстановления и отката. Не закрывайте вкладку: исходную полную копию лучше сохранить отдельно.');
   }
 }
 
@@ -140,7 +140,7 @@ function rollbackWorkspace(previousEntries){
 
 function validateBackup(value){
   if(!value || typeof value !== 'object' || Array.isArray(value)) return fail('корень файла должен быть объектом');
-  if(value.schema !== BACKUP_SCHEMA) return fail('неизвестный тип backup');
+  if(value.schema !== BACKUP_SCHEMA) return fail('неизвестный тип полной копии');
   if(Number(value.version) !== BACKUP_VERSION) return fail(`неподдерживаемая версия ${value.version}`);
   if(!value.entries || typeof value.entries !== 'object' || Array.isArray(value.entries)) return fail('нет объекта entries');
 
@@ -150,7 +150,7 @@ function validateBackup(value){
     if(typeof item !== 'string') return fail(`значение ${key} должно быть строкой localStorage`);
     entries[key] = item;
   }
-  if(!Object.keys(entries).length) return fail('backup не содержит данных проекта');
+  if(!Object.keys(entries).length) return fail('полная копия не содержит данных проекта');
   return {ok:true, entries};
 }
 

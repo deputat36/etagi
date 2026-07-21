@@ -44,7 +44,10 @@ requireSnippets(files.backup, sources.backup, [
   'Полная копия рабочего пространства',
   'Скачать полную копию',
   'Восстановить из полной копии',
-  'data-save-transfer-section="workspace"'
+  'data-save-transfer-section="workspace"',
+  'Полная копия скачана:',
+  'Полная копия восстановлена:',
+  'Восстановление полной копии отменено.'
 ]);
 
 forbidSnippets(files.backup, sources.backup, [

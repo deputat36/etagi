@@ -16,6 +16,9 @@ export const photoModes = [
   { id:'plan', title:'Планировка' }
 ];
 
+export const DEFAULT_PRINT_COUNT = 2;
+export const SUPPORTED_PRINT_COUNTS = Object.freeze([1, 2, 3, 4, 6, 8]);
+
 export const printPresets = [
   { count:1, title:'1 крупно' },
   { count:2, title:'2 на А4' },
@@ -24,6 +27,15 @@ export const printPresets = [
   { count:6, title:'6 мелко' },
   { count:8, title:'8 мини' }
 ];
+
+export function isSupportedPrintCount(value){
+  return Number.isInteger(value) && SUPPORTED_PRINT_COUNTS.includes(value);
+}
+
+export function normalizePrintCount(value, fallback = DEFAULT_PRINT_COUNT){
+  const count = Number(value);
+  return isSupportedPrintCount(count) ? count : fallback;
+}
 
 export const layoutModes = [
   { id:'readable', title:'Читаемо', hint:'крупный телефон, мало лишнего' },
@@ -81,7 +93,7 @@ export const defaultState = {
   photoTwo: '',
   qrLink: '',
   qrCaption: '',
-  printCount: 2,
+  printCount: DEFAULT_PRINT_COUNT,
   splitMode: 'auto',
   colorMode: 'brand',
   tearOffs: true,

@@ -19,6 +19,8 @@ body[data-spn-ui-mode="newbie"] .help-card,
 body[data-spn-ui-mode="newbie"] .spn-field-plan,
 body[data-spn-ui-mode="newbie"] .spn-lead-qualification,
 body[data-spn-ui-mode="newbie"] .spn-result-estimator{display:none!important}
+body[data-spn-ui-mode="quick"][data-wizard-flow="on"] .sidebar .start-card[data-wizard-section].spn-wizard-section-active,
+body[data-spn-ui-mode="newbie"][data-wizard-flow="on"] .sidebar .start-card[data-wizard-section].spn-wizard-section-active{display:none!important}
 body[data-spn-ui-mode="quick"] .block-manager .block-grid,
 body[data-spn-ui-mode="quick"] .block-manager .block-title,
 body[data-spn-ui-mode="quick"] .block-manager .block-order-head,

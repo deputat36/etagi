@@ -30,6 +30,7 @@
         pass('A4: интерфейс показывает только 1, 2, 3, 4, 6 и 8');
 
         lastAction='policy.local-normalization';
+        const previousAutoSave=win.localStorage.getItem(AUTO_SAVE_KEY);
         win.localStorage.setItem(AUTO_SAVE_KEY,JSON.stringify({
           version:'legacy',templateId:'legacy-print-format-smoke',layoutName:'Старый локальный макет',
           headline:'Старый формат должен нормализоваться',price:'5 500 000 ₽',printCount:12
@@ -40,6 +41,8 @@
         assert(loaded?.layoutName==='Старый локальный макет','нормализация потеряла название макета');
         assert(loaded?.headline==='Старый формат должен нормализоваться','нормализация потеряла заголовок макета');
         assert(loaded?.price==='5 500 000 ₽','нормализация потеряла цену макета');
+        if(previousAutoSave===null) win.localStorage.removeItem(AUTO_SAVE_KEY);
+        else win.localStorage.setItem(AUTO_SAVE_KEY,previousAutoSave);
         pass('A4: старые локальные 10/12 нормализуются до 2 без потери текста');
 
         lastAction='policy.prepare-current';

@@ -7,10 +7,11 @@
       "id": "situation",
       "label": "Рабочая ситуация",
       "selector": "[data-spn-situation]",
-      "owner": "assets/js/spnWizard.js",
+      "owner": "assets/js/spnWizard.js + assets/js/app.js",
       "userIntent": "Выбрать реальную офисную задачу одним понятным действием.",
-      "writes": ["active situation", "goal through click", "template search", "print count", "layout mode"],
-      "automaticNext": ["task", "template", "search", "print settings"]
+      "writes": ["active situation", "state.goal", "template search", "print count", "layout mode", "state.templateId cleared"],
+      "automaticNext": ["task filter", "search filter", "print settings"],
+      "doesNotApply": ["template"]
     },
     {
       "id": "task",
@@ -18,8 +19,8 @@
       "selector": "[data-goal]",
       "owner": "assets/js/app.js",
       "userIntent": "Ограничить библиотеку типом результата: продавец, покупатель, объект, новостройка и другие.",
-      "writes": ["state.goal", "selectedScenario=all", "first matching template"],
-      "automaticNext": ["template"]
+      "writes": ["state.goal", "selectedScenario=all", "state.templateId cleared"],
+      "automaticNext": []
     },
     {
       "id": "scenario",
@@ -44,20 +45,20 @@
     {
       "from": "situation",
       "to": "task",
-      "mode": "automatic",
-      "evidence": "goalBtn.click()"
+      "mode": "single-state-transaction",
+      "evidence": "CustomEvent spn:workflow-selection → applyWorkflowSelection"
     },
     {
       "from": "situation",
       "to": "template",
-      "mode": "indirect-automatic",
-      "evidence": "goal click → first template → applyTemplate(first)"
+      "mode": "manual-only",
+      "evidence": "state.templateId cleared; applyTemplate вызывается только карточкой"
     },
     {
       "from": "situation",
       "to": "search",
-      "mode": "automatic-delayed",
-      "evidence": "setTimeout 90 ms → templateSearch.value → input"
+      "mode": "same-transaction",
+      "evidence": "templateSearch.value устанавливается до одного renderAll"
     },
     {
       "from": "task",
@@ -81,56 +82,56 @@
   "findings": [
     {
       "id": "WF-01",
+      "status": "resolved",
       "severity": "medium",
-      "title": "Выбор задачи автоматически заменяет макет первым шаблоном",
-      "evidence": ["state.goal = btn.dataset.goal", "selectedScenario = 'all'", "applyTemplate(first)"],
-      "impact": "Пользователь ещё не выбрал карточку шаблона, но текущий макет уже заменён.",
-      "recommendation": "Отделить фильтрацию задачи от применения шаблона или явно показать, какой рекомендованный шаблон применён автоматически."
+      "title": "Выбор задачи автоматически заменял макет первым шаблоном",
+      "resolution": "Выбор задачи теперь только меняет goal, сбрасывает сценарий и снимает templateId. Текст и название текущего макета сохраняются до явного клика по карточке.",
+      "regression": "workflow-selection-smoke: task.manual"
     },
     {
       "id": "WF-02",
+      "status": "resolved",
       "severity": "medium",
-      "title": "Ситуация меняет состояние в две фазы",
-      "evidence": ["goalBtn.click()", "setTimeout(() =>", "search.value = item.query", "applyRecommendedSettings(item)"],
-      "impact": "Сначала применяется первый шаблон задачи, затем через таймер меняются поиск, формат и компоновка; между фазами возможны лишние рендеры и несогласованное выделение.",
-      "recommendation": "Собрать выбор ситуации в одну транзакцию состояния без промежуточного шаблона и таймера."
+      "title": "Ситуация меняла состояние в две фазы",
+      "resolution": "spnWizard отправляет одно событие spn:workflow-selection; app.js устанавливает goal, поиск, формат и компоновку перед единым renderAll без таймера и программного клика задачи.",
+      "regression": "workflow-selection-smoke: situation.tellerman-sad"
     },
     {
       "id": "WF-03",
+      "status": "open",
       "severity": "medium",
       "title": "Поиск ситуации и фильтр сценария частично дублируют назначение",
-      "evidence": ["search.value = item.query", "selectedScenario = btn.dataset.scenario", "renderTemplates()"],
-      "impact": "После выбора ситуации пользователь получает уже отфильтрованный поиск, но всё ещё видит отдельный выбор сценария с похожим смыслом.",
-      "recommendation": "Считать сценарий дополнительным фильтром и переименовать его либо автоматически выводить из ситуации и скрывать повторный выбор в простых режимах."
+      "impact": "После выбора ситуации пользователь получает поисковое сужение и отдельный сценарный фильтр с похожим смыслом.",
+      "recommendation": "В простых режимах показывать сценарий только как дополнительное уточнение либо автоматически выводить его из ситуации."
     },
     {
       "id": "WF-04",
+      "status": "open",
       "severity": "low",
       "title": "Маршрут считает любой поисковый запрос выбранной ситуацией",
-      "evidence": ["Boolean(document.querySelector('[data-spn-situation].active')) || Boolean(value('templateSearch'))"],
-      "impact": "Ручной текст в поиске закрывает шаг «Ситуация», хотя офисная ситуация или задача могли не быть выбраны осознанно.",
+      "impact": "Ручной текст в поиске закрывает шаг «Ситуация», хотя офисная ситуация не выбрана.",
       "recommendation": "Разделить явный выбор ситуации и ручной поиск в состоянии маршрута."
     },
     {
       "id": "WF-05",
+      "status": "open",
       "severity": "low",
-      "title": "Шаблон синхронизирует задачу, но не сбрасывает сценарий",
-      "evidence": ["goal: t.goal", "templateId: t.id", "selectedScenario unchanged"],
-      "impact": "После явного выбора шаблона задача меняется на его goal, а активный сценарий остаётся прежним и может описывать уже не весь текущий контекст.",
+      "title": "Шаблон синхронизирует задачу, но не пересчитывает сценарий",
+      "impact": "После выбора шаблона активный сценарий может описывать уже не весь текущий контекст.",
       "recommendation": "Определить единый источник истины для задачи и сценария после выбора шаблона."
     },
     {
       "id": "WF-06",
+      "status": "resolved",
       "severity": "medium",
-      "title": "Автоматически применённый шаблон может исчезнуть из отфильтрованного списка",
-      "evidence": ["applyTemplate(first)", "search.value = item.query", "renderTemplates()", "activeTemplate is empty"],
-      "impact": "Макет уже основан на автоматически выбранном шаблоне, но после поисковой фразы ситуации пользователь не видит активную карточку и не понимает источник текста.",
-      "recommendation": "Не применять первый шаблон до фильтрации либо применять только явно рекомендованный шаблон, который гарантированно остаётся видимым."
+      "title": "Автоматически применённый шаблон мог исчезнуть из отфильтрованного списка",
+      "resolution": "Ситуация и задача больше не применяют шаблон. templateId очищается, поэтому активная карточка появляется только после фактического явного выбора и не может быть скрытым источником текста.",
+      "regression": "workflow-selection-smoke: отсутствие активной карточки до явного клика"
     }
   ],
   "decisionForNextPr": {
-    "priority": "WF-01 + WF-02 + WF-06",
-    "safeDirection": "Выбор ситуации должен одним обновлением установить задачу, поиск и рекомендуемые настройки, но не применять произвольный первый шаблон до явного выбора или явно обозначенного рекомендованного шаблона.",
+    "priority": "WF-03 + WF-04 + WF-05",
+    "safeDirection": "Упростить повторяющиеся фильтры, перестать считать ручной поиск офисной ситуацией и синхронизировать сценарий после явного выбора шаблона.",
     "nonGoals": ["изменение текстов шаблонов", "изменение менеджерских решений", "изменение печатной матрицы"]
   }
 }

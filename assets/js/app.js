@@ -114,18 +114,39 @@ function bindStaticUi(){
   $('downloadBtn').onclick = () => downloadText(`etagi-raskleyka-${new Date().toISOString().slice(0,10)}.json`, JSON.stringify(createLayoutFilePayload(state),null,2));
   $('uploadBtn').onclick = () => $('uploadFile').click();
   $('uploadFile').onchange = loadFromFile;
+  document.addEventListener('spn:workflow-selection', applyWorkflowSelection);
 }
 
 function renderGoals(){
   $('goalGrid').innerHTML = goals.map(g=>`<button type="button" class="goal-btn" data-goal="${g.id}"><b>${esc(g.title)}</b><span>${esc(g.hint)}</span></button>`).join('');
   $('goalGrid').querySelectorAll('[data-goal]').forEach(btn=>btn.onclick=()=>{
     state.goal = btn.dataset.goal;
+    state.templateId = '';
     selectedScenario = 'all';
-    const first = filterTemplates(templates, state.goal)[0];
-    if(first) applyTemplate(first);
     renderAll();
+    document.dispatchEvent(new CustomEvent('spn:task-selection', {detail:{goal:state.goal}}));
+    setStatus('Задача выбрана. Текущий макет сохранён — выберите шаблон явно, чтобы заменить текст.');
   });
 }
+function applyWorkflowSelection(event){
+  const detail = event.detail || {};
+  const nextGoal = goals.some(item => item.id === detail.goal) ? detail.goal : state.goal;
+  const nextLayoutMode = layoutModes.some(item => item.id === detail.layoutMode) ? detail.layoutMode : '';
+  const nextPrintCount = printPresets.some(item => Number(item.count) === Number(detail.printCount)) ? Number(detail.printCount) : state.printCount;
+
+  state.goal = nextGoal;
+  state.templateId = '';
+  selectedScenario = 'all';
+  $('templateSearch').value = String(detail.query || '');
+  $('templateDensityFilter').value = 'all';
+
+  if(nextLayoutMode) state = applyLayoutModePreservingMedia(state, nextLayoutMode);
+  state.printCount = nextPrintCount;
+  state.blockOrder = normalizeBlockOrder(state.blockOrder);
+  renderAll();
+  setStatus(`Офисный подбор: ${detail.title || 'рабочая ситуация'}. Текущий текст сохранён; выберите подходящий шаблон явно.`);
+}
+
 function renderPhotoModes(){
   $('photoModeRow').innerHTML = photoModes.map(m=>`<button type="button" data-photo="${m.id}">${esc(m.title)}</button>`).join('');
   $('photoModeRow').querySelectorAll('[data-photo]').forEach(btn=>btn.onclick=()=>{ state.photoMode=btn.dataset.photo; state.showPhoto = state.photoMode !== 'none'; state.layoutMode='manual'; if(state.photoMode==='none'){state.photoOne='';state.photoTwo='';} renderAll(); });

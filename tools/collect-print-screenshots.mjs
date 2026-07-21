@@ -6,6 +6,7 @@ const outputDir = path.join(rootDir, 'artifacts', 'print-screenshots');
 const expected = [
   'one-no-photo',
   'two-big-phone',
+  'three-tearoffs',
   'one-showcase',
   'two-photo',
   'four-contacts'

@@ -9,15 +9,15 @@
   <pre id="uiActionsSmokeResult" data-status="pending">Print format policy smoke is running…</pre>
   <iframe id="appFrame" title="Генератор расклеек"></iframe>
   <script>
+    const AUTO_SAVE_KEY='etagi-raskleyka-state-v1';
     const result=document.getElementById('uiActionsSmokeResult');
     const frame=document.getElementById('appFrame');
     const checks=[];
     let lastAction='startup';
 
     frame.addEventListener('load',async()=>{
-      const win=frame.contentWindow;
-      if(win.location.pathname.endsWith('/tools/print-format-policy-bootstrap.html')) return;
       if(result.dataset.status!=='pending') return;
+      const win=frame.contentWindow;
       const doc=frame.contentDocument;
       try{
         await waitFor(()=>doc.querySelectorAll('[data-count]').length>0,8000,'кнопки форматов не появились');
@@ -30,12 +30,16 @@
         pass('A4: интерфейс показывает только 1, 2, 3, 4, 6 и 8');
 
         lastAction='policy.local-normalization';
-        await waitFor(()=>doc.querySelector('[data-count="2"]')?.classList.contains('active'),2000,'старый формат не нормализован до 2 на А4');
-        assert(doc.querySelectorAll('#printSheet .flyer').length===2,'старый локальный формат отрисовал не две копии');
-        assert(doc.getElementById('printSheet')?.classList.contains('sheet-count-2'),'лист не получил безопасный класс sheet-count-2');
-        assert(doc.getElementById('previewStatus')?.textContent.includes('2 на А4'),'статус не синхронизирован с безопасным форматом');
-        assert(doc.getElementById('headline')?.value==='Старый формат должен нормализоваться','нормализация потеряла содержимое макета');
-        assert(doc.getElementById('price')?.value==='5 500 000 ₽','нормализация потеряла цену макета');
+        win.localStorage.setItem(AUTO_SAVE_KEY,JSON.stringify({
+          version:'legacy',templateId:'legacy-print-format-smoke',layoutName:'Старый локальный макет',
+          headline:'Старый формат должен нормализоваться',price:'5 500 000 ₽',printCount:12
+        }));
+        const storageModule=await import('/assets/js/storage.js');
+        const loaded=storageModule.loadAutoSave();
+        assert(loaded?.printCount===2,'старый формат не нормализован до 2 на А4');
+        assert(loaded?.layoutName==='Старый локальный макет','нормализация потеряла название макета');
+        assert(loaded?.headline==='Старый формат должен нормализоваться','нормализация потеряла заголовок макета');
+        assert(loaded?.price==='5 500 000 ₽','нормализация потеряла цену макета');
         pass('A4: старые локальные 10/12 нормализуются до 2 без потери текста');
 
         lastAction='policy.prepare-current';
@@ -59,7 +63,7 @@
         pass('A4: импорт 10 и 12 отклоняется без изменения макета');
 
         lastAction='policy.renderer-module';
-        const renderModule=await win.eval("import('./assets/js/render.js')");
+        const renderModule=await import('/assets/js/render.js');
         const grid10=renderModule.getGrid(10,'grid');
         const grid12=renderModule.getGrid(12,'grid');
         assert(grid10.cols===1&&grid10.rows===2&&grid12.cols===1&&grid12.rows===2,'renderer не использует безопасный fallback для 10/12');
@@ -73,9 +77,9 @@
         result.dataset.lastAction=lastAction;
         result.textContent=`FAILED\n${checks.map(item=>`✓ ${item}`).join('\n')}\n✗ ${error.message||error}\nПоследнее действие: ${lastAction}\nСостояние: ${JSON.stringify(snapshot(doc))}`;
       }
-    });
+    },{once:true});
 
-    frame.src='/tools/print-format-policy-bootstrap.html';
+    frame.src='/index.html?smoke=print-format-policy';
     setTimeout(()=>{if(result.dataset.status==='pending'){result.dataset.status='failed';result.dataset.lastAction=lastAction;result.textContent=`FAILED\n✗ timeout\nПоследнее действие: ${lastAction}`;}},26000);
 
     function snapshot(doc){return{

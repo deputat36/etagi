@@ -1,0 +1,53 @@
+name: Validate print format coverage
+
+on:
+  push:
+    paths:
+      - 'index.html'
+      - 'assets/**'
+      - 'docs/print-format-coverage.md'
+      - 'tools/print-format-coverage-smoke.html'
+      - 'tools/run-print-format-coverage-smoke.mjs'
+      - 'tools/validate-print-format-coverage.mjs'
+      - '.github/workflows/validate-print-format-coverage.yml'
+  pull_request:
+    paths:
+      - 'index.html'
+      - 'assets/**'
+      - 'docs/print-format-coverage.md'
+      - 'tools/print-format-coverage-smoke.html'
+      - 'tools/run-print-format-coverage-smoke.mjs'
+      - 'tools/validate-print-format-coverage.mjs'
+      - '.github/workflows/validate-print-format-coverage.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  print-format-coverage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Validate print format coverage contract
+        run: node tools/validate-print-format-coverage.mjs
+
+      - name: Verify all print formats in browser
+        run: node tools/run-print-format-coverage-smoke.mjs
+
+      - name: Upload print format coverage failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: print-format-coverage-failure
+          path: print-format-coverage-failure.log
+          if-no-files-found: warn
+          retention-days: 3

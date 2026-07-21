@@ -93,6 +93,7 @@ function setMode(mode){
   if(hint) hint.textContent = hintText(next);
   const status = document.getElementById('statusLine');
   if(status) status.textContent = `Режим: ${modeTitle(next)}.`;
+  document.dispatchEvent(new CustomEvent('spn:ui-mode-change', {detail:{mode:next}}));
 }
 
 function hintText(mode){

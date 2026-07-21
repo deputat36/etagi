@@ -40,21 +40,19 @@
         assert(explicitTemplateClicks === 0, 'ситуация сгенерировала пользовательский клик по карточке шаблона');
         assert(value(doc, 'layoutName') === initialLayoutName, 'ситуация заменила название текущего макета');
         assert(value(doc, 'headline') === initialHeadline, 'ситуация заменила текст текущего макета');
-        assert(doc.querySelector('[data-scenario="all"]')?.classList.contains('active'), 'после ситуации сценарий не остался Все');
+        assert(doc.querySelector('[data-scenario="newbuild"]')?.classList.contains('active'), 'ситуация не выбрала сценарий Новостройки автоматически');
         assert(!doc.querySelector('#templateList [data-template].active'), 'до явного выбора неожиданно остался активный шаблон');
         assert(doc.getElementById('statusLine')?.textContent.includes('Текущий текст сохранён'), 'пользователь не получил объяснение сохранности текста');
         pass('ситуация: задача, поиск и настройки применены одной транзакцией');
         pass('ситуация: текущий макет не заменён и активный шаблон не скрыт');
 
-        lastAction = 'scenario.newbuild';
+        lastAction = 'scenario.additional-filter';
         const beforeScenarioLayout = value(doc, 'layoutName');
-        const scenarioButton = doc.querySelector('[data-scenario="newbuild"]');
-        assert(scenarioButton && !scenarioButton.disabled, 'сценарий Новостройки недоступен после выбора ситуации');
-        click(doc, '[data-scenario="newbuild"]');
-        await waitFor(() => doc.querySelector('[data-scenario="newbuild"]')?.classList.contains('active'), 2000, 'сценарий Новостройки не стал активным');
+        click(doc, '[data-scenario="all"]');
+        await waitFor(() => doc.querySelector('[data-scenario="all"]')?.classList.contains('active'), 2000, 'дополнительный фильтр Все не стал активным');
         assert(value(doc, 'layoutName') === beforeScenarioLayout, 'сценарный фильтр неожиданно заменил макет');
         assert(explicitTemplateClicks === 0, 'сценарный фильтр вызвал клик по шаблону');
-        pass('сценарий: только фильтрует список и не применяет шаблон');
+        pass('сценарий: остаётся дополнительным фильтром и не применяет шаблон');
 
         lastAction = 'template.explicit';
         const firstVisibleTemplate = doc.querySelector('#templateList [data-template]');
@@ -64,8 +62,19 @@
         await waitFor(() => doc.querySelector(`[data-template="${cssEscape(explicitTemplateId)}"]`)?.classList.contains('active'), 3000, 'явно выбранная карточка не стала активной');
         assert(explicitTemplateClicks === 1, `ожидался один явный клик по шаблону, получено ${explicitTemplateClicks}`);
         assert(doc.querySelector('[data-goal="newbuild"]')?.classList.contains('active'), 'выбранный шаблон не синхронизировал задачу');
-        assert(doc.querySelector('[data-scenario="newbuild"]')?.classList.contains('active'), 'выбранный шаблон сбросил активный сценарий');
-        pass('шаблон: применяется только после явного клика пользователя');
+        assert(doc.querySelector('[data-scenario="newbuild"]')?.classList.contains('active'), 'выбранный шаблон не синхронизировал сценарий Новостройки');
+        pass('шаблон: применяется явно и синхронизирует сценарий');
+
+        lastAction = 'mode.quick-hides-scenario';
+        click(doc, '[data-spn-ui-mode="quick"]');
+        await waitFor(() => doc.body.dataset.spnUiMode === 'quick', 2000, 'быстрый режим не включился');
+        assert(win.getComputedStyle(doc.getElementById('scenarioFilterRow')).display === 'none', 'повторный сценарный выбор остался видимым в быстром режиме');
+        assert(doc.querySelector('[data-scenario="newbuild"]')?.classList.contains('active'), 'быстрый режим потерял автоматический сценарий ситуации');
+        assert(doc.getElementById('templateCountLine')?.textContent.includes('Подбор по ситуации: Новостройки'), 'быстрый режим не объясняет автоматический контекст');
+        click(doc, '[data-spn-ui-mode="advanced"]');
+        await waitFor(() => doc.body.dataset.spnUiMode === 'advanced', 2000, 'расширенный режим не вернулся');
+        assert(win.getComputedStyle(doc.getElementById('scenarioFilterRow')).display !== 'none', 'дополнительный фильтр не вернулся в расширенном режиме');
+        pass('режимы: повторный сценарный выбор скрыт в простом пути');
 
         lastAction = 'task.manual';
         const beforeTaskLayout = value(doc, 'layoutName');
@@ -76,6 +85,7 @@
         assert(value(doc, 'headline') === beforeTaskHeadline, 'ручной выбор задачи заменил текст макета');
         assert(!doc.querySelector('#templateList [data-template].active'), 'ручной выбор задачи оставил скрытое активное выделение');
         assert(!doc.querySelector('[data-spn-situation].active'), 'ручная задача оставила несогласованную активную ситуацию');
+        assert(doc.querySelector('[data-scenario="all"]')?.classList.contains('active'), 'ручная задача не сбросила дополнительный сценарий');
         pass('задача: фильтрует библиотеку без автоматического шаблона');
 
         lastAction = 'route.search-is-not-situation';

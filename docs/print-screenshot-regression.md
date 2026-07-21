@@ -173,7 +173,7 @@ Harness не создаёт PNG вслепую. Для каждого сцена
 
 ## Итоговые artifacts
 
-Основной workflow создаёт `print-screenshots` с семью PNG, семью служебными JSON и общим `manifest.json`. Срок хранения — 7 дней.
+Основной workflow создаёт `print-screenshots`. В комплекте находятся семь PNG, семь служебных JSON и общий `manifest.json`. Срок хранения — 7 дней.
 
 Отдельный workflow создаёт `print-screenshot-eight-economy` с PNG и JSON формата 8 на А4. Срок хранения — 7 дней.
 

@@ -28,7 +28,7 @@ requireSnippets(files.uiMode, sources.uiMode, [
   'function markModeSpecificControls()',
   "['splitMode', 'printCheckMode']",
   "classList.add('spn-newbie-advanced-print')",
-  'основные настройки печати'
+  'проверка перед печатью'
 ]);
 
 forbidSnippets(files.uiMode, sources.uiMode, [

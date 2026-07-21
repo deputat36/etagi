@@ -31,6 +31,16 @@
         await waitFor(() => doc.querySelectorAll('.tpl-card').length > 0, 12000, 'шаблоны не появились');
         await waitFor(() => doc.querySelector('#printSheet .flyer'), 12000, 'предпросмотр А4 не появился');
         await waitFor(() => doc.getElementById('contactCtaText') && doc.getElementById('tearOffLabel') && doc.getElementById('brandNameText') && doc.getElementById('brandSideText'), 5000, 'редакторы служебных подписей не появились');
+        await waitFor(() => doc.getElementById('spnWorkspaceBackup'), 5000, 'полная копия рабочего пространства не появилась');
+        const saveCard = doc.querySelector('.save-card');
+        assert(saveCard?.querySelector('.step-title')?.textContent.includes('Сохранение и перенос'), 'раздел не объясняет общее назначение');
+        for(const section of ['current','named','layout-file','workspace']) assert(saveCard?.querySelector(`[data-save-transfer-section="${section}"]`), `не найден способ сохранения ${section}`);
+        assert(saveCard?.textContent.includes('Автосохранение работает в этом браузере'), 'не объяснено автосохранение текущей работы');
+        assert(doc.getElementById('saveLocalBtn')?.textContent.trim() === 'Сохранить ручной резерв', 'не объяснён ручной резерв');
+        assert(doc.getElementById('saveNamedLayoutBtn')?.textContent.includes('Мои макеты'), 'не объяснены именованные макеты');
+        assert(doc.getElementById('downloadBtn')?.textContent.trim() === 'Скачать один макет', 'файл одного макета назван неоднозначно');
+        assert(doc.getElementById('exportWorkspaceBackupBtn')?.textContent.trim() === 'Скачать полную копию', 'полная копия названа неоднозначно');
+        pass('сохранение и перенос: четыре назначения объяснены отдельно');
         win.localStorage.removeItem('etagi-raskleyka-profile-v1');
         win.localStorage.removeItem('etagi-raskleyka-saved-v1');
         win.localStorage.removeItem('etagi-raskleyka-layouts-v1');
@@ -102,7 +112,7 @@
         setField(win, doc, '#headline', 'Заголовок последнего макета');
         setField(win, doc, '#price', '3 500 000 ₽');
         click(doc, '#saveLocalBtn');
-        await waitFor(() => doc.getElementById('statusLine')?.textContent.includes('Последний макет сохранён'), 3000, 'последний макет не сохранился');
+        await waitFor(() => doc.getElementById('statusLine')?.textContent.includes('Ручной резерв текущего макета сохранён'), 3000, 'ручной резерв не сохранился');
         assert(win.localStorage.getItem('etagi-raskleyka-saved-v1')?.includes('Заголовок последнего макета'), 'последний макет отсутствует в localStorage');
 
         lastAction = 'layout.last-load';
@@ -110,7 +120,7 @@
         setField(win, doc, '#price', '1 ₽');
         click(doc, '#loadLocalBtn');
         await waitFor(() => doc.getElementById('headline')?.value === 'Заголовок последнего макета' && doc.getElementById('price')?.value === '3 500 000 ₽', 3000, 'последний макет не восстановил поля');
-        pass('последний макет: сохранение и загрузка');
+        pass('ручной резерв: сохранение и загрузка');
 
         lastAction = 'object.clear';
         const objectValues = {

@@ -17,25 +17,25 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 function renderBackupPanel(){
-  return `<div class="spn-workspace-backup" id="spnWorkspaceBackup">
+  return `<section class="spn-workspace-backup save-transfer-section" id="spnWorkspaceBackup" data-save-transfer-section="workspace">
     <div class="spn-workspace-backup-head">
       <div>
-        <b>Backup рабочего пространства</b>
-        <span>Профиль, макеты, избранное, настройки, задания и история отчётов.</span>
+        <b>Полная копия рабочего пространства</b>
+        <span>Для переноса всех локальных данных: профиля, макетов, настроек, заданий и истории отчётов.</span>
       </div>
       <strong id="workspaceBackupSummary">—</strong>
     </div>
     <div class="spn-workspace-backup-controls">
-      <button type="button" id="exportWorkspaceBackupBtn">Скачать backup</button>
-      <button type="button" id="importWorkspaceBackupBtn">Открыть backup</button>
-      <select id="workspaceBackupImportMode" aria-label="Режим восстановления backup">
+      <button type="button" id="exportWorkspaceBackupBtn">Скачать полную копию</button>
+      <button type="button" id="importWorkspaceBackupBtn">Восстановить из полной копии</button>
+      <select id="workspaceBackupImportMode" aria-label="Режим восстановления полной копии">
         <option value="merge">Объединить с текущими данными</option>
         <option value="replace">Заменить рабочее пространство</option>
       </select>
     </div>
     <input id="workspaceBackupFile" type="file" accept="application/json,.json" hidden>
-    <p>Фото не входят в backup: генератор намеренно не хранит изображения в localStorage.</p>
-  </div>`;
+    <p>Фото не входят в полную копию: генератор намеренно не хранит изображения в localStorage.</p>
+  </section>`;
 }
 
 function exportWorkspaceBackup(){
@@ -50,7 +50,7 @@ function exportWorkspaceBackup(){
   };
   const content = JSON.stringify(backup, null, 2);
   downloadJson(`etagi-workspace-backup-${new Date().toISOString().slice(0, 10)}.json`, content);
-  setStatus(`Backup скачан: ${backup.entryCount} разделов localStorage.`);
+  setStatus(`Полная копия скачана: ${backup.entryCount} разделов локальных данных.`);
 }
 
 async function importWorkspaceBackup(event){
@@ -60,7 +60,7 @@ async function importWorkspaceBackup(event){
   if(!file) return;
 
   if(file.size > MAX_BACKUP_BYTES){
-    setStatus('Backup слишком большой. Максимальный размер — 3 МБ.');
+    setStatus('Полная копия слишком большая. Максимальный размер — 3 МБ.');
     return;
   }
 
@@ -68,13 +68,13 @@ async function importWorkspaceBackup(event){
   try{
     parsed = JSON.parse(await file.text());
   } catch(error){
-    setStatus('Не удалось открыть backup: файл не является корректным JSON.');
+    setStatus('Не удалось открыть полную копию: файл не является корректным JSON.');
     return;
   }
 
   const validation = validateBackup(parsed);
   if(!validation.ok){
-    setStatus(`Backup отклонён: ${validation.error}`);
+    setStatus(`Полная копия отклонена: ${validation.error}`);
     return;
   }
 
@@ -83,24 +83,24 @@ async function importWorkspaceBackup(event){
   const currentCount = Object.keys(previousEntries).length;
   const nextCount = Object.keys(validation.entries).length;
   const action = mode === 'replace'
-    ? `Удалить ${currentCount} текущих разделов и восстановить ${nextCount} из backup?`
-    : `Объединить ${nextCount} разделов backup с ${currentCount} текущими? Совпадающие ключи будут обновлены.`;
+    ? `Удалить ${currentCount} текущих разделов и восстановить ${nextCount} из полной копии?`
+    : `Объединить ${nextCount} разделов полной копии с ${currentCount} текущими? Совпадающие ключи будут обновлены.`;
 
   if(!window.confirm(`${action}\n\nПосле восстановления страница будет перезагружена.`)){
-    setStatus('Восстановление backup отменено.');
+    setStatus('Восстановление полной копии отменено.');
     return;
   }
 
   try{
     if(mode === 'replace') removeWorkspaceEntries();
     writeWorkspaceEntries(validation.entries);
-    setStatus(`Backup восстановлен: ${nextCount} разделов. Перезагрузка…`);
+    setStatus(`Полная копия восстановлена: ${nextCount} разделов. Перезагрузка…`);
     window.setTimeout(() => window.location.reload(), 120);
   } catch(error){
     const rolledBack = rollbackWorkspace(previousEntries);
     setStatus(rolledBack
       ? 'Восстановление не выполнено. Предыдущие данные возвращены без изменений.'
-      : 'Ошибка восстановления и отката. Не закрывайте вкладку: исходный backup лучше сохранить отдельно.');
+      : 'Ошибка восстановления и отката. Не закрывайте вкладку: исходную полную копию лучше сохранить отдельно.');
   }
 }
 
@@ -140,7 +140,7 @@ function rollbackWorkspace(previousEntries){
 
 function validateBackup(value){
   if(!value || typeof value !== 'object' || Array.isArray(value)) return fail('корень файла должен быть объектом');
-  if(value.schema !== BACKUP_SCHEMA) return fail('неизвестный тип backup');
+  if(value.schema !== BACKUP_SCHEMA) return fail('неизвестный тип полной копии');
   if(Number(value.version) !== BACKUP_VERSION) return fail(`неподдерживаемая версия ${value.version}`);
   if(!value.entries || typeof value.entries !== 'object' || Array.isArray(value.entries)) return fail('нет объекта entries');
 
@@ -150,7 +150,7 @@ function validateBackup(value){
     if(typeof item !== 'string') return fail(`значение ${key} должно быть строкой localStorage`);
     entries[key] = item;
   }
-  if(!Object.keys(entries).length) return fail('backup не содержит данных проекта');
+  if(!Object.keys(entries).length) return fail('полная копия не содержит данных проекта');
   return {ok:true, entries};
 }
 
@@ -194,7 +194,7 @@ function injectStyles(){
   const style = document.createElement('style');
   style.id = STYLE_ID;
   style.textContent = `
-    .spn-workspace-backup{margin-top:12px;padding:10px;border:1px solid #c7d2fe;border-radius:14px;background:#eef2ff}
+    .save-transfer-intro{margin:0 0 10px;font-size:11.5px;line-height:1.4;color:#475569}.save-transfer-section{margin-top:10px;padding:10px;border:1px solid #dbe3ee;border-radius:14px;background:#f8fafc}.save-transfer-section-head b{display:block;font-size:12px;font-weight:900;color:#1e293b}.save-transfer-section-head span{display:block;margin-top:3px;font-size:10.5px;line-height:1.35;color:#64748b;font-weight:700}.save-transfer-actions{margin-top:8px}.save-transfer-privacy{margin-top:10px}.saved-layout-controls{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px}.saved-layout-controls select{grid-column:1 / -1}.spn-workspace-backup{border-color:#c7d2fe;background:#eef2ff}
     .spn-workspace-backup-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
     .spn-workspace-backup-head b{display:block;font-size:12px;font-weight:900;color:#312e81}
     .spn-workspace-backup-head span{display:block;margin-top:3px;font-size:10.5px;line-height:1.25;color:#4f46e5;font-weight:700}
@@ -203,7 +203,7 @@ function injectStyles(){
     .spn-workspace-backup-controls select{grid-column:1 / -1;font-size:12px}
     .spn-workspace-backup-controls button{background:#fff;border:1px solid #c7d2fe;color:#3730a3;box-shadow:none}
     .spn-workspace-backup p{margin:7px 0 0;font-size:10px;line-height:1.3;color:#6366f1;font-weight:700}
-    @media(max-width:520px){.spn-workspace-backup-controls{grid-template-columns:1fr}}
+    @media(max-width:520px){.spn-workspace-backup-controls,.saved-layout-controls{grid-template-columns:1fr}.saved-layout-controls select{grid-column:auto}}
     @media print{.spn-workspace-backup{display:none!important}}
   `;
   document.head.appendChild(style);

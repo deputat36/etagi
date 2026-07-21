@@ -100,7 +100,7 @@ function bindStaticUi(){
   });
   $('saveLocalBtn').onclick = () => {
     const saved = saveNamed(state);
-    setStatus(saved ? 'Последний макет сохранён в этом браузере.' : 'Не удалось сохранить последний макет. Возможно, в браузере закончилось место.');
+    setStatus(saved ? 'Ручной резерв текущего макета сохранён на этом устройстве.' : 'Не удалось сохранить ручной резерв. Возможно, в браузере закончилось место.');
   };
   $('loadLocalBtn').onclick = () => {
     const s = loadNamed();
@@ -108,8 +108,8 @@ function bindStaticUi(){
       state = cleanLoadedState(s);
       if($('savedLayouts')) $('savedLayouts').value='';
       syncFormFromState(); renderAll();
-      setStatus('Последний макет загружен без смешивания с текущим макетом.');
-    } else setStatus('Последний сохранённый макет не найден.');
+      setStatus('Ручной резерв открыт без смешивания с текущим макетом.');
+    } else setStatus('Ручной резерв текущего макета не найден.');
   };
   $('downloadBtn').onclick = () => downloadText(`etagi-raskleyka-${new Date().toISOString().slice(0,10)}.json`, JSON.stringify(createLayoutFilePayload(state),null,2));
   $('uploadBtn').onclick = () => $('uploadFile').click();
@@ -226,7 +226,7 @@ function updateTemplateCountLine(visibleCount, baseCount){
 function renderSavedLayouts(selectedId = ''){
   const select = $('savedLayouts');
   const layouts = listSavedLayouts();
-  select.innerHTML = '<option value="">Сохранённые макеты</option>' + layouts.map(item => `<option value="${esc(item.id)}">${esc(item.name)} — ${new Date(item.updatedAt).toLocaleDateString('ru-RU')}</option>`).join('');
+  select.innerHTML = '<option value="">Мои сохранённые макеты</option>' + layouts.map(item => `<option value="${esc(item.id)}">${esc(item.name)} — ${new Date(item.updatedAt).toLocaleDateString('ru-RU')}</option>`).join('');
   if(selectedId) select.value = selectedId;
 }
 function renderBlockOrderControls(){

@@ -23,13 +23,13 @@ if (storageSource) {
 }
 
 if (appSource) {
-  checkAppMessage('Не удалось сохранить последний макет. Возможно, в браузере закончилось место.');
+  checkAppMessage('Не удалось сохранить ручной резерв. Возможно, в браузере закончилось место.');
   checkAppMessage('Не удалось сохранить макет. Возможно, в браузере закончилось место.');
   checkAppMessage('Не удалось удалить макет. Возможно, браузер запретил изменение сохранений.');
   checkAppMessage('Не удалось изменить избранное. Возможно, в браузере закончилось место.');
   checkAppMessage('Не удалось сохранить профиль СПН. Возможно, в браузере закончилось место.');
 
-  checkAppSnippet('const saved = saveNamed(state);', 'app.js: кнопка последнего макета должна проверять результат saveNamed');
+  checkAppSnippet('const saved = saveNamed(state);', 'app.js: кнопка ручного резерва должна проверять результат saveNamed');
   checkAppSnippet('if(!item){ setStatus(\'Не удалось сохранить макет.', 'app.js: сохранение именованного макета должно проверять результат saveLayout');
   checkAppSnippet('const next = deleteLayout(id);', 'app.js: удаление макета должно проверять результат deleteLayout');
   checkAppSnippet('if(!favorites){ setStatus(\'Не удалось изменить избранное.', 'app.js: избранное должно проверять результат toggleFavoriteTemplate');

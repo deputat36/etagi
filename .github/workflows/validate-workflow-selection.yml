@@ -5,6 +5,8 @@ on:
     paths:
       - 'assets/js/app.js'
       - 'assets/js/spnWizard.js'
+      - 'assets/js/spnUiMode.js'
+      - 'assets/css/spn-ui-mode.css'
       - 'data/workflow-selection-audit.json'
       - 'docs/workflow-selection-audit.md'
       - 'tools/workflow-selection-smoke.html'
@@ -15,6 +17,8 @@ on:
     paths:
       - 'assets/js/app.js'
       - 'assets/js/spnWizard.js'
+      - 'assets/js/spnUiMode.js'
+      - 'assets/css/spn-ui-mode.css'
       - 'data/workflow-selection-audit.json'
       - 'docs/workflow-selection-audit.md'
       - 'tools/workflow-selection-smoke.html'

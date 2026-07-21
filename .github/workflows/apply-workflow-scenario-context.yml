@@ -1,12 +1,6 @@
 name: Apply workflow scenario context
 
 on:
-  push:
-    branches:
-      - agent/workflow-scenario-context
-    paths:
-      - '.agent/**'
-      - '.github/workflows/apply-workflow-scenario-context.yml'
   pull_request:
     branches:
       - main

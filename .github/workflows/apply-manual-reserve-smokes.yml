@@ -28,8 +28,8 @@ jobs:
 
       - name: Validate smoke files
         run: |
-          node --check tools/destructive-snapshot-smoke.html
-          node --check tools/destructive-undo-smoke.html
+          grep -q "Ручной резерв текущего макета сохранён" tools/destructive-snapshot-smoke.html
+          grep -q "Ручной резерв текущего макета сохранён" tools/destructive-undo-smoke.html
           git diff --check -- . ':(exclude).agent/**'
 
       - name: Commit smoke updates

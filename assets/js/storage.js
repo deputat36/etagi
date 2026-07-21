@@ -1,4 +1,5 @@
 import { enrichLayoutExtras, syncLayoutExtras } from './layoutExtras.js';
+import { normalizePrintCount } from './state.js';
 
 const KEY = 'etagi-raskleyka-state-v1';
 const SAVED_KEY = 'etagi-raskleyka-saved-v1';
@@ -12,11 +13,7 @@ export function autoSave(state){
   catch(e) { console.warn('autosave failed', e); }
 }
 export function loadAutoSave(){
-  try {
-    const state = JSON.parse(localStorage.getItem(KEY) || 'null');
-    syncLayoutExtras(state);
-    return state;
-  }
+  try { return normalizeStoredState(JSON.parse(localStorage.getItem(KEY) || 'null')); }
   catch(e) { return null; }
 }
 export function saveNamed(state){
@@ -30,11 +27,7 @@ export function saveNamed(state){
   }
 }
 export function loadNamed(){
-  try {
-    const state = JSON.parse(localStorage.getItem(SAVED_KEY) || 'null');
-    syncLayoutExtras(state);
-    return state;
-  }
+  try { return normalizeStoredState(JSON.parse(localStorage.getItem(SAVED_KEY) || 'null')); }
   catch(e) { return null; }
 }
 export function saveProfile(profile){
@@ -78,7 +71,7 @@ export function saveLayout(name, state){
 }
 export function loadLayout(id){
   const item = listSavedLayouts().find(item => item.id === id) || null;
-  if(item?.state) syncLayoutExtras(item.state);
+  if(item?.state) item.state = normalizeStoredState(item.state);
   return item;
 }
 export function deleteLayout(id){
@@ -145,8 +138,14 @@ export function clearAll(){
   localStorage.removeItem(LAYOUTS_KEY);
   localStorage.removeItem(FAVORITE_TEMPLATES_KEY);
 }
+function normalizeStoredState(state){
+  if(!state || typeof state !== 'object') return state;
+  state.printCount = normalizePrintCount(state.printCount);
+  syncLayoutExtras(state);
+  return state;
+}
 function stripHeavyFields(state){
-  return enrichLayoutExtras({...state, photoOne:'', photoTwo:''});
+  return enrichLayoutExtras({...state, printCount:normalizePrintCount(state?.printCount), photoOne:'', photoTwo:''});
 }
 function makeRestoredLayoutName(name, layouts){
   const taken = new Set(layouts.map(item => String(item.name || '').trim().toLowerCase()));

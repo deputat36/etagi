@@ -1,5 +1,6 @@
 import fs from 'node:fs';
-import { defaultState } from '../assets/js/state.js';
+import { defaultState, printPresets, SUPPORTED_PRINT_COUNTS, DEFAULT_PRINT_COUNT, normalizePrintCount } from '../assets/js/state.js';
+import { getGrid } from '../assets/js/render.js';
 import {
   LAYOUT_FILE_FORMAT,
   LAYOUT_FILE_FORMAT_VERSION,
@@ -11,10 +12,35 @@ import {
 
 const schema = JSON.parse(fs.readFileSync(LAYOUT_FILE_SCHEMA_PATH, 'utf8'));
 const errors = [];
+const storageSource = fs.readFileSync('assets/js/storage.js', 'utf8');
+const renderSource = fs.readFileSync('assets/js/render.js', 'utf8');
+const runnerSource = fs.readFileSync('tools/run-ui-actions-smoke.mjs', 'utf8');
+const smokeSource = fs.readFileSync('tools/print-format-policy-smoke.html', 'utf8');
+const docsSource = fs.readFileSync('docs/print-format-policy.md', 'utf8');
 
 assert(schema?.properties?.fileFormat?.const === LAYOUT_FILE_FORMAT, 'schema: неверный fileFormat');
 assert(schema?.properties?.fileFormatVersion?.maximum === LAYOUT_FILE_FORMAT_VERSION, 'schema: неверная максимальная версия формата');
-assert(schema?.properties?.printCount?.enum?.join(',') === '1,2,3,4,6,8', 'schema: неверный список форматов печати');
+assert(schema?.properties?.printCount?.enum?.join(',') === SUPPORTED_PRINT_COUNTS.join(','), 'schema: список форматов не совпадает с источником истины');
+assert(printPresets.map(item => item.count).join(',') === SUPPORTED_PRINT_COUNTS.join(','), 'UI: пресеты не совпадают с официальными форматами');
+assert(defaultState.printCount === DEFAULT_PRINT_COUNT, 'state: значение по умолчанию не совпадает с политикой');
+assert(normalizePrintCount(10) === DEFAULT_PRINT_COUNT && normalizePrintCount(12) === DEFAULT_PRINT_COUNT, 'state: 10/12 не нормализуются к безопасному значению');
+assert(getGrid(10, 'grid').cols === 1 && getGrid(10, 'grid').rows === 2, 'render: 10 не использует безопасную сетку по умолчанию');
+assert(getGrid(12, 'grid').cols === 1 && getGrid(12, 'grid').rows === 2, 'render: 12 не использует безопасную сетку по умолчанию');
+assert(!renderSource.includes('if(n === 10)') && !renderSource.includes('if(n === 12)'), 'render: остались отдельные ветки 10/12');
+assert(renderSource.includes("import { normalizePrintCount } from './state.js';"), 'render: не использует общий нормализатор');
+assert(storageSource.includes("import { normalizePrintCount } from './state.js';"), 'storage: не использует общий нормализатор');
+assert(storageSource.includes('state.printCount = normalizePrintCount(state.printCount);'), 'storage: старое локальное состояние не нормализуется');
+assert(storageSource.includes('printCount:normalizePrintCount(state?.printCount)'), 'storage: неподдерживаемый формат можно сохранить повторно');
+assert(runnerSource.includes("label:'Print format policy smoke'") && runnerSource.includes("path:'tools/print-format-policy-smoke.html'"), 'runner: browser smoke политики A4 не подключён');
+for(const marker of [
+  'A4: интерфейс показывает только 1, 2, 3, 4, 6 и 8',
+  'A4: старые локальные 10/12 нормализуются до 2 без потери текста',
+  'A4: импорт 10 и 12 отклоняется без изменения макета',
+  'A4: renderer защищён от неподдерживаемого состояния'
+]) assert(smokeSource.includes(marker), `smoke: отсутствует маркер — ${marker}`);
+for(const marker of ['# Политика форматов A4','1, 2, 3, 4, 6 и 8','10 и 12','не считаются проверенными физической печатью']){
+  assert(docsSource.includes(marker), `docs: отсутствует обязательное уточнение — ${marker}`);
+}
 
 const payload = createLayoutFilePayload({...defaultState, headline:'Проверочный макет'});
 assert(payload.fileFormat === LAYOUT_FILE_FORMAT, 'export: отсутствует идентификатор формата');
@@ -37,6 +63,12 @@ assert(validateLayoutFilePayload({foo:'bar'}).code === 'not-layout', 'diagnostic
 assert(validateLayoutFilePayload({fileFormat:'other-app', headline:'Тест'}).code === 'wrong-format', 'diagnostics: чужой формат не отклонён');
 assert(validateLayoutFilePayload({fileFormat:LAYOUT_FILE_FORMAT, fileFormatVersion:2, headline:'Тест'}).code === 'future-format-version', 'diagnostics: будущая версия не отклонена');
 assert(validateLayoutFilePayload({headline:'Тест', printCount:'4'}).code === 'invalid-fields', 'diagnostics: неверный тип printCount не отклонён');
+for(const count of [10,12]){
+  const unsupported = validateLayoutFilePayload({headline:'Тест', printCount:count});
+  assert(unsupported.code === 'invalid-fields', `diagnostics: ${count} не отклонён`);
+  assert(unsupported.message.includes(`Значение «${count}» не поддерживается`), `diagnostics: нет точного сообщения для ${count}`);
+  assert(unsupported.message.includes(SUPPORTED_PRINT_COUNTS.join(', ')), `diagnostics: сообщение ${count} не перечисляет официальные форматы`);
+}
 assert(validateLayoutFilePayload({headline:'Тест', colorMode:'neon'}).code === 'invalid-fields', 'diagnostics: неизвестная цветность не отклонена');
 assert(validateLayoutFilePayload({headline:'Тест', blockOrder:['headline','unknown']}).code === 'invalid-fields', 'diagnostics: неизвестный блок не отклонён');
 
@@ -46,12 +78,12 @@ assert(withUnknown.warnings.length === 1, 'forward compatibility: неизвес
 assert(!Object.hasOwn(withUnknown.state, 'unknownFutureField'), 'forward compatibility: неизвестное поле попало в state');
 
 if(errors.length){
-  console.error('\nОшибки формата JSON-макета:');
+  console.error('\nОшибки формата JSON-макета и политики A4:');
   errors.forEach(error => console.error(`- ${error}`));
   process.exit(1);
 }
 
-console.log('Проверка формата и диагностики JSON-макета пройдена.');
+console.log('Проверка формата JSON-макета и политики A4 пройдена.');
 
 function assert(condition, message){
   if(!condition) errors.push(message);

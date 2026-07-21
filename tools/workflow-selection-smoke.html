@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Etagi workflow selection audit smoke</title>
+  <style>body{font-family:Arial,sans-serif;margin:16px}iframe{width:1280px;height:900px;border:1px solid #cbd5e1}pre{white-space:pre-wrap;padding:12px;background:#f8fafc}</style>
+</head>
+<body>
+  <pre id="workflowSelectionSmokeResult" data-status="pending">Workflow selection smoke is running…</pre>
+  <iframe id="appFrame" title="Генератор расклеек"></iframe>
+  <script>
+    const result = document.getElementById('workflowSelectionSmokeResult');
+    const frame = document.getElementById('appFrame');
+    const checks = [];
+    let lastAction = 'startup';
+
+    frame.addEventListener('load', async () => {
+      const win = frame.contentWindow;
+      const doc = frame.contentDocument;
+      let explicitTemplateClicks = 0;
+      try{
+        await waitFor(() => doc.querySelectorAll('.tpl-card').length > 0, 12000, 'шаблоны не появились');
+        await waitFor(() => doc.getElementById('spnWizard'), 5000, 'офисный подбор не появился');
+        click(doc, '[data-spn-ui-mode="advanced"]');
+        await waitFor(() => doc.body.dataset.spnUiMode === 'advanced', 3000, 'расширенный режим не включился');
+
+        const initialLayoutName = value(doc, 'layoutName');
+        doc.getElementById('templateList').addEventListener('click', event => {
+          if(event.target.closest('[data-template]')) explicitTemplateClicks += 1;
+        }, true);
+
+        lastAction = 'situation.tellerman-sad';
+        click(doc, '[data-spn-situation="tellerman-sad"]');
+        await waitFor(() => doc.querySelector('[data-spn-situation="tellerman-sad"]')?.classList.contains('active'), 3000, 'ситуация не стала активной');
+        await waitFor(() => doc.querySelector('[data-goal="newbuild"]')?.classList.contains('active'), 3000, 'задача newbuild не выбрана автоматически');
+        await waitFor(() => value(doc, 'templateSearch') === 'Теллерманов сад новостройка семейная ипотека материнский капитал', 4000, 'поиск ситуации не подставлен');
+        await waitFor(() => doc.querySelector('[data-count="2"]')?.classList.contains('active'), 3000, 'рекомендуемый формат 2 на А4 не применён');
+        await waitFor(() => doc.querySelector('[data-layout-mode="newbuild_visual"]')?.classList.contains('active'), 3000, 'рекомендуемая компоновка не применена');
+        assert(explicitTemplateClicks === 0, 'ситуация сгенерировала пользовательский клик по карточке шаблона');
+        assert(value(doc, 'layoutName') && value(doc, 'layoutName') !== initialLayoutName, 'задача не применила первый шаблон автоматически');
+        assert(doc.querySelector('[data-scenario="all"]')?.classList.contains('active'), 'после ситуации сценарий не остался Все');
+        pass('ситуация: автоматически выбраны задача, шаблон, поиск и настройки');
+
+        lastAction = 'scenario.newbuild';
+        const beforeScenarioLayout = value(doc, 'layoutName');
+        const scenarioButton = doc.querySelector('[data-scenario="newbuild"]');
+        assert(scenarioButton && !scenarioButton.disabled, 'сценарий Новостройки недоступен после выбора ситуации');
+        click(doc, '[data-scenario="newbuild"]');
+        await waitFor(() => scenarioButton.classList.contains('active'), 2000, 'сценарий Новостройки не стал активным');
+        assert(value(doc, 'layoutName') === beforeScenarioLayout, 'сценарный фильтр неожиданно заменил макет');
+        assert(explicitTemplateClicks === 0, 'сценарный фильтр вызвал клик по шаблону');
+        pass('сценарий: только фильтрует список и не применяет шаблон');
+
+        lastAction = 'template.explicit';
+        const firstVisibleTemplate = doc.querySelector('#templateList [data-template]');
+        assert(firstVisibleTemplate, 'после фильтров не осталось доступного шаблона');
+        const explicitTemplateId = firstVisibleTemplate.dataset.template;
+        firstVisibleTemplate.click();
+        await waitFor(() => doc.querySelector(`[data-template="${cssEscape(explicitTemplateId)}"]`)?.classList.contains('active'), 3000, 'явно выбранная карточка не стала активной');
+        assert(explicitTemplateClicks === 1, `ожидался один явный клик по шаблону, получено ${explicitTemplateClicks}`);
+        assert(doc.querySelector('[data-goal="newbuild"]')?.classList.contains('active'), 'выбранный шаблон не синхронизировал задачу');
+        assert(doc.querySelector('[data-scenario="newbuild"]')?.classList.contains('active'), 'выбранный шаблон сбросил активный сценарий');
+        pass('шаблон: применяется только после явного клика пользователя');
+
+        lastAction = 'route.search-as-situation';
+        click(doc, '[data-spn-reset]');
+        await waitFor(() => !doc.querySelector('[data-spn-situation].active') && value(doc, 'templateSearch') === '', 3000, 'сброс ситуации не завершился');
+        setField(win, doc, '#templateSearch', 'квартира');
+        await waitFor(() => doc.querySelector('#spnRouteSteps span')?.classList.contains('done'), 2000, 'ручной поиск не засчитался как ситуация');
+        assert(doc.querySelector('#spnRouteSteps span')?.textContent.includes('Ситуация'), 'первый шаг маршрута имеет другое значение');
+        assert(!doc.querySelector('[data-spn-situation].active'), 'ручной поиск неожиданно выбрал офисную ситуацию');
+        pass('маршрут: ручной поиск засчитывается как выбранная ситуация');
+
+        result.dataset.status = 'passed';
+        result.textContent = `PASSED\n${checks.map(item => `✓ ${item}`).join('\n')}`;
+      } catch(error){
+        result.dataset.status = 'failed';
+        result.dataset.lastAction = lastAction;
+        result.textContent = `FAILED\n${checks.map(item => `✓ ${item}`).join('\n')}\n✗ ${error.message || error}\nПоследнее действие: ${lastAction}\nСостояние: ${JSON.stringify(snapshot(doc, explicitTemplateClicks))}`;
+      }
+    }, {once:true});
+
+    frame.src = '/index.html?smoke=workflow-selection-audit';
+
+    setTimeout(() => {
+      if(result.dataset.status === 'pending'){
+        result.dataset.status = 'failed';
+        result.dataset.lastAction = lastAction;
+        result.textContent = `FAILED\n✗ timeout\nПоследнее действие: ${lastAction}`;
+      }
+    }, 40000);
+
+    function snapshot(doc, explicitTemplateClicks){
+      return {
+        activeSituation:doc.querySelector('[data-spn-situation].active')?.dataset.spnSituation || '',
+        activeGoal:doc.querySelector('[data-goal].active')?.dataset.goal || '',
+        activeScenario:doc.querySelector('[data-scenario].active')?.dataset.scenario || '',
+        activeTemplate:doc.querySelector('[data-template].active')?.dataset.template || '',
+        search:value(doc, 'templateSearch'),
+        layoutName:value(doc, 'layoutName'),
+        printCount:doc.querySelector('[data-count].active')?.dataset.count || '',
+        layoutMode:doc.querySelector('[data-layout-mode].active')?.dataset.layoutMode || '',
+        explicitTemplateClicks,
+        route:doc.getElementById('spnRouteSteps')?.textContent || ''
+      };
+    }
+    function value(doc, id){ return String(doc.getElementById(id)?.value || '').trim(); }
+    function click(doc, selector){
+      const element = doc.querySelector(selector);
+      assert(element, `не найден ${selector}`);
+      element.click();
+    }
+    function setField(win, doc, selector, value){
+      const input = doc.querySelector(selector);
+      assert(input, `не найден ${selector}`);
+      input.value = value;
+      input.dispatchEvent(new win.Event('input', {bubbles:true}));
+      input.dispatchEvent(new win.Event('change', {bubbles:true}));
+    }
+    function cssEscape(value){ return window.CSS?.escape ? window.CSS.escape(value) : String(value).replace(/(["\\])/g, '\\$1'); }
+    function pass(message){ checks.push(message); }
+    function assert(condition, message){ if(!condition) throw new Error(message); }
+    async function waitFor(predicate, timeout, message){
+      const started = Date.now();
+      while(Date.now() - started < timeout){
+        if(predicate()) return;
+        await new Promise(resolve => setTimeout(resolve, 80));
+      }
+      throw new Error(message);
+    }
+  </script>
+</body>
+</html>

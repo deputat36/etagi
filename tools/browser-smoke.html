@@ -34,6 +34,15 @@
         if(earlyErrors.length) throw new Error(`ранние runtime errors: ${earlyErrors.join(' | ')}`);
         pass('ранние runtime-ошибки не обнаружены');
 
+        await waitFor(() => doc.body.dataset.spnUiMode === 'quick' && doc.getElementById('spnWizard'), 5000, 'быстрый режим или рабочие ситуации не готовы');
+        const startCard = doc.querySelector('.start-card');
+        const situationWizard = doc.getElementById('spnWizard');
+        const densityFilter = doc.getElementById('templateDensityFilter');
+        assert(startCard && win.getComputedStyle(startCard).display === 'none', 'в быстром режиме повторно показан отдельный выбор задачи');
+        assert(situationWizard && win.getComputedStyle(situationWizard).display !== 'none', 'в быстром режиме скрыт основной выбор рабочей ситуации');
+        assert(densityFilter && win.getComputedStyle(densityFilter).display !== 'none', 'в быстром режиме ошибочно скрыт полезный фильтр плотности');
+        pass('режим Быстро: одна точка выбора через рабочую ситуацию');
+
         const postPrintWorkspace = await waitForElement(doc, '#spnPostPrintWorkspace', 6000, 'компактный блок После печати не появился');
         await waitFor(() => !postPrintWorkspace.open && postPrintWorkspace.dataset.wizardForced === 'false', 3000, 'блок После печати не закрылся по умолчанию');
         pass('После печати: исходно закрыт');
@@ -95,6 +104,10 @@
         await waitFor(() => doc.body.dataset.spnUiMode === 'newbie', 3000, 'режим Новичок не включился');
         await waitFor(() => doc.body.dataset.wizardFlow === 'on', 5000, 'показ по шагам не включился автоматически');
         assert(doc.getElementById('spnWizardToggle')?.textContent.trim() === 'Показать все разделы', 'активная кнопка не объясняет возврат всех разделов');
+        assert(win.getComputedStyle(startCard).display === 'none', 'в режиме Новичок повторно показан отдельный выбор задачи');
+        assert(win.getComputedStyle(situationWizard).display !== 'none', 'в режиме Новичок скрыт выбор рабочей ситуации');
+        assert(win.getComputedStyle(densityFilter).display === 'none', 'новичку показан фильтр плотности, который принудительно сбрасывается');
+        pass('режим Новичок: повторная задача и лишняя плотность скрыты');
         pass('режим Новичок включён');
         pass('пошаговая подготовка включена автоматически');
 
@@ -134,10 +147,15 @@
 
         click(doc, '[data-spn-ui-mode="quick"]');
         await waitFor(() => doc.body.dataset.spnUiMode === 'quick', 2000, 'режим Быстро не включился');
+        assert(win.getComputedStyle(startCard).display === 'none', 'после возврата в Быстро снова появился повторный выбор задачи');
+        assert(win.getComputedStyle(densityFilter).display !== 'none', 'после возврата в Быстро фильтр плотности не восстановился');
         const advancedWorkbench = await waitForElement(doc, '#spnAdvancedWorkbench', 6000, 'группа дополнительной аналитики не появилась');
         await waitFor(() => win.getComputedStyle(advancedWorkbench).display === 'none', 2000, 'дополнительная аналитика не скрылась в режиме Быстро');
         click(doc, '[data-spn-ui-mode="advanced"]');
         await waitFor(() => doc.body.dataset.spnUiMode === 'advanced', 2000, 'режим Расширенно не включился');
+        assert(win.getComputedStyle(startCard).display !== 'none', 'в расширенном режиме скрыт ручной выбор задачи');
+        assert(win.getComputedStyle(densityFilter).display !== 'none', 'в расширенном режиме скрыт фильтр плотности');
+        pass('режим Расширенно: ручная задача и фильтры доступны');
         await waitFor(() => win.getComputedStyle(advancedWorkbench).display !== 'none' && advancedWorkbench.querySelectorAll('.spn-advanced-workbench-body > .card').length === 3, 3000, 'три аналитических инструмента не собраны в один раздел');
         if(!advancedWorkbench.open) advancedWorkbench.querySelector('summary')?.click();
         await waitFor(() => advancedWorkbench.open, 2000, 'дополнительная аналитика не раскрылась');

@@ -5,6 +5,8 @@
 .spn-ui-mode-actions button{padding:8px 10px;border-radius:11px;border:1px solid #dbe3ee;background:#f8fafc;color:#334155;font-size:11px;font-weight:900;box-shadow:none}
 .spn-ui-mode-actions button:hover{transform:none;box-shadow:none;background:#eef2ff}
 .spn-ui-mode-actions button.active{background:var(--accent);border-color:var(--accent);color:#fff}
+body[data-spn-ui-mode="quick"] .start-card,
+body[data-spn-ui-mode="newbie"] .start-card,
 body[data-spn-ui-mode="quick"] .advanced,
 body[data-spn-ui-mode="quick"] .save-card,
 body[data-spn-ui-mode="quick"] .help-card,
@@ -17,6 +19,8 @@ body[data-spn-ui-mode="newbie"] .help-card,
 body[data-spn-ui-mode="newbie"] .spn-field-plan,
 body[data-spn-ui-mode="newbie"] .spn-lead-qualification,
 body[data-spn-ui-mode="newbie"] .spn-result-estimator{display:none!important}
+body[data-spn-ui-mode="quick"][data-wizard-flow="on"] .sidebar .start-card[data-wizard-section].spn-wizard-section-active,
+body[data-spn-ui-mode="newbie"][data-wizard-flow="on"] .sidebar .start-card[data-wizard-section].spn-wizard-section-active{display:none!important}
 body[data-spn-ui-mode="quick"] .block-manager .block-grid,
 body[data-spn-ui-mode="quick"] .block-manager .block-title,
 body[data-spn-ui-mode="quick"] .block-manager .block-order-head,
@@ -32,7 +36,8 @@ body[data-spn-ui-mode="newbie"] .block-manager{padding-bottom:10px}
 body[data-spn-ui-mode="quick"] .quality-card,
 body[data-spn-ui-mode="newbie"] .quality-card{margin-bottom:18px}
 body[data-spn-ui-mode="quick"] .scenario-filter-row,
-body[data-spn-ui-mode="newbie"] .scenario-filter-row{display:none!important}
+body[data-spn-ui-mode="newbie"] .scenario-filter-row,
+body[data-spn-ui-mode="newbie"] #templateDensityFilter{display:none!important}
 .scenario-filter-label{align-self:center;color:#64748b;font-size:11px;font-weight:900}
 body[data-spn-ui-mode="newbie"] .spn-newbie-hidden-template{display:none!important}
 body[data-spn-ui-mode="newbie"] .spn-ui-mode{border-color:#bbf7d0;background:linear-gradient(180deg,#fff,#f0fdf4)}

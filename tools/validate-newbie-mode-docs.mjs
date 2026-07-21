@@ -8,6 +8,8 @@ const files = {
   package: 'package.json',
   index: 'index.html',
   uiMode: 'assets/js/spnUiMode.js',
+  uiModeCss: 'assets/css/spn-ui-mode.css',
+  browserSmoke: 'tools/browser-smoke.html',
   newbieMode: 'assets/js/spnNewbieMode.js',
   officeFilters: 'assets/js/spnOfficeTemplateFilters.js',
   templateBadges: 'assets/js/spnTemplateCardBadges.js',
@@ -49,6 +51,19 @@ requireSnippets(files.uiMode, sources.uiMode, [
   "import './spnPhotoLayoutStyle.js';",
   "import './spnManagerTemplateNotice.js';",
   "'newbie'"
+]);
+
+requireSnippets(files.uiModeCss, sources.uiModeCss, [
+  'body[data-spn-ui-mode="quick"] .start-card',
+  'body[data-spn-ui-mode="newbie"] .start-card',
+  'body[data-spn-ui-mode="newbie"] #templateDensityFilter'
+]);
+requireSnippets(files.browserSmoke, sources.browserSmoke, [
+  'режим Быстро: одна точка выбора через рабочую ситуацию',
+  'режим Новичок: повторная задача и лишняя плотность скрыты',
+  'режим Расширенно: ручная задача и фильтры доступны',
+  "win.getComputedStyle(startCard).display === 'none'",
+  "win.getComputedStyle(densityFilter).display === 'none'"
 ]);
 
 requireSnippets(files.newbieMode, sources.newbieMode, [
@@ -209,6 +224,8 @@ requireSnippets(files.checklist, sources.checklist, [
   '# Ручная регрессионная проверка режима «Новичок»',
   'Проверка переключения режимов',
   'Проверка фильтра шаблонов новичка',
+  'отдельный блок `Выберите задачу` скрыт',
+  'фильтр плотности скрыт',
   'Проверка пошаговой подготовки',
   'Проверка защиты печати',
   'Проверка фото-раскладки',
@@ -262,6 +279,8 @@ requireSnippets(files.readme, sources.readme, [
   'docs/newbie-mode-regression-checklist.md',
   'docs/newbie-mode-rollback-plan.md',
   'режим `Новичок` с безопасным фильтром шаблонов',
+  'в режимах `Новичок` и `Быстро` задача определяется рабочей ситуацией без повторного блока выбора',
+  'ручной выбор задачи и полный набор фильтров остаются в `Расширенном` режиме',
   'ручная регрессионная проверка режима «Новичок»',
   'маршрут `Задача и формат → Шаблон → Текст → Фото / QR → Проверка и печать → Задание → Отчёт`'
 ]);

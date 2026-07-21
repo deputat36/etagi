@@ -45,4 +45,12 @@ workflow_path.write_text(workflow_source.replace(workflow_old, workflow_new), en
 '''
 if source.count(old) != 1:
     raise SystemExit(f'Не найден единственный проблемный блок миграции: {source.count(old)}')
-path.write_text(source.replace(old, new, 1), encoding='utf-8')
+source = source.replace(old, new, 1)
+
+bad_quote = r'''  'data-spn-scenario="${item.scenario || \'all\'}"','''
+good_quote = r'''  "data-spn-scenario=\"${item.scenario || 'all'}\"",'''
+if source.count(bad_quote) != 1:
+    raise SystemExit(f'Не найден проблемный контракт data-spn-scenario: {source.count(bad_quote)}')
+source = source.replace(bad_quote, good_quote, 1)
+
+path.write_text(source, encoding='utf-8')

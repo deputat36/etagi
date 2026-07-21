@@ -1,0 +1,69 @@
+name: Apply save and transfer clarity
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.agent/**'
+      - '.github/workflows/apply-save-transfer-clarity.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply-clarity:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: agent/clarify-save-and-transfer
+          fetch-depth: 0
+
+      - name: Repair migration script
+        run: python .agent/fix_save_transfer_migration.py
+
+      - name: Apply save and transfer update
+        run: |
+          set -o pipefail
+          python .agent/apply_save_transfer_clarity.py 2>&1 | tee "$RUNNER_TEMP/save-transfer-apply.log"
+
+      - name: Validate update
+        run: |
+          set -o pipefail
+          {
+            node --check assets/js/app.js
+            node --check assets/js/spnWorkspaceBackup.js
+            node --check assets/js/spnWizardFlow.js
+            node --check tools/validate-workspace-backup.mjs
+            node --check tools/validate-storage-safety.mjs
+            npm run validate
+            git diff --check -- . ':(exclude).agent/**'
+          } 2>&1 | tee "$RUNNER_TEMP/save-transfer-validation.log"
+
+      - name: Commit user-facing changes
+        run: |
+          set -o pipefail
+          {
+            rm -rf .agent
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add -A
+            git commit -m "fix: объяснить сохранение и перенос"
+            git push origin HEAD:agent/clarify-save-and-transfer
+          } 2>&1 | tee "$RUNNER_TEMP/save-transfer-commit.log"
+
+      - name: Upload migration diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: save-transfer-migration-failure
+          path: |
+            ${{ runner.temp }}/save-transfer-apply.log
+            ${{ runner.temp }}/save-transfer-validation.log
+            ${{ runner.temp }}/save-transfer-commit.log
+          if-no-files-found: warn
+          retention-days: 3

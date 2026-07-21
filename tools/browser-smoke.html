@@ -39,7 +39,16 @@
         pass('После печати: исходно закрыт');
 
         const wizard = doc.getElementById('spnWizardFlow');
-        await waitFor(() => wizard?.dataset.stepStatusBound === 'true', 6000, 'модуль статусов шагов не привязался к мастеру');
+        await waitFor(() => wizard?.dataset.stepStatusBound === 'true', 6000, 'модуль статусов шагов не привязался к пошаговой подготовке');
+        assert(wizard?.getAttribute('aria-label') === 'Пошаговая подготовка расклейки', 'не обновлена доступная подпись пошаговой подготовки');
+        assert(wizard?.querySelector('.spn-wizard-flow-head b')?.textContent.trim() === 'Пошаговая подготовка', 'не обновлён заголовок пошаговой подготовки');
+        const initialStepTitles = [...doc.querySelectorAll('#spnWizardFlow [data-wizard-step] b')].map(item => item.textContent.trim());
+        assert(initialStepTitles[0] === '1. Задача и формат', 'первый шаг назван неоднозначно');
+        assert(initialStepTitles[1] === '2. Шаблон', 'второй шаг не называется Шаблон');
+        assert(initialStepTitles[4] === '5. Проверка и печать', 'пятый шаг не объясняет связь проверки и печати');
+        assert(initialStepTitles[5] === '6. Сохранение', 'шестой шаг не называется Сохранение');
+        assert(doc.getElementById('spnWizardToggle')?.textContent.trim() === 'Показывать по шагам', 'кнопка не объясняет действие включения пошагового показа');
+        pass('пошаговая подготовка: понятные названия и действие переключателя');
         wizard.click();
         await waitFor(() => {
           const stepButtons = [...doc.querySelectorAll('#spnWizardFlow [data-wizard-step]')];
@@ -84,9 +93,10 @@
 
         click(doc, '[data-spn-ui-mode="newbie"]');
         await waitFor(() => doc.body.dataset.spnUiMode === 'newbie', 3000, 'режим Новичок не включился');
-        await waitFor(() => doc.body.dataset.wizardFlow === 'on', 5000, 'Wizard Flow не включился автоматически');
+        await waitFor(() => doc.body.dataset.wizardFlow === 'on', 5000, 'показ по шагам не включился автоматически');
+        assert(doc.getElementById('spnWizardToggle')?.textContent.trim() === 'Показать все разделы', 'активная кнопка не объясняет возврат всех разделов');
         pass('режим Новичок включён');
-        pass('Wizard Flow включён автоматически');
+        pass('пошаговая подготовка включена автоматически');
 
         click(doc, '[data-wizard-step="check"]');
         await waitFor(() => doc.body.dataset.wizardStep === 'check', 2000, 'шаг Проверка не открылся');

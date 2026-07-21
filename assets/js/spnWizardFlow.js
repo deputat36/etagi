@@ -6,15 +6,15 @@ const LEGACY_WIZARD_ENABLED_KEY = 'etagi-raskleyka-wizard-enabled-v1';
 const steps = [
   {
     id: 'goal',
-    title: '1. Цель',
-    hint: 'Что делаем и сколько на А4',
+    title: '1. Задача и формат',
+    hint: 'Ситуация и количество на А4',
     help: 'Выберите задачу расклейки и формат листа. Для офиса чаще всего подходит 2 на А4, для подъездов — 4 на А4, для объекта с фото — 1 на А4.',
     sections: ['goal', 'situation']
   },
   {
     id: 'template',
-    title: '2. Заготовка',
-    hint: 'Категория и макет',
+    title: '2. Шаблон',
+    hint: 'Подбор готового текста',
     help: 'Начните с карточек категорий. Новичку лучше брать «Рекомендовано» или «Новичку». Шаблоны с пометкой «Проверка» покажите менеджеру до массовой печати.',
     sections: ['category', 'template']
   },
@@ -34,15 +34,15 @@ const steps = [
   },
   {
     id: 'check',
-    title: '5. Проверка',
-    hint: 'Качество и печать',
+    title: '5. Проверка и печать',
+    hint: 'Ошибки, поля и печать',
     help: 'Нажмите «Проверить», посмотрите ошибки качества, безопасные поля, линии реза и отрывные телефоны. Если выбран менеджерский шаблон — сначала согласуйте макет.',
     sections: ['print', 'quality']
   },
   {
     id: 'save',
-    title: '6. Сохранить',
-    hint: 'Сохранить макет',
+    title: '6. Сохранение',
+    hint: 'Оставить макет на потом',
     help: 'Сохраните удачный макет с понятным названием: район, цель, формат А4. Это поможет быстро повторить рабочую связку позже.',
     sections: ['save']
   },
@@ -119,13 +119,13 @@ function markSections(){
 }
 
 function renderWizardPanel(){
-  return `<section class="spn-wizard-flow" id="spnWizardFlow" aria-label="Мастер создания расклейки">
+  return `<section class="spn-wizard-flow" id="spnWizardFlow" aria-label="Пошаговая подготовка расклейки">
     <div class="spn-wizard-flow-head">
       <div>
-        <b>Мастер расклейки</b>
-        <span id="spnWizardFlowHint">Панель шагов не скрывает блоки, пока не включён режим «Пошагово».</span>
+        <b>Пошаговая подготовка</b>
+        <span id="spnWizardFlowHint">Выберите шаг или включите показ по шагам. В обычном режиме все разделы остаются видимыми.</span>
       </div>
-      <button type="button" id="spnWizardToggle">Все блоки</button>
+      <button type="button" id="spnWizardToggle">Показывать по шагам</button>
     </div>
     <div class="spn-wizard-print-help">
       Выберите формат сразу: 2 на А4 — основной офисный вариант, 4 — для подъездов, 1 — для объекта с фото.
@@ -279,7 +279,7 @@ function setWizardEnabled(enabled){
   localStorage.setItem(WIZARD_ENABLED_KEY, next);
   const toggle = document.getElementById('spnWizardToggle');
   if(toggle){
-    toggle.textContent = enabled ? 'Пошагово' : 'Все блоки';
+    toggle.textContent = enabled ? 'Показать все разделы' : 'Показывать по шагам';
     toggle.classList.toggle('active', enabled);
   }
 }

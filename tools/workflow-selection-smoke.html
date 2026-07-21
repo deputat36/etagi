@@ -78,14 +78,17 @@
         assert(!doc.querySelector('[data-spn-situation].active'), 'ручная задача оставила несогласованную активную ситуацию');
         pass('задача: фильтрует библиотеку без автоматического шаблона');
 
-        lastAction = 'route.search-as-situation';
+        lastAction = 'route.search-is-not-situation';
         click(doc, '[data-spn-reset]');
         await waitFor(() => !doc.querySelector('[data-spn-situation].active') && value(doc, 'templateSearch') === '', 3000, 'сброс ситуации не завершился');
         setField(win, doc, '#templateSearch', 'квартира');
-        await waitFor(() => doc.querySelector('#spnRouteSteps span')?.classList.contains('done'), 2000, 'ручной поиск не засчитался как ситуация');
-        assert(doc.querySelector('#spnRouteSteps span')?.textContent.includes('Ситуация'), 'первый шаг маршрута имеет другое значение');
+        await waitFor(() => value(doc, 'templateSearch') === 'квартира', 2000, 'ручной поиск не применился');
+        const situationStep = doc.querySelector('#spnRouteSteps span');
+        assert(situationStep?.textContent.includes('Ситуация'), 'первый шаг маршрута имеет другое значение');
+        assert(situationStep?.classList.contains('todo'), 'ручной поиск ошибочно закрыл шаг Ситуация');
+        assert(doc.getElementById('spnRouteNext')?.textContent.includes('Начните с офисной ситуации'), 'маршрут не предлагает явно выбрать ситуацию');
         assert(!doc.querySelector('[data-spn-situation].active'), 'ручной поиск неожиданно выбрал офисную ситуацию');
-        pass('маршрут: ручной поиск пока засчитывается как выбранная ситуация');
+        pass('маршрут: ручной поиск не подменяет явный выбор ситуации');
 
         result.dataset.status = 'passed';
         result.textContent = `PASSED\n${checks.map(item => `✓ ${item}`).join('\n')}`;

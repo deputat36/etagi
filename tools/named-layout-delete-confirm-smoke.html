@@ -117,6 +117,18 @@
         const newSameName=readLayouts(win).find(item=>item.name==='Макет для удаления');
         const currentBeforeConflict=snapshotCurrent(doc);
 
+        lastAction='restore.full-limit';
+        fillLayoutsToLimit(win);
+        assert(readLayouts(win).length===50,'не подготовлен полный список из 50 макетов');
+        click(doc,'#restoreDeletedLayoutBtn');
+        await waitFor(()=>doc.getElementById('statusLine')?.textContent.includes('Не удалось восстановить макет'),2000,'нет понятного отказа при заполненном списке');
+        assert(readLayouts(win).length===50,'отказ восстановления изменил число макетов');
+        assert(readDeleted(win)?.item?.id===idA,'отказ восстановления удалил резерв');
+        assert(hasLayout(win,newSameName.id)&&hasLayout(win,idB),'отказ восстановления вытеснил существующий макет');
+        assertSameCurrent(doc,currentBeforeConflict,'отказ восстановления изменил текущий лист');
+        pass('восстановление: полный список не вытесняет существующие макеты');
+        keepLayouts(win,[idB,newSameName.id]);
+
         lastAction='restore.conflict';
         click(doc,'#restoreDeletedLayoutBtn');
         await waitFor(()=>readLayouts(win).some(item=>item.name==='Макет для удаления (восстановлен)'),3000,'конфликтный макет не восстановлен под уникальным названием');
@@ -149,6 +161,8 @@
       return readLayouts(win).find(item=>item.name===name&&item.state?.headline===headline).id;
     }
     async function deleteLayout(doc,id){selectLayout(doc,id);click(doc,'#deleteNamedLayoutBtn');await waitFor(()=>doc.getElementById('namedLayoutDeleteDialog')?.open,1000,'диалог удаления не открыт');click(doc,'#confirmNamedLayoutDeleteBtn')}
+    function fillLayoutsToLimit(win){const layouts=readLayouts(win);let i=1;while(layouts.length<50){layouts.push({id:`limit-${i}`,name:`Лимит ${i}`,updatedAt:new Date().toISOString(),state:{layoutName:`Лимит ${i}`,headline:`Лимит ${i}`}});i++}win.localStorage.setItem(LAYOUTS_KEY,JSON.stringify(layouts))}
+    function keepLayouts(win,ids){const keep=new Set(ids);win.localStorage.setItem(LAYOUTS_KEY,JSON.stringify(readLayouts(win).filter(item=>keep.has(item.id))))}
     function selectLayout(doc,id){const select=doc.getElementById('savedLayouts');select.value=id;assert(select.value===id,`не выбран макет ${id}`)}
     function readLayouts(win){try{return JSON.parse(win.localStorage.getItem(LAYOUTS_KEY)||'[]')}catch{return[]}}
     function readDeleted(win){try{return JSON.parse(win.localStorage.getItem(DELETED_KEY)||'null')}catch{return null}}

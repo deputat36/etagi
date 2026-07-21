@@ -39,19 +39,24 @@ jobs:
 
       - name: Validate prepared files
         run: |
-          node --check assets/js/app.js
-          node --check assets/js/spnWizard.js
-          node --check assets/js/spnUiMode.js
-          node --check tools/validate-workflow-selection-audit.mjs
-          node tools/validate-workflow-selection-audit.mjs
-          git diff --check
+          set -o pipefail
+          {
+            node --check assets/js/app.js
+            node --check assets/js/spnWizard.js
+            node --check assets/js/spnUiMode.js
+            node --check tools/validate-workflow-selection-audit.mjs
+            node tools/validate-workflow-selection-audit.mjs
+            git diff --check
+          } 2>&1 | tee workflow-scenario-validation.log
 
-      - name: Upload apply failure
+      - name: Upload migration diagnostics
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: workflow-scenario-apply-failure
-          path: workflow-scenario-apply.log
+          name: workflow-scenario-migration-failure
+          path: |
+            workflow-scenario-apply.log
+            workflow-scenario-validation.log
           if-no-files-found: warn
           retention-days: 3
 
@@ -59,7 +64,7 @@ jobs:
         run: |
           rm -rf .agent
           rm .github/workflows/apply-workflow-scenario-context.yml
-          rm -f workflow-scenario-apply.log
+          rm -f workflow-scenario-apply.log workflow-scenario-validation.log
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A

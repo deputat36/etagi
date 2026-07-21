@@ -48,7 +48,7 @@ if source.count(old) != 1:
 source = source.replace(old, new, 1)
 
 bad_quote = r'''  'data-spn-scenario="${item.scenario || \'all\'}"','''
-good_quote = r'''  "data-spn-scenario=\"${item.scenario || 'all'}\"",'''
+good_quote = r'''  `data-spn-scenario="${item.scenario || 'all'}"`,'''
 if source.count(bad_quote) != 1:
     raise SystemExit(f'Не найден проблемный контракт data-spn-scenario: {source.count(bad_quote)}')
 source = source.replace(bad_quote, good_quote, 1)

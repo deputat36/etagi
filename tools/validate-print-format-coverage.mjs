@@ -50,7 +50,7 @@ requireSnippets(files.runner, sources.runner, [
   'printFormatCoverageResult',
   'status === \'passed\'',
   'fs.writeFileSync(failureLogPath',
-  "path:'tools/print-format-coverage-smoke.html'"
+  'tools/print-format-coverage-smoke.html'
 ]);
 
 requireSnippets(files.workflow, sources.workflow, [

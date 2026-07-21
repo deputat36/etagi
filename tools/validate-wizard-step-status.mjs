@@ -61,7 +61,7 @@ requireSnippets(files.uiMode, sources.uiMode, [
 ]);
 
 requireSnippets(files.guide, sources.guide, [
-  '# Компактный статус шагов мастера',
+  '# Компактный статус пошаговой подготовки',
   'До печати',
   'После печати',
   'готово',
@@ -85,7 +85,7 @@ if(packageJson.scripts?.['validate:wizard-step-status'] !== 'node tools/validate
 
 requireSnippets(files.maintenance, sources.maintenance, [
   'npm run validate:wizard-step-status',
-  '## Компактный статус шагов мастера',
+  '## Компактный статус пошаговой подготовки',
   'docs/wizard-step-status.md'
 ]);
 
@@ -106,12 +106,12 @@ requireSnippets(files.smoke, sources.smoke, [
 ]);
 
 if(errors.length){
-  console.error('\nОшибки компактного статуса шагов мастера:');
+  console.error('\nОшибки компактного статуса пошаговой подготовки:');
   errors.forEach(error => console.error(`- ${error}`));
   process.exit(1);
 }
 
-console.log('Проверка компактного статуса шагов мастера пройдена.');
+console.log('Проверка компактного статуса пошаговой подготовки пройдена.');
 
 function requireSnippets(file, source, snippets){
   for(const snippet of snippets){

@@ -256,7 +256,7 @@ function bindRouteUpdates(){
 
 function getRouteState(){
   const text = `${value('headline')} ${value('description')} ${value('benefits')} ${value('customBlockText')}`.toLowerCase().replace(/ё/g, 'е');
-  const selectedSituation = Boolean(document.querySelector('[data-spn-situation].active')) || Boolean(value('templateSearch'));
+  const selectedSituation = Boolean(document.querySelector('[data-spn-situation].active'));
   const contactReady = Boolean(value('agentPhone')) && (checked('showContact') || checked('tearOffs'));
   const contextReady = Boolean(value('area') || value('propertyType') || value('price'));
   const contentReady = value('headline').length >= 10 && value('description').length >= 20 && value('benefits').split('\n').filter(Boolean).length >= 2;

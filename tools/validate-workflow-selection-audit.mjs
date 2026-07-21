@@ -26,13 +26,13 @@ if(audit){
   for(const id of ['WF-01','WF-02','WF-03','WF-04','WF-05','WF-06']){
     if(!byId.has(id)) errors.push(`${files.audit}: отсутствует finding ${id}`);
   }
-  for(const id of ['WF-01','WF-02','WF-06']){
+  for(const id of ['WF-01','WF-02','WF-04','WF-06']){
     if(byId.get(id)?.status !== 'resolved') errors.push(`${files.audit}: ${id} должен иметь status=resolved`);
   }
-  for(const id of ['WF-03','WF-04','WF-05']){
+  for(const id of ['WF-03','WF-05']){
     if(byId.get(id)?.status !== 'open') errors.push(`${files.audit}: ${id} должен оставаться open`);
   }
-  if(audit.decisionForNextPr?.priority !== 'WF-03 + WF-04 + WF-05') errors.push(`${files.audit}: следующий приоритет должен быть WF-03 + WF-04 + WF-05`);
+  if(audit.decisionForNextPr?.priority !== 'WF-03 + WF-05') errors.push(`${files.audit}: следующий приоритет должен быть WF-03 + WF-05`);
 }
 
 requireSnippets(files.wizard, sources.wizard, [
@@ -44,9 +44,10 @@ requireSnippets(files.wizard, sources.wizard, [
   'printCount: item.printCount,',
   'layoutMode: item.layoutMode,',
   "document.addEventListener('spn:task-selection'",
-  "Boolean(document.querySelector('[data-spn-situation].active')) || Boolean(value('templateSearch'))"
+  "const selectedSituation = Boolean(document.querySelector('[data-spn-situation].active'));"
 ]);
 forbidSnippets(files.wizard, sources.wizard, [
+  "Boolean(document.querySelector('[data-spn-situation].active')) || Boolean(value('templateSearch'))",
   'goalBtn.click()',
   'window.setTimeout(() => {',
   'applyRecommendedSettings(item)'
@@ -74,9 +75,10 @@ requireSnippets(files.docs, sources.docs, [
   'рабочая ситуация → задача → сценарий → шаблон',
   'WF-01 — исправлено',
   'WF-02 — исправлено',
+  'WF-04 — исправлено',
   'WF-06 — исправлено',
   'Текущий макет не заменяется до явного выбора шаблона.',
-  'WF-03, WF-04 и WF-05 остаются открытыми'
+  'WF-03 и WF-05 остаются открытыми'
 ]);
 requireSnippets(files.smoke, sources.smoke, [
   'id="workflowSelectionSmokeResult"',
@@ -88,7 +90,7 @@ requireSnippets(files.smoke, sources.smoke, [
   'задача: фильтрует библиотеку без автоматического шаблона',
   'сценарий: только фильтрует список и не применяет шаблон',
   'шаблон: применяется только после явного клика пользователя',
-  'маршрут: ручной поиск пока засчитывается как выбранная ситуация',
+  'маршрут: ручной поиск не подменяет явный выбор ситуации',
   'Последнее действие:',
   'Состояние:'
 ]);
@@ -120,7 +122,7 @@ if(errors.length){
   process.exit(1);
 }
 
-console.log('Исправления WF-01, WF-02 и WF-06 подтверждены; WF-03, WF-04 и WF-05 остаются следующими.');
+console.log('Исправления WF-01, WF-02, WF-04 и WF-06 подтверждены; WF-03 и WF-05 остаются следующими.');
 
 function extractBetween(source, start, end){
   const startIndex = source.indexOf(start);

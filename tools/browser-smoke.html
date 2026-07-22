@@ -41,12 +41,25 @@
         const helpCard = doc.querySelector('.help-card');
         const helpLinks = [...doc.querySelectorAll('.help-card .help-grid a')];
         const helpTips = doc.querySelector('.help-card .help-tips');
+        const saveCard = doc.querySelector('.save-card');
+        const saveCurrentSection = doc.querySelector('[data-save-transfer-section="current"]');
+        const saveNamedSection = doc.querySelector('[data-save-transfer-section="named"]');
+        const saveLayoutFileSection = doc.querySelector('[data-save-transfer-section="layout-file"]');
+        const savePrivacy = doc.querySelector('.save-transfer-privacy');
         assert(startCard && win.getComputedStyle(startCard).display === 'none', 'в быстром режиме повторно показан отдельный выбор задачи');
         assert(situationWizard && win.getComputedStyle(situationWizard).display !== 'none', 'в быстром режиме скрыт основной выбор рабочей ситуации');
         assert(densityFilter && win.getComputedStyle(densityFilter).display !== 'none', 'в быстром режиме ошибочно скрыт полезный фильтр плотности');
         assert(helpCard && win.getComputedStyle(helpCard).display === 'none', 'в быстром режиме показан справочный блок, создающий лишний перегруз');
         pass('режим Быстро: одна точка выбора через рабочую ситуацию');
         pass('режим Быстро: справочный блок скрыт');
+        assert(saveCard && win.getComputedStyle(saveCard).display !== 'none', 'в быстром режиме полностью скрыто сохранение и передача макета');
+        assert(saveCurrentSection && win.getComputedStyle(saveCurrentSection).display === 'none', 'в быстром режиме показаны ручные резервы');
+        assert(saveNamedSection && win.getComputedStyle(saveNamedSection).display === 'none', 'в быстром режиме показаны именованные макеты');
+        assert(saveLayoutFileSection && win.getComputedStyle(saveLayoutFileSection).display !== 'none', 'в быстром режиме скрыт файл одного макета');
+        assert(win.getComputedStyle(doc.getElementById('downloadBtn')).display !== 'none', 'в быстром режиме скрыто скачивание макета');
+        assert(win.getComputedStyle(doc.getElementById('uploadBtn')).display !== 'none', 'в быстром режиме скрыто открытие файла макета');
+        assert(savePrivacy && win.getComputedStyle(savePrivacy).display === 'none', 'в быстром режиме показано лишнее описание локальных сохранений');
+        pass('режим Быстро: доступен компактный файл одного макета');
 
         const postPrintWorkspace = await waitForElement(doc, '#spnPostPrintWorkspace', 6000, 'компактный блок После печати не появился');
         await waitFor(() => !postPrintWorkspace.open && postPrintWorkspace.dataset.wizardForced === 'false', 3000, 'блок После печати не закрылся по умолчанию');
@@ -120,6 +133,8 @@
         assert(helpTips && win.getComputedStyle(helpTips).display === 'none', 'новичку показан полный список справочных советов');
         pass('режим Новичок: повторная задача и лишняя плотность скрыты');
         pass('режим Новичок: компактная помощь доступна');
+        assert(saveCard && win.getComputedStyle(saveCard).display === 'none', 'новичку показан отдельный блок сохранения вне учебного пути');
+        pass('режим Новичок: отдельное сохранение скрыто');
         pass('режим Новичок включён');
         pass('пошаговая подготовка включена автоматически');
 
@@ -161,6 +176,8 @@
         await waitFor(() => doc.body.dataset.spnUiMode === 'quick', 2000, 'режим Быстро не включился');
         assert(win.getComputedStyle(startCard).display === 'none', 'после возврата в Быстро снова появился повторный выбор задачи');
         assert(win.getComputedStyle(densityFilter).display !== 'none', 'после возврата в Быстро фильтр плотности не восстановился');
+        assert(saveCard && win.getComputedStyle(saveCard).display !== 'none', 'после возврата в Быстро не восстановился компактный файл макета');
+        assert(saveLayoutFileSection && win.getComputedStyle(saveLayoutFileSection).display !== 'none', 'после возврата в Быстро скрыт раздел файла макета');
         const advancedWorkbench = await waitForElement(doc, '#spnAdvancedWorkbench', 6000, 'группа дополнительной аналитики не появилась');
         await waitFor(() => win.getComputedStyle(advancedWorkbench).display === 'none', 2000, 'дополнительная аналитика не скрылась в режиме Быстро');
         click(doc, '[data-spn-ui-mode="advanced"]');
@@ -171,8 +188,14 @@
         assert(helpCard && win.getComputedStyle(helpCard).display !== 'none', 'в расширенном режиме скрыт центр помощи');
         assert(visibleAdvancedHelp.length === helpLinks.length && helpLinks.length >= 7, 'в расширенном режиме доступен не полный центр помощи');
         assert(helpTips && win.getComputedStyle(helpTips).display !== 'none', 'в расширенном режиме скрыты справочные советы');
+        assert(saveCard && win.getComputedStyle(saveCard).display !== 'none', 'в расширенном режиме скрыт блок сохранения и переноса');
+        assert(saveCurrentSection && win.getComputedStyle(saveCurrentSection).display !== 'none', 'в расширенном режиме скрыты ручные резервы');
+        assert(saveNamedSection && win.getComputedStyle(saveNamedSection).display !== 'none', 'в расширенном режиме скрыты именованные макеты');
+        assert(saveLayoutFileSection && win.getComputedStyle(saveLayoutFileSection).display !== 'none', 'в расширенном режиме скрыт файл одного макета');
+        assert(savePrivacy && win.getComputedStyle(savePrivacy).display !== 'none', 'в расширенном режиме скрыто пояснение хранения');
         pass('режим Расширенно: ручная задача и фильтры доступны');
         pass('режим Расширенно: полный центр помощи доступен');
+        pass('режим Расширенно: полный блок сохранения доступен');
         await waitFor(() => win.getComputedStyle(advancedWorkbench).display !== 'none' && advancedWorkbench.querySelectorAll('.spn-advanced-workbench-body > .card').length === 3, 3000, 'три аналитических инструмента не собраны в один раздел');
         if(!advancedWorkbench.open) advancedWorkbench.querySelector('summary')?.click();
         await waitFor(() => advancedWorkbench.open, 2000, 'дополнительная аналитика не раскрылась');

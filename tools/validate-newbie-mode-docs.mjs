@@ -61,7 +61,10 @@ requireSnippets(files.uiModeCss, sources.uiModeCss, [
   'body[data-spn-ui-mode="quick"] .help-card',
   'body[data-spn-ui-mode="newbie"] .help-card .help-grid a[href="help/quick-start.html"]',
   'body[data-spn-ui-mode="newbie"] .help-card .help-grid a[href="help/faq.html"]',
-  'body[data-spn-ui-mode="newbie"] .help-card .help-tips'
+  'body[data-spn-ui-mode="newbie"] .help-card .help-tips',
+  'body[data-spn-ui-mode="quick"] .save-card [data-save-transfer-section="layout-file"]',
+  'body[data-spn-ui-mode="quick"] .save-card .save-transfer-intro',
+  'body[data-spn-ui-mode="quick"] .save-card .save-transfer-privacy'
 ]);
 requireSnippets(files.browserSmoke, sources.browserSmoke, [
   'режим Быстро: одна точка выбора через рабочую ситуацию',
@@ -71,13 +74,17 @@ requireSnippets(files.browserSmoke, sources.browserSmoke, [
   "win.getComputedStyle(densityFilter).display === 'none'",
   'режим Быстро: справочный блок скрыт',
   'режим Новичок: компактная помощь доступна',
-  'режим Расширенно: полный центр помощи доступен'
+  'режим Расширенно: полный центр помощи доступен',
+  'режим Быстро: доступен компактный файл одного макета',
+  'режим Новичок: отдельное сохранение скрыто',
+  'режим Расширенно: полный блок сохранения доступен'
 ]);
 
 requireSnippets(files.visibilityAudit, sources.visibilityAudit, [
   '# Матрица видимости режимов интерфейса',
   '| Помощь | скрыта | компактно: быстрый старт и FAQ | полностью |',
-  'Сохранение и перенос',
+  '| Сохранение и перенос | компактно: файл одного макета | скрыты | полностью |',
+  'Решение: компактное сохранение в режиме «Быстро»',
   'Следующий кандидат для отдельной проверки'
 ]);
 
@@ -239,6 +246,9 @@ requireSnippets(files.checklist, sources.checklist, [
   '# Ручная регрессионная проверка режима «Новичок»',
   'Проверка переключения режимов',
   'Проверка фильтра шаблонов новичка',
+  'Проверка компактного сохранения в режиме «Быстро»',
+  'Скачать один макет',
+  'Открыть файл макета',
   'Проверка компактной помощи',
   'Быстрый старт СПН',
   'Вопросы и ответы',

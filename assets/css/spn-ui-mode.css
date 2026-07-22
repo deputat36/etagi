@@ -15,10 +15,16 @@ body[data-spn-ui-mode="quick"] .spn-lead-qualification,
 body[data-spn-ui-mode="quick"] .spn-result-estimator,
 body[data-spn-ui-mode="newbie"] .advanced,
 body[data-spn-ui-mode="newbie"] .save-card,
-body[data-spn-ui-mode="newbie"] .help-card,
 body[data-spn-ui-mode="newbie"] .spn-field-plan,
 body[data-spn-ui-mode="newbie"] .spn-lead-qualification,
 body[data-spn-ui-mode="newbie"] .spn-result-estimator{display:none!important}
+body[data-spn-ui-mode="newbie"] .help-card{display:block!important;padding:12px}
+body[data-spn-ui-mode="newbie"] .help-card .step-title{margin-bottom:8px}
+body[data-spn-ui-mode="newbie"] .help-card .help-grid{grid-template-columns:1fr 1fr}
+body[data-spn-ui-mode="newbie"] .help-card .help-grid a{display:none!important}
+body[data-spn-ui-mode="newbie"] .help-card .help-grid a[href="help/quick-start.html"],
+body[data-spn-ui-mode="newbie"] .help-card .help-grid a[href="help/faq.html"]{display:flex!important}
+body[data-spn-ui-mode="newbie"] .help-card .help-tips{display:none!important}
 body[data-spn-ui-mode="quick"][data-wizard-flow="on"] .sidebar .start-card[data-wizard-section].spn-wizard-section-active,
 body[data-spn-ui-mode="newbie"][data-wizard-flow="on"] .sidebar .start-card[data-wizard-section].spn-wizard-section-active{display:none!important}
 body[data-spn-ui-mode="quick"] .block-manager .block-grid,
@@ -42,5 +48,5 @@ body[data-spn-ui-mode="newbie"] .spn-newbie-advanced-print{display:none!importan
 .scenario-filter-label{align-self:center;color:#64748b;font-size:11px;font-weight:900}
 body[data-spn-ui-mode="newbie"] .spn-newbie-hidden-template{display:none!important}
 body[data-spn-ui-mode="newbie"] .spn-ui-mode{border-color:#bbf7d0;background:linear-gradient(180deg,#fff,#f0fdf4)}
-@media(max-width:520px){.spn-ui-mode{grid-template-columns:1fr}.spn-ui-mode-actions button{flex:1}}
+@media(max-width:520px){.spn-ui-mode{grid-template-columns:1fr}.spn-ui-mode-actions button{flex:1}body[data-spn-ui-mode="newbie"] .help-card .help-grid{grid-template-columns:1fr}}
 @media print{.spn-ui-mode{display:none!important}}

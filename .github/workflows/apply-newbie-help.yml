@@ -1,0 +1,46 @@
+name: Apply compact newbie help
+
+on:
+  push:
+    branches:
+      - agent/newbie-compact-help
+    paths:
+      - '.github/workflows/apply-newbie-help.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply-change:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: agent/newbie-compact-help
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Apply exact migration
+        run: python .agent/apply_newbie_compact_help.py
+
+      - name: Validate project and browser behavior
+        run: |
+          npm run validate
+          npm run smoke:browser
+          git diff --check
+
+      - name: Commit verified change
+        run: |
+          git rm -r .agent .github/workflows/apply-newbie-help.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "fix: вернуть новичку компактную помощь"
+          git push origin HEAD:agent/newbie-compact-help

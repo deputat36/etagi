@@ -38,10 +38,15 @@
         const startCard = doc.querySelector('.start-card');
         const situationWizard = doc.getElementById('spnWizard');
         const densityFilter = doc.getElementById('templateDensityFilter');
+        const helpCard = doc.querySelector('.help-card');
+        const helpLinks = [...doc.querySelectorAll('.help-card .help-grid a')];
+        const helpTips = doc.querySelector('.help-card .help-tips');
         assert(startCard && win.getComputedStyle(startCard).display === 'none', 'в быстром режиме повторно показан отдельный выбор задачи');
         assert(situationWizard && win.getComputedStyle(situationWizard).display !== 'none', 'в быстром режиме скрыт основной выбор рабочей ситуации');
         assert(densityFilter && win.getComputedStyle(densityFilter).display !== 'none', 'в быстром режиме ошибочно скрыт полезный фильтр плотности');
+        assert(helpCard && win.getComputedStyle(helpCard).display === 'none', 'в быстром режиме показан справочный блок, создающий лишний перегруз');
         pass('режим Быстро: одна точка выбора через рабочую ситуацию');
+        pass('режим Быстро: справочный блок скрыт');
 
         const postPrintWorkspace = await waitForElement(doc, '#spnPostPrintWorkspace', 6000, 'компактный блок После печати не появился');
         await waitFor(() => !postPrintWorkspace.open && postPrintWorkspace.dataset.wizardForced === 'false', 3000, 'блок После печати не закрылся по умолчанию');
@@ -107,7 +112,14 @@
         assert(win.getComputedStyle(startCard).display === 'none', 'в режиме Новичок повторно показан отдельный выбор задачи');
         assert(win.getComputedStyle(situationWizard).display !== 'none', 'в режиме Новичок скрыт выбор рабочей ситуации');
         assert(win.getComputedStyle(densityFilter).display === 'none', 'новичку показан фильтр плотности, который принудительно сбрасывается');
+        assert(helpCard && win.getComputedStyle(helpCard).display !== 'none', 'новичку скрыта помощь');
+        const visibleNewbieHelp = helpLinks.filter(link => win.getComputedStyle(link).display !== 'none');
+        assert(visibleNewbieHelp.length === 2, `новичку показано ${visibleNewbieHelp.length} справочных ссылок вместо двух`);
+        assert(visibleNewbieHelp.some(link => link.getAttribute('href') === 'help/quick-start.html'), 'новичку недоступен быстрый старт');
+        assert(visibleNewbieHelp.some(link => link.getAttribute('href') === 'help/faq.html'), 'новичку недоступны вопросы и ответы');
+        assert(helpTips && win.getComputedStyle(helpTips).display === 'none', 'новичку показан полный список справочных советов');
         pass('режим Новичок: повторная задача и лишняя плотность скрыты');
+        pass('режим Новичок: компактная помощь доступна');
         pass('режим Новичок включён');
         pass('пошаговая подготовка включена автоматически');
 
@@ -155,7 +167,12 @@
         await waitFor(() => doc.body.dataset.spnUiMode === 'advanced', 2000, 'режим Расширенно не включился');
         assert(win.getComputedStyle(startCard).display !== 'none', 'в расширенном режиме скрыт ручной выбор задачи');
         assert(win.getComputedStyle(densityFilter).display !== 'none', 'в расширенном режиме скрыт фильтр плотности');
+        const visibleAdvancedHelp = helpLinks.filter(link => win.getComputedStyle(link).display !== 'none');
+        assert(helpCard && win.getComputedStyle(helpCard).display !== 'none', 'в расширенном режиме скрыт центр помощи');
+        assert(visibleAdvancedHelp.length === helpLinks.length && helpLinks.length >= 7, 'в расширенном режиме доступен не полный центр помощи');
+        assert(helpTips && win.getComputedStyle(helpTips).display !== 'none', 'в расширенном режиме скрыты справочные советы');
         pass('режим Расширенно: ручная задача и фильтры доступны');
+        pass('режим Расширенно: полный центр помощи доступен');
         await waitFor(() => win.getComputedStyle(advancedWorkbench).display !== 'none' && advancedWorkbench.querySelectorAll('.spn-advanced-workbench-body > .card').length === 3, 3000, 'три аналитических инструмента не собраны в один раздел');
         if(!advancedWorkbench.open) advancedWorkbench.querySelector('summary')?.click();
         await waitFor(() => advancedWorkbench.open, 2000, 'дополнительная аналитика не раскрылась');

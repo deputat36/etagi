@@ -23,7 +23,8 @@ const files = {
   fullScenarioChecklist: 'docs/full-scenario-regression-checklist.md',
   rollbackPlan: 'docs/newbie-mode-rollback-plan.md',
   releaseNote: 'docs/releases/3.85.0.md',
-  readme: 'README.md'
+  readme: 'README.md',
+  visibilityAudit: 'docs/ui-mode-visibility-audit.md'
 };
 
 const sources = Object.fromEntries(
@@ -56,14 +57,28 @@ requireSnippets(files.uiMode, sources.uiMode, [
 requireSnippets(files.uiModeCss, sources.uiModeCss, [
   'body[data-spn-ui-mode="quick"] .start-card',
   'body[data-spn-ui-mode="newbie"] .start-card',
-  'body[data-spn-ui-mode="newbie"] #templateDensityFilter'
+  'body[data-spn-ui-mode="newbie"] #templateDensityFilter',
+  'body[data-spn-ui-mode="quick"] .help-card',
+  'body[data-spn-ui-mode="newbie"] .help-card .help-grid a[href="help/quick-start.html"]',
+  'body[data-spn-ui-mode="newbie"] .help-card .help-grid a[href="help/faq.html"]',
+  'body[data-spn-ui-mode="newbie"] .help-card .help-tips'
 ]);
 requireSnippets(files.browserSmoke, sources.browserSmoke, [
   'режим Быстро: одна точка выбора через рабочую ситуацию',
   'режим Новичок: повторная задача и лишняя плотность скрыты',
   'режим Расширенно: ручная задача и фильтры доступны',
   "win.getComputedStyle(startCard).display === 'none'",
-  "win.getComputedStyle(densityFilter).display === 'none'"
+  "win.getComputedStyle(densityFilter).display === 'none'",
+  'режим Быстро: справочный блок скрыт',
+  'режим Новичок: компактная помощь доступна',
+  'режим Расширенно: полный центр помощи доступен'
+]);
+
+requireSnippets(files.visibilityAudit, sources.visibilityAudit, [
+  '# Матрица видимости режимов интерфейса',
+  '| Помощь | скрыта | компактно: быстрый старт и FAQ | полностью |',
+  'Сохранение и перенос',
+  'Следующий кандидат для отдельной проверки'
 ]);
 
 requireSnippets(files.newbieMode, sources.newbieMode, [
@@ -224,6 +239,9 @@ requireSnippets(files.checklist, sources.checklist, [
   '# Ручная регрессионная проверка режима «Новичок»',
   'Проверка переключения режимов',
   'Проверка фильтра шаблонов новичка',
+  'Проверка компактной помощи',
+  'Быстрый старт СПН',
+  'Вопросы и ответы',
   'отдельный блок `Выберите задачу` скрыт',
   'фильтр плотности скрыт',
   'Проверка пошаговой подготовки',

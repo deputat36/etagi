@@ -41,6 +41,7 @@ npm run validate:js
 npm run validate:assets
 npm run validate:asset-duplicates
 npm run validate:runtime-architecture
+npm run validate:runtime-modules
 npm run validate:quality-actions
 npm run validate:quality-issue-actions
 npm run validate:phone-cleanup-action
@@ -79,6 +80,23 @@ npm run validate:ci-config
 ```
 
 `validate:package-scripts` контролирует отсутствие пропусков, лишних команд и повторов в этом списке.
+
+## Runtime registry модулей
+
+Фактические module entrypoints из `index.html` и весь достижимый import graph фиксируются в:
+
+```text
+data/runtime-modules.json
+```
+
+После добавления, удаления или переноса runtime-модуля выполнить:
+
+```bash
+npm run runtime:registry
+npm run validate:runtime-modules
+```
+
+Validator требует точного соответствия реестра текущим импортам, существования файлов и согласованности связей `imports / importedBy`. Подробности: `docs/runtime-module-registry.md`.
 
 ## Единый asset-version
 

@@ -1,0 +1,1598 @@
+{
+  "schemaVersion": 1,
+  "generatedBy": "tools/build-runtime-module-registry.mjs",
+  "source": "index.html",
+  "entrypoints": [
+    {
+      "path": "assets/js/app.js",
+      "role": "Основное состояние, форма, шаблоны и печатный лист"
+    },
+    {
+      "path": "assets/js/qualityLevelLabels.js",
+      "role": "Подписи уровней качества"
+    },
+    {
+      "path": "assets/js/qualityIssueSummary.js",
+      "role": "Сводка замечаний качества"
+    },
+    {
+      "path": "assets/js/qualityPriorityHint.js",
+      "role": "Приоритет следующего исправления"
+    },
+    {
+      "path": "assets/js/qualityPrintGuardHint.js",
+      "role": "Подсказка защиты печати"
+    },
+    {
+      "path": "assets/js/qualityIssueFilters.js",
+      "role": "Фильтрация замечаний качества"
+    },
+    {
+      "path": "assets/js/preprintSummary.js",
+      "role": "Сводка перед печатью"
+    },
+    {
+      "path": "assets/js/spnUiMode.js",
+      "role": "Режимы Новичок, Быстро и Расширенно"
+    },
+    {
+      "path": "assets/js/spnClarityPanel.js",
+      "role": "Краткая сводка понятности макета"
+    },
+    {
+      "path": "assets/js/spnWizard.js",
+      "role": "Рабочие ситуации и маршрут СПН"
+    },
+    {
+      "path": "assets/js/spnHeadlineHelper.js",
+      "role": "Помощник заголовка"
+    },
+    {
+      "path": "assets/js/spnChecklist.js",
+      "role": "Рабочий чек-лист"
+    },
+    {
+      "path": "assets/js/spnFieldPlan.js",
+      "role": "План расклейки"
+    },
+    {
+      "path": "assets/js/spnLeadQualification.js",
+      "role": "Квалификация отклика"
+    },
+    {
+      "path": "assets/js/spnResultEstimator.js",
+      "role": "Оценка результата теста"
+    },
+    {
+      "path": "assets/js/qualityExtraActions.js",
+      "role": "Прямые действия по замечаниям качества"
+    }
+  ],
+  "summary": {
+    "entrypointCount": 16,
+    "moduleCount": 81,
+    "relationCount": 88,
+    "sideEffectModuleCount": 54,
+    "dynamicModuleCount": 0
+  },
+  "modules": [
+    {
+      "path": "assets/js/app.js",
+      "domain": "core",
+      "loadedAs": [
+        "entrypoint"
+      ],
+      "importedBy": [],
+      "imports": [
+        {
+          "path": "assets/js/layoutFile.js",
+          "mode": "dependency"
+        },
+        {
+          "path": "assets/js/layoutRules.js",
+          "mode": "dependency"
+        },
+        {
+          "path": "assets/js/quality.js",
+          "mode": "dependency"
+        },
+        {
+          "path": "assets/js/render.js",
+          "mode": "dependency"
+        },
+        {
+          "path": "assets/js/state.js",
+          "mode": "dependency"
+        },
+        {
+          "path": "assets/js/storage.js",
+          "mode": "dependency"
+        },
+        {
+          "path": "assets/js/templates.js",
+          "mode": "dependency"
+        },
+        {
+          "path": "assets/js/utils.js",
+          "mode": "dependency"
+        }
+      ]
+    },
+    {
+      "path": "assets/js/layoutExtras.js",
+      "domain": "interface",
+      "loadedAs": [
+        "dependency"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/layoutExtrasSync.js",
+          "mode": "dependency"
+        },
+        {
+          "path": "assets/js/preprintSummary.js",
+          "mode": "dependency"
+        },
+        {
+          "path": "assets/js/quality.js",
+          "mode": "dependency"
+        },
+        {
+          "path": "assets/js/qualityExtraActions.js",
+          "mode": "dependency"
+        },
+        {
+          "path": "assets/js/render.js",
+          "mode": "dependency"
+        },
+        {
+          "path": "assets/js/spnBrandEditor.js",
+          "mode": "dependency"
+        },
+        {
+          "path": "assets/js/spnContactEditor.js",
+          "mode": "dependency"
+        },
+        {
+          "path": "assets/js/spnTearOffEditor.js",
+          "mode": "dependency"
+        },
+        {
+          "path": "assets/js/storage.js",
+          "mode": "dependency"
+        },
+        {
+          "path": "assets/js/utils.js",
+          "mode": "dependency"
+        }
+      ],
+      "imports": []
+    },
+    {
+      "path": "assets/js/layoutExtrasSync.js",
+      "domain": "interface",
+      "loadedAs": [
+        "side-effect"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/preprintSummary.js",
+          "mode": "side-effect"
+        }
+      ],
+      "imports": [
+        {
+          "path": "assets/js/layoutExtras.js",
+          "mode": "dependency"
+        },
+        {
+          "path": "assets/js/qrSizeHint.js",
+          "mode": "side-effect"
+        }
+      ]
+    },
+    {
+      "path": "assets/js/layoutFile.js",
+      "domain": "persistence",
+      "loadedAs": [
+        "dependency"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/app.js",
+          "mode": "dependency"
+        },
+        {
+          "path": "assets/js/spnDestructiveSnapshot.js",
+          "mode": "dependency"
+        }
+      ],
+      "imports": [
+        {
+          "path": "assets/js/state.js",
+          "mode": "dependency"
+        }
+      ]
+    },
+    {
+      "path": "assets/js/layoutRules.js",
+      "domain": "core",
+      "loadedAs": [
+        "dependency"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/app.js",
+          "mode": "dependency"
+        }
+      ],
+      "imports": []
+    },
+    {
+      "path": "assets/js/phone.js",
+      "domain": "interface",
+      "loadedAs": [
+        "dependency"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/preprintSummary.js",
+          "mode": "dependency"
+        },
+        {
+          "path": "assets/js/quality.js",
+          "mode": "dependency"
+        },
+        {
+          "path": "assets/js/qualityExtraActions.js",
+          "mode": "dependency"
+        }
+      ],
+      "imports": []
+    },
+    {
+      "path": "assets/js/preprintSummary.js",
+      "domain": "print",
+      "loadedAs": [
+        "entrypoint"
+      ],
+      "importedBy": [],
+      "imports": [
+        {
+          "path": "assets/js/layoutExtras.js",
+          "mode": "dependency"
+        },
+        {
+          "path": "assets/js/layoutExtrasSync.js",
+          "mode": "side-effect"
+        },
+        {
+          "path": "assets/js/phone.js",
+          "mode": "dependency"
+        }
+      ]
+    },
+    {
+      "path": "assets/js/qr.js",
+      "domain": "editing",
+      "loadedAs": [
+        "dependency"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/quality.js",
+          "mode": "dependency"
+        },
+        {
+          "path": "assets/js/render.js",
+          "mode": "dependency"
+        }
+      ],
+      "imports": []
+    },
+    {
+      "path": "assets/js/qrSizeHint.js",
+      "domain": "editing",
+      "loadedAs": [
+        "side-effect"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/layoutExtrasSync.js",
+          "mode": "side-effect"
+        }
+      ],
+      "imports": [
+        {
+          "path": "assets/js/qualityQrDeduplicate.js",
+          "mode": "side-effect"
+        }
+      ]
+    },
+    {
+      "path": "assets/js/quality.js",
+      "domain": "quality",
+      "loadedAs": [
+        "dependency"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/app.js",
+          "mode": "dependency"
+        }
+      ],
+      "imports": [
+        {
+          "path": "assets/js/layoutExtras.js",
+          "mode": "dependency"
+        },
+        {
+          "path": "assets/js/phone.js",
+          "mode": "dependency"
+        },
+        {
+          "path": "assets/js/qr.js",
+          "mode": "dependency"
+        }
+      ]
+    },
+    {
+      "path": "assets/js/qualityExtraActions.js",
+      "domain": "quality",
+      "loadedAs": [
+        "entrypoint"
+      ],
+      "importedBy": [],
+      "imports": [
+        {
+          "path": "assets/js/layoutExtras.js",
+          "mode": "dependency"
+        },
+        {
+          "path": "assets/js/phone.js",
+          "mode": "dependency"
+        }
+      ]
+    },
+    {
+      "path": "assets/js/qualityIssueFilters.js",
+      "domain": "quality",
+      "loadedAs": [
+        "entrypoint"
+      ],
+      "importedBy": [],
+      "imports": []
+    },
+    {
+      "path": "assets/js/qualityIssueSummary.js",
+      "domain": "quality",
+      "loadedAs": [
+        "entrypoint"
+      ],
+      "importedBy": [],
+      "imports": []
+    },
+    {
+      "path": "assets/js/qualityLevelLabels.js",
+      "domain": "quality",
+      "loadedAs": [
+        "entrypoint"
+      ],
+      "importedBy": [],
+      "imports": []
+    },
+    {
+      "path": "assets/js/qualityPrintGuardHint.js",
+      "domain": "quality",
+      "loadedAs": [
+        "entrypoint"
+      ],
+      "importedBy": [],
+      "imports": []
+    },
+    {
+      "path": "assets/js/qualityPriorityHint.js",
+      "domain": "quality",
+      "loadedAs": [
+        "entrypoint"
+      ],
+      "importedBy": [],
+      "imports": []
+    },
+    {
+      "path": "assets/js/qualityQrDeduplicate.js",
+      "domain": "quality",
+      "loadedAs": [
+        "side-effect"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/qrSizeHint.js",
+          "mode": "side-effect"
+        }
+      ],
+      "imports": []
+    },
+    {
+      "path": "assets/js/render.js",
+      "domain": "core",
+      "loadedAs": [
+        "dependency"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/app.js",
+          "mode": "dependency"
+        }
+      ],
+      "imports": [
+        {
+          "path": "assets/js/layoutExtras.js",
+          "mode": "dependency"
+        },
+        {
+          "path": "assets/js/qr.js",
+          "mode": "dependency"
+        },
+        {
+          "path": "assets/js/state.js",
+          "mode": "dependency"
+        },
+        {
+          "path": "assets/js/utils.js",
+          "mode": "dependency"
+        }
+      ]
+    },
+    {
+      "path": "assets/js/spnAdvancedWorkbench.js",
+      "domain": "interface",
+      "loadedAs": [
+        "side-effect"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/spnUiMode.js",
+          "mode": "side-effect"
+        }
+      ],
+      "imports": []
+    },
+    {
+      "path": "assets/js/spnAgentBrandModeGuard.js",
+      "domain": "editing",
+      "loadedAs": [
+        "side-effect"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/spnUiMode.js",
+          "mode": "side-effect"
+        }
+      ],
+      "imports": []
+    },
+    {
+      "path": "assets/js/spnAgentHelper.js",
+      "domain": "editing",
+      "loadedAs": [
+        "side-effect"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/spnUiMode.js",
+          "mode": "side-effect"
+        }
+      ],
+      "imports": []
+    },
+    {
+      "path": "assets/js/spnAreaHelper.js",
+      "domain": "editing",
+      "loadedAs": [
+        "side-effect"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/spnUiMode.js",
+          "mode": "side-effect"
+        }
+      ],
+      "imports": []
+    },
+    {
+      "path": "assets/js/spnBlockControls.js",
+      "domain": "interface",
+      "loadedAs": [
+        "side-effect"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/spnUiMode.js",
+          "mode": "side-effect"
+        }
+      ],
+      "imports": []
+    },
+    {
+      "path": "assets/js/spnBrandEditor.js",
+      "domain": "editing",
+      "loadedAs": [
+        "side-effect"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/spnUiMode.js",
+          "mode": "side-effect"
+        }
+      ],
+      "imports": [
+        {
+          "path": "assets/js/layoutExtras.js",
+          "mode": "dependency"
+        }
+      ]
+    },
+    {
+      "path": "assets/js/spnChecklist.js",
+      "domain": "interface",
+      "loadedAs": [
+        "entrypoint"
+      ],
+      "importedBy": [],
+      "imports": []
+    },
+    {
+      "path": "assets/js/spnClarityPanel.js",
+      "domain": "interface",
+      "loadedAs": [
+        "entrypoint"
+      ],
+      "importedBy": [],
+      "imports": []
+    },
+    {
+      "path": "assets/js/spnContactEditor.js",
+      "domain": "editing",
+      "loadedAs": [
+        "side-effect"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/spnUiMode.js",
+          "mode": "side-effect"
+        }
+      ],
+      "imports": [
+        {
+          "path": "assets/js/layoutExtras.js",
+          "mode": "dependency"
+        }
+      ]
+    },
+    {
+      "path": "assets/js/spnDensePrintPolicy.js",
+      "domain": "print",
+      "loadedAs": [
+        "side-effect"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/spnUiMode.js",
+          "mode": "side-effect"
+        }
+      ],
+      "imports": []
+    },
+    {
+      "path": "assets/js/spnDestructiveSnapshot.js",
+      "domain": "persistence",
+      "loadedAs": [
+        "side-effect"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/spnUiMode.js",
+          "mode": "side-effect"
+        }
+      ],
+      "imports": [
+        {
+          "path": "assets/js/layoutFile.js",
+          "mode": "dependency"
+        },
+        {
+          "path": "assets/js/state.js",
+          "mode": "dependency"
+        }
+      ]
+    },
+    {
+      "path": "assets/js/spnDistributionFieldMode.js",
+      "domain": "after-print",
+      "loadedAs": [
+        "side-effect"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/spnUiMode.js",
+          "mode": "side-effect"
+        }
+      ],
+      "imports": []
+    },
+    {
+      "path": "assets/js/spnDistributionReportHelper.js",
+      "domain": "after-print",
+      "loadedAs": [
+        "side-effect"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/spnUiMode.js",
+          "mode": "side-effect"
+        }
+      ],
+      "imports": [
+        {
+          "path": "assets/js/templates.js",
+          "mode": "dependency"
+        }
+      ]
+    },
+    {
+      "path": "assets/js/spnDistributionTaskHelper.js",
+      "domain": "after-print",
+      "loadedAs": [
+        "side-effect"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/spnUiMode.js",
+          "mode": "side-effect"
+        }
+      ],
+      "imports": []
+    },
+    {
+      "path": "assets/js/spnFieldPlan.js",
+      "domain": "interface",
+      "loadedAs": [
+        "entrypoint"
+      ],
+      "importedBy": [],
+      "imports": []
+    },
+    {
+      "path": "assets/js/spnFitPreview.js",
+      "domain": "interface",
+      "loadedAs": [
+        "side-effect"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/spnUiMode.js",
+          "mode": "side-effect"
+        }
+      ],
+      "imports": []
+    },
+    {
+      "path": "assets/js/spnHeadlineHelper.js",
+      "domain": "editing",
+      "loadedAs": [
+        "entrypoint"
+      ],
+      "importedBy": [],
+      "imports": []
+    },
+    {
+      "path": "assets/js/spnInkEfficiency.js",
+      "domain": "print",
+      "loadedAs": [
+        "side-effect"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/spnUiMode.js",
+          "mode": "side-effect"
+        }
+      ],
+      "imports": []
+    },
+    {
+      "path": "assets/js/spnInlinePreviewEditor.js",
+      "domain": "editing",
+      "loadedAs": [
+        "side-effect"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/spnUiMode.js",
+          "mode": "side-effect"
+        }
+      ],
+      "imports": []
+    },
+    {
+      "path": "assets/js/spnLayoutModeAccessibility.js",
+      "domain": "interface",
+      "loadedAs": [
+        "side-effect"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/spnUiMode.js",
+          "mode": "side-effect"
+        }
+      ],
+      "imports": []
+    },
+    {
+      "path": "assets/js/spnLeadQualification.js",
+      "domain": "interface",
+      "loadedAs": [
+        "entrypoint"
+      ],
+      "importedBy": [],
+      "imports": []
+    },
+    {
+      "path": "assets/js/spnManagerPeriodSummary.js",
+      "domain": "after-print",
+      "loadedAs": [
+        "side-effect"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/spnUiMode.js",
+          "mode": "side-effect"
+        }
+      ],
+      "imports": []
+    },
+    {
+      "path": "assets/js/spnManagerReview.js",
+      "domain": "interface",
+      "loadedAs": [
+        "side-effect"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/spnUiMode.js",
+          "mode": "side-effect"
+        }
+      ],
+      "imports": [
+        {
+          "path": "assets/js/spnReportSummary.js",
+          "mode": "side-effect"
+        },
+        {
+          "path": "assets/js/templates.js",
+          "mode": "dependency"
+        }
+      ]
+    },
+    {
+      "path": "assets/js/spnManagerTemplateNotice.js",
+      "domain": "interface",
+      "loadedAs": [
+        "side-effect"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/spnUiMode.js",
+          "mode": "side-effect"
+        }
+      ],
+      "imports": [
+        {
+          "path": "assets/js/templates.js",
+          "mode": "dependency"
+        }
+      ]
+    },
+    {
+      "path": "assets/js/spnMetaCompactStyle.js",
+      "domain": "interface",
+      "loadedAs": [
+        "side-effect"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/spnUiMode.js",
+          "mode": "side-effect"
+        }
+      ],
+      "imports": []
+    },
+    {
+      "path": "assets/js/spnNamedLayoutDeleteGuard.js",
+      "domain": "interface",
+      "loadedAs": [
+        "side-effect"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/spnUiMode.js",
+          "mode": "side-effect"
+        }
+      ],
+      "imports": [
+        {
+          "path": "assets/js/storage.js",
+          "mode": "dependency"
+        }
+      ]
+    },
+    {
+      "path": "assets/js/spnNewbieEmptyState.js",
+      "domain": "workflow",
+      "loadedAs": [
+        "side-effect"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/spnUiMode.js",
+          "mode": "side-effect"
+        }
+      ],
+      "imports": []
+    },
+    {
+      "path": "assets/js/spnNewbieFinalCheck.js",
+      "domain": "workflow",
+      "loadedAs": [
+        "side-effect"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/spnUiMode.js",
+          "mode": "side-effect"
+        }
+      ],
+      "imports": []
+    },
+    {
+      "path": "assets/js/spnNewbieMode.js",
+      "domain": "workflow",
+      "loadedAs": [
+        "side-effect"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/spnUiMode.js",
+          "mode": "side-effect"
+        }
+      ],
+      "imports": []
+    },
+    {
+      "path": "assets/js/spnNewbieModeNotice.js",
+      "domain": "workflow",
+      "loadedAs": [
+        "side-effect"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/spnUiMode.js",
+          "mode": "side-effect"
+        }
+      ],
+      "imports": []
+    },
+    {
+      "path": "assets/js/spnNewbiePrintGuard.js",
+      "domain": "print",
+      "loadedAs": [
+        "side-effect"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/spnUiMode.js",
+          "mode": "side-effect"
+        }
+      ],
+      "imports": []
+    },
+    {
+      "path": "assets/js/spnNewbiePrintGuardNotice.js",
+      "domain": "print",
+      "loadedAs": [
+        "side-effect"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/spnUiMode.js",
+          "mode": "side-effect"
+        }
+      ],
+      "imports": []
+    },
+    {
+      "path": "assets/js/spnNewbiePrintGuide.js",
+      "domain": "print",
+      "loadedAs": [
+        "side-effect"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/spnUiMode.js",
+          "mode": "side-effect"
+        }
+      ],
+      "imports": []
+    },
+    {
+      "path": "assets/js/spnNewbieWizardPatch.js",
+      "domain": "workflow",
+      "loadedAs": [
+        "side-effect"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/spnUiMode.js",
+          "mode": "side-effect"
+        }
+      ],
+      "imports": []
+    },
+    {
+      "path": "assets/js/spnOfficeFilterSync.js",
+      "domain": "workflow",
+      "loadedAs": [
+        "side-effect"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/spnUiMode.js",
+          "mode": "side-effect"
+        }
+      ],
+      "imports": []
+    },
+    {
+      "path": "assets/js/spnOfficeTemplateFilters.js",
+      "domain": "workflow",
+      "loadedAs": [
+        "side-effect"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/spnUiMode.js",
+          "mode": "side-effect"
+        }
+      ],
+      "imports": []
+    },
+    {
+      "path": "assets/js/spnParamsHelper.js",
+      "domain": "editing",
+      "loadedAs": [
+        "side-effect"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/spnUiMode.js",
+          "mode": "side-effect"
+        }
+      ],
+      "imports": []
+    },
+    {
+      "path": "assets/js/spnPhoneHelper.js",
+      "domain": "editing",
+      "loadedAs": [
+        "side-effect"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/spnUiMode.js",
+          "mode": "side-effect"
+        }
+      ],
+      "imports": []
+    },
+    {
+      "path": "assets/js/spnPhotoLayoutQualityActions.js",
+      "domain": "quality",
+      "loadedAs": [
+        "side-effect"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/spnUiMode.js",
+          "mode": "side-effect"
+        }
+      ],
+      "imports": []
+    },
+    {
+      "path": "assets/js/spnPhotoLayoutStyle.js",
+      "domain": "editing",
+      "loadedAs": [
+        "side-effect"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/spnUiMode.js",
+          "mode": "side-effect"
+        }
+      ],
+      "imports": []
+    },
+    {
+      "path": "assets/js/spnPostPrintWorkspace.js",
+      "domain": "print",
+      "loadedAs": [
+        "side-effect"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/spnUiMode.js",
+          "mode": "side-effect"
+        }
+      ],
+      "imports": []
+    },
+    {
+      "path": "assets/js/spnPreviewQuickBar.js",
+      "domain": "interface",
+      "loadedAs": [
+        "side-effect"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/spnUiMode.js",
+          "mode": "side-effect"
+        }
+      ],
+      "imports": []
+    },
+    {
+      "path": "assets/js/spnPriceHelper.js",
+      "domain": "editing",
+      "loadedAs": [
+        "side-effect"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/spnUiMode.js",
+          "mode": "side-effect"
+        }
+      ],
+      "imports": []
+    },
+    {
+      "path": "assets/js/spnPrintCampaignHelper.js",
+      "domain": "print",
+      "loadedAs": [
+        "side-effect"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/spnUiMode.js",
+          "mode": "side-effect"
+        }
+      ],
+      "imports": []
+    },
+    {
+      "path": "assets/js/spnQrEditor.js",
+      "domain": "editing",
+      "loadedAs": [
+        "side-effect"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/spnUiMode.js",
+          "mode": "side-effect"
+        }
+      ],
+      "imports": []
+    },
+    {
+      "path": "assets/js/spnQrStandaloneStyle.js",
+      "domain": "editing",
+      "loadedAs": [
+        "side-effect"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/spnUiMode.js",
+          "mode": "side-effect"
+        }
+      ],
+      "imports": []
+    },
+    {
+      "path": "assets/js/spnReportHistoryEnhancements.js",
+      "domain": "after-print",
+      "loadedAs": [
+        "side-effect"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/spnUiMode.js",
+          "mode": "side-effect"
+        }
+      ],
+      "imports": []
+    },
+    {
+      "path": "assets/js/spnReportSummary.js",
+      "domain": "after-print",
+      "loadedAs": [
+        "side-effect"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/spnManagerReview.js",
+          "mode": "side-effect"
+        }
+      ],
+      "imports": []
+    },
+    {
+      "path": "assets/js/spnResultEstimator.js",
+      "domain": "interface",
+      "loadedAs": [
+        "entrypoint"
+      ],
+      "importedBy": [],
+      "imports": []
+    },
+    {
+      "path": "assets/js/spnTearOffEditor.js",
+      "domain": "print",
+      "loadedAs": [
+        "side-effect"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/spnUiMode.js",
+          "mode": "side-effect"
+        }
+      ],
+      "imports": [
+        {
+          "path": "assets/js/layoutExtras.js",
+          "mode": "dependency"
+        }
+      ]
+    },
+    {
+      "path": "assets/js/spnTemplateCardBadges.js",
+      "domain": "interface",
+      "loadedAs": [
+        "side-effect"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/spnUiMode.js",
+          "mode": "side-effect"
+        }
+      ],
+      "imports": [
+        {
+          "path": "assets/js/templates.js",
+          "mode": "dependency"
+        }
+      ]
+    },
+    {
+      "path": "assets/js/spnTemplateKeyboard.js",
+      "domain": "interface",
+      "loadedAs": [
+        "side-effect"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/spnUiMode.js",
+          "mode": "side-effect"
+        }
+      ],
+      "imports": []
+    },
+    {
+      "path": "assets/js/spnTemplateMenuCompact.js",
+      "domain": "interface",
+      "loadedAs": [
+        "side-effect"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/spnUiMode.js",
+          "mode": "side-effect"
+        }
+      ],
+      "imports": []
+    },
+    {
+      "path": "assets/js/spnTextStepChecklist.js",
+      "domain": "interface",
+      "loadedAs": [
+        "side-effect"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/spnUiMode.js",
+          "mode": "side-effect"
+        }
+      ],
+      "imports": []
+    },
+    {
+      "path": "assets/js/spnUiMode.js",
+      "domain": "workflow",
+      "loadedAs": [
+        "entrypoint"
+      ],
+      "importedBy": [],
+      "imports": [
+        {
+          "path": "assets/js/spnAdvancedWorkbench.js",
+          "mode": "side-effect"
+        },
+        {
+          "path": "assets/js/spnAgentBrandModeGuard.js",
+          "mode": "side-effect"
+        },
+        {
+          "path": "assets/js/spnAgentHelper.js",
+          "mode": "side-effect"
+        },
+        {
+          "path": "assets/js/spnAreaHelper.js",
+          "mode": "side-effect"
+        },
+        {
+          "path": "assets/js/spnBlockControls.js",
+          "mode": "side-effect"
+        },
+        {
+          "path": "assets/js/spnBrandEditor.js",
+          "mode": "side-effect"
+        },
+        {
+          "path": "assets/js/spnContactEditor.js",
+          "mode": "side-effect"
+        },
+        {
+          "path": "assets/js/spnDensePrintPolicy.js",
+          "mode": "side-effect"
+        },
+        {
+          "path": "assets/js/spnDestructiveSnapshot.js",
+          "mode": "side-effect"
+        },
+        {
+          "path": "assets/js/spnDistributionFieldMode.js",
+          "mode": "side-effect"
+        },
+        {
+          "path": "assets/js/spnDistributionReportHelper.js",
+          "mode": "side-effect"
+        },
+        {
+          "path": "assets/js/spnDistributionTaskHelper.js",
+          "mode": "side-effect"
+        },
+        {
+          "path": "assets/js/spnFitPreview.js",
+          "mode": "side-effect"
+        },
+        {
+          "path": "assets/js/spnInkEfficiency.js",
+          "mode": "side-effect"
+        },
+        {
+          "path": "assets/js/spnInlinePreviewEditor.js",
+          "mode": "side-effect"
+        },
+        {
+          "path": "assets/js/spnLayoutModeAccessibility.js",
+          "mode": "side-effect"
+        },
+        {
+          "path": "assets/js/spnManagerPeriodSummary.js",
+          "mode": "side-effect"
+        },
+        {
+          "path": "assets/js/spnManagerReview.js",
+          "mode": "side-effect"
+        },
+        {
+          "path": "assets/js/spnManagerTemplateNotice.js",
+          "mode": "side-effect"
+        },
+        {
+          "path": "assets/js/spnMetaCompactStyle.js",
+          "mode": "side-effect"
+        },
+        {
+          "path": "assets/js/spnNamedLayoutDeleteGuard.js",
+          "mode": "side-effect"
+        },
+        {
+          "path": "assets/js/spnNewbieEmptyState.js",
+          "mode": "side-effect"
+        },
+        {
+          "path": "assets/js/spnNewbieFinalCheck.js",
+          "mode": "side-effect"
+        },
+        {
+          "path": "assets/js/spnNewbieMode.js",
+          "mode": "side-effect"
+        },
+        {
+          "path": "assets/js/spnNewbieModeNotice.js",
+          "mode": "side-effect"
+        },
+        {
+          "path": "assets/js/spnNewbiePrintGuard.js",
+          "mode": "side-effect"
+        },
+        {
+          "path": "assets/js/spnNewbiePrintGuardNotice.js",
+          "mode": "side-effect"
+        },
+        {
+          "path": "assets/js/spnNewbiePrintGuide.js",
+          "mode": "side-effect"
+        },
+        {
+          "path": "assets/js/spnNewbieWizardPatch.js",
+          "mode": "side-effect"
+        },
+        {
+          "path": "assets/js/spnOfficeFilterSync.js",
+          "mode": "side-effect"
+        },
+        {
+          "path": "assets/js/spnOfficeTemplateFilters.js",
+          "mode": "side-effect"
+        },
+        {
+          "path": "assets/js/spnParamsHelper.js",
+          "mode": "side-effect"
+        },
+        {
+          "path": "assets/js/spnPhoneHelper.js",
+          "mode": "side-effect"
+        },
+        {
+          "path": "assets/js/spnPhotoLayoutQualityActions.js",
+          "mode": "side-effect"
+        },
+        {
+          "path": "assets/js/spnPhotoLayoutStyle.js",
+          "mode": "side-effect"
+        },
+        {
+          "path": "assets/js/spnPostPrintWorkspace.js",
+          "mode": "side-effect"
+        },
+        {
+          "path": "assets/js/spnPreviewQuickBar.js",
+          "mode": "side-effect"
+        },
+        {
+          "path": "assets/js/spnPriceHelper.js",
+          "mode": "side-effect"
+        },
+        {
+          "path": "assets/js/spnPrintCampaignHelper.js",
+          "mode": "side-effect"
+        },
+        {
+          "path": "assets/js/spnQrEditor.js",
+          "mode": "side-effect"
+        },
+        {
+          "path": "assets/js/spnQrStandaloneStyle.js",
+          "mode": "side-effect"
+        },
+        {
+          "path": "assets/js/spnReportHistoryEnhancements.js",
+          "mode": "side-effect"
+        },
+        {
+          "path": "assets/js/spnTearOffEditor.js",
+          "mode": "side-effect"
+        },
+        {
+          "path": "assets/js/spnTemplateCardBadges.js",
+          "mode": "side-effect"
+        },
+        {
+          "path": "assets/js/spnTemplateKeyboard.js",
+          "mode": "side-effect"
+        },
+        {
+          "path": "assets/js/spnTemplateMenuCompact.js",
+          "mode": "side-effect"
+        },
+        {
+          "path": "assets/js/spnTextStepChecklist.js",
+          "mode": "side-effect"
+        },
+        {
+          "path": "assets/js/spnWizardFlow.js",
+          "mode": "side-effect"
+        },
+        {
+          "path": "assets/js/spnWizardStepStatus.js",
+          "mode": "side-effect"
+        },
+        {
+          "path": "assets/js/spnWorkspaceBackup.js",
+          "mode": "side-effect"
+        }
+      ]
+    },
+    {
+      "path": "assets/js/spnWizard.js",
+      "domain": "workflow",
+      "loadedAs": [
+        "entrypoint"
+      ],
+      "importedBy": [],
+      "imports": []
+    },
+    {
+      "path": "assets/js/spnWizardFlow.js",
+      "domain": "workflow",
+      "loadedAs": [
+        "side-effect"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/spnUiMode.js",
+          "mode": "side-effect"
+        }
+      ],
+      "imports": []
+    },
+    {
+      "path": "assets/js/spnWizardStepStatus.js",
+      "domain": "workflow",
+      "loadedAs": [
+        "side-effect"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/spnUiMode.js",
+          "mode": "side-effect"
+        }
+      ],
+      "imports": []
+    },
+    {
+      "path": "assets/js/spnWorkspaceBackup.js",
+      "domain": "persistence",
+      "loadedAs": [
+        "side-effect"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/spnUiMode.js",
+          "mode": "side-effect"
+        }
+      ],
+      "imports": []
+    },
+    {
+      "path": "assets/js/state.js",
+      "domain": "core",
+      "loadedAs": [
+        "dependency"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/app.js",
+          "mode": "dependency"
+        },
+        {
+          "path": "assets/js/layoutFile.js",
+          "mode": "dependency"
+        },
+        {
+          "path": "assets/js/render.js",
+          "mode": "dependency"
+        },
+        {
+          "path": "assets/js/spnDestructiveSnapshot.js",
+          "mode": "dependency"
+        },
+        {
+          "path": "assets/js/storage.js",
+          "mode": "dependency"
+        }
+      ],
+      "imports": []
+    },
+    {
+      "path": "assets/js/storage.js",
+      "domain": "persistence",
+      "loadedAs": [
+        "dependency"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/app.js",
+          "mode": "dependency"
+        },
+        {
+          "path": "assets/js/spnNamedLayoutDeleteGuard.js",
+          "mode": "dependency"
+        }
+      ],
+      "imports": [
+        {
+          "path": "assets/js/layoutExtras.js",
+          "mode": "dependency"
+        },
+        {
+          "path": "assets/js/state.js",
+          "mode": "dependency"
+        }
+      ]
+    },
+    {
+      "path": "assets/js/templates.js",
+      "domain": "core",
+      "loadedAs": [
+        "dependency"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/app.js",
+          "mode": "dependency"
+        },
+        {
+          "path": "assets/js/spnDistributionReportHelper.js",
+          "mode": "dependency"
+        },
+        {
+          "path": "assets/js/spnManagerReview.js",
+          "mode": "dependency"
+        },
+        {
+          "path": "assets/js/spnManagerTemplateNotice.js",
+          "mode": "dependency"
+        },
+        {
+          "path": "assets/js/spnTemplateCardBadges.js",
+          "mode": "dependency"
+        }
+      ],
+      "imports": []
+    },
+    {
+      "path": "assets/js/utils.js",
+      "domain": "core",
+      "loadedAs": [
+        "dependency"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/app.js",
+          "mode": "dependency"
+        },
+        {
+          "path": "assets/js/render.js",
+          "mode": "dependency"
+        }
+      ],
+      "imports": [
+        {
+          "path": "assets/js/layoutExtras.js",
+          "mode": "dependency"
+        }
+      ]
+    }
+  ]
+}

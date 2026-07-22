@@ -6,6 +6,7 @@
   "scripts": {
     "templates:inventory": "node tools/template-portfolio-inventory.mjs",
     "assets:stamp": "node tools/stamp-asset-version.mjs",
+    "runtime:registry": "node tools/build-runtime-module-registry.mjs",
     "release:status": "node tools/report-release-readiness.mjs",
     "smoke:browser": "node tools/run-browser-smoke.mjs",
     "smoke:ui-actions": "node tools/run-ui-actions-smoke.mjs",
@@ -36,6 +37,7 @@
     "validate:assets": "node tools/validate-assets.mjs",
     "validate:asset-duplicates": "node tools/validate-asset-duplicates.mjs",
     "validate:runtime-architecture": "node tools/validate-runtime-architecture.mjs",
+    "validate:runtime-modules": "node tools/validate-runtime-module-registry.mjs",
     "validate:quality-actions": "node tools/validate-quality-actions.mjs",
     "validate:quality-issue-actions": "node tools/validate-quality-issue-actions.mjs",
     "validate:phone-cleanup-action": "node tools/validate-phone-cleanup-action.mjs",

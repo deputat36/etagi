@@ -11,7 +11,7 @@
     const list = document.getElementById('qualityList');
     if (!list) return;
 
-    new MutationObserver(enhanceQualityItems).observe(list, { childList: true, subtree: true });
+    new MutationObserver(enhanceQualityItems).observe(list, { childList: true });
     enhanceQualityItems();
   }
 

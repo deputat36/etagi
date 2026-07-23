@@ -39,7 +39,7 @@ const requiredActionSnippets = [
   'function observeQualityList(list)',
   'new MutationObserver((records) => {',
   'records.some(hasAddedQualityItems)',
-  'observer.observe(list, { childList: true })',
+  '}).observe(list, { childList: true })',
   'function hasAddedQualityItems(record)',
   "node.matches('.qitem') || node.querySelector('.qitem')",
   'window.__ETAGI_QUALITY_EXTRA_ACTION_RUNS__ = Number(window.__ETAGI_QUALITY_EXTRA_ACTION_RUNS__ || 0) + 1',

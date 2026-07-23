@@ -43,6 +43,12 @@ const smokePages = failureFixtureMode ? [
     timeoutMs:34000
   },
   {
+    label:'Form input render smoke',
+    path:'tools/form-input-render-smoke.html',
+    virtualTimeBudget:18000,
+    timeoutMs:30000
+  },
+  {
     label:'Fit preview smoke',
     path:'tools/fit-preview-smoke.html',
     virtualTimeBudget:22000,

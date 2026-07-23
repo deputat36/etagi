@@ -26,10 +26,13 @@
       runtimeErrors.push(...earlyErrors);
       win.addEventListener('error', event => runtimeErrors.push(event.message || 'window error'));
       win.addEventListener('unhandledrejection', event => runtimeErrors.push(String(event.reason || 'unhandled rejection')));
+      let originalQuerySelectorAll = null;
 
       try{
         await waitFor(() => doc.querySelectorAll('#templateList [data-template]').length >= 4, 12000, 'карточки шаблонов не появились');
         await waitFor(() => [...doc.querySelectorAll('#templateList [data-template]')].every(card => card.getAttribute('role') === 'option'), 4000, 'ARIA-роли карточек не появились');
+        await waitFor(() => doc.querySelector('#templateList .tpl-card-office-badges'), 8000, 'бейджи шаблонов не появились');
+        await delay(700);
 
         lastAction = 'template-keyboard.contract';
         const list = doc.getElementById('templateList');
@@ -40,7 +43,8 @@
         assert(cards.filter(card => card.tabIndex === 0).length === 1, 'в списке должен быть ровно один Tab-stop');
         assert(cards.filter(card => card.getAttribute('aria-selected') === 'true').length === 1, 'в списке должен быть ровно один выбранный шаблон');
         assert(cards.every(card => card.getAttribute('aria-label')?.includes(card.querySelector('b')?.textContent.trim() || '')), 'ARIA-подпись карточки не содержит название');
-        pass('контракт: listbox, option, aria-selected и один Tab-stop');
+        assertNoDuplicateBadges(doc);
+        pass('контракт: listbox, option, aria-selected, один Tab-stop и бейджи без дублей');
 
         const selectedBefore = cards.find(card => card.getAttribute('aria-selected') === 'true');
         const selectedIdBefore = selectedBefore.dataset.template;
@@ -75,7 +79,8 @@
         await waitFor(() => doc.activeElement?.dataset?.template === enterId, 4000, 'после Enter фокус не вернулся на выбранную карточку');
         assert(doc.getElementById('layoutName')?.value === enterTitle, 'Enter не применил данные выбранного шаблона');
         assertSelectionContract(doc, enterId);
-        pass('Enter: шаблон выбран, состояние и фокус синхронизированы');
+        assertNoDuplicateBadges(doc);
+        pass('Enter: шаблон выбран, состояние, фокус и бейджи синхронизированы');
 
         lastAction = 'template-keyboard.space';
         cards = getCards(doc);
@@ -87,7 +92,8 @@
         await waitFor(() => doc.querySelector('#templateList [data-template].active')?.dataset.template === spaceId, 4000, 'Space не выбрал шаблон');
         await waitFor(() => doc.activeElement?.dataset?.template === spaceId, 4000, 'после Space фокус не вернулся на выбранную карточку');
         assertSelectionContract(doc, spaceId);
-        pass('Space: шаблон выбран без повторных Tab-stop');
+        assertNoDuplicateBadges(doc);
+        pass('Space: шаблон выбран без повторных Tab-stop и бейджей');
 
         lastAction = 'template-keyboard.favorite';
         const activeCard = doc.querySelector(`#templateList [data-template="${escapeSelector(spaceId)}"]`);
@@ -101,6 +107,7 @@
 
         lastAction = 'template-keyboard.observer-scope';
         let accessibilityAttributeWrites = 0;
+        let badgeEnhancePasses = 0;
         const attributeObserver = new win.MutationObserver(records => {
           accessibilityAttributeWrites += records.filter(record => ['role','aria-selected','aria-label','tabindex'].includes(record.attributeName)).length;
         });
@@ -108,22 +115,48 @@
           attributes:true,
           attributeFilter:['role','aria-selected','aria-label','tabindex']
         }));
+        originalQuerySelectorAll = doc.querySelectorAll.bind(doc);
+        doc.querySelectorAll = function(selector){
+          if(selector === '.tpl-card') badgeEnhancePasses += 1;
+          return originalQuerySelectorAll(selector);
+        };
+        await delay(150);
+        badgeEnhancePasses = 0;
         const descendantMarker = doc.createElement('span');
         descendantMarker.className = 'template-keyboard-descendant-smoke';
         descendantMarker.textContent = 'marker';
         activeCard.append(descendantMarker);
-        await delay(250);
+        await delay(300);
         attributeObserver.disconnect();
-        descendantMarker.remove();
         assert(accessibilityAttributeWrites === 0, `внутренняя мутация карточки повторно запустила ARIA-обход: ${accessibilityAttributeWrites}`);
+        assert(badgeEnhancePasses === 0, `внутренняя мутация карточки повторно запустила badge-обход: ${badgeEnhancePasses}`);
+        descendantMarker.remove();
         assertSelectionContract(doc, spaceId);
-        pass('observer реагирует на замену карточек, но игнорирует внутренние мутации');
+        assertNoDuplicateBadges(doc);
+        pass('observer шаблонов игнорируют внутренние мутации карточки');
 
+        lastAction = 'template-keyboard.observer-structure';
+        const cardBeforeRebuild = getCards(doc)[0];
+        badgeEnhancePasses = 0;
+        const currentGoal = doc.querySelector('[data-goal].active')?.dataset.goal || '';
+        const nextGoal = [...doc.querySelectorAll('[data-goal]')].find(button => button.dataset.goal !== currentGoal && !button.disabled);
+        assert(nextGoal, 'не найдена другая задача для структурной проверки');
+        nextGoal.click();
+        await waitFor(() => !cardBeforeRebuild.isConnected, 3500, 'смена задачи не заменила карточки шаблонов');
+        await waitFor(() => badgeEnhancePasses > 0, 3500, 'badge observer не обработал замену карточек верхнего уровня');
+        await waitFor(() => getCards(doc).every(card => card.getAttribute('role') === 'option'), 3500, 'ARIA-роли не восстановились после замены карточек');
+        await waitFor(() => doc.querySelector('#templateList .tpl-card-office-badges'), 3500, 'бейджи не восстановились после замены карточек');
+        assertNoDuplicateBadges(doc);
+        pass('замена карточек верхнего уровня восстанавливает ARIA и бейджи');
+
+        doc.querySelectorAll = originalQuerySelectorAll;
+        originalQuerySelectorAll = null;
         if(runtimeErrors.length) throw new Error(`runtime errors: ${runtimeErrors.join(' | ')}`);
         lastAction = 'completed';
         result.dataset.status = 'passed';
         result.textContent = `PASSED\n${checks.map(item => `✓ ${item}`).join('\n')}`;
       } catch(error){
+        if(originalQuerySelectorAll) doc.querySelectorAll = originalQuerySelectorAll;
         result.dataset.status = 'failed';
         result.dataset.lastAction = lastAction;
         result.textContent = `FAILED\n${checks.map(item => `✓ ${item}`).join('\n')}\n✗ ${error.message || error}\nПоследнее действие: ${lastAction}\nСостояние: ${JSON.stringify(snapshot(doc))}`;
@@ -138,7 +171,7 @@
         result.dataset.lastAction = lastAction;
         result.textContent = `FAILED\n${checks.map(item => `✓ ${item}`).join('\n')}\n✗ timeout template keyboard smoke\nПоследнее действие: ${lastAction}`;
       }
-    }, 25000);
+    }, 27000);
 
     function getCards(doc){ return [...doc.querySelectorAll('#templateList [data-template]')]; }
     function pass(message){ checks.push(message); }
@@ -153,6 +186,12 @@
       assert(cards.filter(card => card.tabIndex === 0).length === 1, 'после выбора найдено несколько Tab-stop');
       assert(cards.find(card => card.tabIndex === 0)?.dataset.template === id, 'Tab-stop не соответствует выбранному шаблону');
     }
+    function assertNoDuplicateBadges(doc){
+      const cards = getCards(doc);
+      assert(cards.some(card => card.querySelector('.tpl-card-office-badges')), 'ни на одной карточке нет бейджей');
+      assert(cards.every(card => card.querySelectorAll('.tpl-card-office-badges').length <= 1), 'найдены дубли блоков бейджей');
+      assert(cards.every(card => card.querySelectorAll('.tpl-card-office-reason').length <= 1), 'найдены дубли пояснений шаблона');
+    }
     function escapeSelector(value){
       if(frame.contentWindow.CSS?.escape) return frame.contentWindow.CSS.escape(String(value || ''));
       return String(value || '').replace(/["\\]/g, '\\$&');
@@ -164,7 +203,9 @@
         active:cards.find(card => card.classList.contains('active'))?.dataset.template || '',
         focused:doc.activeElement?.dataset?.template || doc.activeElement?.id || doc.activeElement?.tagName || '',
         tabStops:cards.filter(card => card.tabIndex === 0).map(card => card.dataset.template),
-        selected:cards.filter(card => card.getAttribute('aria-selected') === 'true').map(card => card.dataset.template)
+        selected:cards.filter(card => card.getAttribute('aria-selected') === 'true').map(card => card.dataset.template),
+        badgeBlocks:doc.querySelectorAll('#templateList .tpl-card-office-badges').length,
+        reasons:doc.querySelectorAll('#templateList .tpl-card-office-reason').length
       };
     }
     function delay(ms){ return new Promise(resolve => setTimeout(resolve, ms)); }

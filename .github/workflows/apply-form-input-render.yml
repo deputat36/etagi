@@ -40,6 +40,15 @@ jobs:
       - name: Verify UI actions smoke
         run: npm run smoke:ui-actions
 
+      - name: Upload smoke failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: form-input-render-migration-failure
+          path: browser-smoke-failure.log
+          if-no-files-found: error
+          retention-days: 3
+
       - name: Verify changed files
         run: |
           node --check assets/js/app.js

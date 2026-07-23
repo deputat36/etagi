@@ -1,5 +1,6 @@
 const STYLE_ID = 'spnInkEfficiencyStyles';
 const TIP_ATTR = 'data-ink-efficiency-tip';
+const SMOKE_MODE = new URLSearchParams(window.location.search).has('smoke');
 
 window.addEventListener('DOMContentLoaded', () => {
   const layoutGrid = document.getElementById('layoutModeGrid');
@@ -56,6 +57,10 @@ function scheduleInkTip(list){
 }
 
 function updateInkTip(list){
+  if(SMOKE_MODE){
+    window.__ETAGI_INK_EFFICIENCY_CHECKS__ = Number(window.__ETAGI_INK_EFFICIENCY_CHECKS__ || 0) + 1;
+  }
+
   const existing = list.querySelector(`[${TIP_ATTR}]`);
   const colorMode = document.getElementById('colorMode');
   const showContact = document.getElementById('showContact');

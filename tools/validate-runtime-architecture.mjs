@@ -16,6 +16,7 @@ const files = {
   workspaceBackup: 'assets/js/spnWorkspaceBackup.js',
   distributionFieldMode: 'assets/js/spnDistributionFieldMode.js',
   postPrintWorkspace: 'assets/js/spnPostPrintWorkspace.js',
+  app: 'assets/js/app.js',
   wizardCss: 'assets/css/spn-wizard.css',
   audit: 'docs/full-project-audit-and-roadmap-2026-07-11.md'
 };
@@ -164,6 +165,24 @@ forbidSnippets(files.postPrintWorkspace, sources.postPrintWorkspace, [
   'window.print(',
   "document.addEventListener('click'",
   "window.addEventListener('click'"
+]);
+
+requireSnippets(files.app, sources.app, [
+  'let qualityTimer = 0;',
+  'scheduleQualityReview();',
+  'function scheduleQualityReview(delay = 80)',
+  'cancelScheduledQualityReview();',
+  'qualityTimer = window.setTimeout(() => {',
+  'qualityTimer = 0;',
+  'runQuality(false);',
+  'function cancelScheduledQualityReview()',
+  'window.clearTimeout(qualityTimer);',
+  'if(show) cancelScheduledQualityReview();'
+]);
+
+forbidSnippets(files.app, sources.app, [
+  'setTimeout(()=>runQuality(false), 80)',
+  'setTimeout(() => runQuality(false), 80)'
 ]);
 
 requireSnippets(files.index, sources.index, [

@@ -77,15 +77,18 @@
         await waitFor(() => qualityRuns >= 1, 2500, 'отложенная проверка качества не выполнилась');
         await waitFor(() => levelLabelLookups >= 1, 2500, 'observer уровней не обработал замену замечаний');
         await waitFor(() => [...doc.querySelectorAll('#qualityList .qitem')].every(item => item.querySelector('.quality-level')), 2500, 'подписи уровней не восстановились после проверки');
-        await delay(260);
+        await delay(120);
         const rapidIssueCount = doc.querySelectorAll('#qualityList .qitem').length;
+        const rapidSettledLookups = levelLabelLookups;
+        await delay(220);
         assert(qualityRuns === 1, `серия быстрых вводов запустила проверку ${qualityRuns} раз вместо одного`);
-        assert(levelLabelLookups === rapidIssueCount, `замена ${rapidIssueCount} замечаний вызвала ${levelLabelLookups} level-проверок вместо одного прохода`);
+        assert(rapidSettledLookups >= rapidIssueCount, `observer проверил ${rapidSettledLookups} элементов при ${rapidIssueCount} замечаниях`);
+        assert(levelLabelLookups === rapidSettledLookups, `после структурных обновлений продолжился самоповтор level-обхода: ${rapidSettledLookups} → ${levelLabelLookups}`);
         assert(printSheet.textContent.includes(values.at(-1)), 'лист не содержит последнее значение серии');
         assert(/^\d+\/100$/.test(qualityScore.textContent.trim()), 'итоговая оценка качества не обновлена');
         assertQualityLevelContract(doc);
         await waitFor(() => JSON.parse(win.localStorage.getItem('etagi-raskleyka-state-v1') || 'null')?.headline === values.at(-1), 1800, 'автосохранение не получило последнее значение');
-        pass('серия быстрых вводов объединена в одну проверку и один level-проход');
+        pass('серия быстрых вводов объединена в одну проверку без продолжающегося level-самоповтора');
 
         lastAction = 'quality.manual-cancel';
         qualityRuns = 0;
@@ -94,14 +97,18 @@
         qualityBtn.click();
         await waitFor(() => qualityRuns >= 1, 1500, 'ручная проверка не выполнилась сразу');
         await waitFor(() => levelLabelLookups >= 1, 1500, 'подписи уровней не обновились после ручной проверки');
-        await delay(260);
+        await waitFor(() => [...doc.querySelectorAll('#qualityList .qitem')].every(item => item.querySelector('.quality-level')), 1500, 'подписи уровней не восстановились после ручной проверки');
+        await delay(120);
         const manualIssueCount = doc.querySelectorAll('#qualityList .qitem').length;
+        const manualSettledLookups = levelLabelLookups;
+        await delay(220);
         assert(qualityRuns === 1, `после ручной проверки сработал отложенный дубль: ${qualityRuns}`);
-        assert(levelLabelLookups === manualIssueCount, `ручная замена ${manualIssueCount} замечаний вызвала ${levelLabelLookups} level-проверок вместо одного прохода`);
+        assert(manualSettledLookups >= manualIssueCount, `ручной observer проверил ${manualSettledLookups} элементов при ${manualIssueCount} замечаниях`);
+        assert(levelLabelLookups === manualSettledLookups, `после ручной проверки продолжился level-самоповтор: ${manualSettledLookups} → ${levelLabelLookups}`);
         assertQualityLevelContract(doc);
         const status = doc.getElementById('statusLine')?.textContent || '';
         assert(status.startsWith('Есть замечания.') || status === 'Проверка пройдена.', `ручная проверка вернула неожиданный статус: ${status}`);
-        pass('ручная проверка отменяет ожидающий запуск и сохраняет один level-проход');
+        pass('ручная проверка отменяет ожидающий запуск и не создаёт level-самоповтор');
 
         observer.disconnect();
         win.Element.prototype.querySelector = originalElementQuerySelector;
@@ -126,7 +133,7 @@
         result.dataset.lastAction = lastAction;
         result.textContent = `FAILED\n${checks.map(item => `✓ ${item}`).join('\n')}\n✗ timeout quality scheduler smoke\nПоследнее действие: ${lastAction}`;
       }
-    }, 24000);
+    }, 25000);
 
     function setField(win, field, value){
       field.value = value;

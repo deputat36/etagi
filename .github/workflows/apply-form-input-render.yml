@@ -1,9 +1,9 @@
 name: Apply form input render split
 
 on:
-  push:
+  pull_request:
     branches:
-      - agent/split-form-input-render
+      - main
     paths:
       - '.agent/apply_form_input_render.py'
       - 'tools/form-input-render-smoke.html'

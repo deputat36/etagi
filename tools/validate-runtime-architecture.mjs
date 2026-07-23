@@ -13,6 +13,7 @@ const files = {
   managerReview: 'assets/js/spnManagerReview.js',
   agentBrandGuard: 'assets/js/spnAgentBrandModeGuard.js',
   layoutAccessibility: 'assets/js/spnLayoutModeAccessibility.js',
+  templateKeyboard: 'assets/js/spnTemplateKeyboard.js',
   workspaceBackup: 'assets/js/spnWorkspaceBackup.js',
   distributionFieldMode: 'assets/js/spnDistributionFieldMode.js',
   postPrintWorkspace: 'assets/js/spnPostPrintWorkspace.js',
@@ -107,6 +108,16 @@ requireSnippets(files.layoutAccessibility, sources.layoutAccessibility, [
 forbidSnippets(files.layoutAccessibility, sources.layoutAccessibility, [
   "document.addEventListener('keydown'",
   "window.addEventListener('keydown'"
+]);
+
+requireSnippets(files.templateKeyboard, sources.templateKeyboard, [
+  'const observer = new MutationObserver(() => enhanceCards(list));',
+  'observer.observe(list, {childList:true});'
+]);
+
+forbidSnippets(files.templateKeyboard, sources.templateKeyboard, [
+  'observer.observe(list, {childList:true, subtree:true});',
+  'subtree:true'
 ]);
 
 requireSnippets(files.workspaceBackup, sources.workspaceBackup, [

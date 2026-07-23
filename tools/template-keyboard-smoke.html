@@ -99,6 +99,26 @@
         assertSelectionContract(doc, spaceId);
         pass('вложенная кнопка избранного не перехватывается навигацией карточек');
 
+        lastAction = 'template-keyboard.observer-scope';
+        let accessibilityAttributeWrites = 0;
+        const attributeObserver = new win.MutationObserver(records => {
+          accessibilityAttributeWrites += records.filter(record => ['role','aria-selected','aria-label','tabindex'].includes(record.attributeName)).length;
+        });
+        getCards(doc).forEach(card => attributeObserver.observe(card, {
+          attributes:true,
+          attributeFilter:['role','aria-selected','aria-label','tabindex']
+        }));
+        const descendantMarker = doc.createElement('span');
+        descendantMarker.className = 'template-keyboard-descendant-smoke';
+        descendantMarker.textContent = 'marker';
+        activeCard.append(descendantMarker);
+        await delay(250);
+        attributeObserver.disconnect();
+        descendantMarker.remove();
+        assert(accessibilityAttributeWrites === 0, `внутренняя мутация карточки повторно запустила ARIA-обход: ${accessibilityAttributeWrites}`);
+        assertSelectionContract(doc, spaceId);
+        pass('observer реагирует на замену карточек, но игнорирует внутренние мутации');
+
         if(runtimeErrors.length) throw new Error(`runtime errors: ${runtimeErrors.join(' | ')}`);
         lastAction = 'completed';
         result.dataset.status = 'passed';
@@ -147,6 +167,7 @@
         selected:cards.filter(card => card.getAttribute('aria-selected') === 'true').map(card => card.dataset.template)
       };
     }
+    function delay(ms){ return new Promise(resolve => setTimeout(resolve, ms)); }
     function waitFor(check, timeoutMs, message){
       const started = Date.now();
       return new Promise((resolve, reject) => {

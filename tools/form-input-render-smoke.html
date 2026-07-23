@@ -36,8 +36,8 @@
         const headline = doc.getElementById('headline');
         const description = doc.getElementById('description');
         const printSheet = doc.getElementById('printSheet');
-        const layoutManual = doc.querySelector('[data-layout-mode="manual"]');
-        assert(templateList && headline && description && printSheet && layoutManual, 'не найдены элементы формы или библиотеки');
+        const previewStatus = doc.getElementById('previewStatus');
+        assert(templateList && headline && description && printSheet && previewStatus, 'не найдены элементы формы или библиотеки');
 
         const firstCard = templateList.querySelector('.tpl-card');
         const initialTemplateCount = templateList.querySelectorAll('.tpl-card').length;
@@ -55,7 +55,8 @@
         assert(firstCard.isConnected && templateList.querySelector('.tpl-card') === firstCard, 'обычный ввод пересоздал карточки шаблонов');
         assert(directTemplateMutations === 0, `обычный ввод вызвал ${directTemplateMutations} прямых перестроек templateList`);
         assert(templateList.querySelectorAll('.tpl-card').length === initialTemplateCount, 'обычный ввод изменил количество шаблонов');
-        assert(layoutManual.classList.contains('active'), 'после ручного ввода режим компоновки не переключился в ручной');
+        assert(previewStatus.textContent.includes('режим: ручной'), 'после ручного ввода статус не показал ручной режим компоновки');
+        assert(!doc.querySelector('[data-layout-mode].active'), 'после ручного ввода ошибочно осталась активной автоматическая компоновка');
         pass('заголовок обновляет лист без перестройки библиотеки шаблонов');
 
         lastAction = 'input.description';
@@ -111,6 +112,7 @@
         headline:doc.getElementById('headline')?.value || '',
         description:doc.getElementById('description')?.value || '',
         templateCount:doc.querySelectorAll('#templateList .tpl-card').length,
+        previewStatus:doc.getElementById('previewStatus')?.textContent || '',
         layoutMode:[...doc.querySelectorAll('[data-layout-mode].active')].map(item => item.dataset.layoutMode)
       };
     }

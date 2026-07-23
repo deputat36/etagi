@@ -15,6 +15,7 @@ const files = {
   layoutAccessibility: 'assets/js/spnLayoutModeAccessibility.js',
   templateKeyboard: 'assets/js/spnTemplateKeyboard.js',
   templateBadges: 'assets/js/spnTemplateCardBadges.js',
+  qualityLevelLabels: 'assets/js/qualityLevelLabels.js',
   workspaceBackup: 'assets/js/spnWorkspaceBackup.js',
   distributionFieldMode: 'assets/js/spnDistributionFieldMode.js',
   postPrintWorkspace: 'assets/js/spnPostPrintWorkspace.js',
@@ -126,6 +127,15 @@ requireSnippets(files.templateBadges, sources.templateBadges, [
 ]);
 
 forbidSnippets(files.templateBadges, sources.templateBadges, [
+  '{ childList: true, subtree: true }',
+  'subtree: true'
+]);
+
+requireSnippets(files.qualityLevelLabels, sources.qualityLevelLabels, [
+  'new MutationObserver(enhanceQualityItems).observe(list, { childList: true });'
+]);
+
+forbidSnippets(files.qualityLevelLabels, sources.qualityLevelLabels, [
   '{ childList: true, subtree: true }',
   'subtree: true'
 ]);

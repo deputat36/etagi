@@ -1,5 +1,6 @@
 const STYLE_ID = 'spnInkEfficiencyStyles';
 const TIP_ATTR = 'data-ink-efficiency-tip';
+const SMOKE_MODE = new URLSearchParams(window.location.search).has('smoke');
 
 window.addEventListener('DOMContentLoaded', () => {
   const layoutGrid = document.getElementById('layoutModeGrid');
@@ -13,15 +14,27 @@ window.addEventListener('DOMContentLoaded', () => {
 
   if(qualityList){
     scheduleInkTip(qualityList);
-    new MutationObserver(() => scheduleInkTip(qualityList)).observe(qualityList, {
-      childList: true,
-      subtree: true
-    });
+    observeQualityList(qualityList);
     qualityList.addEventListener('click', handleInkAction);
   }
 });
 
 let tipFrame = 0;
+
+function observeQualityList(list){
+  const observer = new MutationObserver(records => {
+    if(records.some(hasRelevantQualityMutation)) scheduleInkTip(list);
+  });
+  observer.observe(list, {childList:true});
+}
+
+function hasRelevantQualityMutation(record){
+  return [...record.addedNodes, ...record.removedNodes].some(node => !isInkTipNode(node));
+}
+
+function isInkTipNode(node){
+  return node instanceof Element && node.hasAttribute(TIP_ATTR);
+}
 
 function prepareCompactLayoutColor(event){
   const button = event.target.closest('[data-layout-mode="economy"], [data-layout-mode="entrance"]');
@@ -36,6 +49,10 @@ function prepareCompactLayoutColor(event){
 }
 
 function scheduleInkTip(list){
+  if(SMOKE_MODE){
+    window.__ETAGI_INK_EFFICIENCY_SCHEDULES__ = Number(window.__ETAGI_INK_EFFICIENCY_SCHEDULES__ || 0) + 1;
+  }
+
   window.cancelAnimationFrame(tipFrame);
   tipFrame = window.requestAnimationFrame(() => {
     tipFrame = 0;
@@ -44,6 +61,10 @@ function scheduleInkTip(list){
 }
 
 function updateInkTip(list){
+  if(SMOKE_MODE){
+    window.__ETAGI_INK_EFFICIENCY_CHECKS__ = Number(window.__ETAGI_INK_EFFICIENCY_CHECKS__ || 0) + 1;
+  }
+
   const existing = list.querySelector(`[${TIP_ATTR}]`);
   const colorMode = document.getElementById('colorMode');
   const showContact = document.getElementById('showContact');

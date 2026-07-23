@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Etagi ink efficiency observer smoke</title>
+  <style>
+    body{font-family:Arial,sans-serif;margin:16px}
+    #appFrame{width:1280px;height:900px;border:1px solid #cbd5e1}
+    #uiActionsSmokeResult{white-space:pre-wrap;padding:12px;border:1px solid #cbd5e1;border-radius:8px;background:#f8fafc}
+  </style>
+</head>
+<body>
+  <pre id="uiActionsSmokeResult" data-status="pending">Ink efficiency observer smoke is running…</pre>
+  <iframe id="appFrame" title="Генератор расклеек"></iframe>
+  <script>
+    const result = document.getElementById('uiActionsSmokeResult');
+    const frame = document.getElementById('appFrame');
+    const checks = [];
+    const runtimeErrors = [];
+    let lastAction = 'startup';
+
+    frame.addEventListener('load', async () => {
+      const win = frame.contentWindow;
+      const doc = frame.contentDocument;
+      runtimeErrors.push(...(Array.isArray(win.__ETAGI_EARLY_ERRORS__) ? win.__ETAGI_EARLY_ERRORS__ : []));
+      win.addEventListener('error', event => runtimeErrors.push(event.message || 'window error'));
+      win.addEventListener('unhandledrejection', event => runtimeErrors.push(String(event.reason || 'unhandled rejection')));
+      let structuralTrigger = null;
+
+      try{
+        await waitFor(() => doc.querySelector('#qualityList .qitem'), 10000, 'список качества не появился');
+        await waitFor(() => Number(win.__ETAGI_INK_EFFICIENCY_SCHEDULES__ || 0) >= 1, 5000, 'начальное планирование расхода чернил не выполнилось');
+        await delay(700);
+
+        const qualityList = doc.getElementById('qualityList');
+        const qualityBtn = doc.getElementById('qualityBtn');
+        assert(qualityList && qualityBtn, 'не найдены элементы проверки расхода чернил');
+
+        lastAction = 'ink-observer.descendant';
+        const descendantBaseline = Number(win.__ETAGI_INK_EFFICIENCY_SCHEDULES__ || 0);
+        const issue = doc.querySelector('#qualityList .qitem');
+        const descendant = doc.createElement('span');
+        descendant.className = 'ink-efficiency-descendant-smoke';
+        descendant.textContent = 'marker';
+        issue.append(descendant);
+        await delay(300);
+        assert(Number(win.__ETAGI_INK_EFFICIENCY_SCHEDULES__ || 0) === descendantBaseline, 'внутренняя мутация замечания запланировала проверку подсказки');
+        descendant.remove();
+        pass('observer игнорирует внутренние мутации замечаний качества');
+
+        lastAction = 'ink-observer.direct-structure';
+        const structuralBaseline = Number(win.__ETAGI_INK_EFFICIENCY_SCHEDULES__ || 0);
+        structuralTrigger = doc.createElement('div');
+        structuralTrigger.hidden = true;
+        structuralTrigger.dataset.inkObserverSmokeTrigger = '';
+        qualityList.append(structuralTrigger);
+        await waitFor(() => Number(win.__ETAGI_INK_EFFICIENCY_SCHEDULES__ || 0) > structuralBaseline, 2500, 'прямое изменение списка не запланировало проверку подсказки');
+        await delay(180);
+        const structuralSettledSchedules = Number(win.__ETAGI_INK_EFFICIENCY_SCHEDULES__ || 0);
+        await delay(320);
+        assert(Number(win.__ETAGI_INK_EFFICIENCY_SCHEDULES__ || 0) === structuralSettledSchedules, `после прямого изменения продолжился observer-цикл: ${structuralSettledSchedules} → ${win.__ETAGI_INK_EFFICIENCY_SCHEDULES__}`);
+        assert(qualityList.querySelectorAll('[data-ink-efficiency-tip]').length <= 1, 'подсказка расхода чернил дублируется');
+        pass('прямое структурное изменение обрабатывается и стабилизируется');
+
+        lastAction = 'ink-observer.quality-refresh';
+        const qualityBaseline = Number(win.__ETAGI_INK_EFFICIENCY_SCHEDULES__ || 0);
+        qualityBtn.click();
+        await waitFor(() => Number(win.__ETAGI_INK_EFFICIENCY_SCHEDULES__ || 0) > qualityBaseline, 2500, 'ручная проверка качества не запланировала обновление подсказки');
+        await delay(180);
+        const qualitySettledSchedules = Number(win.__ETAGI_INK_EFFICIENCY_SCHEDULES__ || 0);
+        await delay(320);
+        assert(Number(win.__ETAGI_INK_EFFICIENCY_SCHEDULES__ || 0) === qualitySettledSchedules, `после полной проверки продолжился observer-цикл: ${qualitySettledSchedules} → ${win.__ETAGI_INK_EFFICIENCY_SCHEDULES__}`);
+        assert(qualityList.querySelectorAll('[data-ink-efficiency-tip]').length <= 1, 'после проверки качества появились дубли подсказки');
+        pass('полная замена замечаний планирует обновление без продолжающегося цикла');
+
+        structuralTrigger.remove();
+        structuralTrigger = null;
+        if(runtimeErrors.length) throw new Error(`runtime errors: ${runtimeErrors.join(' | ')}`);
+        lastAction = 'completed';
+        result.dataset.status = 'passed';
+        result.textContent = `PASSED\n${checks.map(item => `✓ ${item}`).join('\n')}`;
+      } catch(error){
+        structuralTrigger?.remove();
+        result.dataset.status = 'failed';
+        result.dataset.lastAction = lastAction;
+        result.textContent = `FAILED\n${checks.map(item => `✓ ${item}`).join('\n')}\n✗ ${error.message || error}\nПоследнее действие: ${lastAction}\nСостояние: ${JSON.stringify(snapshot(doc, win))}`;
+      }
+    }, {once:true});
+
+    frame.src = '/index.html?smoke=ink-efficiency-observer';
+
+    window.setTimeout(() => {
+      if(result.dataset.status === 'pending'){
+        result.dataset.status = 'failed';
+        result.dataset.lastAction = lastAction;
+        result.textContent = `FAILED\n${checks.map(item => `✓ ${item}`).join('\n')}\n✗ timeout ink efficiency observer smoke\nПоследнее действие: ${lastAction}`;
+      }
+    }, 22000);
+
+    function snapshot(doc, win){
+      return {
+        status:doc.getElementById('statusLine')?.textContent || '',
+        quality:doc.getElementById('qualityScore')?.textContent || '',
+        issues:doc.querySelectorAll('#qualityList .qitem').length,
+        tips:doc.querySelectorAll('#qualityList [data-ink-efficiency-tip]').length,
+        schedules:Number(win.__ETAGI_INK_EFFICIENCY_SCHEDULES__ || 0),
+        checks:Number(win.__ETAGI_INK_EFFICIENCY_CHECKS__ || 0)
+      };
+    }
+    function pass(message){ checks.push(message); }
+    function assert(condition, message){ if(!condition) throw new Error(message); }
+    function delay(ms){ return new Promise(resolve => setTimeout(resolve, ms)); }
+    function waitFor(check, timeoutMs, message){
+      const started = Date.now();
+      return new Promise((resolve, reject) => {
+        const tick = () => {
+          try{ if(check()) return resolve(); } catch(error){ return reject(error); }
+          if(Date.now() - started >= timeoutMs) return reject(new Error(message));
+          setTimeout(tick, 50);
+        };
+        tick();
+      });
+    }
+  </script>
+</body>
+</html>

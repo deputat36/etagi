@@ -55,6 +55,12 @@ const smokePages = failureFixtureMode ? [
     timeoutMs:28000
   },
   {
+    label:'Ink efficiency observer smoke',
+    path:'tools/ink-efficiency-observer-smoke.html',
+    virtualTimeBudget:18000,
+    timeoutMs:30000
+  },
+  {
     label:'Fit preview smoke',
     path:'tools/fit-preview-smoke.html',
     virtualTimeBudget:22000,

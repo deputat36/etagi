@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "generatedBy": "tools/build-runtime-module-registry.mjs",
   "source": "index.html",
   "entrypoints": [
@@ -73,7 +73,6387 @@
     "moduleCount": 81,
     "relationCount": 88,
     "sideEffectModuleCount": 54,
-    "dynamicModuleCount": 0
+    "dynamicModuleCount": 0,
+    "domIdCount": 315,
+    "indexDomIdCount": 86,
+    "runtimeCreatedDomIdCount": 224,
+    "storageKeyCount": 22,
+    "dynamicStorageKeyCount": 2,
+    "observerModuleCount": 27,
+    "observerInstanceCount": 29,
+    "styleIdCount": 46
+  },
+  "ownership": {
+    "domIds": [
+      {
+        "id": "agentName",
+        "declaredInIndex": true,
+        "ownershipBasis": "reference-only",
+        "owners": [
+          "assets/js/spnAgentHelper.js",
+          "assets/js/spnPhotoLayoutQualityActions.js",
+          "assets/js/spnTextStepChecklist.js",
+          "assets/js/spnWizardFlow.js"
+        ],
+        "createdBy": [],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnAgentHelper.js",
+          "assets/js/spnPhotoLayoutQualityActions.js",
+          "assets/js/spnTextStepChecklist.js",
+          "assets/js/spnWizardFlow.js"
+        ]
+      },
+      {
+        "id": "agentNameNormalizeBtn",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnAgentHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnAgentHelper.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnAgentHelper.js"
+        ]
+      },
+      {
+        "id": "agentPhone",
+        "declaredInIndex": true,
+        "ownershipBasis": "bind-or-mutate",
+        "owners": [
+          "assets/js/qualityExtraActions.js"
+        ],
+        "createdBy": [],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/qualityExtraActions.js"
+        ],
+        "referencedBy": [
+          "assets/js/app.js",
+          "assets/js/layoutExtrasSync.js",
+          "assets/js/qualityExtraActions.js",
+          "assets/js/spnContactEditor.js",
+          "assets/js/spnNewbieFinalCheck.js",
+          "assets/js/spnNewbiePrintGuard.js",
+          "assets/js/spnNewbiePrintGuardNotice.js",
+          "assets/js/spnPhoneHelper.js"
+        ]
+      },
+      {
+        "id": "app",
+        "declaredInIndex": true,
+        "ownershipBasis": "static-index",
+        "owners": [],
+        "createdBy": [],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": []
+      },
+      {
+        "id": "area",
+        "declaredInIndex": true,
+        "ownershipBasis": "reference-only",
+        "owners": [
+          "assets/js/qualityExtraActions.js",
+          "assets/js/spnAreaHelper.js"
+        ],
+        "createdBy": [],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/qualityExtraActions.js",
+          "assets/js/spnAreaHelper.js"
+        ]
+      },
+      {
+        "id": "areaToHeadlineBtn",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnAreaHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnAreaHelper.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnAreaHelper.js"
+        ]
+      },
+      {
+        "id": "autoLayoutBtn",
+        "declaredInIndex": true,
+        "ownershipBasis": "bind-or-mutate",
+        "owners": [
+          "assets/js/app.js"
+        ],
+        "createdBy": [],
+        "boundBy": [
+          "assets/js/app.js"
+        ],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/app.js"
+        ]
+      },
+      {
+        "id": "benefits",
+        "declaredInIndex": true,
+        "ownershipBasis": "reference-only",
+        "owners": [
+          "assets/js/qualityExtraActions.js"
+        ],
+        "createdBy": [],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/qualityExtraActions.js"
+        ]
+      },
+      {
+        "id": "blockOrderList",
+        "declaredInIndex": true,
+        "ownershipBasis": "bind-or-mutate",
+        "owners": [
+          "assets/js/app.js"
+        ],
+        "createdBy": [],
+        "boundBy": [
+          "assets/js/app.js"
+        ],
+        "mutatedBy": [
+          "assets/js/app.js"
+        ],
+        "referencedBy": [
+          "assets/js/app.js",
+          "assets/js/spnDestructiveSnapshot.js"
+        ]
+      },
+      {
+        "id": "brandNameText",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnBrandEditor.js"
+        ],
+        "createdBy": [
+          "assets/js/spnBrandEditor.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnBrandEditor.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnBrandEditor.js"
+        ]
+      },
+      {
+        "id": "brandRowEditor",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnBrandEditor.js"
+        ],
+        "createdBy": [
+          "assets/js/spnBrandEditor.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnBrandEditor.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnBrandEditor.js"
+        ]
+      },
+      {
+        "id": "brandRowEditorStyles",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnBrandEditor.js"
+        ],
+        "createdBy": [
+          "assets/js/spnBrandEditor.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnBrandEditor.js"
+        ]
+      },
+      {
+        "id": "brandSideText",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnBrandEditor.js"
+        ],
+        "createdBy": [
+          "assets/js/spnBrandEditor.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnBrandEditor.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnBrandEditor.js"
+        ]
+      },
+      {
+        "id": "cancelNamedLayoutDeleteBtn",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnNamedLayoutDeleteGuard.js"
+        ],
+        "createdBy": [
+          "assets/js/spnNamedLayoutDeleteGuard.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnNamedLayoutDeleteGuard.js"
+        ]
+      },
+      {
+        "id": "cancelPrintBtn",
+        "declaredInIndex": true,
+        "ownershipBasis": "bind-or-mutate",
+        "owners": [
+          "assets/js/app.js"
+        ],
+        "createdBy": [],
+        "boundBy": [
+          "assets/js/app.js"
+        ],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/app.js"
+        ]
+      },
+      {
+        "id": "clearJournalBtn",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnResultEstimator.js"
+        ],
+        "createdBy": [
+          "assets/js/spnResultEstimator.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnResultEstimator.js"
+        ]
+      },
+      {
+        "id": "clearObjectBtn",
+        "declaredInIndex": true,
+        "ownershipBasis": "bind-or-mutate",
+        "owners": [
+          "assets/js/app.js"
+        ],
+        "createdBy": [],
+        "boundBy": [
+          "assets/js/app.js"
+        ],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/app.js"
+        ]
+      },
+      {
+        "id": "closeDistributionFieldModeBtn",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnDistributionFieldMode.js"
+        ],
+        "createdBy": [
+          "assets/js/spnDistributionFieldMode.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnDistributionFieldMode.js"
+        ]
+      },
+      {
+        "id": "colorMode",
+        "declaredInIndex": true,
+        "ownershipBasis": "bind-or-mutate",
+        "owners": [
+          "assets/js/spnAgentBrandModeGuard.js",
+          "assets/js/spnInkEfficiency.js"
+        ],
+        "createdBy": [],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnAgentBrandModeGuard.js",
+          "assets/js/spnInkEfficiency.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnAgentBrandModeGuard.js",
+          "assets/js/spnInkEfficiency.js"
+        ]
+      },
+      {
+        "id": "completeDistributionFieldTaskBtn",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnDistributionFieldMode.js"
+        ],
+        "createdBy": [
+          "assets/js/spnDistributionFieldMode.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnDistributionFieldMode.js"
+        ]
+      },
+      {
+        "id": "confirmNamedLayoutDeleteBtn",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnNamedLayoutDeleteGuard.js"
+        ],
+        "createdBy": [
+          "assets/js/spnNamedLayoutDeleteGuard.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnNamedLayoutDeleteGuard.js"
+        ]
+      },
+      {
+        "id": "confirmPrintBtn",
+        "declaredInIndex": true,
+        "ownershipBasis": "bind-or-mutate",
+        "owners": [
+          "assets/js/app.js"
+        ],
+        "createdBy": [],
+        "boundBy": [
+          "assets/js/app.js"
+        ],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/app.js"
+        ]
+      },
+      {
+        "id": "contactCtaEditor",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnContactEditor.js"
+        ],
+        "createdBy": [
+          "assets/js/spnContactEditor.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnContactEditor.js",
+          "assets/js/spnPhoneHelper.js"
+        ]
+      },
+      {
+        "id": "contactCtaEditorStyles",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnContactEditor.js"
+        ],
+        "createdBy": [
+          "assets/js/spnContactEditor.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnContactEditor.js"
+        ]
+      },
+      {
+        "id": "contactCtaText",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnContactEditor.js"
+        ],
+        "createdBy": [
+          "assets/js/spnContactEditor.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnContactEditor.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnContactEditor.js"
+        ]
+      },
+      {
+        "id": "copyDistributionFieldResultBtn",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnDistributionFieldMode.js"
+        ],
+        "createdBy": [
+          "assets/js/spnDistributionFieldMode.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnDistributionFieldMode.js"
+        ]
+      },
+      {
+        "id": "copyDistributionReportBtn",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnDistributionReportHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnDistributionReportHelper.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnDistributionReportHelper.js"
+        ]
+      },
+      {
+        "id": "copyDistributionTaskBtn",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnDistributionTaskHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnDistributionTaskHelper.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnDistributionTaskHelper.js"
+        ]
+      },
+      {
+        "id": "copyFieldPlanBtn",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnFieldPlan.js"
+        ],
+        "createdBy": [
+          "assets/js/spnFieldPlan.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnFieldPlan.js"
+        ]
+      },
+      {
+        "id": "copyJournalBtn",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnResultEstimator.js"
+        ],
+        "createdBy": [
+          "assets/js/spnResultEstimator.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnResultEstimator.js"
+        ]
+      },
+      {
+        "id": "copyLeadNoteBtn",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnLeadQualification.js"
+        ],
+        "createdBy": [
+          "assets/js/spnLeadQualification.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnLeadQualification.js"
+        ]
+      },
+      {
+        "id": "copyManagerPeriodSummaryBtn",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnManagerPeriodSummary.js"
+        ],
+        "createdBy": [
+          "assets/js/spnManagerPeriodSummary.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnManagerPeriodSummary.js"
+        ]
+      },
+      {
+        "id": "copyManagerReviewBtn",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnManagerReview.js"
+        ],
+        "createdBy": [
+          "assets/js/spnManagerReview.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnManagerReview.js"
+        ]
+      },
+      {
+        "id": "copyResponseScriptBtn",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnFieldPlan.js"
+        ],
+        "createdBy": [
+          "assets/js/spnFieldPlan.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnFieldPlan.js"
+        ]
+      },
+      {
+        "id": "copyResultSummaryBtn",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnResultEstimator.js"
+        ],
+        "createdBy": [
+          "assets/js/spnResultEstimator.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnResultEstimator.js"
+        ]
+      },
+      {
+        "id": "customBlockText",
+        "declaredInIndex": true,
+        "ownershipBasis": "reference-only",
+        "owners": [
+          "assets/js/qualityExtraActions.js",
+          "assets/js/spnWizard.js"
+        ],
+        "createdBy": [],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/qualityExtraActions.js",
+          "assets/js/spnWizard.js"
+        ]
+      },
+      {
+        "id": "customBlockTitle",
+        "declaredInIndex": true,
+        "ownershipBasis": "static-index",
+        "owners": [],
+        "createdBy": [],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": []
+      },
+      {
+        "id": "deleteNamedLayoutBtn",
+        "declaredInIndex": true,
+        "ownershipBasis": "bind-or-mutate",
+        "owners": [
+          "assets/js/app.js",
+          "assets/js/spnNamedLayoutDeleteGuard.js"
+        ],
+        "createdBy": [],
+        "boundBy": [
+          "assets/js/app.js",
+          "assets/js/spnNamedLayoutDeleteGuard.js"
+        ],
+        "mutatedBy": [
+          "assets/js/spnNamedLayoutDeleteGuard.js"
+        ],
+        "referencedBy": [
+          "assets/js/app.js",
+          "assets/js/spnNamedLayoutDeleteGuard.js"
+        ]
+      },
+      {
+        "id": "densePrintTearOffHint",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnDensePrintPolicy.js"
+        ],
+        "createdBy": [
+          "assets/js/spnDensePrintPolicy.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnDensePrintPolicy.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnDensePrintPolicy.js"
+        ]
+      },
+      {
+        "id": "description",
+        "declaredInIndex": true,
+        "ownershipBasis": "reference-only",
+        "owners": [
+          "assets/js/app.js",
+          "assets/js/qualityExtraActions.js",
+          "assets/js/spnHeadlineHelper.js"
+        ],
+        "createdBy": [],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/app.js",
+          "assets/js/qualityExtraActions.js",
+          "assets/js/spnHeadlineHelper.js"
+        ]
+      },
+      {
+        "id": "destructiveSnapshotHint",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnDestructiveSnapshot.js"
+        ],
+        "createdBy": [
+          "assets/js/spnDestructiveSnapshot.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnDestructiveSnapshot.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnDestructiveSnapshot.js"
+        ]
+      },
+      {
+        "id": "distributionDeadline",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnDistributionTaskHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnDistributionTaskHelper.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnDistributionTaskHelper.js"
+        ]
+      },
+      {
+        "id": "distributionFieldActualSheets",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnDistributionFieldMode.js"
+        ],
+        "createdBy": [
+          "assets/js/spnDistributionFieldMode.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnDistributionFieldMode.js"
+        ]
+      },
+      {
+        "id": "distributionFieldIssues",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnDistributionFieldMode.js"
+        ],
+        "createdBy": [
+          "assets/js/spnDistributionFieldMode.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnDistributionFieldMode.js"
+        ]
+      },
+      {
+        "id": "distributionFieldLauncherSummary",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnDistributionFieldMode.js"
+        ],
+        "createdBy": [
+          "assets/js/spnDistributionFieldMode.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnDistributionFieldMode.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnDistributionFieldMode.js"
+        ]
+      },
+      {
+        "id": "distributionFieldPhotoReport",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnDistributionFieldMode.js"
+        ],
+        "createdBy": [
+          "assets/js/spnDistributionFieldMode.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnDistributionFieldMode.js"
+        ]
+      },
+      {
+        "id": "distributionFieldPointChecklist",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnDistributionFieldMode.js"
+        ],
+        "createdBy": [
+          "assets/js/spnDistributionFieldMode.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnDistributionFieldMode.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnDistributionFieldMode.js"
+        ]
+      },
+      {
+        "id": "distributionFieldPoints",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnDistributionFieldMode.js"
+        ],
+        "createdBy": [
+          "assets/js/spnDistributionFieldMode.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnDistributionFieldMode.js"
+        ]
+      },
+      {
+        "id": "distributionFieldResult",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnDistributionFieldMode.js"
+        ],
+        "createdBy": [
+          "assets/js/spnDistributionFieldMode.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnDistributionFieldMode.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnDistributionFieldMode.js"
+        ]
+      },
+      {
+        "id": "distributionFieldStatus",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnDistributionFieldMode.js"
+        ],
+        "createdBy": [
+          "assets/js/spnDistributionFieldMode.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnDistributionFieldMode.js"
+        ]
+      },
+      {
+        "id": "distributionFieldTitle",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnDistributionFieldMode.js"
+        ],
+        "createdBy": [
+          "assets/js/spnDistributionFieldMode.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnDistributionFieldMode.js"
+        ]
+      },
+      {
+        "id": "distributionPlace",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnDistributionTaskHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnDistributionTaskHelper.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnDistributionFieldMode.js",
+          "assets/js/spnDistributionTaskHelper.js"
+        ]
+      },
+      {
+        "id": "distributionReportCalls",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnDistributionReportHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnDistributionReportHelper.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnDistributionReportHelper.js"
+        ]
+      },
+      {
+        "id": "distributionReportDate",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnDistributionReportHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnDistributionReportHelper.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnDistributionFieldMode.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnDistributionFieldMode.js",
+          "assets/js/spnDistributionReportHelper.js"
+        ]
+      },
+      {
+        "id": "distributionReportHistory",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnDistributionReportHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnDistributionReportHelper.js"
+        ],
+        "boundBy": [
+          "assets/js/spnReportHistoryEnhancements.js"
+        ],
+        "mutatedBy": [
+          "assets/js/spnDistributionReportHelper.js",
+          "assets/js/spnReportHistoryEnhancements.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnDistributionReportHelper.js",
+          "assets/js/spnManagerPeriodSummary.js",
+          "assets/js/spnReportHistoryEnhancements.js",
+          "assets/js/spnReportSummary.js"
+        ]
+      },
+      {
+        "id": "distributionReportHistoryFilter",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnDistributionReportHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnDistributionReportHelper.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnDistributionReportHelper.js",
+          "assets/js/spnManagerPeriodSummary.js",
+          "assets/js/spnReportHistoryEnhancements.js"
+        ]
+      },
+      {
+        "id": "distributionReportHistorySearch",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnDistributionReportHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnDistributionReportHelper.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnDistributionReportHelper.js",
+          "assets/js/spnReportHistoryEnhancements.js"
+        ]
+      },
+      {
+        "id": "distributionReportInsight",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnDistributionReportHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnDistributionReportHelper.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnDistributionReportHelper.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnDistributionReportHelper.js"
+        ]
+      },
+      {
+        "id": "distributionReportLeads",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnDistributionReportHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnDistributionReportHelper.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnDistributionReportHelper.js"
+        ]
+      },
+      {
+        "id": "distributionReportMetrics",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnDistributionReportHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnDistributionReportHelper.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnDistributionReportHelper.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnDistributionReportHelper.js"
+        ]
+      },
+      {
+        "id": "distributionReportNext",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnDistributionReportHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnDistributionReportHelper.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnDistributionReportHelper.js"
+        ]
+      },
+      {
+        "id": "distributionReportNotes",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnDistributionReportHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnDistributionReportHelper.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnDistributionFieldMode.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnDistributionFieldMode.js",
+          "assets/js/spnDistributionReportHelper.js"
+        ]
+      },
+      {
+        "id": "distributionReportPlace",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnDistributionReportHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnDistributionReportHelper.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnDistributionFieldMode.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnDistributionFieldMode.js",
+          "assets/js/spnDistributionReportHelper.js"
+        ]
+      },
+      {
+        "id": "distributionReportPreview",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnDistributionReportHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnDistributionReportHelper.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnDistributionReportHelper.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnDistributionReportHelper.js"
+        ]
+      },
+      {
+        "id": "distributionReportSheets",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnDistributionReportHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnDistributionReportHelper.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnDistributionFieldMode.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnDistributionFieldMode.js",
+          "assets/js/spnDistributionReportHelper.js"
+        ]
+      },
+      {
+        "id": "distributionResponsible",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnDistributionTaskHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnDistributionTaskHelper.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnDistributionTaskHelper.js"
+        ]
+      },
+      {
+        "id": "distributionSheets",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnDistributionTaskHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnDistributionTaskHelper.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnDistributionFieldMode.js",
+          "assets/js/spnDistributionTaskHelper.js"
+        ]
+      },
+      {
+        "id": "distributionTaskPreview",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnDistributionTaskHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnDistributionTaskHelper.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnDistributionTaskHelper.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnDistributionTaskHelper.js"
+        ]
+      },
+      {
+        "id": "downloadBtn",
+        "declaredInIndex": true,
+        "ownershipBasis": "bind-or-mutate",
+        "owners": [
+          "assets/js/app.js"
+        ],
+        "createdBy": [],
+        "boundBy": [
+          "assets/js/app.js"
+        ],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/app.js"
+        ]
+      },
+      {
+        "id": "exportDistributionReportHistoryBtn",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnDistributionReportHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnDistributionReportHelper.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnDistributionReportHelper.js"
+        ]
+      },
+      {
+        "id": "exportWorkspaceBackupBtn",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnWorkspaceBackup.js"
+        ],
+        "createdBy": [
+          "assets/js/spnWorkspaceBackup.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnWorkspaceBackup.js"
+        ]
+      },
+      {
+        "id": "fillDistributionFieldFromTaskBtn",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnDistributionFieldMode.js"
+        ],
+        "createdBy": [
+          "assets/js/spnDistributionFieldMode.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnDistributionFieldMode.js"
+        ]
+      },
+      {
+        "id": "fillReportFromTaskBtn",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnDistributionReportHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnDistributionReportHelper.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnDistributionReportHelper.js"
+        ]
+      },
+      {
+        "id": "fitPreviewBtn",
+        "declaredInIndex": true,
+        "ownershipBasis": "bind-or-mutate",
+        "owners": [
+          "assets/js/app.js",
+          "assets/js/spnFitPreview.js"
+        ],
+        "createdBy": [],
+        "boundBy": [
+          "assets/js/app.js",
+          "assets/js/spnFitPreview.js"
+        ],
+        "mutatedBy": [
+          "assets/js/spnFitPreview.js"
+        ],
+        "referencedBy": [
+          "assets/js/app.js",
+          "assets/js/spnFitPreview.js"
+        ]
+      },
+      {
+        "id": "flyerPadding",
+        "declaredInIndex": true,
+        "ownershipBasis": "static-index",
+        "owners": [],
+        "createdBy": [],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": []
+      },
+      {
+        "id": "goalGrid",
+        "declaredInIndex": true,
+        "ownershipBasis": "bind-or-mutate",
+        "owners": [
+          "assets/js/app.js"
+        ],
+        "createdBy": [],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/app.js"
+        ],
+        "referencedBy": [
+          "assets/js/app.js",
+          "assets/js/spnHeadlineHelper.js",
+          "assets/js/spnWizardStepStatus.js"
+        ]
+      },
+      {
+        "id": "headline",
+        "declaredInIndex": true,
+        "ownershipBasis": "bind-or-mutate",
+        "owners": [
+          "assets/js/spnHeadlineHelper.js"
+        ],
+        "createdBy": [],
+        "boundBy": [
+          "assets/js/spnHeadlineHelper.js"
+        ],
+        "mutatedBy": [
+          "assets/js/spnHeadlineHelper.js"
+        ],
+        "referencedBy": [
+          "assets/js/layoutExtrasSync.js",
+          "assets/js/qualityExtraActions.js",
+          "assets/js/spnHeadlineHelper.js"
+        ]
+      },
+      {
+        "id": "headlineScale",
+        "declaredInIndex": true,
+        "ownershipBasis": "static-index",
+        "owners": [],
+        "createdBy": [],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": []
+      },
+      {
+        "id": "importWorkspaceBackupBtn",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnWorkspaceBackup.js"
+        ],
+        "createdBy": [
+          "assets/js/spnWorkspaceBackup.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnWorkspaceBackup.js"
+        ]
+      },
+      {
+        "id": "layoutConflictDialog",
+        "declaredInIndex": true,
+        "ownershipBasis": "bind-or-mutate",
+        "owners": [
+          "assets/js/app.js"
+        ],
+        "createdBy": [],
+        "boundBy": [
+          "assets/js/app.js"
+        ],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/app.js"
+        ]
+      },
+      {
+        "id": "layoutConflictName",
+        "declaredInIndex": true,
+        "ownershipBasis": "bind-or-mutate",
+        "owners": [
+          "assets/js/app.js"
+        ],
+        "createdBy": [],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/app.js"
+        ],
+        "referencedBy": [
+          "assets/js/app.js"
+        ]
+      },
+      {
+        "id": "layoutConflictTitle",
+        "declaredInIndex": true,
+        "ownershipBasis": "static-index",
+        "owners": [],
+        "createdBy": [],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": []
+      },
+      {
+        "id": "layoutDensity",
+        "declaredInIndex": true,
+        "ownershipBasis": "static-index",
+        "owners": [],
+        "createdBy": [],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": []
+      },
+      {
+        "id": "layoutHints",
+        "declaredInIndex": true,
+        "ownershipBasis": "bind-or-mutate",
+        "owners": [
+          "assets/js/app.js"
+        ],
+        "createdBy": [],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/app.js"
+        ],
+        "referencedBy": [
+          "assets/js/app.js"
+        ]
+      },
+      {
+        "id": "layoutModeGrid",
+        "declaredInIndex": true,
+        "ownershipBasis": "bind-or-mutate",
+        "owners": [
+          "assets/js/app.js",
+          "assets/js/spnAgentBrandModeGuard.js",
+          "assets/js/spnInkEfficiency.js",
+          "assets/js/spnLayoutModeAccessibility.js"
+        ],
+        "createdBy": [],
+        "boundBy": [
+          "assets/js/spnAgentBrandModeGuard.js",
+          "assets/js/spnInkEfficiency.js",
+          "assets/js/spnLayoutModeAccessibility.js"
+        ],
+        "mutatedBy": [
+          "assets/js/app.js"
+        ],
+        "referencedBy": [
+          "assets/js/app.js",
+          "assets/js/spnAgentBrandModeGuard.js",
+          "assets/js/spnInkEfficiency.js",
+          "assets/js/spnLayoutModeAccessibility.js",
+          "assets/js/spnPhotoLayoutStyle.js"
+        ]
+      },
+      {
+        "id": "layoutName",
+        "declaredInIndex": true,
+        "ownershipBasis": "reference-only",
+        "owners": [
+          "assets/js/app.js"
+        ],
+        "createdBy": [],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/app.js"
+        ]
+      },
+      {
+        "id": "leadQuickNote",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnLeadQualification.js"
+        ],
+        "createdBy": [
+          "assets/js/spnLeadQualification.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnLeadQualification.js"
+        ]
+      },
+      {
+        "id": "loadLocalBtn",
+        "declaredInIndex": true,
+        "ownershipBasis": "bind-or-mutate",
+        "owners": [
+          "assets/js/app.js"
+        ],
+        "createdBy": [],
+        "boundBy": [
+          "assets/js/app.js"
+        ],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/app.js"
+        ]
+      },
+      {
+        "id": "loadNamedLayoutBtn",
+        "declaredInIndex": true,
+        "ownershipBasis": "bind-or-mutate",
+        "owners": [
+          "assets/js/app.js"
+        ],
+        "createdBy": [],
+        "boundBy": [
+          "assets/js/app.js"
+        ],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/app.js"
+        ]
+      },
+      {
+        "id": "loadProfileBtn",
+        "declaredInIndex": true,
+        "ownershipBasis": "bind-or-mutate",
+        "owners": [
+          "assets/js/app.js"
+        ],
+        "createdBy": [],
+        "boundBy": [
+          "assets/js/app.js"
+        ],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/app.js"
+        ]
+      },
+      {
+        "id": "makeShortBtn",
+        "declaredInIndex": true,
+        "ownershipBasis": "bind-or-mutate",
+        "owners": [
+          "assets/js/app.js"
+        ],
+        "createdBy": [],
+        "boundBy": [
+          "assets/js/app.js"
+        ],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/app.js"
+        ]
+      },
+      {
+        "id": "makeStrongerBtn",
+        "declaredInIndex": true,
+        "ownershipBasis": "bind-or-mutate",
+        "owners": [
+          "assets/js/app.js"
+        ],
+        "createdBy": [],
+        "boundBy": [
+          "assets/js/app.js"
+        ],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/app.js"
+        ]
+      },
+      {
+        "id": "managerReviewComment",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnManagerReview.js"
+        ],
+        "createdBy": [
+          "assets/js/spnManagerReview.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnManagerReview.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnDistributionReportHelper.js",
+          "assets/js/spnManagerReview.js"
+        ]
+      },
+      {
+        "id": "managerReviewHint",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnManagerReview.js"
+        ],
+        "createdBy": [
+          "assets/js/spnManagerReview.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnManagerReview.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnManagerReview.js"
+        ]
+      },
+      {
+        "id": "managerReviewOfficeSummary",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnManagerReview.js"
+        ],
+        "createdBy": [
+          "assets/js/spnManagerReview.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnManagerReview.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnManagerReview.js"
+        ]
+      },
+      {
+        "id": "managerReviewStatus",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnManagerReview.js"
+        ],
+        "createdBy": [
+          "assets/js/spnManagerReview.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnManagerReview.js"
+        ]
+      },
+      {
+        "id": "namedLayoutDeleteDescription",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnNamedLayoutDeleteGuard.js"
+        ],
+        "createdBy": [
+          "assets/js/spnNamedLayoutDeleteGuard.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnNamedLayoutDeleteGuard.js"
+        ]
+      },
+      {
+        "id": "namedLayoutDeleteDialog",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnNamedLayoutDeleteGuard.js"
+        ],
+        "createdBy": [
+          "assets/js/spnNamedLayoutDeleteGuard.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnNamedLayoutDeleteGuard.js"
+        ]
+      },
+      {
+        "id": "namedLayoutDeleteName",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnNamedLayoutDeleteGuard.js"
+        ],
+        "createdBy": [
+          "assets/js/spnNamedLayoutDeleteGuard.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnNamedLayoutDeleteGuard.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnNamedLayoutDeleteGuard.js"
+        ]
+      },
+      {
+        "id": "namedLayoutDeleteTitle",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnNamedLayoutDeleteGuard.js"
+        ],
+        "createdBy": [
+          "assets/js/spnNamedLayoutDeleteGuard.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnNamedLayoutDeleteGuard.js"
+        ]
+      },
+      {
+        "id": "openDistributionFieldModeBtn",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnDistributionFieldMode.js"
+        ],
+        "createdBy": [
+          "assets/js/spnDistributionFieldMode.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnDistributionFieldMode.js"
+        ]
+      },
+      {
+        "id": "pageGap",
+        "declaredInIndex": true,
+        "ownershipBasis": "static-index",
+        "owners": [],
+        "createdBy": [],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": []
+      },
+      {
+        "id": "pageMargin",
+        "declaredInIndex": true,
+        "ownershipBasis": "static-index",
+        "owners": [],
+        "createdBy": [],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": []
+      },
+      {
+        "id": "params",
+        "declaredInIndex": true,
+        "ownershipBasis": "bind-or-mutate",
+        "owners": [
+          "assets/js/qualityExtraActions.js"
+        ],
+        "createdBy": [],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/qualityExtraActions.js"
+        ],
+        "referencedBy": [
+          "assets/js/qualityExtraActions.js",
+          "assets/js/spnParamsHelper.js"
+        ]
+      },
+      {
+        "id": "paramsHideBtn",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnParamsHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnParamsHelper.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnParamsHelper.js"
+        ]
+      },
+      {
+        "id": "phoneFormatBtn",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnPhoneHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnPhoneHelper.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnPhoneHelper.js"
+        ]
+      },
+      {
+        "id": "phoneHelperStatus",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnPhoneHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnPhoneHelper.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnPhoneHelper.js"
+        ]
+      },
+      {
+        "id": "phoneScale",
+        "declaredInIndex": true,
+        "ownershipBasis": "static-index",
+        "owners": [],
+        "createdBy": [],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": []
+      },
+      {
+        "id": "phoneShowEverywhereBtn",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnPhoneHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnPhoneHelper.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnPhoneHelper.js"
+        ]
+      },
+      {
+        "id": "phoneTearsOnlyBtn",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnPhoneHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnPhoneHelper.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnPhoneHelper.js"
+        ]
+      },
+      {
+        "id": "photoFit",
+        "declaredInIndex": true,
+        "ownershipBasis": "static-index",
+        "owners": [],
+        "createdBy": [],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": []
+      },
+      {
+        "id": "photoModeRow",
+        "declaredInIndex": true,
+        "ownershipBasis": "bind-or-mutate",
+        "owners": [
+          "assets/js/app.js"
+        ],
+        "createdBy": [],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/app.js"
+        ],
+        "referencedBy": [
+          "assets/js/app.js",
+          "assets/js/spnPhotoLayoutStyle.js"
+        ]
+      },
+      {
+        "id": "photoOne",
+        "declaredInIndex": true,
+        "ownershipBasis": "bind-or-mutate",
+        "owners": [
+          "assets/js/app.js"
+        ],
+        "createdBy": [],
+        "boundBy": [
+          "assets/js/app.js"
+        ],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/app.js",
+          "assets/js/spnDestructiveSnapshot.js",
+          "assets/js/spnPhotoLayoutQualityActions.js",
+          "assets/js/spnWizardStepStatus.js"
+        ]
+      },
+      {
+        "id": "photoTwo",
+        "declaredInIndex": true,
+        "ownershipBasis": "bind-or-mutate",
+        "owners": [
+          "assets/js/app.js"
+        ],
+        "createdBy": [],
+        "boundBy": [
+          "assets/js/app.js"
+        ],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/app.js",
+          "assets/js/spnDestructiveSnapshot.js",
+          "assets/js/spnWizardStepStatus.js"
+        ]
+      },
+      {
+        "id": "preserveMediaLayoutBtn",
+        "declaredInIndex": true,
+        "ownershipBasis": "bind-or-mutate",
+        "owners": [
+          "assets/js/app.js"
+        ],
+        "createdBy": [],
+        "boundBy": [
+          "assets/js/app.js"
+        ],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/app.js"
+        ]
+      },
+      {
+        "id": "previewStatus",
+        "declaredInIndex": true,
+        "ownershipBasis": "bind-or-mutate",
+        "owners": [
+          "assets/js/app.js"
+        ],
+        "createdBy": [],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/app.js"
+        ],
+        "referencedBy": [
+          "assets/js/app.js",
+          "assets/js/spnInlinePreviewEditor.js",
+          "assets/js/spnPreviewQuickBar.js"
+        ]
+      },
+      {
+        "id": "price",
+        "declaredInIndex": true,
+        "ownershipBasis": "reference-only",
+        "owners": [
+          "assets/js/spnPriceHelper.js"
+        ],
+        "createdBy": [],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnPriceHelper.js"
+        ]
+      },
+      {
+        "id": "priceHideBtn",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnPriceHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnPriceHelper.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnPriceHelper.js"
+        ]
+      },
+      {
+        "id": "printBtn",
+        "declaredInIndex": true,
+        "ownershipBasis": "bind-or-mutate",
+        "owners": [
+          "assets/js/app.js",
+          "assets/js/qualityPrintGuardHint.js",
+          "assets/js/spnNewbiePrintGuard.js"
+        ],
+        "createdBy": [],
+        "boundBy": [
+          "assets/js/app.js",
+          "assets/js/qualityPrintGuardHint.js",
+          "assets/js/spnNewbiePrintGuard.js"
+        ],
+        "mutatedBy": [
+          "assets/js/qualityPrintGuardHint.js",
+          "assets/js/spnNewbiePrintGuard.js"
+        ],
+        "referencedBy": [
+          "assets/js/app.js",
+          "assets/js/qualityPrintGuardHint.js",
+          "assets/js/spnChecklist.js",
+          "assets/js/spnNewbiePrintGuard.js",
+          "assets/js/spnPreviewQuickBar.js"
+        ]
+      },
+      {
+        "id": "printCampaignStatus",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnPrintCampaignHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnPrintCampaignHelper.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnPrintCampaignHelper.js"
+        ]
+      },
+      {
+        "id": "printCheckMode",
+        "declaredInIndex": true,
+        "ownershipBasis": "static-index",
+        "owners": [],
+        "createdBy": [],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": []
+      },
+      {
+        "id": "printDialog",
+        "declaredInIndex": true,
+        "ownershipBasis": "reference-only",
+        "owners": [
+          "assets/js/app.js"
+        ],
+        "createdBy": [],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/app.js"
+        ]
+      },
+      {
+        "id": "printPresetRow",
+        "declaredInIndex": true,
+        "ownershipBasis": "bind-or-mutate",
+        "owners": [
+          "assets/js/app.js",
+          "assets/js/spnDensePrintPolicy.js"
+        ],
+        "createdBy": [],
+        "boundBy": [
+          "assets/js/spnDensePrintPolicy.js"
+        ],
+        "mutatedBy": [
+          "assets/js/app.js",
+          "assets/js/spnDensePrintPolicy.js"
+        ],
+        "referencedBy": [
+          "assets/js/app.js",
+          "assets/js/spnDensePrintPolicy.js",
+          "assets/js/spnDistributionReportHelper.js",
+          "assets/js/spnDistributionTaskHelper.js",
+          "assets/js/spnInkEfficiency.js",
+          "assets/js/spnNewbiePrintGuide.js",
+          "assets/js/spnPhotoLayoutStyle.js",
+          "assets/js/spnPrintCampaignHelper.js",
+          "assets/js/spnWizardFlow.js",
+          "assets/js/spnWizardStepStatus.js"
+        ]
+      },
+      {
+        "id": "printSheet",
+        "declaredInIndex": true,
+        "ownershipBasis": "bind-or-mutate",
+        "owners": [
+          "assets/js/spnInlinePreviewEditor.js"
+        ],
+        "createdBy": [],
+        "boundBy": [
+          "assets/js/spnInlinePreviewEditor.js"
+        ],
+        "mutatedBy": [
+          "assets/js/spnInlinePreviewEditor.js"
+        ],
+        "referencedBy": [
+          "assets/js/app.js",
+          "assets/js/preprintSummary.js",
+          "assets/js/spnDestructiveSnapshot.js",
+          "assets/js/spnFitPreview.js",
+          "assets/js/spnInkEfficiency.js",
+          "assets/js/spnInlinePreviewEditor.js",
+          "assets/js/spnPhotoLayoutStyle.js"
+        ]
+      },
+      {
+        "id": "printSummary",
+        "declaredInIndex": true,
+        "ownershipBasis": "static-index",
+        "owners": [],
+        "createdBy": [],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": []
+      },
+      {
+        "id": "propertyPresets",
+        "declaredInIndex": true,
+        "ownershipBasis": "bind-or-mutate",
+        "owners": [
+          "assets/js/app.js"
+        ],
+        "createdBy": [],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/app.js"
+        ],
+        "referencedBy": [
+          "assets/js/app.js"
+        ]
+      },
+      {
+        "id": "propertyType",
+        "declaredInIndex": true,
+        "ownershipBasis": "bind-or-mutate",
+        "owners": [
+          "assets/js/qualityExtraActions.js"
+        ],
+        "createdBy": [],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/qualityExtraActions.js"
+        ],
+        "referencedBy": [
+          "assets/js/qualityExtraActions.js"
+        ]
+      },
+      {
+        "id": "qrCaption",
+        "declaredInIndex": true,
+        "ownershipBasis": "reference-only",
+        "owners": [
+          "assets/js/spnQrEditor.js"
+        ],
+        "createdBy": [],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnQrEditor.js"
+        ]
+      },
+      {
+        "id": "qrCaptionHelper",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnQrEditor.js"
+        ],
+        "createdBy": [
+          "assets/js/spnQrEditor.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnQrEditor.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnQrEditor.js"
+        ]
+      },
+      {
+        "id": "qrCaptionHelperStyles",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnQrEditor.js"
+        ],
+        "createdBy": [
+          "assets/js/spnQrEditor.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnQrEditor.js"
+        ]
+      },
+      {
+        "id": "qrCleanLinkBtn",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnQrEditor.js"
+        ],
+        "createdBy": [
+          "assets/js/spnQrEditor.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnQrEditor.js"
+        ]
+      },
+      {
+        "id": "qrLink",
+        "declaredInIndex": true,
+        "ownershipBasis": "reference-only",
+        "owners": [
+          "assets/js/qualityExtraActions.js",
+          "assets/js/spnQrEditor.js"
+        ],
+        "createdBy": [],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/qualityExtraActions.js",
+          "assets/js/spnQrEditor.js"
+        ]
+      },
+      {
+        "id": "qualityBtn",
+        "declaredInIndex": true,
+        "ownershipBasis": "bind-or-mutate",
+        "owners": [
+          "assets/js/app.js"
+        ],
+        "createdBy": [],
+        "boundBy": [
+          "assets/js/app.js"
+        ],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/app.js",
+          "assets/js/spnChecklist.js",
+          "assets/js/spnDistributionReportHelper.js",
+          "assets/js/spnPreviewQuickBar.js",
+          "assets/js/spnWizard.js",
+          "assets/js/spnWizardStepStatus.js"
+        ]
+      },
+      {
+        "id": "qualityIssueFilters",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/qualityIssueFilters.js"
+        ],
+        "createdBy": [
+          "assets/js/qualityIssueFilters.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/qualityIssueFilters.js"
+        ],
+        "referencedBy": [
+          "assets/js/qualityIssueFilters.js"
+        ]
+      },
+      {
+        "id": "qualityIssueSummary",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/qualityIssueSummary.js"
+        ],
+        "createdBy": [
+          "assets/js/qualityIssueSummary.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/qualityIssueSummary.js"
+        ],
+        "referencedBy": [
+          "assets/js/qualityIssueSummary.js",
+          "assets/js/qualityPriorityHint.js"
+        ]
+      },
+      {
+        "id": "qualityList",
+        "declaredInIndex": true,
+        "ownershipBasis": "bind-or-mutate",
+        "owners": [
+          "assets/js/app.js",
+          "assets/js/qualityExtraActions.js",
+          "assets/js/spnInkEfficiency.js",
+          "assets/js/spnPhotoLayoutQualityActions.js"
+        ],
+        "createdBy": [],
+        "boundBy": [
+          "assets/js/qualityExtraActions.js",
+          "assets/js/spnInkEfficiency.js",
+          "assets/js/spnPhotoLayoutQualityActions.js"
+        ],
+        "mutatedBy": [
+          "assets/js/app.js"
+        ],
+        "referencedBy": [
+          "assets/js/app.js",
+          "assets/js/preprintSummary.js",
+          "assets/js/qualityExtraActions.js",
+          "assets/js/qualityIssueFilters.js",
+          "assets/js/qualityIssueSummary.js",
+          "assets/js/qualityLevelLabels.js",
+          "assets/js/qualityPrintGuardHint.js",
+          "assets/js/qualityPriorityHint.js",
+          "assets/js/qualityQrDeduplicate.js",
+          "assets/js/spnChecklist.js",
+          "assets/js/spnDistributionReportHelper.js",
+          "assets/js/spnInkEfficiency.js",
+          "assets/js/spnPhotoLayoutQualityActions.js"
+        ]
+      },
+      {
+        "id": "qualityPriorityHint",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/qualityPriorityHint.js"
+        ],
+        "createdBy": [
+          "assets/js/qualityPriorityHint.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/qualityPriorityHint.js"
+        ],
+        "referencedBy": [
+          "assets/js/qualityPriorityHint.js"
+        ]
+      },
+      {
+        "id": "qualityScore",
+        "declaredInIndex": true,
+        "ownershipBasis": "bind-or-mutate",
+        "owners": [
+          "assets/js/app.js"
+        ],
+        "createdBy": [],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/app.js"
+        ],
+        "referencedBy": [
+          "assets/js/app.js",
+          "assets/js/spnClarityPanel.js",
+          "assets/js/spnDistributionReportHelper.js",
+          "assets/js/spnNewbieFinalCheck.js",
+          "assets/js/spnNewbiePrintGuard.js",
+          "assets/js/spnNewbiePrintGuardNotice.js",
+          "assets/js/spnWizardFlow.js",
+          "assets/js/spnWizardStepStatus.js"
+        ]
+      },
+      {
+        "id": "radius",
+        "declaredInIndex": true,
+        "ownershipBasis": "static-index",
+        "owners": [],
+        "createdBy": [],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": []
+      },
+      {
+        "id": "refreshHeadlineIdeasBtn",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnHeadlineHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnHeadlineHelper.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnHeadlineHelper.js"
+        ]
+      },
+      {
+        "id": "refreshTextIdeasBtn",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnHeadlineHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnHeadlineHelper.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnHeadlineHelper.js"
+        ]
+      },
+      {
+        "id": "resetBlockOrderBtn",
+        "declaredInIndex": true,
+        "ownershipBasis": "bind-or-mutate",
+        "owners": [
+          "assets/js/app.js"
+        ],
+        "createdBy": [],
+        "boundBy": [
+          "assets/js/app.js"
+        ],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/app.js"
+        ]
+      },
+      {
+        "id": "resetResultSummaryBtn",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnResultEstimator.js"
+        ],
+        "createdBy": [
+          "assets/js/spnResultEstimator.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnResultEstimator.js"
+        ]
+      },
+      {
+        "id": "restoreDeletedLayoutBtn",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnNamedLayoutDeleteGuard.js"
+        ],
+        "createdBy": [
+          "assets/js/spnNamedLayoutDeleteGuard.js"
+        ],
+        "boundBy": [
+          "assets/js/spnNamedLayoutDeleteGuard.js"
+        ],
+        "mutatedBy": [
+          "assets/js/spnNamedLayoutDeleteGuard.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnNamedLayoutDeleteGuard.js"
+        ]
+      },
+      {
+        "id": "restoreDeletedLayoutHint",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnNamedLayoutDeleteGuard.js"
+        ],
+        "createdBy": [
+          "assets/js/spnNamedLayoutDeleteGuard.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnNamedLayoutDeleteGuard.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnNamedLayoutDeleteGuard.js"
+        ]
+      },
+      {
+        "id": "resultHot",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnResultEstimator.js"
+        ],
+        "createdBy": [
+          "assets/js/spnResultEstimator.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnResultEstimator.js"
+        ]
+      },
+      {
+        "id": "resultLeads",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnResultEstimator.js"
+        ],
+        "createdBy": [
+          "assets/js/spnResultEstimator.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnResultEstimator.js"
+        ]
+      },
+      {
+        "id": "resultSheets",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnResultEstimator.js"
+        ],
+        "createdBy": [
+          "assets/js/spnResultEstimator.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnResultEstimator.js"
+        ]
+      },
+      {
+        "id": "resultWarm",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnResultEstimator.js"
+        ],
+        "createdBy": [
+          "assets/js/spnResultEstimator.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnResultEstimator.js"
+        ]
+      },
+      {
+        "id": "safePrintMargins",
+        "declaredInIndex": true,
+        "ownershipBasis": "reference-only",
+        "owners": [
+          "assets/js/spnNewbieFinalCheck.js",
+          "assets/js/spnNewbiePrintGuard.js",
+          "assets/js/spnNewbiePrintGuardNotice.js",
+          "assets/js/spnNewbiePrintGuide.js",
+          "assets/js/spnWizardFlow.js",
+          "assets/js/spnWizardStepStatus.js"
+        ],
+        "createdBy": [],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnNewbieFinalCheck.js",
+          "assets/js/spnNewbiePrintGuard.js",
+          "assets/js/spnNewbiePrintGuardNotice.js",
+          "assets/js/spnNewbiePrintGuide.js",
+          "assets/js/spnWizardFlow.js",
+          "assets/js/spnWizardStepStatus.js"
+        ]
+      },
+      {
+        "id": "saveDistributionReportHistoryBtn",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnDistributionReportHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnDistributionReportHelper.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnDistributionReportHelper.js",
+          "assets/js/spnWizardStepStatus.js"
+        ]
+      },
+      {
+        "id": "savedLayouts",
+        "declaredInIndex": true,
+        "ownershipBasis": "bind-or-mutate",
+        "owners": [
+          "assets/js/app.js",
+          "assets/js/spnDestructiveSnapshot.js",
+          "assets/js/spnNamedLayoutDeleteGuard.js"
+        ],
+        "createdBy": [],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/app.js",
+          "assets/js/spnDestructiveSnapshot.js",
+          "assets/js/spnNamedLayoutDeleteGuard.js"
+        ],
+        "referencedBy": [
+          "assets/js/app.js",
+          "assets/js/spnDestructiveSnapshot.js",
+          "assets/js/spnNamedLayoutDeleteGuard.js",
+          "assets/js/spnWizardStepStatus.js"
+        ]
+      },
+      {
+        "id": "saveLocalBtn",
+        "declaredInIndex": true,
+        "ownershipBasis": "bind-or-mutate",
+        "owners": [
+          "assets/js/app.js"
+        ],
+        "createdBy": [],
+        "boundBy": [
+          "assets/js/app.js"
+        ],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/app.js",
+          "assets/js/spnWizardStepStatus.js"
+        ]
+      },
+      {
+        "id": "saveNamedLayoutBtn",
+        "declaredInIndex": true,
+        "ownershipBasis": "bind-or-mutate",
+        "owners": [
+          "assets/js/app.js"
+        ],
+        "createdBy": [],
+        "boundBy": [
+          "assets/js/app.js"
+        ],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/app.js",
+          "assets/js/spnWizardStepStatus.js"
+        ]
+      },
+      {
+        "id": "saveProfileBtn",
+        "declaredInIndex": true,
+        "ownershipBasis": "bind-or-mutate",
+        "owners": [
+          "assets/js/app.js"
+        ],
+        "createdBy": [],
+        "boundBy": [
+          "assets/js/app.js"
+        ],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/app.js"
+        ]
+      },
+      {
+        "id": "saveResultJournalBtn",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnResultEstimator.js"
+        ],
+        "createdBy": [
+          "assets/js/spnResultEstimator.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnResultEstimator.js"
+        ]
+      },
+      {
+        "id": "saveTransferTitle",
+        "declaredInIndex": true,
+        "ownershipBasis": "static-index",
+        "owners": [],
+        "createdBy": [],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": []
+      },
+      {
+        "id": "scenarioFilterRow",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/app.js"
+        ],
+        "createdBy": [
+          "assets/js/app.js"
+        ],
+        "boundBy": [
+          "assets/js/app.js"
+        ],
+        "mutatedBy": [
+          "assets/js/app.js"
+        ],
+        "referencedBy": [
+          "assets/js/app.js"
+        ]
+      },
+      {
+        "id": "sendDistributionFieldToReportBtn",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnDistributionFieldMode.js"
+        ],
+        "createdBy": [
+          "assets/js/spnDistributionFieldMode.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnDistributionFieldMode.js"
+        ]
+      },
+      {
+        "id": "sheetScale",
+        "declaredInIndex": true,
+        "ownershipBasis": "bind-or-mutate",
+        "owners": [
+          "assets/js/app.js",
+          "assets/js/spnFitPreview.js"
+        ],
+        "createdBy": [],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/app.js",
+          "assets/js/spnFitPreview.js"
+        ],
+        "referencedBy": [
+          "assets/js/app.js",
+          "assets/js/spnFitPreview.js"
+        ]
+      },
+      {
+        "id": "showBenefits",
+        "declaredInIndex": true,
+        "ownershipBasis": "static-index",
+        "owners": [],
+        "createdBy": [],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": []
+      },
+      {
+        "id": "showBrand",
+        "declaredInIndex": true,
+        "ownershipBasis": "bind-or-mutate",
+        "owners": [
+          "assets/js/spnAgentBrandModeGuard.js",
+          "assets/js/spnBrandEditor.js"
+        ],
+        "createdBy": [],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnAgentBrandModeGuard.js",
+          "assets/js/spnBrandEditor.js"
+        ],
+        "referencedBy": [
+          "assets/js/layoutExtrasSync.js",
+          "assets/js/spnAgentBrandModeGuard.js",
+          "assets/js/spnBrandEditor.js"
+        ]
+      },
+      {
+        "id": "showContact",
+        "declaredInIndex": true,
+        "ownershipBasis": "reference-only",
+        "owners": [
+          "assets/js/spnInkEfficiency.js"
+        ],
+        "createdBy": [],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnInkEfficiency.js"
+        ]
+      },
+      {
+        "id": "showCustomBlock",
+        "declaredInIndex": true,
+        "ownershipBasis": "bind-or-mutate",
+        "owners": [
+          "assets/js/spnWizard.js"
+        ],
+        "createdBy": [],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnWizard.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnWizard.js"
+        ]
+      },
+      {
+        "id": "showCutLines",
+        "declaredInIndex": true,
+        "ownershipBasis": "reference-only",
+        "owners": [
+          "assets/js/spnNewbieFinalCheck.js",
+          "assets/js/spnNewbiePrintGuard.js",
+          "assets/js/spnNewbiePrintGuardNotice.js",
+          "assets/js/spnNewbiePrintGuide.js",
+          "assets/js/spnWizardFlow.js",
+          "assets/js/spnWizardStepStatus.js"
+        ],
+        "createdBy": [],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnNewbieFinalCheck.js",
+          "assets/js/spnNewbiePrintGuard.js",
+          "assets/js/spnNewbiePrintGuardNotice.js",
+          "assets/js/spnNewbiePrintGuide.js",
+          "assets/js/spnWizardFlow.js",
+          "assets/js/spnWizardStepStatus.js"
+        ]
+      },
+      {
+        "id": "showDescription",
+        "declaredInIndex": true,
+        "ownershipBasis": "static-index",
+        "owners": [],
+        "createdBy": [],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": []
+      },
+      {
+        "id": "showFavoriteTemplatesOnly",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/app.js"
+        ],
+        "createdBy": [
+          "assets/js/app.js"
+        ],
+        "boundBy": [
+          "assets/js/app.js"
+        ],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/app.js"
+        ]
+      },
+      {
+        "id": "showHeadline",
+        "declaredInIndex": true,
+        "ownershipBasis": "static-index",
+        "owners": [],
+        "createdBy": [],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": []
+      },
+      {
+        "id": "showMeta",
+        "declaredInIndex": true,
+        "ownershipBasis": "bind-or-mutate",
+        "owners": [
+          "assets/js/spnAreaHelper.js",
+          "assets/js/spnParamsHelper.js"
+        ],
+        "createdBy": [],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnAreaHelper.js",
+          "assets/js/spnParamsHelper.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnAreaHelper.js",
+          "assets/js/spnParamsHelper.js"
+        ]
+      },
+      {
+        "id": "showPhoto",
+        "declaredInIndex": true,
+        "ownershipBasis": "reference-only",
+        "owners": [
+          "assets/js/spnWizardStepStatus.js"
+        ],
+        "createdBy": [],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnWizardStepStatus.js"
+        ]
+      },
+      {
+        "id": "showPrice",
+        "declaredInIndex": true,
+        "ownershipBasis": "bind-or-mutate",
+        "owners": [
+          "assets/js/spnPriceHelper.js"
+        ],
+        "createdBy": [],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnPriceHelper.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnPriceHelper.js"
+        ]
+      },
+      {
+        "id": "showQr",
+        "declaredInIndex": true,
+        "ownershipBasis": "bind-or-mutate",
+        "owners": [
+          "assets/js/spnQrEditor.js"
+        ],
+        "createdBy": [],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnQrEditor.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnQrEditor.js",
+          "assets/js/spnWizardStepStatus.js"
+        ]
+      },
+      {
+        "id": "splitMode",
+        "declaredInIndex": true,
+        "ownershipBasis": "static-index",
+        "owners": [],
+        "createdBy": [],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": []
+      },
+      {
+        "id": "spn-template-keyboard-style",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnTemplateKeyboard.js"
+        ],
+        "createdBy": [
+          "assets/js/spnTemplateKeyboard.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnTemplateKeyboard.js"
+        ]
+      },
+      {
+        "id": "spnAdvancedWorkbench",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnAdvancedWorkbench.js"
+        ],
+        "createdBy": [
+          "assets/js/spnAdvancedWorkbench.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnAdvancedWorkbench.js"
+        ]
+      },
+      {
+        "id": "spnAdvancedWorkbenchStyles",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnAdvancedWorkbench.js"
+        ],
+        "createdBy": [
+          "assets/js/spnAdvancedWorkbench.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnAdvancedWorkbench.js"
+        ]
+      },
+      {
+        "id": "spnAgentBrandModeGuardStyles",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnAgentBrandModeGuard.js"
+        ],
+        "createdBy": [
+          "assets/js/spnAgentBrandModeGuard.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnAgentBrandModeGuard.js"
+        ]
+      },
+      {
+        "id": "spnAgentHelper",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnAgentHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnAgentHelper.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnAgentHelper.js"
+        ]
+      },
+      {
+        "id": "spnAgentHelperStyles",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnAgentHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnAgentHelper.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnAgentHelper.js"
+        ]
+      },
+      {
+        "id": "spnAgentIdeas",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnAgentHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnAgentHelper.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnAgentHelper.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnAgentHelper.js"
+        ]
+      },
+      {
+        "id": "spnAreaHelper",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnAreaHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnAreaHelper.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnAreaHelper.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnAreaHelper.js"
+        ]
+      },
+      {
+        "id": "spnAreaHelperStyles",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnAreaHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnAreaHelper.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnAreaHelper.js"
+        ]
+      },
+      {
+        "id": "spnBlockControls",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnBlockControls.js"
+        ],
+        "createdBy": [
+          "assets/js/spnBlockControls.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnBlockControls.js"
+        ]
+      },
+      {
+        "id": "spnBlockControlsStyles",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnBlockControls.js"
+        ],
+        "createdBy": [
+          "assets/js/spnBlockControls.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnBlockControls.js"
+        ]
+      },
+      {
+        "id": "spnBlockRecommendedBtn",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnBlockControls.js"
+        ],
+        "createdBy": [
+          "assets/js/spnBlockControls.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnBlockControls.js"
+        ]
+      },
+      {
+        "id": "spnChecklist",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnChecklist.js"
+        ],
+        "createdBy": [
+          "assets/js/spnChecklist.js"
+        ],
+        "boundBy": [
+          "assets/js/spnChecklist.js"
+        ],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnChecklist.js"
+        ]
+      },
+      {
+        "id": "spnChecklistList",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnChecklist.js"
+        ],
+        "createdBy": [
+          "assets/js/spnChecklist.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnChecklist.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnChecklist.js"
+        ]
+      },
+      {
+        "id": "spnChecklistScore",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnChecklist.js"
+        ],
+        "createdBy": [
+          "assets/js/spnChecklist.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnChecklist.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnChecklist.js"
+        ]
+      },
+      {
+        "id": "spnClarityPanel",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnClarityPanel.js"
+        ],
+        "createdBy": [
+          "assets/js/spnClarityPanel.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnClarityPanel.js"
+        ]
+      },
+      {
+        "id": "spnClarityPanelStyles",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnClarityPanel.js"
+        ],
+        "createdBy": [
+          "assets/js/spnClarityPanel.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnClarityPanel.js"
+        ]
+      },
+      {
+        "id": "spnClarityProgress",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnClarityPanel.js"
+        ],
+        "createdBy": [
+          "assets/js/spnClarityPanel.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnClarityPanel.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnClarityPanel.js"
+        ]
+      },
+      {
+        "id": "spnDensePrintStyles",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnDensePrintPolicy.js"
+        ],
+        "createdBy": [
+          "assets/js/spnDensePrintPolicy.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnDensePrintPolicy.js"
+        ]
+      },
+      {
+        "id": "spnDistributionFieldDialog",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnDistributionFieldMode.js"
+        ],
+        "createdBy": [
+          "assets/js/spnDistributionFieldMode.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnDistributionFieldMode.js"
+        ]
+      },
+      {
+        "id": "spnDistributionFieldModeStyles",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnDistributionFieldMode.js"
+        ],
+        "createdBy": [
+          "assets/js/spnDistributionFieldMode.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnDistributionFieldMode.js"
+        ]
+      },
+      {
+        "id": "spnDistributionReport",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnDistributionReportHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnDistributionReportHelper.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnDistributionReportHelper.js",
+          "assets/js/spnManagerPeriodSummary.js",
+          "assets/js/spnWizardFlow.js"
+        ]
+      },
+      {
+        "id": "spnDistributionReportStyles",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnDistributionReportHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnDistributionReportHelper.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnDistributionReportHelper.js"
+        ]
+      },
+      {
+        "id": "spnDistributionTask",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnDistributionTaskHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnDistributionTaskHelper.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnDistributionFieldMode.js",
+          "assets/js/spnDistributionReportHelper.js",
+          "assets/js/spnDistributionTaskHelper.js",
+          "assets/js/spnWizardFlow.js"
+        ]
+      },
+      {
+        "id": "spnDistributionTaskStyles",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnDistributionTaskHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnDistributionTaskHelper.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnDistributionTaskHelper.js"
+        ]
+      },
+      {
+        "id": "spnFieldPlan",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnFieldPlan.js"
+        ],
+        "createdBy": [
+          "assets/js/spnFieldPlan.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnFieldPlan.js"
+        ]
+      },
+      {
+        "id": "spnGoNextActionBtn",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnClarityPanel.js"
+        ],
+        "createdBy": [
+          "assets/js/spnClarityPanel.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnClarityPanel.js"
+        ]
+      },
+      {
+        "id": "spnHeadlineHelper",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnHeadlineHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnHeadlineHelper.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnHeadlineHelper.js"
+        ]
+      },
+      {
+        "id": "spnHeadlineIdeas",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnHeadlineHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnHeadlineHelper.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnHeadlineHelper.js"
+        ]
+      },
+      {
+        "id": "spnInkEfficiencyStyles",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnInkEfficiency.js"
+        ],
+        "createdBy": [
+          "assets/js/spnInkEfficiency.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnInkEfficiency.js"
+        ]
+      },
+      {
+        "id": "spnInlinePreviewEditorStyles",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnInlinePreviewEditor.js"
+        ],
+        "createdBy": [
+          "assets/js/spnInlinePreviewEditor.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnInlinePreviewEditor.js"
+        ]
+      },
+      {
+        "id": "spnInlinePreviewHint",
+        "declaredInIndex": false,
+        "ownershipBasis": "reference-only",
+        "owners": [
+          "assets/js/spnInlinePreviewEditor.js"
+        ],
+        "createdBy": [],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnInlinePreviewEditor.js"
+        ]
+      },
+      {
+        "id": "spnJournalList",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnResultEstimator.js"
+        ],
+        "createdBy": [
+          "assets/js/spnResultEstimator.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnResultEstimator.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnResultEstimator.js"
+        ]
+      },
+      {
+        "id": "spnJumpToPrintBtn",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnPreviewQuickBar.js"
+        ],
+        "createdBy": [
+          "assets/js/spnPreviewQuickBar.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnPreviewQuickBar.js"
+        ]
+      },
+      {
+        "id": "spnLayoutModeAccessibilityStyles",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnLayoutModeAccessibility.js"
+        ],
+        "createdBy": [
+          "assets/js/spnLayoutModeAccessibility.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnLayoutModeAccessibility.js"
+        ]
+      },
+      {
+        "id": "spnLeadQualification",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnLeadQualification.js"
+        ],
+        "createdBy": [
+          "assets/js/spnLeadQualification.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnLeadQualification.js"
+        ]
+      },
+      {
+        "id": "spnManagerPeriodSummary",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnManagerPeriodSummary.js"
+        ],
+        "createdBy": [
+          "assets/js/spnManagerPeriodSummary.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnManagerPeriodSummary.js"
+        ]
+      },
+      {
+        "id": "spnManagerPeriodSummaryContent",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnManagerPeriodSummary.js"
+        ],
+        "createdBy": [
+          "assets/js/spnManagerPeriodSummary.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnManagerPeriodSummary.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnManagerPeriodSummary.js"
+        ]
+      },
+      {
+        "id": "spnManagerPeriodSummaryStyles",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnManagerPeriodSummary.js"
+        ],
+        "createdBy": [
+          "assets/js/spnManagerPeriodSummary.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnManagerPeriodSummary.js"
+        ]
+      },
+      {
+        "id": "spnManagerReview",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnManagerReview.js"
+        ],
+        "createdBy": [
+          "assets/js/spnManagerReview.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnManagerReview.js"
+        ]
+      },
+      {
+        "id": "spnManagerReviewStyles",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnManagerReview.js"
+        ],
+        "createdBy": [
+          "assets/js/spnManagerReview.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnManagerReview.js"
+        ]
+      },
+      {
+        "id": "spnManagerTemplateNotice",
+        "declaredInIndex": false,
+        "ownershipBasis": "bind-or-mutate",
+        "owners": [
+          "assets/js/spnManagerTemplateNotice.js"
+        ],
+        "createdBy": [],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnManagerTemplateNotice.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnManagerTemplateNotice.js"
+        ]
+      },
+      {
+        "id": "spnManagerTemplateNoticeStyles",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnManagerTemplateNotice.js"
+        ],
+        "createdBy": [
+          "assets/js/spnManagerTemplateNotice.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnManagerTemplateNotice.js"
+        ]
+      },
+      {
+        "id": "spnNewbieEmptyState",
+        "declaredInIndex": false,
+        "ownershipBasis": "reference-only",
+        "owners": [
+          "assets/js/spnNewbieEmptyState.js"
+        ],
+        "createdBy": [],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnNewbieEmptyState.js"
+        ]
+      },
+      {
+        "id": "spnNewbieEmptyStateStyle",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnNewbieEmptyState.js"
+        ],
+        "createdBy": [
+          "assets/js/spnNewbieEmptyState.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnNewbieEmptyState.js"
+        ]
+      },
+      {
+        "id": "spnNewbieFinalCheck",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnNewbieFinalCheck.js"
+        ],
+        "createdBy": [
+          "assets/js/spnNewbieFinalCheck.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnNewbieFinalCheck.js"
+        ]
+      },
+      {
+        "id": "spnNewbieFinalCheckStyle",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnNewbieFinalCheck.js"
+        ],
+        "createdBy": [
+          "assets/js/spnNewbieFinalCheck.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnNewbieFinalCheck.js"
+        ]
+      },
+      {
+        "id": "spnNewbieFinalItems",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnNewbieFinalCheck.js"
+        ],
+        "createdBy": [
+          "assets/js/spnNewbieFinalCheck.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnNewbieFinalCheck.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnNewbieFinalCheck.js"
+        ]
+      },
+      {
+        "id": "spnNewbieFinalNext",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnNewbieFinalCheck.js"
+        ],
+        "createdBy": [
+          "assets/js/spnNewbieFinalCheck.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnNewbieFinalCheck.js"
+        ]
+      },
+      {
+        "id": "spnNewbieFinalProgress",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnNewbieFinalCheck.js"
+        ],
+        "createdBy": [
+          "assets/js/spnNewbieFinalCheck.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnNewbieFinalCheck.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnNewbieFinalCheck.js"
+        ]
+      },
+      {
+        "id": "spnNewbieModeNotice",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnNewbieModeNotice.js"
+        ],
+        "createdBy": [
+          "assets/js/spnNewbieModeNotice.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnNewbieModeNotice.js"
+        ]
+      },
+      {
+        "id": "spnNewbieModeNoticeStyle",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnNewbieModeNotice.js"
+        ],
+        "createdBy": [
+          "assets/js/spnNewbieModeNotice.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnNewbieModeNotice.js"
+        ]
+      },
+      {
+        "id": "spnNewbieModeStyle",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnNewbieMode.js"
+        ],
+        "createdBy": [
+          "assets/js/spnNewbieMode.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnNewbieMode.js"
+        ]
+      },
+      {
+        "id": "spnNewbiePrintGuardFix",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnNewbiePrintGuardNotice.js"
+        ],
+        "createdBy": [
+          "assets/js/spnNewbiePrintGuardNotice.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnNewbiePrintGuardNotice.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnNewbiePrintGuardNotice.js"
+        ]
+      },
+      {
+        "id": "spnNewbiePrintGuardNotice",
+        "declaredInIndex": false,
+        "ownershipBasis": "bind-or-mutate",
+        "owners": [
+          "assets/js/spnNewbiePrintGuardNotice.js"
+        ],
+        "createdBy": [],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnNewbiePrintGuardNotice.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnNewbiePrintGuardNotice.js"
+        ]
+      },
+      {
+        "id": "spnNewbiePrintGuardNoticeStyle",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnNewbiePrintGuardNotice.js"
+        ],
+        "createdBy": [
+          "assets/js/spnNewbiePrintGuardNotice.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnNewbiePrintGuardNotice.js"
+        ]
+      },
+      {
+        "id": "spnNewbiePrintGuardText",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnNewbiePrintGuardNotice.js"
+        ],
+        "createdBy": [
+          "assets/js/spnNewbiePrintGuardNotice.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnNewbiePrintGuardNotice.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnNewbiePrintGuardNotice.js"
+        ]
+      },
+      {
+        "id": "spnNewbiePrintGuardTitle",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnNewbiePrintGuardNotice.js"
+        ],
+        "createdBy": [
+          "assets/js/spnNewbiePrintGuardNotice.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnNewbiePrintGuardNotice.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnNewbiePrintGuardNotice.js"
+        ]
+      },
+      {
+        "id": "spnNewbiePrintGuide",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnNewbiePrintGuide.js"
+        ],
+        "createdBy": [
+          "assets/js/spnNewbiePrintGuide.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnNewbiePrintGuide.js"
+        ]
+      },
+      {
+        "id": "spnNewbiePrintGuideProgress",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnNewbiePrintGuide.js"
+        ],
+        "createdBy": [
+          "assets/js/spnNewbiePrintGuide.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnNewbiePrintGuide.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnNewbiePrintGuide.js"
+        ]
+      },
+      {
+        "id": "spnNewbiePrintGuideStyle",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnNewbiePrintGuide.js"
+        ],
+        "createdBy": [
+          "assets/js/spnNewbiePrintGuide.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnNewbiePrintGuide.js"
+        ]
+      },
+      {
+        "id": "spnNewbieWizardPatchStyle",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnNewbieWizardPatch.js"
+        ],
+        "createdBy": [
+          "assets/js/spnNewbieWizardPatch.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnNewbieWizardPatch.js"
+        ]
+      },
+      {
+        "id": "spnNextActionText",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnClarityPanel.js"
+        ],
+        "createdBy": [
+          "assets/js/spnClarityPanel.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnClarityPanel.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnClarityPanel.js"
+        ]
+      },
+      {
+        "id": "spnOfficeTemplateFilters",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnOfficeTemplateFilters.js"
+        ],
+        "createdBy": [
+          "assets/js/spnOfficeTemplateFilters.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnNewbieModeNotice.js",
+          "assets/js/spnOfficeFilterSync.js",
+          "assets/js/spnOfficeTemplateFilters.js",
+          "assets/js/spnWizardFlow.js"
+        ]
+      },
+      {
+        "id": "spnOfficeTemplateFiltersStyles",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnOfficeTemplateFilters.js"
+        ],
+        "createdBy": [
+          "assets/js/spnOfficeTemplateFilters.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnOfficeTemplateFilters.js"
+        ]
+      },
+      {
+        "id": "spnParamsHelper",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnParamsHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnParamsHelper.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnParamsHelper.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnParamsHelper.js"
+        ]
+      },
+      {
+        "id": "spnParamsHelperStyles",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnParamsHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnParamsHelper.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnParamsHelper.js"
+        ]
+      },
+      {
+        "id": "spnParamsIdeas",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnParamsHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnParamsHelper.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnParamsHelper.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnParamsHelper.js"
+        ]
+      },
+      {
+        "id": "spnPhoneHelper",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnPhoneHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnPhoneHelper.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnPhoneHelper.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnPhoneHelper.js"
+        ]
+      },
+      {
+        "id": "spnPhoneHelperStyles",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnPhoneHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnPhoneHelper.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnPhoneHelper.js"
+        ]
+      },
+      {
+        "id": "spnPhotoLayoutQualityActionStyles",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnPhotoLayoutQualityActions.js"
+        ],
+        "createdBy": [
+          "assets/js/spnPhotoLayoutQualityActions.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnPhotoLayoutQualityActions.js"
+        ]
+      },
+      {
+        "id": "spnPhotoLayoutStyle",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnPhotoLayoutStyle.js"
+        ],
+        "createdBy": [
+          "assets/js/spnPhotoLayoutStyle.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnPhotoLayoutStyle.js"
+        ]
+      },
+      {
+        "id": "spnPlanList",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnFieldPlan.js"
+        ],
+        "createdBy": [
+          "assets/js/spnFieldPlan.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnFieldPlan.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnFieldPlan.js"
+        ]
+      },
+      {
+        "id": "spnPostPrintWorkspace",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnPostPrintWorkspace.js"
+        ],
+        "createdBy": [
+          "assets/js/spnPostPrintWorkspace.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnPostPrintWorkspace.js"
+        ]
+      },
+      {
+        "id": "spnPostPrintWorkspaceStatus",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnPostPrintWorkspace.js"
+        ],
+        "createdBy": [
+          "assets/js/spnPostPrintWorkspace.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnPostPrintWorkspace.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnPostPrintWorkspace.js"
+        ]
+      },
+      {
+        "id": "spnPostPrintWorkspaceStyles",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnPostPrintWorkspace.js"
+        ],
+        "createdBy": [
+          "assets/js/spnPostPrintWorkspace.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnPostPrintWorkspace.js"
+        ]
+      },
+      {
+        "id": "spnPreviewQuickBarStyles",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnPreviewQuickBar.js"
+        ],
+        "createdBy": [
+          "assets/js/spnPreviewQuickBar.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnPreviewQuickBar.js"
+        ]
+      },
+      {
+        "id": "spnPriceHelper",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnPriceHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnPriceHelper.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnPriceHelper.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnPriceHelper.js"
+        ]
+      },
+      {
+        "id": "spnPriceHelperStyles",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnPriceHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnPriceHelper.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnPriceHelper.js"
+        ]
+      },
+      {
+        "id": "spnPriceIdeas",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnPriceHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnPriceHelper.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnPriceHelper.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnPriceHelper.js"
+        ]
+      },
+      {
+        "id": "spnPrintCampaignHelper",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnPrintCampaignHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnPrintCampaignHelper.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnPrintCampaignHelper.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnDistributionReportHelper.js",
+          "assets/js/spnDistributionTaskHelper.js",
+          "assets/js/spnPrintCampaignHelper.js"
+        ]
+      },
+      {
+        "id": "spnPrintCampaignHelperStyles",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnPrintCampaignHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnPrintCampaignHelper.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnPrintCampaignHelper.js"
+        ]
+      },
+      {
+        "id": "spnPrintReady",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnChecklist.js"
+        ],
+        "createdBy": [
+          "assets/js/spnChecklist.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnChecklist.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnChecklist.js"
+        ]
+      },
+      {
+        "id": "spnQrStandaloneStyles",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnQrStandaloneStyle.js"
+        ],
+        "createdBy": [
+          "assets/js/spnQrStandaloneStyle.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnQrStandaloneStyle.js"
+        ]
+      },
+      {
+        "id": "spnQualBox",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnLeadQualification.js"
+        ],
+        "createdBy": [
+          "assets/js/spnLeadQualification.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnLeadQualification.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnLeadQualification.js"
+        ]
+      },
+      {
+        "id": "spnRecommendation",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnWizard.js"
+        ],
+        "createdBy": [
+          "assets/js/spnWizard.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnWizard.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnWizard.js"
+        ]
+      },
+      {
+        "id": "spnReportGroupedAnalytics",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnReportHistoryEnhancements.js"
+        ],
+        "createdBy": [
+          "assets/js/spnReportHistoryEnhancements.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnReportHistoryEnhancements.js"
+        ]
+      },
+      {
+        "id": "spnReportHistoryEnhancementStyles",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnReportHistoryEnhancements.js"
+        ],
+        "createdBy": [
+          "assets/js/spnReportHistoryEnhancements.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnReportHistoryEnhancements.js"
+        ]
+      },
+      {
+        "id": "spnReportSummary",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnReportSummary.js"
+        ],
+        "createdBy": [
+          "assets/js/spnReportSummary.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnReportSummary.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnReportSummary.js"
+        ]
+      },
+      {
+        "id": "spnReportSummaryStyles",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnReportSummary.js"
+        ],
+        "createdBy": [
+          "assets/js/spnReportSummary.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnReportSummary.js"
+        ]
+      },
+      {
+        "id": "spnResponseList",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnFieldPlan.js"
+        ],
+        "createdBy": [
+          "assets/js/spnFieldPlan.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnFieldPlan.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnFieldPlan.js"
+        ]
+      },
+      {
+        "id": "spnResultBox",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnResultEstimator.js"
+        ],
+        "createdBy": [
+          "assets/js/spnResultEstimator.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnResultEstimator.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnResultEstimator.js"
+        ]
+      },
+      {
+        "id": "spnResultEstimator",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnResultEstimator.js"
+        ],
+        "createdBy": [
+          "assets/js/spnResultEstimator.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnResultEstimator.js"
+        ]
+      },
+      {
+        "id": "spnResultScore",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnResultEstimator.js"
+        ],
+        "createdBy": [
+          "assets/js/spnResultEstimator.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnResultEstimator.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnResultEstimator.js"
+        ]
+      },
+      {
+        "id": "spnRoute",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnWizard.js"
+        ],
+        "createdBy": [
+          "assets/js/spnWizard.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnWizard.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnWizard.js"
+        ]
+      },
+      {
+        "id": "spnRouteNext",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnWizard.js"
+        ],
+        "createdBy": [
+          "assets/js/spnWizard.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnWizard.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnWizard.js"
+        ]
+      },
+      {
+        "id": "spnRouteProgress",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnWizard.js"
+        ],
+        "createdBy": [
+          "assets/js/spnWizard.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnWizard.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnWizard.js"
+        ]
+      },
+      {
+        "id": "spnRouteSteps",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnWizard.js"
+        ],
+        "createdBy": [
+          "assets/js/spnWizard.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnWizard.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnWizard.js"
+        ]
+      },
+      {
+        "id": "spnTemplateCardBadgesStyle",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnTemplateCardBadges.js"
+        ],
+        "createdBy": [
+          "assets/js/spnTemplateCardBadges.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnTemplateCardBadges.js"
+        ]
+      },
+      {
+        "id": "spnTextHelper",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnHeadlineHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnHeadlineHelper.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnHeadlineHelper.js"
+        ]
+      },
+      {
+        "id": "spnTextPresets",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnHeadlineHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnHeadlineHelper.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnHeadlineHelper.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnHeadlineHelper.js"
+        ]
+      },
+      {
+        "id": "spnTextStepChecklist",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnTextStepChecklist.js"
+        ],
+        "createdBy": [
+          "assets/js/spnTextStepChecklist.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnTextStepChecklist.js"
+        ]
+      },
+      {
+        "id": "spnTextStepChecklistStyle",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnTextStepChecklist.js"
+        ],
+        "createdBy": [
+          "assets/js/spnTextStepChecklist.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnTextStepChecklist.js"
+        ]
+      },
+      {
+        "id": "spnTextStepItems",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnTextStepChecklist.js"
+        ],
+        "createdBy": [
+          "assets/js/spnTextStepChecklist.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnTextStepChecklist.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnTextStepChecklist.js"
+        ]
+      },
+      {
+        "id": "spnTextStepNextBtn",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnTextStepChecklist.js"
+        ],
+        "createdBy": [
+          "assets/js/spnTextStepChecklist.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnTextStepChecklist.js"
+        ]
+      },
+      {
+        "id": "spnTextStepProgress",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnTextStepChecklist.js"
+        ],
+        "createdBy": [
+          "assets/js/spnTextStepChecklist.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnTextStepChecklist.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnTextStepChecklist.js"
+        ]
+      },
+      {
+        "id": "spnUiMode",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnUiMode.js"
+        ],
+        "createdBy": [
+          "assets/js/spnUiMode.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnClarityPanel.js",
+          "assets/js/spnUiMode.js"
+        ]
+      },
+      {
+        "id": "spnUiModeHint",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnUiMode.js"
+        ],
+        "createdBy": [
+          "assets/js/spnUiMode.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnUiMode.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnUiMode.js"
+        ]
+      },
+      {
+        "id": "spnWizard",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnWizard.js"
+        ],
+        "createdBy": [
+          "assets/js/spnWizard.js"
+        ],
+        "boundBy": [
+          "assets/js/spnWizard.js"
+        ],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnFieldPlan.js",
+          "assets/js/spnHeadlineHelper.js",
+          "assets/js/spnWizard.js",
+          "assets/js/spnWizardFlow.js"
+        ]
+      },
+      {
+        "id": "spnWizardFlow",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnWizardFlow.js"
+        ],
+        "createdBy": [
+          "assets/js/spnWizardFlow.js"
+        ],
+        "boundBy": [
+          "assets/js/spnNewbieWizardPatch.js",
+          "assets/js/spnWizardStepStatus.js"
+        ],
+        "mutatedBy": [
+          "assets/js/spnNewbieWizardPatch.js",
+          "assets/js/spnWizardStepStatus.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnNewbieWizardPatch.js",
+          "assets/js/spnWizardFlow.js",
+          "assets/js/spnWizardStepStatus.js"
+        ]
+      },
+      {
+        "id": "spnWizardFlowHint",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnWizardFlow.js"
+        ],
+        "createdBy": [
+          "assets/js/spnWizardFlow.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnWizardFlow.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnWizardFlow.js"
+        ]
+      },
+      {
+        "id": "spnWizardFlowStyles",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnWizardFlow.js"
+        ],
+        "createdBy": [
+          "assets/js/spnWizardFlow.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnWizardFlow.js"
+        ]
+      },
+      {
+        "id": "spnWizardNext",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnWizardFlow.js"
+        ],
+        "createdBy": [
+          "assets/js/spnWizardFlow.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnWizardFlow.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnNewbieWizardPatch.js",
+          "assets/js/spnWizardFlow.js"
+        ]
+      },
+      {
+        "id": "spnWizardNextNotice",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnWizardFlow.js"
+        ],
+        "createdBy": [
+          "assets/js/spnWizardFlow.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnWizardFlow.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnWizardFlow.js"
+        ]
+      },
+      {
+        "id": "spnWizardPrev",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnWizardFlow.js"
+        ],
+        "createdBy": [
+          "assets/js/spnWizardFlow.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnWizardFlow.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnNewbieWizardPatch.js",
+          "assets/js/spnWizardFlow.js"
+        ]
+      },
+      {
+        "id": "spnWizardProgressSummary",
+        "declaredInIndex": false,
+        "ownershipBasis": "bind-or-mutate",
+        "owners": [
+          "assets/js/spnWizardStepStatus.js"
+        ],
+        "createdBy": [],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnWizardStepStatus.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnWizardStepStatus.js"
+        ]
+      },
+      {
+        "id": "spnWizardStepHelp",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnWizardFlow.js"
+        ],
+        "createdBy": [
+          "assets/js/spnWizardFlow.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnWizardFlow.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnWizardFlow.js"
+        ]
+      },
+      {
+        "id": "spnWizardStepStatusStyles",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnWizardStepStatus.js"
+        ],
+        "createdBy": [
+          "assets/js/spnWizardStepStatus.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnWizardStepStatus.js"
+        ]
+      },
+      {
+        "id": "spnWizardToggle",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnWizardFlow.js"
+        ],
+        "createdBy": [
+          "assets/js/spnWizardFlow.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnWizardFlow.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnNewbieWizardPatch.js",
+          "assets/js/spnWizardFlow.js"
+        ]
+      },
+      {
+        "id": "spnWorkspaceBackup",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnWorkspaceBackup.js"
+        ],
+        "createdBy": [
+          "assets/js/spnWorkspaceBackup.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnWorkspaceBackup.js"
+        ]
+      },
+      {
+        "id": "spnWorkspaceBackupStyles",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnWorkspaceBackup.js"
+        ],
+        "createdBy": [
+          "assets/js/spnWorkspaceBackup.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnWorkspaceBackup.js"
+        ]
+      },
+      {
+        "id": "startDistributionFieldTaskBtn",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnDistributionFieldMode.js"
+        ],
+        "createdBy": [
+          "assets/js/spnDistributionFieldMode.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnDistributionFieldMode.js"
+        ]
+      },
+      {
+        "id": "statusLine",
+        "declaredInIndex": true,
+        "ownershipBasis": "bind-or-mutate",
+        "owners": [
+          "assets/js/app.js",
+          "assets/js/qualityExtraActions.js",
+          "assets/js/qualityPrintGuardHint.js",
+          "assets/js/spnAgentBrandModeGuard.js",
+          "assets/js/spnAgentHelper.js",
+          "assets/js/spnAreaHelper.js",
+          "assets/js/spnBlockControls.js",
+          "assets/js/spnBrandEditor.js",
+          "assets/js/spnChecklist.js",
+          "assets/js/spnContactEditor.js",
+          "assets/js/spnDestructiveSnapshot.js",
+          "assets/js/spnDistributionFieldMode.js",
+          "assets/js/spnDistributionReportHelper.js",
+          "assets/js/spnDistributionTaskHelper.js",
+          "assets/js/spnFieldPlan.js",
+          "assets/js/spnFitPreview.js",
+          "assets/js/spnHeadlineHelper.js",
+          "assets/js/spnInkEfficiency.js",
+          "assets/js/spnInlinePreviewEditor.js",
+          "assets/js/spnLeadQualification.js",
+          "assets/js/spnManagerPeriodSummary.js",
+          "assets/js/spnManagerReview.js",
+          "assets/js/spnNamedLayoutDeleteGuard.js",
+          "assets/js/spnNewbieMode.js",
+          "assets/js/spnNewbiePrintGuard.js",
+          "assets/js/spnOfficeTemplateFilters.js",
+          "assets/js/spnParamsHelper.js",
+          "assets/js/spnPhoneHelper.js",
+          "assets/js/spnPhotoLayoutQualityActions.js",
+          "assets/js/spnPreviewQuickBar.js",
+          "assets/js/spnPriceHelper.js",
+          "assets/js/spnPrintCampaignHelper.js",
+          "assets/js/spnQrEditor.js",
+          "assets/js/spnReportHistoryEnhancements.js",
+          "assets/js/spnResultEstimator.js",
+          "assets/js/spnTearOffEditor.js",
+          "assets/js/spnTemplateMenuCompact.js",
+          "assets/js/spnUiMode.js",
+          "assets/js/spnWizard.js",
+          "assets/js/spnWizardFlow.js",
+          "assets/js/spnWorkspaceBackup.js"
+        ],
+        "createdBy": [],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/app.js",
+          "assets/js/qualityExtraActions.js",
+          "assets/js/qualityPrintGuardHint.js",
+          "assets/js/spnAgentBrandModeGuard.js",
+          "assets/js/spnAgentHelper.js",
+          "assets/js/spnAreaHelper.js",
+          "assets/js/spnBlockControls.js",
+          "assets/js/spnBrandEditor.js",
+          "assets/js/spnChecklist.js",
+          "assets/js/spnContactEditor.js",
+          "assets/js/spnDestructiveSnapshot.js",
+          "assets/js/spnDistributionFieldMode.js",
+          "assets/js/spnDistributionReportHelper.js",
+          "assets/js/spnDistributionTaskHelper.js",
+          "assets/js/spnFieldPlan.js",
+          "assets/js/spnFitPreview.js",
+          "assets/js/spnHeadlineHelper.js",
+          "assets/js/spnInkEfficiency.js",
+          "assets/js/spnInlinePreviewEditor.js",
+          "assets/js/spnLeadQualification.js",
+          "assets/js/spnManagerPeriodSummary.js",
+          "assets/js/spnManagerReview.js",
+          "assets/js/spnNamedLayoutDeleteGuard.js",
+          "assets/js/spnNewbieMode.js",
+          "assets/js/spnNewbiePrintGuard.js",
+          "assets/js/spnOfficeTemplateFilters.js",
+          "assets/js/spnParamsHelper.js",
+          "assets/js/spnPhoneHelper.js",
+          "assets/js/spnPhotoLayoutQualityActions.js",
+          "assets/js/spnPreviewQuickBar.js",
+          "assets/js/spnPriceHelper.js",
+          "assets/js/spnPrintCampaignHelper.js",
+          "assets/js/spnQrEditor.js",
+          "assets/js/spnReportHistoryEnhancements.js",
+          "assets/js/spnResultEstimator.js",
+          "assets/js/spnTearOffEditor.js",
+          "assets/js/spnTemplateMenuCompact.js",
+          "assets/js/spnUiMode.js",
+          "assets/js/spnWizard.js",
+          "assets/js/spnWizardFlow.js",
+          "assets/js/spnWorkspaceBackup.js"
+        ],
+        "referencedBy": [
+          "assets/js/app.js",
+          "assets/js/qualityExtraActions.js",
+          "assets/js/qualityPrintGuardHint.js",
+          "assets/js/spnAgentBrandModeGuard.js",
+          "assets/js/spnAgentHelper.js",
+          "assets/js/spnAreaHelper.js",
+          "assets/js/spnBlockControls.js",
+          "assets/js/spnBrandEditor.js",
+          "assets/js/spnChecklist.js",
+          "assets/js/spnContactEditor.js",
+          "assets/js/spnDestructiveSnapshot.js",
+          "assets/js/spnDistributionFieldMode.js",
+          "assets/js/spnDistributionReportHelper.js",
+          "assets/js/spnDistributionTaskHelper.js",
+          "assets/js/spnFieldPlan.js",
+          "assets/js/spnFitPreview.js",
+          "assets/js/spnHeadlineHelper.js",
+          "assets/js/spnInkEfficiency.js",
+          "assets/js/spnInlinePreviewEditor.js",
+          "assets/js/spnLeadQualification.js",
+          "assets/js/spnManagerPeriodSummary.js",
+          "assets/js/spnManagerReview.js",
+          "assets/js/spnNamedLayoutDeleteGuard.js",
+          "assets/js/spnNewbieMode.js",
+          "assets/js/spnNewbiePrintGuard.js",
+          "assets/js/spnOfficeTemplateFilters.js",
+          "assets/js/spnParamsHelper.js",
+          "assets/js/spnPhoneHelper.js",
+          "assets/js/spnPhotoLayoutQualityActions.js",
+          "assets/js/spnPreviewQuickBar.js",
+          "assets/js/spnPriceHelper.js",
+          "assets/js/spnPrintCampaignHelper.js",
+          "assets/js/spnQrEditor.js",
+          "assets/js/spnReportHistoryEnhancements.js",
+          "assets/js/spnResultEstimator.js",
+          "assets/js/spnTearOffEditor.js",
+          "assets/js/spnTemplateMenuCompact.js",
+          "assets/js/spnUiMode.js",
+          "assets/js/spnWizard.js",
+          "assets/js/spnWizardFlow.js",
+          "assets/js/spnWorkspaceBackup.js"
+        ]
+      },
+      {
+        "id": "tearOffEditor",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnTearOffEditor.js"
+        ],
+        "createdBy": [
+          "assets/js/spnTearOffEditor.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnTearOffEditor.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnTearOffEditor.js"
+        ]
+      },
+      {
+        "id": "tearOffEditorStyles",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnTearOffEditor.js"
+        ],
+        "createdBy": [
+          "assets/js/spnTearOffEditor.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnTearOffEditor.js"
+        ]
+      },
+      {
+        "id": "tearOffLabel",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnTearOffEditor.js"
+        ],
+        "createdBy": [
+          "assets/js/spnTearOffEditor.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnTearOffEditor.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnTearOffEditor.js"
+        ]
+      },
+      {
+        "id": "tearOffs",
+        "declaredInIndex": true,
+        "ownershipBasis": "bind-or-mutate",
+        "owners": [
+          "assets/js/spnDensePrintPolicy.js",
+          "assets/js/spnPhotoLayoutQualityActions.js",
+          "assets/js/spnTearOffEditor.js"
+        ],
+        "createdBy": [],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnDensePrintPolicy.js",
+          "assets/js/spnPhotoLayoutQualityActions.js",
+          "assets/js/spnTearOffEditor.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnDensePrintPolicy.js",
+          "assets/js/spnPhotoLayoutQualityActions.js",
+          "assets/js/spnTearOffEditor.js"
+        ]
+      },
+      {
+        "id": "templateCountLine",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/app.js"
+        ],
+        "createdBy": [
+          "assets/js/app.js"
+        ],
+        "boundBy": [
+          "assets/js/app.js"
+        ],
+        "mutatedBy": [
+          "assets/js/app.js"
+        ],
+        "referencedBy": [
+          "assets/js/app.js"
+        ]
+      },
+      {
+        "id": "templateDensityFilter",
+        "declaredInIndex": true,
+        "ownershipBasis": "bind-or-mutate",
+        "owners": [
+          "assets/js/app.js",
+          "assets/js/spnNewbieMode.js",
+          "assets/js/spnWizard.js"
+        ],
+        "createdBy": [],
+        "boundBy": [
+          "assets/js/app.js"
+        ],
+        "mutatedBy": [
+          "assets/js/app.js",
+          "assets/js/spnNewbieMode.js",
+          "assets/js/spnWizard.js"
+        ],
+        "referencedBy": [
+          "assets/js/app.js",
+          "assets/js/spnNewbieMode.js",
+          "assets/js/spnWizard.js"
+        ]
+      },
+      {
+        "id": "templateList",
+        "declaredInIndex": true,
+        "ownershipBasis": "bind-or-mutate",
+        "owners": [
+          "assets/js/app.js",
+          "assets/js/spnTemplateKeyboard.js"
+        ],
+        "createdBy": [],
+        "boundBy": [
+          "assets/js/spnTemplateKeyboard.js"
+        ],
+        "mutatedBy": [
+          "assets/js/app.js",
+          "assets/js/spnTemplateKeyboard.js"
+        ],
+        "referencedBy": [
+          "assets/js/app.js",
+          "assets/js/spnFieldPlan.js",
+          "assets/js/spnManagerReview.js",
+          "assets/js/spnManagerTemplateNotice.js",
+          "assets/js/spnNewbieEmptyState.js",
+          "assets/js/spnTemplateCardBadges.js",
+          "assets/js/spnTemplateKeyboard.js",
+          "assets/js/spnWizard.js",
+          "assets/js/spnWizardFlow.js",
+          "assets/js/spnWizardStepStatus.js"
+        ]
+      },
+      {
+        "id": "templateMenuCompactStyles",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnTemplateMenuCompact.js"
+        ],
+        "createdBy": [
+          "assets/js/spnTemplateMenuCompact.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnTemplateMenuCompact.js"
+        ]
+      },
+      {
+        "id": "templateMenuCompactToggle",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnTemplateMenuCompact.js"
+        ],
+        "createdBy": [
+          "assets/js/spnTemplateMenuCompact.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnTemplateMenuCompact.js"
+        ]
+      },
+      {
+        "id": "templateSearch",
+        "declaredInIndex": true,
+        "ownershipBasis": "bind-or-mutate",
+        "owners": [
+          "assets/js/app.js",
+          "assets/js/spnNewbieEmptyState.js",
+          "assets/js/spnNewbieMode.js",
+          "assets/js/spnOfficeFilterSync.js",
+          "assets/js/spnOfficeTemplateFilters.js",
+          "assets/js/spnWizard.js"
+        ],
+        "createdBy": [],
+        "boundBy": [
+          "assets/js/app.js",
+          "assets/js/spnOfficeFilterSync.js"
+        ],
+        "mutatedBy": [
+          "assets/js/app.js",
+          "assets/js/spnNewbieEmptyState.js",
+          "assets/js/spnNewbieMode.js",
+          "assets/js/spnOfficeTemplateFilters.js",
+          "assets/js/spnWizard.js"
+        ],
+        "referencedBy": [
+          "assets/js/app.js",
+          "assets/js/spnNewbieEmptyState.js",
+          "assets/js/spnNewbieMode.js",
+          "assets/js/spnOfficeFilterSync.js",
+          "assets/js/spnOfficeTemplateFilters.js",
+          "assets/js/spnTemplateMenuCompact.js",
+          "assets/js/spnWizard.js"
+        ]
+      },
+      {
+        "id": "toggleHelperPanelsBtn",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnClarityPanel.js"
+        ],
+        "createdBy": [
+          "assets/js/spnClarityPanel.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnClarityPanel.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnClarityPanel.js"
+        ]
+      },
+      {
+        "id": "undoDestructiveActionBtn",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnDestructiveSnapshot.js"
+        ],
+        "createdBy": [
+          "assets/js/spnDestructiveSnapshot.js"
+        ],
+        "boundBy": [
+          "assets/js/spnDestructiveSnapshot.js"
+        ],
+        "mutatedBy": [
+          "assets/js/spnDestructiveSnapshot.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnDestructiveSnapshot.js"
+        ]
+      },
+      {
+        "id": "uploadBtn",
+        "declaredInIndex": true,
+        "ownershipBasis": "bind-or-mutate",
+        "owners": [
+          "assets/js/app.js"
+        ],
+        "createdBy": [],
+        "boundBy": [
+          "assets/js/app.js"
+        ],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/app.js"
+        ]
+      },
+      {
+        "id": "uploadFile",
+        "declaredInIndex": true,
+        "ownershipBasis": "bind-or-mutate",
+        "owners": [
+          "assets/js/app.js",
+          "assets/js/spnDestructiveSnapshot.js"
+        ],
+        "createdBy": [],
+        "boundBy": [
+          "assets/js/app.js"
+        ],
+        "mutatedBy": [
+          "assets/js/spnDestructiveSnapshot.js"
+        ],
+        "referencedBy": [
+          "assets/js/app.js",
+          "assets/js/layoutExtrasSync.js",
+          "assets/js/spnDestructiveSnapshot.js"
+        ]
+      },
+      {
+        "id": "workspaceBackupFile",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnWorkspaceBackup.js"
+        ],
+        "createdBy": [
+          "assets/js/spnWorkspaceBackup.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnWorkspaceBackup.js"
+        ]
+      },
+      {
+        "id": "workspaceBackupImportMode",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnWorkspaceBackup.js"
+        ],
+        "createdBy": [
+          "assets/js/spnWorkspaceBackup.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnWorkspaceBackup.js"
+        ]
+      },
+      {
+        "id": "workspaceBackupSummary",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnWorkspaceBackup.js"
+        ],
+        "createdBy": [
+          "assets/js/spnWorkspaceBackup.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnWorkspaceBackup.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnWorkspaceBackup.js"
+        ]
+      },
+      {
+        "id": "zoom",
+        "declaredInIndex": true,
+        "ownershipBasis": "bind-or-mutate",
+        "owners": [
+          "assets/js/app.js",
+          "assets/js/spnFitPreview.js"
+        ],
+        "createdBy": [],
+        "boundBy": [
+          "assets/js/app.js",
+          "assets/js/spnFitPreview.js"
+        ],
+        "mutatedBy": [
+          "assets/js/app.js",
+          "assets/js/spnFitPreview.js"
+        ],
+        "referencedBy": [
+          "assets/js/app.js",
+          "assets/js/spnFitPreview.js"
+        ]
+      },
+      {
+        "id": "zoomValue",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnFitPreview.js"
+        ],
+        "createdBy": [
+          "assets/js/spnFitPreview.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [],
+        "referencedBy": [
+          "assets/js/spnFitPreview.js"
+        ]
+      }
+    ],
+    "storageKeys": [
+      {
+        "area": "localStorage",
+        "key": "etagi-raskleyka-advanced-workbench-open-v1",
+        "dynamic": false,
+        "operations": [
+          "getItem",
+          "setItem"
+        ],
+        "modules": [
+          "assets/js/spnAdvancedWorkbench.js"
+        ]
+      },
+      {
+        "area": "localStorage",
+        "key": "etagi-raskleyka-deleted-layout-v1",
+        "dynamic": false,
+        "operations": [
+          "getItem",
+          "removeItem",
+          "setItem"
+        ],
+        "modules": [
+          "assets/js/spnNamedLayoutDeleteGuard.js"
+        ]
+      },
+      {
+        "area": "localStorage",
+        "key": "etagi-raskleyka-destructive-snapshot-v1",
+        "dynamic": false,
+        "operations": [
+          "getItem",
+          "removeItem",
+          "setItem"
+        ],
+        "modules": [
+          "assets/js/spnDestructiveSnapshot.js"
+        ]
+      },
+      {
+        "area": "localStorage",
+        "key": "etagi-raskleyka-distribution-report-history-v1",
+        "dynamic": false,
+        "operations": [
+          "getItem",
+          "setItem"
+        ],
+        "modules": [
+          "assets/js/spnDistributionReportHelper.js",
+          "assets/js/spnManagerPeriodSummary.js",
+          "assets/js/spnReportHistoryEnhancements.js",
+          "assets/js/spnReportSummary.js",
+          "assets/js/spnWizardStepStatus.js"
+        ]
+      },
+      {
+        "area": "localStorage",
+        "key": "etagi-raskleyka-distribution-report-v1",
+        "dynamic": false,
+        "operations": [
+          "getItem",
+          "setItem"
+        ],
+        "modules": [
+          "assets/js/spnDistributionReportHelper.js"
+        ]
+      },
+      {
+        "area": "localStorage",
+        "key": "etagi-raskleyka-distribution-task-v1",
+        "dynamic": false,
+        "operations": [
+          "getItem",
+          "setItem"
+        ],
+        "modules": [
+          "assets/js/spnDistributionTaskHelper.js"
+        ]
+      },
+      {
+        "area": "localStorage",
+        "key": "etagi-raskleyka-favorite-templates-v1",
+        "dynamic": false,
+        "operations": [
+          "getItem",
+          "removeItem",
+          "setItem"
+        ],
+        "modules": [
+          "assets/js/storage.js"
+        ]
+      },
+      {
+        "area": "localStorage",
+        "key": "etagi-raskleyka-field-task-v1",
+        "dynamic": false,
+        "operations": [
+          "getItem",
+          "setItem"
+        ],
+        "modules": [
+          "assets/js/spnDistributionFieldMode.js"
+        ]
+      },
+      {
+        "area": "localStorage",
+        "key": "etagi-raskleyka-layouts-v1",
+        "dynamic": false,
+        "operations": [
+          "getItem",
+          "removeItem",
+          "setItem"
+        ],
+        "modules": [
+          "assets/js/storage.js"
+        ]
+      },
+      {
+        "area": "localStorage",
+        "key": "etagi-raskleyka-manager-review-v1",
+        "dynamic": false,
+        "operations": [
+          "getItem",
+          "setItem"
+        ],
+        "modules": [
+          "assets/js/spnManagerReview.js"
+        ]
+      },
+      {
+        "area": "localStorage",
+        "key": "etagi-raskleyka-post-print-workspace-open-v1",
+        "dynamic": false,
+        "operations": [
+          "getItem",
+          "setItem"
+        ],
+        "modules": [
+          "assets/js/spnPostPrintWorkspace.js"
+        ]
+      },
+      {
+        "area": "localStorage",
+        "key": "etagi-raskleyka-profile-v1",
+        "dynamic": false,
+        "operations": [
+          "getItem",
+          "removeItem",
+          "setItem"
+        ],
+        "modules": [
+          "assets/js/storage.js"
+        ]
+      },
+      {
+        "area": "localStorage",
+        "key": "etagi-raskleyka-saved-v1",
+        "dynamic": false,
+        "operations": [
+          "getItem",
+          "removeItem",
+          "setItem"
+        ],
+        "modules": [
+          "assets/js/spnDestructiveSnapshot.js",
+          "assets/js/storage.js"
+        ]
+      },
+      {
+        "area": "localStorage",
+        "key": "etagi-raskleyka-show-helper-panels-v1",
+        "dynamic": false,
+        "operations": [
+          "getItem",
+          "setItem"
+        ],
+        "modules": [
+          "assets/js/spnClarityPanel.js"
+        ]
+      },
+      {
+        "area": "localStorage",
+        "key": "etagi-raskleyka-state-v1",
+        "dynamic": false,
+        "operations": [
+          "getItem",
+          "removeItem",
+          "setItem"
+        ],
+        "modules": [
+          "assets/js/storage.js"
+        ]
+      },
+      {
+        "area": "localStorage",
+        "key": "etagi-raskleyka-template-menu-mode-v1",
+        "dynamic": false,
+        "operations": [
+          "getItem",
+          "setItem"
+        ],
+        "modules": [
+          "assets/js/spnTemplateMenuCompact.js"
+        ]
+      },
+      {
+        "area": "localStorage",
+        "key": "etagi-raskleyka-test-journal-v1",
+        "dynamic": false,
+        "operations": [
+          "getItem",
+          "removeItem",
+          "setItem"
+        ],
+        "modules": [
+          "assets/js/spnResultEstimator.js"
+        ]
+      },
+      {
+        "area": "localStorage",
+        "key": "etagi-raskleyka-ui-mode-v1",
+        "dynamic": false,
+        "operations": [
+          "getItem",
+          "setItem"
+        ],
+        "modules": [
+          "assets/js/spnUiMode.js"
+        ]
+      },
+      {
+        "area": "localStorage",
+        "key": "etagi-raskleyka-wizard-enabled-v1",
+        "dynamic": false,
+        "operations": [
+          "removeItem"
+        ],
+        "modules": [
+          "assets/js/spnWizardFlow.js"
+        ]
+      },
+      {
+        "area": "localStorage",
+        "key": "etagi-raskleyka-wizard-enabled-v2",
+        "dynamic": false,
+        "operations": [
+          "getItem",
+          "setItem"
+        ],
+        "modules": [
+          "assets/js/spnWizardFlow.js"
+        ]
+      },
+      {
+        "area": "localStorage",
+        "key": "etagi-raskleyka-wizard-step-v1",
+        "dynamic": false,
+        "operations": [
+          "removeItem"
+        ],
+        "modules": [
+          "assets/js/spnWizardFlow.js"
+        ]
+      },
+      {
+        "area": "localStorage",
+        "key": "etagi-raskleyka-wizard-step-v2",
+        "dynamic": false,
+        "operations": [
+          "getItem",
+          "setItem"
+        ],
+        "modules": [
+          "assets/js/spnWizardFlow.js"
+        ]
+      },
+      {
+        "area": "localStorage",
+        "key": "field.storageKey",
+        "dynamic": true,
+        "operations": [
+          "getItem",
+          "setItem"
+        ],
+        "modules": [
+          "assets/js/layoutExtras.js"
+        ]
+      },
+      {
+        "area": "localStorage",
+        "key": "key",
+        "dynamic": true,
+        "operations": [
+          "getItem",
+          "removeItem",
+          "setItem"
+        ],
+        "modules": [
+          "assets/js/spnDestructiveSnapshot.js",
+          "assets/js/spnWorkspaceBackup.js"
+        ]
+      }
+    ],
+    "observers": [
+      {
+        "module": "assets/js/preprintSummary.js",
+        "type": "MutationObserver",
+        "count": 1,
+        "observeCalls": 0,
+        "disconnectCalls": 0
+      },
+      {
+        "module": "assets/js/qualityExtraActions.js",
+        "type": "MutationObserver",
+        "count": 1,
+        "observeCalls": 0,
+        "disconnectCalls": 0
+      },
+      {
+        "module": "assets/js/qualityIssueFilters.js",
+        "type": "MutationObserver",
+        "count": 1,
+        "observeCalls": 0,
+        "disconnectCalls": 0
+      },
+      {
+        "module": "assets/js/qualityIssueSummary.js",
+        "type": "MutationObserver",
+        "count": 1,
+        "observeCalls": 0,
+        "disconnectCalls": 0
+      },
+      {
+        "module": "assets/js/qualityLevelLabels.js",
+        "type": "MutationObserver",
+        "count": 1,
+        "observeCalls": 0,
+        "disconnectCalls": 0
+      },
+      {
+        "module": "assets/js/qualityPrintGuardHint.js",
+        "type": "MutationObserver",
+        "count": 1,
+        "observeCalls": 0,
+        "disconnectCalls": 0
+      },
+      {
+        "module": "assets/js/qualityPriorityHint.js",
+        "type": "MutationObserver",
+        "count": 1,
+        "observeCalls": 0,
+        "disconnectCalls": 0
+      },
+      {
+        "module": "assets/js/qualityQrDeduplicate.js",
+        "type": "MutationObserver",
+        "count": 1,
+        "observeCalls": 0,
+        "disconnectCalls": 0
+      },
+      {
+        "module": "assets/js/spnAdvancedWorkbench.js",
+        "type": "MutationObserver",
+        "count": 1,
+        "observeCalls": 1,
+        "disconnectCalls": 3
+      },
+      {
+        "module": "assets/js/spnChecklist.js",
+        "type": "MutationObserver",
+        "count": 1,
+        "observeCalls": 1,
+        "disconnectCalls": 0
+      },
+      {
+        "module": "assets/js/spnDensePrintPolicy.js",
+        "type": "MutationObserver",
+        "count": 1,
+        "observeCalls": 1,
+        "disconnectCalls": 0
+      },
+      {
+        "module": "assets/js/spnDestructiveSnapshot.js",
+        "type": "MutationObserver",
+        "count": 1,
+        "observeCalls": 0,
+        "disconnectCalls": 0
+      },
+      {
+        "module": "assets/js/spnInkEfficiency.js",
+        "type": "MutationObserver",
+        "count": 1,
+        "observeCalls": 0,
+        "disconnectCalls": 0
+      },
+      {
+        "module": "assets/js/spnLayoutModeAccessibility.js",
+        "type": "MutationObserver",
+        "count": 1,
+        "observeCalls": 0,
+        "disconnectCalls": 0
+      },
+      {
+        "module": "assets/js/spnManagerPeriodSummary.js",
+        "type": "MutationObserver",
+        "count": 1,
+        "observeCalls": 0,
+        "disconnectCalls": 0
+      },
+      {
+        "module": "assets/js/spnManagerReview.js",
+        "type": "MutationObserver",
+        "count": 1,
+        "observeCalls": 0,
+        "disconnectCalls": 0
+      },
+      {
+        "module": "assets/js/spnManagerTemplateNotice.js",
+        "type": "MutationObserver",
+        "count": 1,
+        "observeCalls": 0,
+        "disconnectCalls": 0
+      },
+      {
+        "module": "assets/js/spnNewbieMode.js",
+        "type": "MutationObserver",
+        "count": 1,
+        "observeCalls": 0,
+        "disconnectCalls": 0
+      },
+      {
+        "module": "assets/js/spnNewbieWizardPatch.js",
+        "type": "MutationObserver",
+        "count": 1,
+        "observeCalls": 0,
+        "disconnectCalls": 0
+      },
+      {
+        "module": "assets/js/spnPhotoLayoutQualityActions.js",
+        "type": "MutationObserver",
+        "count": 1,
+        "observeCalls": 0,
+        "disconnectCalls": 0
+      },
+      {
+        "module": "assets/js/spnPhotoLayoutStyle.js",
+        "type": "MutationObserver",
+        "count": 1,
+        "observeCalls": 0,
+        "disconnectCalls": 0
+      },
+      {
+        "module": "assets/js/spnPostPrintWorkspace.js",
+        "type": "MutationObserver",
+        "count": 2,
+        "observeCalls": 2,
+        "disconnectCalls": 3
+      },
+      {
+        "module": "assets/js/spnReportHistoryEnhancements.js",
+        "type": "MutationObserver",
+        "count": 1,
+        "observeCalls": 0,
+        "disconnectCalls": 0
+      },
+      {
+        "module": "assets/js/spnReportSummary.js",
+        "type": "MutationObserver",
+        "count": 1,
+        "observeCalls": 1,
+        "disconnectCalls": 0
+      },
+      {
+        "module": "assets/js/spnTemplateCardBadges.js",
+        "type": "MutationObserver",
+        "count": 1,
+        "observeCalls": 0,
+        "disconnectCalls": 0
+      },
+      {
+        "module": "assets/js/spnTemplateKeyboard.js",
+        "type": "MutationObserver",
+        "count": 1,
+        "observeCalls": 1,
+        "disconnectCalls": 0
+      },
+      {
+        "module": "assets/js/spnWizardStepStatus.js",
+        "type": "MutationObserver",
+        "count": 2,
+        "observeCalls": 0,
+        "disconnectCalls": 0
+      }
+    ],
+    "styleIds": [
+      {
+        "id": "brandRowEditorStyles",
+        "modules": [
+          "assets/js/spnBrandEditor.js"
+        ],
+        "createdBy": [
+          "assets/js/spnBrandEditor.js"
+        ]
+      },
+      {
+        "id": "contactCtaEditorStyles",
+        "modules": [
+          "assets/js/spnContactEditor.js"
+        ],
+        "createdBy": [
+          "assets/js/spnContactEditor.js"
+        ]
+      },
+      {
+        "id": "qrCaptionHelperStyles",
+        "modules": [
+          "assets/js/spnQrEditor.js"
+        ],
+        "createdBy": [
+          "assets/js/spnQrEditor.js"
+        ]
+      },
+      {
+        "id": "spn-template-keyboard-style",
+        "modules": [
+          "assets/js/spnTemplateKeyboard.js"
+        ],
+        "createdBy": [
+          "assets/js/spnTemplateKeyboard.js"
+        ]
+      },
+      {
+        "id": "spnAdvancedWorkbenchStyles",
+        "modules": [
+          "assets/js/spnAdvancedWorkbench.js"
+        ],
+        "createdBy": [
+          "assets/js/spnAdvancedWorkbench.js"
+        ]
+      },
+      {
+        "id": "spnAgentBrandModeGuardStyles",
+        "modules": [
+          "assets/js/spnAgentBrandModeGuard.js"
+        ],
+        "createdBy": [
+          "assets/js/spnAgentBrandModeGuard.js"
+        ]
+      },
+      {
+        "id": "spnAgentHelperStyles",
+        "modules": [
+          "assets/js/spnAgentHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnAgentHelper.js"
+        ]
+      },
+      {
+        "id": "spnAreaHelperStyles",
+        "modules": [
+          "assets/js/spnAreaHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnAreaHelper.js"
+        ]
+      },
+      {
+        "id": "spnBlockControlsStyles",
+        "modules": [
+          "assets/js/spnBlockControls.js"
+        ],
+        "createdBy": [
+          "assets/js/spnBlockControls.js"
+        ]
+      },
+      {
+        "id": "spnClarityPanelStyles",
+        "modules": [
+          "assets/js/spnClarityPanel.js"
+        ],
+        "createdBy": [
+          "assets/js/spnClarityPanel.js"
+        ]
+      },
+      {
+        "id": "spnDensePrintStyles",
+        "modules": [
+          "assets/js/spnDensePrintPolicy.js"
+        ],
+        "createdBy": [
+          "assets/js/spnDensePrintPolicy.js"
+        ]
+      },
+      {
+        "id": "spnDistributionFieldModeStyles",
+        "modules": [
+          "assets/js/spnDistributionFieldMode.js"
+        ],
+        "createdBy": [
+          "assets/js/spnDistributionFieldMode.js"
+        ]
+      },
+      {
+        "id": "spnDistributionReportStyles",
+        "modules": [
+          "assets/js/spnDistributionReportHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnDistributionReportHelper.js"
+        ]
+      },
+      {
+        "id": "spnDistributionTaskStyles",
+        "modules": [
+          "assets/js/spnDistributionTaskHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnDistributionTaskHelper.js"
+        ]
+      },
+      {
+        "id": "spnInkEfficiencyStyles",
+        "modules": [
+          "assets/js/spnInkEfficiency.js"
+        ],
+        "createdBy": [
+          "assets/js/spnInkEfficiency.js"
+        ]
+      },
+      {
+        "id": "spnInlinePreviewEditorStyles",
+        "modules": [
+          "assets/js/spnInlinePreviewEditor.js"
+        ],
+        "createdBy": [
+          "assets/js/spnInlinePreviewEditor.js"
+        ]
+      },
+      {
+        "id": "spnLayoutModeAccessibilityStyles",
+        "modules": [
+          "assets/js/spnLayoutModeAccessibility.js"
+        ],
+        "createdBy": [
+          "assets/js/spnLayoutModeAccessibility.js"
+        ]
+      },
+      {
+        "id": "spnManagerPeriodSummaryStyles",
+        "modules": [
+          "assets/js/spnManagerPeriodSummary.js"
+        ],
+        "createdBy": [
+          "assets/js/spnManagerPeriodSummary.js"
+        ]
+      },
+      {
+        "id": "spnManagerReviewStyles",
+        "modules": [
+          "assets/js/spnManagerReview.js"
+        ],
+        "createdBy": [
+          "assets/js/spnManagerReview.js"
+        ]
+      },
+      {
+        "id": "spnManagerTemplateNoticeStyles",
+        "modules": [
+          "assets/js/spnManagerTemplateNotice.js"
+        ],
+        "createdBy": [
+          "assets/js/spnManagerTemplateNotice.js"
+        ]
+      },
+      {
+        "id": "spnNewbieEmptyStateStyle",
+        "modules": [
+          "assets/js/spnNewbieEmptyState.js"
+        ],
+        "createdBy": [
+          "assets/js/spnNewbieEmptyState.js"
+        ]
+      },
+      {
+        "id": "spnNewbieFinalCheckStyle",
+        "modules": [
+          "assets/js/spnNewbieFinalCheck.js"
+        ],
+        "createdBy": [
+          "assets/js/spnNewbieFinalCheck.js"
+        ]
+      },
+      {
+        "id": "spnNewbieModeNoticeStyle",
+        "modules": [
+          "assets/js/spnNewbieModeNotice.js"
+        ],
+        "createdBy": [
+          "assets/js/spnNewbieModeNotice.js"
+        ]
+      },
+      {
+        "id": "spnNewbieModeStyle",
+        "modules": [
+          "assets/js/spnNewbieMode.js"
+        ],
+        "createdBy": [
+          "assets/js/spnNewbieMode.js"
+        ]
+      },
+      {
+        "id": "spnNewbiePrintGuardNoticeStyle",
+        "modules": [
+          "assets/js/spnNewbiePrintGuardNotice.js"
+        ],
+        "createdBy": [
+          "assets/js/spnNewbiePrintGuardNotice.js"
+        ]
+      },
+      {
+        "id": "spnNewbiePrintGuideStyle",
+        "modules": [
+          "assets/js/spnNewbiePrintGuide.js"
+        ],
+        "createdBy": [
+          "assets/js/spnNewbiePrintGuide.js"
+        ]
+      },
+      {
+        "id": "spnNewbieWizardPatchStyle",
+        "modules": [
+          "assets/js/spnNewbieWizardPatch.js"
+        ],
+        "createdBy": [
+          "assets/js/spnNewbieWizardPatch.js"
+        ]
+      },
+      {
+        "id": "spnOfficeTemplateFiltersStyles",
+        "modules": [
+          "assets/js/spnOfficeTemplateFilters.js"
+        ],
+        "createdBy": [
+          "assets/js/spnOfficeTemplateFilters.js"
+        ]
+      },
+      {
+        "id": "spnParamsHelperStyles",
+        "modules": [
+          "assets/js/spnParamsHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnParamsHelper.js"
+        ]
+      },
+      {
+        "id": "spnPhoneHelperStyles",
+        "modules": [
+          "assets/js/spnPhoneHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnPhoneHelper.js"
+        ]
+      },
+      {
+        "id": "spnPhotoLayoutQualityActionStyles",
+        "modules": [
+          "assets/js/spnPhotoLayoutQualityActions.js"
+        ],
+        "createdBy": [
+          "assets/js/spnPhotoLayoutQualityActions.js"
+        ]
+      },
+      {
+        "id": "spnPhotoLayoutStyle",
+        "modules": [
+          "assets/js/spnPhotoLayoutStyle.js"
+        ],
+        "createdBy": [
+          "assets/js/spnPhotoLayoutStyle.js"
+        ]
+      },
+      {
+        "id": "spnPostPrintWorkspaceStyles",
+        "modules": [
+          "assets/js/spnPostPrintWorkspace.js"
+        ],
+        "createdBy": [
+          "assets/js/spnPostPrintWorkspace.js"
+        ]
+      },
+      {
+        "id": "spnPreviewQuickBarStyles",
+        "modules": [
+          "assets/js/spnPreviewQuickBar.js"
+        ],
+        "createdBy": [
+          "assets/js/spnPreviewQuickBar.js"
+        ]
+      },
+      {
+        "id": "spnPriceHelperStyles",
+        "modules": [
+          "assets/js/spnPriceHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnPriceHelper.js"
+        ]
+      },
+      {
+        "id": "spnPrintCampaignHelperStyles",
+        "modules": [
+          "assets/js/spnPrintCampaignHelper.js"
+        ],
+        "createdBy": [
+          "assets/js/spnPrintCampaignHelper.js"
+        ]
+      },
+      {
+        "id": "spnQrStandaloneStyles",
+        "modules": [
+          "assets/js/spnQrStandaloneStyle.js"
+        ],
+        "createdBy": [
+          "assets/js/spnQrStandaloneStyle.js"
+        ]
+      },
+      {
+        "id": "spnReportHistoryEnhancementStyles",
+        "modules": [
+          "assets/js/spnReportHistoryEnhancements.js"
+        ],
+        "createdBy": [
+          "assets/js/spnReportHistoryEnhancements.js"
+        ]
+      },
+      {
+        "id": "spnReportSummaryStyles",
+        "modules": [
+          "assets/js/spnReportSummary.js"
+        ],
+        "createdBy": [
+          "assets/js/spnReportSummary.js"
+        ]
+      },
+      {
+        "id": "spnTemplateCardBadgesStyle",
+        "modules": [
+          "assets/js/spnTemplateCardBadges.js"
+        ],
+        "createdBy": [
+          "assets/js/spnTemplateCardBadges.js"
+        ]
+      },
+      {
+        "id": "spnTextStepChecklistStyle",
+        "modules": [
+          "assets/js/spnTextStepChecklist.js"
+        ],
+        "createdBy": [
+          "assets/js/spnTextStepChecklist.js"
+        ]
+      },
+      {
+        "id": "spnWizardFlowStyles",
+        "modules": [
+          "assets/js/spnWizardFlow.js"
+        ],
+        "createdBy": [
+          "assets/js/spnWizardFlow.js"
+        ]
+      },
+      {
+        "id": "spnWizardStepStatusStyles",
+        "modules": [
+          "assets/js/spnWizardStepStatus.js"
+        ],
+        "createdBy": [
+          "assets/js/spnWizardStepStatus.js"
+        ]
+      },
+      {
+        "id": "spnWorkspaceBackupStyles",
+        "modules": [
+          "assets/js/spnWorkspaceBackup.js"
+        ],
+        "createdBy": [
+          "assets/js/spnWorkspaceBackup.js"
+        ]
+      },
+      {
+        "id": "tearOffEditorStyles",
+        "modules": [
+          "assets/js/spnTearOffEditor.js"
+        ],
+        "createdBy": [
+          "assets/js/spnTearOffEditor.js"
+        ]
+      },
+      {
+        "id": "templateMenuCompactStyles",
+        "modules": [
+          "assets/js/spnTemplateMenuCompact.js"
+        ],
+        "createdBy": [
+          "assets/js/spnTemplateMenuCompact.js"
+        ]
+      }
+    ]
   },
   "modules": [
     {

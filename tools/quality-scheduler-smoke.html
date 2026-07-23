@@ -62,7 +62,8 @@
         await waitFor(() => qualityRuns >= 1, 1500, 'ручная проверка не выполнилась сразу');
         await delay(260);
         assert(qualityRuns === 1, `после ручной проверки сработал отложенный дубль: ${qualityRuns}`);
-        assert(doc.getElementById('statusLine')?.textContent.includes('Провер'), 'ручная проверка не обновила пользовательский статус');
+        const status = doc.getElementById('statusLine')?.textContent || '';
+        assert(status.startsWith('Есть замечания.') || status === 'Проверка пройдена.', `ручная проверка вернула неожиданный статус: ${status}`);
         pass('ручная проверка отменяет ожидающий отложенный запуск');
 
         observer.disconnect();

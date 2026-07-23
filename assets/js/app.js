@@ -445,8 +445,14 @@ function pickProfile(source){
   return Object.fromEntries(profileFields.map(id=>[id, source[id] || '']));
 }
 function syncFormFromState(){
+  syncFormValuesFromState();
+  syncChoiceControlsFromState();
+}
+function syncFormValuesFromState(){
   fields.forEach(id => { if($(id)) $(id).value = state[id] ?? ''; });
   checks.forEach(id => { if($(id)) $(id).checked = !!state[id]; });
+}
+function syncChoiceControlsFromState(){
   document.querySelectorAll('[data-goal]').forEach(b=>b.classList.toggle('active', b.dataset.goal===state.goal));
   document.querySelectorAll('[data-photo]').forEach(b=>b.classList.toggle('active', b.dataset.photo===state.photoMode));
   document.querySelectorAll('[data-count]').forEach(b=>b.classList.toggle('active', Number(b.dataset.count)===Number(state.printCount)));
@@ -459,14 +465,21 @@ function readFormAndRender(){
   if(!state.showPhoto) state.photoMode = 'none';
   state.blockOrder = normalizeBlockOrder(state.blockOrder);
   state.layoutMode = 'manual';
-  renderAll();
+  renderFormChanges();
+}
+function renderFormChanges(){
+  syncChoiceControlsFromState();
+  renderWorkspace();
 }
 function renderAll(){
   syncFormFromState();
+  renderTemplates();
+  renderWorkspace();
+}
+function renderWorkspace(){
   renderBlockOrderControls();
   renderLayoutHints();
   applyCss(state);
-  renderTemplates();
   const grid = renderSheet($('printSheet'), state);
   updatePreviewStatus(grid);
   debouncedSave();

@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Etagi form input render smoke</title>
+  <style>
+    body{font-family:Arial,sans-serif;margin:16px}
+    #appFrame{width:1280px;height:900px;border:1px solid #cbd5e1}
+    #uiActionsSmokeResult{white-space:pre-wrap;padding:12px;border:1px solid #cbd5e1;border-radius:8px;background:#f8fafc}
+  </style>
+</head>
+<body>
+  <pre id="uiActionsSmokeResult" data-status="pending">Form input render smoke is running…</pre>
+  <iframe id="appFrame" title="Генератор расклеек"></iframe>
+  <script>
+    const result = document.getElementById('uiActionsSmokeResult');
+    const frame = document.getElementById('appFrame');
+    const checks = [];
+    const runtimeErrors = [];
+    let lastAction = 'startup';
+
+    frame.addEventListener('load', async () => {
+      const win = frame.contentWindow;
+      const doc = frame.contentDocument;
+      const earlyErrors = Array.isArray(win.__ETAGI_EARLY_ERRORS__) ? [...win.__ETAGI_EARLY_ERRORS__] : [];
+      runtimeErrors.push(...earlyErrors);
+      win.addEventListener('error', event => runtimeErrors.push(event.message || 'window error'));
+      win.addEventListener('unhandledrejection', event => runtimeErrors.push(String(event.reason || 'unhandled rejection')));
+
+      try{
+        await waitFor(() => doc.querySelectorAll('#templateList .tpl-card').length > 1, 12000, 'шаблоны не появились');
+        await waitFor(() => doc.querySelector('#printSheet .flyer'), 8000, 'печатный лист не появился');
+        await delay(700);
+
+        const templateList = doc.getElementById('templateList');
+        const headline = doc.getElementById('headline');
+        const description = doc.getElementById('description');
+        const printSheet = doc.getElementById('printSheet');
+        const previewStatus = doc.getElementById('previewStatus');
+        assert(templateList && headline && description && printSheet && previewStatus, 'не найдены элементы формы или библиотеки');
+
+        const firstCard = templateList.querySelector('.tpl-card');
+        const initialTemplateCount = templateList.querySelectorAll('.tpl-card').length;
+        let directTemplateMutations = 0;
+        const observer = new win.MutationObserver(records => {
+          directTemplateMutations += records.filter(record => record.type === 'childList').length;
+        });
+        observer.observe(templateList, {childList:true});
+
+        lastAction = 'input.headline';
+        const headlineValue = 'Уникальный заголовок без перестройки шаблонов';
+        setField(win, headline, headlineValue);
+        await waitFor(() => printSheet.textContent.includes(headlineValue), 3000, 'заголовок не обновился на печатном листе');
+        await delay(650);
+        assert(firstCard.isConnected && templateList.querySelector('.tpl-card') === firstCard, 'обычный ввод пересоздал карточки шаблонов');
+        assert(directTemplateMutations === 0, `обычный ввод вызвал ${directTemplateMutations} прямых перестроек templateList`);
+        assert(templateList.querySelectorAll('.tpl-card').length === initialTemplateCount, 'обычный ввод изменил количество шаблонов');
+        assert(previewStatus.textContent.includes('режим: ручной'), 'после ручного ввода статус не показал ручной режим компоновки');
+        assert(!doc.querySelector('[data-layout-mode].active'), 'после ручного ввода ошибочно осталась активной автоматическая компоновка');
+        pass('заголовок обновляет лист без перестройки библиотеки шаблонов');
+
+        lastAction = 'input.description';
+        const descriptionValue = 'Описание изменяется независимо от списка готовых шаблонов.';
+        setField(win, description, descriptionValue);
+        await waitFor(() => printSheet.textContent.includes(descriptionValue), 3000, 'описание не обновилось на печатном листе');
+        await waitFor(() => {
+          const saved = JSON.parse(win.localStorage.getItem('etagi-raskleyka-state-v1') || 'null');
+          return saved?.headline === headlineValue && saved?.description === descriptionValue;
+        }, 2500, 'автосохранение не получило введённые данные');
+        assert(firstCard.isConnected && templateList.querySelector('.tpl-card') === firstCard, 'второй обычный ввод пересоздал карточки шаблонов');
+        assert(directTemplateMutations === 0, 'описание вызвало прямую перестройку templateList');
+        pass('описание, качество и автосохранение обновляются без renderTemplates');
+
+        lastAction = 'structure.goal';
+        const currentGoal = doc.querySelector('[data-goal].active')?.dataset.goal || '';
+        const nextGoal = [...doc.querySelectorAll('[data-goal]')].find(button => button.dataset.goal !== currentGoal && !button.disabled);
+        assert(nextGoal, 'не найдена другая задача для структурной проверки');
+        nextGoal.click();
+        await waitFor(() => directTemplateMutations > 0 && !firstCard.isConnected, 3000, 'структурный выбор задачи не перестроил библиотеку шаблонов');
+        assert(templateList.querySelectorAll('.tpl-card').length > 0, 'после структурного выбора библиотека стала пустой');
+        pass('структурный выбор по-прежнему выполняет полный renderAll');
+
+        observer.disconnect();
+        if(runtimeErrors.length) throw new Error(`runtime errors: ${runtimeErrors.join(' | ')}`);
+        lastAction = 'completed';
+        result.dataset.status = 'passed';
+        result.textContent = `PASSED\n${checks.map(item => `✓ ${item}`).join('\n')}`;
+      } catch(error){
+        result.dataset.status = 'failed';
+        result.dataset.lastAction = lastAction;
+        result.textContent = `FAILED\n${checks.map(item => `✓ ${item}`).join('\n')}\n✗ ${error.message || error}\nПоследнее действие: ${lastAction}\nСостояние: ${JSON.stringify(snapshot(doc))}`;
+      }
+    }, {once:true});
+
+    frame.src = '/index.html?smoke=form-input-render';
+
+    window.setTimeout(() => {
+      if(result.dataset.status === 'pending'){
+        result.dataset.status = 'failed';
+        result.dataset.lastAction = lastAction;
+        result.textContent = `FAILED\n${checks.map(item => `✓ ${item}`).join('\n')}\n✗ timeout form input render smoke\nПоследнее действие: ${lastAction}`;
+      }
+    }, 24000);
+
+    function setField(win, field, value){
+      field.value = value;
+      field.dispatchEvent(new win.Event('input', {bubbles:true}));
+    }
+    function snapshot(doc){
+      return {
+        status:doc.getElementById('statusLine')?.textContent || '',
+        headline:doc.getElementById('headline')?.value || '',
+        description:doc.getElementById('description')?.value || '',
+        templateCount:doc.querySelectorAll('#templateList .tpl-card').length,
+        previewStatus:doc.getElementById('previewStatus')?.textContent || '',
+        layoutMode:[...doc.querySelectorAll('[data-layout-mode].active')].map(item => item.dataset.layoutMode)
+      };
+    }
+    function pass(message){ checks.push(message); }
+    function assert(condition, message){ if(!condition) throw new Error(message); }
+    function delay(ms){ return new Promise(resolve => setTimeout(resolve, ms)); }
+    function waitFor(check, timeoutMs, message){
+      const started = Date.now();
+      return new Promise((resolve, reject) => {
+        const tick = () => {
+          try{
+            if(check()) return resolve();
+          } catch(error){
+            return reject(error);
+          }
+          if(Date.now() - started >= timeoutMs) return reject(new Error(message));
+          setTimeout(tick, 50);
+        };
+        tick();
+      });
+    }
+  </script>
+</body>
+</html>

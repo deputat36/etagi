@@ -24,6 +24,8 @@ requireSnippets(files.helper, sources.helper, [
   'Экономный цвет',
   'hasDarkContactFill()',
   'relativeLuminance(getComputedStyle(contact).backgroundColor) < 0.82',
+  "const SMOKE_MODE = new URLSearchParams(window.location.search).has('smoke');",
+  'window.__ETAGI_INK_EFFICIENCY_CHECKS__ = Number(window.__ETAGI_INK_EFFICIENCY_CHECKS__ || 0) + 1;',
   'observeQualityList(qualityList);',
   'function observeQualityList(list)',
   'if(records.some(hasRelevantQualityMutation)) scheduleInkTip(list);',

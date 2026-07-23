@@ -1,0 +1,49 @@
+name: Refresh PR110 runtime registry
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'assets/js/spnInkEfficiency.js'
+      - '.github/workflows/refresh-pr110-runtime-registry.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    if: github.actor != 'github-actions[bot]' && github.head_ref == 'agent/narrow-ink-efficiency-observer'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: agent/narrow-ink-efficiency-observer
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Refresh registry
+        run: npm run runtime:registry
+
+      - name: Verify registry and ink contracts
+        run: |
+          npm run validate:runtime-modules
+          npm run validate:ink-efficiency
+          git diff --check
+
+      - name: Commit generated registry
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add data/runtime-modules.json
+          if git diff --cached --quiet; then
+            echo 'Runtime registry already current.'
+          else
+            git commit -m 'chore: refresh runtime resource registry'
+            git push origin HEAD:agent/narrow-ink-efficiency-observer
+          fi

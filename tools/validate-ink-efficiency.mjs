@@ -24,6 +24,13 @@ requireSnippets(files.helper, sources.helper, [
   'Экономный цвет',
   'hasDarkContactFill()',
   'relativeLuminance(getComputedStyle(contact).backgroundColor) < 0.82',
+  'observeQualityList(qualityList);',
+  'function observeQualityList(list)',
+  'if(records.some(hasRelevantQualityMutation)) scheduleInkTip(list);',
+  'observer.observe(list, {childList:true});',
+  'function hasRelevantQualityMutation(record)',
+  'function isInkTipNode(node)',
+  'node.hasAttribute(TIP_ATTR)',
   '.flyer .contact{',
   'background:#fff!important',
   'border:.45mm solid var(--accent)!important',
@@ -45,7 +52,9 @@ forbidSnippets(files.helper, sources.helper, [
   'showPhoto.checked = false',
   'showQr.checked = false',
   "colorMode.value = 'bw'",
-  'background:#111827!important'
+  'background:#111827!important',
+  'subtree: true',
+  'subtree:true'
 ]);
 
 requireSnippets(files.entry, sources.entry, [

@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Etagi ink efficiency observer smoke</title>
+  <style>
+    body{font-family:Arial,sans-serif;margin:16px}
+    #appFrame{width:1280px;height:900px;border:1px solid #cbd5e1}
+    #uiActionsSmokeResult{white-space:pre-wrap;padding:12px;border:1px solid #cbd5e1;border-radius:8px;background:#f8fafc}
+  </style>
+</head>
+<body>
+  <pre id="uiActionsSmokeResult" data-status="pending">Ink efficiency observer smoke is running…</pre>
+  <iframe id="appFrame" title="Генератор расклеек"></iframe>
+  <script>
+    const result = document.getElementById('uiActionsSmokeResult');
+    const frame = document.getElementById('appFrame');
+    const checks = [];
+    const runtimeErrors = [];
+    let lastAction = 'startup';
+
+    frame.addEventListener('load', async () => {
+      const win = frame.contentWindow;
+      const doc = frame.contentDocument;
+      runtimeErrors.push(...(Array.isArray(win.__ETAGI_EARLY_ERRORS__) ? win.__ETAGI_EARLY_ERRORS__ : []));
+      win.addEventListener('error', event => runtimeErrors.push(event.message || 'window error'));
+      win.addEventListener('unhandledrejection', event => runtimeErrors.push(String(event.reason || 'unhandled rejection')));
+      let originalQuerySelector = null;
+      const structuralNodes = [];
+
+      try{
+        await waitFor(() => doc.querySelector('#printSheet .flyer .contact'), 12000, 'контактный блок не появился');
+        await waitFor(() => doc.querySelector('#qualityList .qitem'), 10000, 'список качества не появился');
+        await delay(700);
+
+        const qualityList = doc.getElementById('qualityList');
+        const colorMode = doc.getElementById('colorMode');
+        const showContact = doc.getElementById('showContact');
+        const countFour = doc.querySelector('#printPresetRow [data-count="4"]');
+        assert(qualityList && colorMode && showContact && countFour, 'не найдены элементы проверки расхода чернил');
+
+        let inkTipLookups = 0;
+        originalQuerySelector = qualityList.querySelector.bind(qualityList);
+        qualityList.querySelector = function(selector){
+          if(selector === '[data-ink-efficiency-tip]') inkTipLookups += 1;
+          return originalQuerySelector(selector);
+        };
+        await delay(150);
+        inkTipLookups = 0;
+
+        lastAction = 'ink-observer.descendant';
+        const issue = doc.querySelector('#qualityList .qitem');
+        const descendant = doc.createElement('span');
+        descendant.className = 'ink-efficiency-descendant-smoke';
+        descendant.textContent = 'marker';
+        issue.append(descendant);
+        await delay(300);
+        assert(inkTipLookups === 0, `внутренняя мутация замечания запустила проверку подсказки: ${inkTipLookups}`);
+        descendant.remove();
+        pass('observer игнорирует внутренние мутации замечаний качества');
+
+        lastAction = 'ink-observer.show-tip';
+        countFour.click();
+        await waitFor(() => countFour.classList.contains('active'), 2500, 'не включён формат 4 на А4');
+        colorMode.value = 'brand';
+        colorMode.dispatchEvent(new win.Event('change', {bubbles:true}));
+        if(!showContact.checked){
+          showContact.checked = true;
+          showContact.dispatchEvent(new win.Event('change', {bubbles:true}));
+        }
+        await waitFor(() => doc.querySelector('#printSheet .flyer .contact'), 3500, 'контактный блок пропал после настройки');
+        await delay(500);
+        const contact = doc.querySelector('#printSheet .flyer .contact');
+        contact.style.setProperty('background-color', 'rgb(0, 0, 0)', 'important');
+        inkTipLookups = 0;
+        const showTrigger = doc.createComment('ink-efficiency-show');
+        structuralNodes.push(showTrigger);
+        qualityList.append(showTrigger);
+        await waitFor(() => qualityList.querySelector('[data-ink-efficiency-tip]'), 2500, 'подсказка расхода чернил не появилась');
+        await delay(180);
+        const showSettledLookups = inkTipLookups;
+        await delay(320);
+        assert(qualityList.querySelectorAll('[data-ink-efficiency-tip]').length === 1, 'подсказка расхода чернил отсутствует или дублируется');
+        assert(showSettledLookups >= 1, 'структурная мутация не запустила проверку подсказки');
+        assert(inkTipLookups === showSettledLookups, `добавление собственной подсказки вызвало самоповтор: ${showSettledLookups} → ${inkTipLookups}`);
+        pass('структурное изменение добавляет одну подсказку без самоповтора observer');
+
+        lastAction = 'ink-observer.tip-descendant';
+        inkTipLookups = 0;
+        const tip = originalQuerySelector('[data-ink-efficiency-tip]');
+        const tipChild = doc.createElement('span');
+        tipChild.className = 'ink-efficiency-tip-descendant-smoke';
+        tipChild.textContent = 'marker';
+        tip.append(tipChild);
+        await delay(300);
+        assert(inkTipLookups === 0, `внутренняя мутация собственной подсказки запустила observer: ${inkTipLookups}`);
+        tipChild.remove();
+        pass('observer игнорирует внутренние изменения собственной подсказки');
+
+        lastAction = 'ink-observer.remove-tip';
+        colorMode.value = 'economy';
+        inkTipLookups = 0;
+        const hideTrigger = doc.createComment('ink-efficiency-hide');
+        structuralNodes.push(hideTrigger);
+        qualityList.append(hideTrigger);
+        await waitFor(() => !originalQuerySelector('[data-ink-efficiency-tip]'), 2500, 'подсказка не скрылась в экономном режиме');
+        await delay(180);
+        const hideSettledLookups = inkTipLookups;
+        await delay(320);
+        assert(hideSettledLookups >= 1, 'скрытие подсказки не обработало структурное изменение');
+        assert(inkTipLookups === hideSettledLookups, `удаление собственной подсказки вызвало самоповтор: ${hideSettledLookups} → ${inkTipLookups}`);
+        pass('удаление собственной подсказки не запускает повторный observer-цикл');
+
+        qualityList.querySelector = originalQuerySelector;
+        originalQuerySelector = null;
+        structuralNodes.forEach(node => node.remove());
+        if(runtimeErrors.length) throw new Error(`runtime errors: ${runtimeErrors.join(' | ')}`);
+        lastAction = 'completed';
+        result.dataset.status = 'passed';
+        result.textContent = `PASSED\n${checks.map(item => `✓ ${item}`).join('\n')}`;
+      } catch(error){
+        const qualityList = doc.getElementById('qualityList');
+        if(originalQuerySelector && qualityList) qualityList.querySelector = originalQuerySelector;
+        structuralNodes.forEach(node => node.remove());
+        result.dataset.status = 'failed';
+        result.dataset.lastAction = lastAction;
+        result.textContent = `FAILED\n${checks.map(item => `✓ ${item}`).join('\n')}\n✗ ${error.message || error}\nПоследнее действие: ${lastAction}\nСостояние: ${JSON.stringify(snapshot(doc))}`;
+      }
+    }, {once:true});
+
+    frame.src = '/index.html?smoke=ink-efficiency-observer';
+
+    window.setTimeout(() => {
+      if(result.dataset.status === 'pending'){
+        result.dataset.status = 'failed';
+        result.dataset.lastAction = lastAction;
+        result.textContent = `FAILED\n${checks.map(item => `✓ ${item}`).join('\n')}\n✗ timeout ink efficiency observer smoke\nПоследнее действие: ${lastAction}`;
+      }
+    }, 25000);
+
+    function snapshot(doc){
+      return {
+        status:doc.getElementById('statusLine')?.textContent || '',
+        colorMode:doc.getElementById('colorMode')?.value || '',
+        printCount:doc.querySelector('#printPresetRow [data-count].active')?.dataset.count || '',
+        contact:doc.getElementById('showContact')?.checked || false,
+        tips:doc.querySelectorAll('#qualityList [data-ink-efficiency-tip]').length
+      };
+    }
+    function pass(message){ checks.push(message); }
+    function assert(condition, message){ if(!condition) throw new Error(message); }
+    function delay(ms){ return new Promise(resolve => setTimeout(resolve, ms)); }
+    function waitFor(check, timeoutMs, message){
+      const started = Date.now();
+      return new Promise((resolve, reject) => {
+        const tick = () => {
+          try{ if(check()) return resolve(); } catch(error){ return reject(error); }
+          if(Date.now() - started >= timeoutMs) return reject(new Error(message));
+          setTimeout(tick, 50);
+        };
+        tick();
+      });
+    }
+  </script>
+</body>
+</html>

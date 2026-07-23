@@ -13,15 +13,27 @@ window.addEventListener('DOMContentLoaded', () => {
 
   if(qualityList){
     scheduleInkTip(qualityList);
-    new MutationObserver(() => scheduleInkTip(qualityList)).observe(qualityList, {
-      childList: true,
-      subtree: true
-    });
+    observeQualityList(qualityList);
     qualityList.addEventListener('click', handleInkAction);
   }
 });
 
 let tipFrame = 0;
+
+function observeQualityList(list){
+  const observer = new MutationObserver(records => {
+    if(records.some(hasRelevantQualityMutation)) scheduleInkTip(list);
+  });
+  observer.observe(list, {childList:true});
+}
+
+function hasRelevantQualityMutation(record){
+  return [...record.addedNodes, ...record.removedNodes].some(node => !isInkTipNode(node));
+}
+
+function isInkTipNode(node){
+  return node instanceof Element && node.hasAttribute(TIP_ATTR);
+}
 
 function prepareCompactLayoutColor(event){
   const button = event.target.closest('[data-layout-mode="economy"], [data-layout-mode="entrance"]');

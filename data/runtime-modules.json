@@ -5936,7 +5936,7 @@
         "module": "assets/js/spnInkEfficiency.js",
         "type": "MutationObserver",
         "count": 1,
-        "observeCalls": 0,
+        "observeCalls": 1,
         "disconnectCalls": 0
       },
       {

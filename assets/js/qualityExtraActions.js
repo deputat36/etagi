@@ -2,6 +2,7 @@ import { getLayoutExtra, getLayoutExtraField, setLayoutExtraValue } from './layo
 import { cleanPhoneValue, getPhoneInfo } from './phone.js';
 
 (function () {
+  const SMOKE_MODE = new URLSearchParams(window.location.search).has('smoke');
   const QUICK_FIX_CTA = 'Позвоните — подскажу детали';
   const TRUST_PHRASE = 'Без давления, по делу, объясню простым языком';
   const DEFAULT_BENEFITS = [
@@ -60,11 +61,28 @@ import { cleanPhoneValue, getPhoneInfo } from './phone.js';
 
     list.addEventListener('click', handleBuiltInFixClick, true);
     list.addEventListener('click', handleClick);
-    new MutationObserver(enhanceQualityList).observe(list, { childList: true, subtree: true });
+    observeQualityList(list);
     enhanceQualityList();
   }
 
+  function observeQualityList(list) {
+    new MutationObserver((records) => {
+      if (records.some(hasAddedQualityItems)) enhanceQualityList();
+    }).observe(list, { childList: true });
+  }
+
+  function hasAddedQualityItems(record) {
+    return Array.from(record.addedNodes).some((node) => (
+      node instanceof Element
+      && (node.matches('.qitem') || node.querySelector('.qitem'))
+    ));
+  }
+
   function enhanceQualityList() {
+    if (SMOKE_MODE) {
+      window.__ETAGI_QUALITY_EXTRA_ACTION_RUNS__ = Number(window.__ETAGI_QUALITY_EXTRA_ACTION_RUNS__ || 0) + 1;
+    }
+
     const list = document.getElementById('qualityList');
     if (!list) return;
 

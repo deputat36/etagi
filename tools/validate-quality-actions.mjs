@@ -34,7 +34,15 @@ const requiredActionSnippets = [
   "document.addEventListener('DOMContentLoaded', init)",
   "list.addEventListener('click', handleBuiltInFixClick, true)",
   "list.addEventListener('click', handleClick)",
-  'new MutationObserver(enhanceQualityList)',
+  "const SMOKE_MODE = new URLSearchParams(window.location.search).has('smoke')",
+  'observeQualityList(list)',
+  'function observeQualityList(list)',
+  'new MutationObserver((records) => {',
+  'records.some(hasAddedQualityItems)',
+  '}).observe(list, { childList: true })',
+  'function hasAddedQualityItems(record)',
+  "node.matches('.qitem') || node.querySelector('.qitem')",
+  'window.__ETAGI_QUALITY_EXTRA_ACTION_RUNS__ = Number(window.__ETAGI_QUALITY_EXTRA_ACTION_RUNS__ || 0) + 1',
   "item.querySelector('[data-extra-quality-fix]')",
   'type="button"',
   'class="quality-extra-fix-btn"',
@@ -67,7 +75,7 @@ const requiredDirectPhotoActionSnippets = [
   "if (action === 'focusPhotoOne') focusPhotoField('photoOne', 'Фото оставлено включённым. Выберите файл в поле Фото 1.');",
   "if (action === 'focusPhotoTwo') focusPhotoField('photoTwo', 'Фото оставлено включённым. Выберите второе фото или переключите режим на одно фото.');",
   'function focusPhotoField(inputId, statusText)',
-  "const input = document.getElementById(inputId)",
+  'const input = document.getElementById(inputId)',
   'Фото оставлено включённым'
 ];
 for (const snippet of requiredDirectPhotoActionSnippets) if (!actionsSource.includes(snippet)) errors.push(`assets/js/qualityExtraActions.js: не закреплено прямое безопасное действие фото — ${snippet}`);
@@ -93,7 +101,10 @@ const forbiddenActionSnippets = [
   'function disableQr()',
   'function hasPhoneValue()',
   "button.dataset.fix === 'showContact'",
-  'function hasLikelyPhoneValue()'
+  'function hasLikelyPhoneValue()',
+  'new MutationObserver(enhanceQualityList)',
+  'subtree: true',
+  'subtree:true'
 ];
 for (const snippet of forbiddenActionSnippets) if (actionsSource.includes(snippet)) errors.push(`assets/js/qualityExtraActions.js: найдено устаревшее или разрушающее данные поведение — ${snippet}`);
 

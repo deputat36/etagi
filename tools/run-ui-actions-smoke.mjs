@@ -61,6 +61,12 @@ const smokePages = failureFixtureMode ? [
     timeoutMs:30000
   },
   {
+    label:'Quality extra actions observer smoke',
+    path:'tools/quality-extra-actions-observer-smoke.html',
+    virtualTimeBudget:18000,
+    timeoutMs:30000
+  },
+  {
     label:'Fit preview smoke',
     path:'tools/fit-preview-smoke.html',
     virtualTimeBudget:22000,

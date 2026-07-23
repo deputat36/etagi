@@ -66,10 +66,9 @@ import { cleanPhoneValue, getPhoneInfo } from './phone.js';
   }
 
   function observeQualityList(list) {
-    const observer = new MutationObserver((records) => {
+    new MutationObserver((records) => {
       if (records.some(hasAddedQualityItems)) enhanceQualityList();
-    });
-    observer.observe(list, { childList: true });
+    }).observe(list, { childList: true });
   }
 
   function hasAddedQualityItems(record) {

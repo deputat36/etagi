@@ -25,62 +25,52 @@
       runtimeErrors.push(...(Array.isArray(win.__ETAGI_EARLY_ERRORS__) ? win.__ETAGI_EARLY_ERRORS__ : []));
       win.addEventListener('error', event => runtimeErrors.push(event.message || 'window error'));
       win.addEventListener('unhandledrejection', event => runtimeErrors.push(String(event.reason || 'unhandled rejection')));
-      let originalQuerySelector = null;
       let structuralTrigger = null;
 
       try{
         await waitFor(() => doc.querySelector('#qualityList .qitem'), 10000, 'список качества не появился');
+        await waitFor(() => Number(win.__ETAGI_INK_EFFICIENCY_CHECKS__ || 0) >= 1, 5000, 'начальная проверка расхода чернил не выполнилась');
         await delay(700);
 
         const qualityList = doc.getElementById('qualityList');
         const qualityBtn = doc.getElementById('qualityBtn');
         assert(qualityList && qualityBtn, 'не найдены элементы проверки расхода чернил');
 
-        let inkTipLookups = 0;
-        originalQuerySelector = qualityList.querySelector.bind(qualityList);
-        qualityList.querySelector = function(selector){
-          if(selector === '[data-ink-efficiency-tip]') inkTipLookups += 1;
-          return originalQuerySelector(selector);
-        };
-        await delay(150);
-        inkTipLookups = 0;
-
         lastAction = 'ink-observer.descendant';
+        const descendantBaseline = Number(win.__ETAGI_INK_EFFICIENCY_CHECKS__ || 0);
         const issue = doc.querySelector('#qualityList .qitem');
         const descendant = doc.createElement('span');
         descendant.className = 'ink-efficiency-descendant-smoke';
         descendant.textContent = 'marker';
         issue.append(descendant);
         await delay(300);
-        assert(inkTipLookups === 0, `внутренняя мутация замечания запустила проверку подсказки: ${inkTipLookups}`);
+        assert(Number(win.__ETAGI_INK_EFFICIENCY_CHECKS__ || 0) === descendantBaseline, 'внутренняя мутация замечания запустила проверку подсказки');
         descendant.remove();
         pass('observer игнорирует внутренние мутации замечаний качества');
 
         lastAction = 'ink-observer.direct-structure';
-        inkTipLookups = 0;
+        const structuralBaseline = Number(win.__ETAGI_INK_EFFICIENCY_CHECKS__ || 0);
         structuralTrigger = doc.createComment('ink-efficiency-structure');
         qualityList.append(structuralTrigger);
-        await waitFor(() => inkTipLookups >= 1, 2500, 'прямое изменение списка не запустило проверку подсказки');
+        await waitFor(() => Number(win.__ETAGI_INK_EFFICIENCY_CHECKS__ || 0) > structuralBaseline, 2500, 'прямое изменение списка не запустило проверку подсказки');
         await delay(180);
-        const structuralSettledLookups = inkTipLookups;
+        const structuralSettledChecks = Number(win.__ETAGI_INK_EFFICIENCY_CHECKS__ || 0);
         await delay(320);
-        assert(inkTipLookups === structuralSettledLookups, `после прямого изменения продолжился observer-цикл: ${structuralSettledLookups} → ${inkTipLookups}`);
+        assert(Number(win.__ETAGI_INK_EFFICIENCY_CHECKS__ || 0) === structuralSettledChecks, `после прямого изменения продолжился observer-цикл: ${structuralSettledChecks} → ${win.__ETAGI_INK_EFFICIENCY_CHECKS__}`);
         assert(qualityList.querySelectorAll('[data-ink-efficiency-tip]').length <= 1, 'подсказка расхода чернил дублируется');
         pass('прямое структурное изменение обрабатывается и стабилизируется');
 
         lastAction = 'ink-observer.quality-refresh';
-        inkTipLookups = 0;
+        const qualityBaseline = Number(win.__ETAGI_INK_EFFICIENCY_CHECKS__ || 0);
         qualityBtn.click();
-        await waitFor(() => inkTipLookups >= 1, 2500, 'ручная проверка качества не обновила подсказку расхода чернил');
+        await waitFor(() => Number(win.__ETAGI_INK_EFFICIENCY_CHECKS__ || 0) > qualityBaseline, 2500, 'ручная проверка качества не обновила подсказку расхода чернил');
         await delay(180);
-        const qualitySettledLookups = inkTipLookups;
+        const qualitySettledChecks = Number(win.__ETAGI_INK_EFFICIENCY_CHECKS__ || 0);
         await delay(320);
-        assert(inkTipLookups === qualitySettledLookups, `после полной проверки продолжился observer-цикл: ${qualitySettledLookups} → ${inkTipLookups}`);
+        assert(Number(win.__ETAGI_INK_EFFICIENCY_CHECKS__ || 0) === qualitySettledChecks, `после полной проверки продолжился observer-цикл: ${qualitySettledChecks} → ${win.__ETAGI_INK_EFFICIENCY_CHECKS__}`);
         assert(qualityList.querySelectorAll('[data-ink-efficiency-tip]').length <= 1, 'после проверки качества появились дубли подсказки');
         pass('полная замена замечаний обновляет подсказку без продолжающегося цикла');
 
-        qualityList.querySelector = originalQuerySelector;
-        originalQuerySelector = null;
         structuralTrigger.remove();
         structuralTrigger = null;
         if(runtimeErrors.length) throw new Error(`runtime errors: ${runtimeErrors.join(' | ')}`);
@@ -88,12 +78,10 @@
         result.dataset.status = 'passed';
         result.textContent = `PASSED\n${checks.map(item => `✓ ${item}`).join('\n')}`;
       } catch(error){
-        const qualityList = doc.getElementById('qualityList');
-        if(originalQuerySelector && qualityList) qualityList.querySelector = originalQuerySelector;
         structuralTrigger?.remove();
         result.dataset.status = 'failed';
         result.dataset.lastAction = lastAction;
-        result.textContent = `FAILED\n${checks.map(item => `✓ ${item}`).join('\n')}\n✗ ${error.message || error}\nПоследнее действие: ${lastAction}\nСостояние: ${JSON.stringify(snapshot(doc))}`;
+        result.textContent = `FAILED\n${checks.map(item => `✓ ${item}`).join('\n')}\n✗ ${error.message || error}\nПоследнее действие: ${lastAction}\nСостояние: ${JSON.stringify(snapshot(doc, win))}`;
       }
     }, {once:true});
 
@@ -107,12 +95,13 @@
       }
     }, 22000);
 
-    function snapshot(doc){
+    function snapshot(doc, win){
       return {
         status:doc.getElementById('statusLine')?.textContent || '',
         quality:doc.getElementById('qualityScore')?.textContent || '',
         issues:doc.querySelectorAll('#qualityList .qitem').length,
-        tips:doc.querySelectorAll('#qualityList [data-ink-efficiency-tip]').length
+        tips:doc.querySelectorAll('#qualityList [data-ink-efficiency-tip]').length,
+        checks:Number(win.__ETAGI_INK_EFFICIENCY_CHECKS__ || 0)
       };
     }
     function pass(message){ checks.push(message); }

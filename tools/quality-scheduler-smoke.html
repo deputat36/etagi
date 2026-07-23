@@ -25,10 +25,12 @@
       runtimeErrors.push(...(Array.isArray(win.__ETAGI_EARLY_ERRORS__) ? win.__ETAGI_EARLY_ERRORS__ : []));
       win.addEventListener('error', event => runtimeErrors.push(event.message || 'window error'));
       win.addEventListener('unhandledrejection', event => runtimeErrors.push(String(event.reason || 'unhandled rejection')));
+      let originalListQuerySelectorAll = null;
 
       try{
         await waitFor(() => doc.querySelector('#printSheet .flyer'), 10000, 'печатный лист не появился');
         await waitFor(() => doc.getElementById('qualityList')?.children.length, 10000, 'проверка качества не появилась');
+        await waitFor(() => doc.querySelector('#qualityList .qitem .quality-level'), 5000, 'подписи уровней качества не появились');
         await delay(700);
 
         const headline = doc.getElementById('headline');
@@ -37,6 +39,7 @@
         const qualityBtn = doc.getElementById('qualityBtn');
         const printSheet = doc.getElementById('printSheet');
         assert(headline && qualityList && qualityScore && qualityBtn && printSheet, 'не найдены элементы проверки качества');
+        assertQualityLevelContract(doc);
 
         let qualityRuns = 0;
         const observer = new win.MutationObserver(records => {
@@ -44,34 +47,70 @@
         });
         observer.observe(qualityList, {childList:true});
 
+        let levelEnhancePasses = 0;
+        originalListQuerySelectorAll = qualityList.querySelectorAll.bind(qualityList);
+        qualityList.querySelectorAll = function(selector){
+          if(selector === '.qitem') levelEnhancePasses += 1;
+          return originalListQuerySelectorAll(selector);
+        };
+        await delay(150);
+        levelEnhancePasses = 0;
+
+        lastAction = 'quality.level-observer-descendant';
+        const firstIssue = doc.querySelector('#qualityList .qitem');
+        assert(firstIssue, 'не найдено замечание качества для проверки observer');
+        const marker = doc.createElement('span');
+        marker.className = 'quality-level-descendant-smoke';
+        marker.textContent = 'marker';
+        firstIssue.append(marker);
+        await delay(300);
+        assert(levelEnhancePasses === 0, `внутренняя мутация замечания повторно запустила level-обход: ${levelEnhancePasses}`);
+        marker.remove();
+        assertQualityLevelContract(doc);
+        pass('observer уровней игнорирует внутренние мутации замечания');
+
         lastAction = 'quality.rapid-input';
+        qualityRuns = 0;
+        levelEnhancePasses = 0;
         const values = ['К', 'КУ', 'КУП', 'КУПЛ', 'КУПЛЮ', 'КУПЛЮ КВАРТИРУ'];
         values.forEach(value => setField(win, headline, value));
         await waitFor(() => qualityRuns >= 1, 2500, 'отложенная проверка качества не выполнилась');
+        await waitFor(() => levelEnhancePasses >= 1, 2500, 'observer уровней не обработал замену замечаний');
+        await waitFor(() => [...doc.querySelectorAll('#qualityList .qitem')].every(item => item.querySelector('.quality-level')), 2500, 'подписи уровней не восстановились после проверки');
         await delay(260);
         assert(qualityRuns === 1, `серия быстрых вводов запустила проверку ${qualityRuns} раз вместо одного`);
+        assert(levelEnhancePasses === 1, `замена замечаний запустила level-обход ${levelEnhancePasses} раз вместо одного`);
         assert(printSheet.textContent.includes(values.at(-1)), 'лист не содержит последнее значение серии');
         assert(/^\d+\/100$/.test(qualityScore.textContent.trim()), 'итоговая оценка качества не обновлена');
+        assertQualityLevelContract(doc);
         await waitFor(() => JSON.parse(win.localStorage.getItem('etagi-raskleyka-state-v1') || 'null')?.headline === values.at(-1), 1800, 'автосохранение не получило последнее значение');
-        pass('серия быстрых вводов объединена в одну проверку качества');
+        pass('серия быстрых вводов объединена в одну проверку и один level-обход');
 
         lastAction = 'quality.manual-cancel';
         qualityRuns = 0;
+        levelEnhancePasses = 0;
         setField(win, headline, 'РУЧНАЯ ПРОВЕРКА БЕЗ ДУБЛЯ');
         qualityBtn.click();
         await waitFor(() => qualityRuns >= 1, 1500, 'ручная проверка не выполнилась сразу');
+        await waitFor(() => levelEnhancePasses >= 1, 1500, 'подписи уровней не обновились после ручной проверки');
         await delay(260);
         assert(qualityRuns === 1, `после ручной проверки сработал отложенный дубль: ${qualityRuns}`);
+        assert(levelEnhancePasses === 1, `ручная проверка вызвала повторный level-обход: ${levelEnhancePasses}`);
+        assertQualityLevelContract(doc);
         const status = doc.getElementById('statusLine')?.textContent || '';
         assert(status.startsWith('Есть замечания.') || status === 'Проверка пройдена.', `ручная проверка вернула неожиданный статус: ${status}`);
-        pass('ручная проверка отменяет ожидающий отложенный запуск');
+        pass('ручная проверка отменяет ожидающий запуск и сохраняет подписи уровней');
 
         observer.disconnect();
+        qualityList.querySelectorAll = originalListQuerySelectorAll;
+        originalListQuerySelectorAll = null;
         if(runtimeErrors.length) throw new Error(`runtime errors: ${runtimeErrors.join(' | ')}`);
         lastAction = 'completed';
         result.dataset.status = 'passed';
         result.textContent = `PASSED\n${checks.map(item => `✓ ${item}`).join('\n')}`;
       } catch(error){
+        const qualityList = doc.getElementById('qualityList');
+        if(originalListQuerySelectorAll && qualityList) qualityList.querySelectorAll = originalListQuerySelectorAll;
         result.dataset.status = 'failed';
         result.dataset.lastAction = lastAction;
         result.textContent = `FAILED\n${checks.map(item => `✓ ${item}`).join('\n')}\n✗ ${error.message || error}\nПоследнее действие: ${lastAction}\nСостояние: ${JSON.stringify(snapshot(doc))}`;
@@ -86,18 +125,24 @@
         result.dataset.lastAction = lastAction;
         result.textContent = `FAILED\n${checks.map(item => `✓ ${item}`).join('\n')}\n✗ timeout quality scheduler smoke\nПоследнее действие: ${lastAction}`;
       }
-    }, 22000);
+    }, 24000);
 
     function setField(win, field, value){
       field.value = value;
       field.dispatchEvent(new win.Event('input', {bubbles:true}));
+    }
+    function assertQualityLevelContract(doc){
+      const items = [...doc.querySelectorAll('#qualityList .qitem')];
+      assert(items.length > 0, 'список замечаний качества пуст');
+      assert(items.every(item => item.querySelectorAll('.quality-level').length === 1), 'у замечания отсутствует или дублируется подпись уровня');
     }
     function snapshot(doc){
       return {
         status:doc.getElementById('statusLine')?.textContent || '',
         headline:doc.getElementById('headline')?.value || '',
         quality:doc.getElementById('qualityScore')?.textContent || '',
-        issues:doc.getElementById('qualityList')?.children.length || 0
+        issues:doc.getElementById('qualityList')?.children.length || 0,
+        levelLabels:doc.querySelectorAll('#qualityList .quality-level').length
       };
     }
     function pass(message){ checks.push(message); }

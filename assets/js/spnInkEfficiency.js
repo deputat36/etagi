@@ -49,6 +49,10 @@ function prepareCompactLayoutColor(event){
 }
 
 function scheduleInkTip(list){
+  if(SMOKE_MODE){
+    window.__ETAGI_INK_EFFICIENCY_SCHEDULES__ = Number(window.__ETAGI_INK_EFFICIENCY_SCHEDULES__ || 0) + 1;
+  }
+
   window.cancelAnimationFrame(tipFrame);
   tipFrame = window.requestAnimationFrame(() => {
     tipFrame = 0;

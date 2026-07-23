@@ -24,7 +24,7 @@ async function loadOfficeMetadata(){
 function observeTemplateList(){
   const list = document.getElementById('templateList');
   if(!list) return;
-  new MutationObserver(() => enhanceTemplateCards()).observe(list, { childList: true, subtree: true });
+  new MutationObserver(() => enhanceTemplateCards()).observe(list, { childList: true });
 }
 
 function enhanceTemplateCards(force = false){

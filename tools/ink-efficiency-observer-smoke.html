@@ -29,7 +29,7 @@
 
       try{
         await waitFor(() => doc.querySelector('#qualityList .qitem'), 10000, 'список качества не появился');
-        await waitFor(() => Number(win.__ETAGI_INK_EFFICIENCY_CHECKS__ || 0) >= 1, 5000, 'начальная проверка расхода чернил не выполнилась');
+        await waitFor(() => Number(win.__ETAGI_INK_EFFICIENCY_SCHEDULES__ || 0) >= 1, 5000, 'начальное планирование расхода чернил не выполнилось');
         await delay(700);
 
         const qualityList = doc.getElementById('qualityList');
@@ -37,41 +37,41 @@
         assert(qualityList && qualityBtn, 'не найдены элементы проверки расхода чернил');
 
         lastAction = 'ink-observer.descendant';
-        const descendantBaseline = Number(win.__ETAGI_INK_EFFICIENCY_CHECKS__ || 0);
+        const descendantBaseline = Number(win.__ETAGI_INK_EFFICIENCY_SCHEDULES__ || 0);
         const issue = doc.querySelector('#qualityList .qitem');
         const descendant = doc.createElement('span');
         descendant.className = 'ink-efficiency-descendant-smoke';
         descendant.textContent = 'marker';
         issue.append(descendant);
         await delay(300);
-        assert(Number(win.__ETAGI_INK_EFFICIENCY_CHECKS__ || 0) === descendantBaseline, 'внутренняя мутация замечания запустила проверку подсказки');
+        assert(Number(win.__ETAGI_INK_EFFICIENCY_SCHEDULES__ || 0) === descendantBaseline, 'внутренняя мутация замечания запланировала проверку подсказки');
         descendant.remove();
         pass('observer игнорирует внутренние мутации замечаний качества');
 
         lastAction = 'ink-observer.direct-structure';
-        const structuralBaseline = Number(win.__ETAGI_INK_EFFICIENCY_CHECKS__ || 0);
+        const structuralBaseline = Number(win.__ETAGI_INK_EFFICIENCY_SCHEDULES__ || 0);
         structuralTrigger = doc.createElement('div');
         structuralTrigger.hidden = true;
         structuralTrigger.dataset.inkObserverSmokeTrigger = '';
         qualityList.append(structuralTrigger);
-        await waitFor(() => Number(win.__ETAGI_INK_EFFICIENCY_CHECKS__ || 0) > structuralBaseline, 2500, 'прямое изменение списка не запустило проверку подсказки');
+        await waitFor(() => Number(win.__ETAGI_INK_EFFICIENCY_SCHEDULES__ || 0) > structuralBaseline, 2500, 'прямое изменение списка не запланировало проверку подсказки');
         await delay(180);
-        const structuralSettledChecks = Number(win.__ETAGI_INK_EFFICIENCY_CHECKS__ || 0);
+        const structuralSettledSchedules = Number(win.__ETAGI_INK_EFFICIENCY_SCHEDULES__ || 0);
         await delay(320);
-        assert(Number(win.__ETAGI_INK_EFFICIENCY_CHECKS__ || 0) === structuralSettledChecks, `после прямого изменения продолжился observer-цикл: ${structuralSettledChecks} → ${win.__ETAGI_INK_EFFICIENCY_CHECKS__}`);
+        assert(Number(win.__ETAGI_INK_EFFICIENCY_SCHEDULES__ || 0) === structuralSettledSchedules, `после прямого изменения продолжился observer-цикл: ${structuralSettledSchedules} → ${win.__ETAGI_INK_EFFICIENCY_SCHEDULES__}`);
         assert(qualityList.querySelectorAll('[data-ink-efficiency-tip]').length <= 1, 'подсказка расхода чернил дублируется');
         pass('прямое структурное изменение обрабатывается и стабилизируется');
 
         lastAction = 'ink-observer.quality-refresh';
-        const qualityBaseline = Number(win.__ETAGI_INK_EFFICIENCY_CHECKS__ || 0);
+        const qualityBaseline = Number(win.__ETAGI_INK_EFFICIENCY_SCHEDULES__ || 0);
         qualityBtn.click();
-        await waitFor(() => Number(win.__ETAGI_INK_EFFICIENCY_CHECKS__ || 0) > qualityBaseline, 2500, 'ручная проверка качества не обновила подсказку расхода чернил');
+        await waitFor(() => Number(win.__ETAGI_INK_EFFICIENCY_SCHEDULES__ || 0) > qualityBaseline, 2500, 'ручная проверка качества не запланировала обновление подсказки');
         await delay(180);
-        const qualitySettledChecks = Number(win.__ETAGI_INK_EFFICIENCY_CHECKS__ || 0);
+        const qualitySettledSchedules = Number(win.__ETAGI_INK_EFFICIENCY_SCHEDULES__ || 0);
         await delay(320);
-        assert(Number(win.__ETAGI_INK_EFFICIENCY_CHECKS__ || 0) === qualitySettledChecks, `после полной проверки продолжился observer-цикл: ${qualitySettledChecks} → ${win.__ETAGI_INK_EFFICIENCY_CHECKS__}`);
+        assert(Number(win.__ETAGI_INK_EFFICIENCY_SCHEDULES__ || 0) === qualitySettledSchedules, `после полной проверки продолжился observer-цикл: ${qualitySettledSchedules} → ${win.__ETAGI_INK_EFFICIENCY_SCHEDULES__}`);
         assert(qualityList.querySelectorAll('[data-ink-efficiency-tip]').length <= 1, 'после проверки качества появились дубли подсказки');
-        pass('полная замена замечаний обновляет подсказку без продолжающегося цикла');
+        pass('полная замена замечаний планирует обновление без продолжающегося цикла');
 
         structuralTrigger.remove();
         structuralTrigger = null;
@@ -103,6 +103,7 @@
         quality:doc.getElementById('qualityScore')?.textContent || '',
         issues:doc.querySelectorAll('#qualityList .qitem').length,
         tips:doc.querySelectorAll('#qualityList [data-ink-efficiency-tip]').length,
+        schedules:Number(win.__ETAGI_INK_EFFICIENCY_SCHEDULES__ || 0),
         checks:Number(win.__ETAGI_INK_EFFICIENCY_CHECKS__ || 0)
       };
     }

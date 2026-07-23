@@ -14,6 +14,7 @@ const files = {
   agentBrandGuard: 'assets/js/spnAgentBrandModeGuard.js',
   layoutAccessibility: 'assets/js/spnLayoutModeAccessibility.js',
   templateKeyboard: 'assets/js/spnTemplateKeyboard.js',
+  templateBadges: 'assets/js/spnTemplateCardBadges.js',
   workspaceBackup: 'assets/js/spnWorkspaceBackup.js',
   distributionFieldMode: 'assets/js/spnDistributionFieldMode.js',
   postPrintWorkspace: 'assets/js/spnPostPrintWorkspace.js',
@@ -118,6 +119,15 @@ requireSnippets(files.templateKeyboard, sources.templateKeyboard, [
 forbidSnippets(files.templateKeyboard, sources.templateKeyboard, [
   'observer.observe(list, {childList:true, subtree:true});',
   'subtree:true'
+]);
+
+requireSnippets(files.templateBadges, sources.templateBadges, [
+  'new MutationObserver(() => enhanceTemplateCards()).observe(list, { childList: true });'
+]);
+
+forbidSnippets(files.templateBadges, sources.templateBadges, [
+  '{ childList: true, subtree: true }',
+  'subtree: true'
 ]);
 
 requireSnippets(files.workspaceBackup, sources.workspaceBackup, [

@@ -21,7 +21,7 @@ const STYLE_ID = 'spn-template-keyboard-style';
     });
 
     const observer = new MutationObserver(() => enhanceCards(list));
-    observer.observe(list, {childList:true, subtree:true});
+    observer.observe(list, {childList:true});
   });
 })();
 

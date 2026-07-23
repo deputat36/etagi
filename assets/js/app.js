@@ -13,6 +13,7 @@ let lastQuality = null;
 let favoriteTemplateIds = new Set();
 let selectedScenario = 'all';
 let pendingLayoutConflict = null;
+let qualityTimer = 0;
 const debouncedSave = debounce(()=>autoSave(state), 500);
 
 const profileFields = ['agentName','agentPhone'];
@@ -483,8 +484,20 @@ function renderWorkspace(){
   const grid = renderSheet($('printSheet'), state);
   updatePreviewStatus(grid);
   debouncedSave();
-  setTimeout(()=>runQuality(false), 80);
+  scheduleQualityReview();
   applyZoom();
+}
+function scheduleQualityReview(delay = 80){
+  cancelScheduledQualityReview();
+  qualityTimer = window.setTimeout(() => {
+    qualityTimer = 0;
+    runQuality(false);
+  }, delay);
+}
+function cancelScheduledQualityReview(){
+  if(!qualityTimer) return;
+  window.clearTimeout(qualityTimer);
+  qualityTimer = 0;
 }
 function renderLayoutHints(){
   const hints = getLayoutHints(state);
@@ -501,6 +514,7 @@ function updatePreviewStatus(grid = getGrid(state.printCount, state.splitMode)){
   $('previewStatus').innerHTML = `<span class="stat">${state.printCount} на А4</span><span class="stat">${grid.label}</span><span class="stat">${photo}</span><span class="stat">${color}</span><span class="stat">сценарий: ${esc(scenarioTitle)}</span><span class="stat">режим: ${esc(modeTitle)}</span><span class="stat">блоков ${blocks}/${blockVisibility.length}</span>${printHelpers ? `<span class="stat">печать: ${esc(printHelpers)}</span>` : ''}${state.layoutName ? `<span class="stat">${esc(state.layoutName)}</span>` : ''}${state.area ? `<span class="stat">${esc(state.area)}</span>` : ''}${score ? `<span class="stat ${score>=80?'good':score<60?'warn':''}">качество ${score}/100</span>` : ''}`;
 }
 function runQuality(show){
+  if(show) cancelScheduledQualityReview();
   lastQuality = checkQuality(state, $('printSheet'));
   $('qualityScore').textContent = `${lastQuality.score}/100`;
   $('qualityScore').className = lastQuality.score>=80 ? 'score-good' : lastQuality.score>=60 ? 'score-mid' : 'score-bad';

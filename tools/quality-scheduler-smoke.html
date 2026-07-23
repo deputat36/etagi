@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Etagi quality scheduler smoke</title>
+  <style>
+    body{font-family:Arial,sans-serif;margin:16px}
+    #appFrame{width:1280px;height:900px;border:1px solid #cbd5e1}
+    #uiActionsSmokeResult{white-space:pre-wrap;padding:12px;border:1px solid #cbd5e1;border-radius:8px;background:#f8fafc}
+  </style>
+</head>
+<body>
+  <pre id="uiActionsSmokeResult" data-status="pending">Quality scheduler smoke is running…</pre>
+  <iframe id="appFrame" title="Генератор расклеек"></iframe>
+  <script>
+    const result = document.getElementById('uiActionsSmokeResult');
+    const frame = document.getElementById('appFrame');
+    const checks = [];
+    const runtimeErrors = [];
+    let lastAction = 'startup';
+
+    frame.addEventListener('load', async () => {
+      const win = frame.contentWindow;
+      const doc = frame.contentDocument;
+      runtimeErrors.push(...(Array.isArray(win.__ETAGI_EARLY_ERRORS__) ? win.__ETAGI_EARLY_ERRORS__ : []));
+      win.addEventListener('error', event => runtimeErrors.push(event.message || 'window error'));
+      win.addEventListener('unhandledrejection', event => runtimeErrors.push(String(event.reason || 'unhandled rejection')));
+
+      try{
+        await waitFor(() => doc.querySelector('#printSheet .flyer'), 10000, 'печатный лист не появился');
+        await waitFor(() => doc.getElementById('qualityList')?.children.length, 10000, 'проверка качества не появилась');
+        await delay(700);
+
+        const headline = doc.getElementById('headline');
+        const qualityList = doc.getElementById('qualityList');
+        const qualityScore = doc.getElementById('qualityScore');
+        const qualityBtn = doc.getElementById('qualityBtn');
+        const printSheet = doc.getElementById('printSheet');
+        assert(headline && qualityList && qualityScore && qualityBtn && printSheet, 'не найдены элементы проверки качества');
+
+        let qualityRuns = 0;
+        const observer = new win.MutationObserver(records => {
+          if(records.some(record => record.type === 'childList' && record.target === qualityList)) qualityRuns += 1;
+        });
+        observer.observe(qualityList, {childList:true});
+
+        lastAction = 'quality.rapid-input';
+        const values = ['К', 'КУ', 'КУП', 'КУПЛ', 'КУПЛЮ', 'КУПЛЮ КВАРТИРУ'];
+        values.forEach(value => setField(win, headline, value));
+        await waitFor(() => qualityRuns >= 1, 2500, 'отложенная проверка качества не выполнилась');
+        await delay(260);
+        assert(qualityRuns === 1, `серия быстрых вводов запустила проверку ${qualityRuns} раз вместо одного`);
+        assert(printSheet.textContent.includes(values.at(-1)), 'лист не содержит последнее значение серии');
+        assert(/^\d+\/100$/.test(qualityScore.textContent.trim()), 'итоговая оценка качества не обновлена');
+        await waitFor(() => JSON.parse(win.localStorage.getItem('etagi-raskleyka-state-v1') || 'null')?.headline === values.at(-1), 1800, 'автосохранение не получило последнее значение');
+        pass('серия быстрых вводов объединена в одну проверку качества');
+
+        lastAction = 'quality.manual-cancel';
+        qualityRuns = 0;
+        setField(win, headline, 'РУЧНАЯ ПРОВЕРКА БЕЗ ДУБЛЯ');
+        qualityBtn.click();
+        await waitFor(() => qualityRuns >= 1, 1500, 'ручная проверка не выполнилась сразу');
+        await delay(260);
+        assert(qualityRuns === 1, `после ручной проверки сработал отложенный дубль: ${qualityRuns}`);
+        const status = doc.getElementById('statusLine')?.textContent || '';
+        assert(status.startsWith('Есть замечания.') || status === 'Проверка пройдена.', `ручная проверка вернула неожиданный статус: ${status}`);
+        pass('ручная проверка отменяет ожидающий отложенный запуск');
+
+        observer.disconnect();
+        if(runtimeErrors.length) throw new Error(`runtime errors: ${runtimeErrors.join(' | ')}`);
+        lastAction = 'completed';
+        result.dataset.status = 'passed';
+        result.textContent = `PASSED\n${checks.map(item => `✓ ${item}`).join('\n')}`;
+      } catch(error){
+        result.dataset.status = 'failed';
+        result.dataset.lastAction = lastAction;
+        result.textContent = `FAILED\n${checks.map(item => `✓ ${item}`).join('\n')}\n✗ ${error.message || error}\nПоследнее действие: ${lastAction}\nСостояние: ${JSON.stringify(snapshot(doc))}`;
+      }
+    }, {once:true});
+
+    frame.src = '/index.html?smoke=quality-scheduler';
+
+    window.setTimeout(() => {
+      if(result.dataset.status === 'pending'){
+        result.dataset.status = 'failed';
+        result.dataset.lastAction = lastAction;
+        result.textContent = `FAILED\n${checks.map(item => `✓ ${item}`).join('\n')}\n✗ timeout quality scheduler smoke\nПоследнее действие: ${lastAction}`;
+      }
+    }, 22000);
+
+    function setField(win, field, value){
+      field.value = value;
+      field.dispatchEvent(new win.Event('input', {bubbles:true}));
+    }
+    function snapshot(doc){
+      return {
+        status:doc.getElementById('statusLine')?.textContent || '',
+        headline:doc.getElementById('headline')?.value || '',
+        quality:doc.getElementById('qualityScore')?.textContent || '',
+        issues:doc.getElementById('qualityList')?.children.length || 0
+      };
+    }
+    function pass(message){ checks.push(message); }
+    function assert(condition, message){ if(!condition) throw new Error(message); }
+    function delay(ms){ return new Promise(resolve => setTimeout(resolve, ms)); }
+    function waitFor(check, timeoutMs, message){
+      const started = Date.now();
+      return new Promise((resolve, reject) => {
+        const tick = () => {
+          try{ if(check()) return resolve(); } catch(error){ return reject(error); }
+          if(Date.now() - started >= timeoutMs) return reject(new Error(message));
+          setTimeout(tick, 50);
+        };
+        tick();
+      });
+    }
+  </script>
+</body>
+</html>

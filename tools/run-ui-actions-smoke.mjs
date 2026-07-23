@@ -49,6 +49,12 @@ const smokePages = failureFixtureMode ? [
     timeoutMs:30000
   },
   {
+    label:'Quality scheduler smoke',
+    path:'tools/quality-scheduler-smoke.html',
+    virtualTimeBudget:16000,
+    timeoutMs:28000
+  },
+  {
     label:'Fit preview smoke',
     path:'tools/fit-preview-smoke.html',
     virtualTimeBudget:22000,

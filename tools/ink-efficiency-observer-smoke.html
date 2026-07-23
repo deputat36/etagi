@@ -50,7 +50,9 @@
 
         lastAction = 'ink-observer.direct-structure';
         const structuralBaseline = Number(win.__ETAGI_INK_EFFICIENCY_CHECKS__ || 0);
-        structuralTrigger = doc.createComment('ink-efficiency-structure');
+        structuralTrigger = doc.createElement('div');
+        structuralTrigger.hidden = true;
+        structuralTrigger.dataset.inkObserverSmokeTrigger = '';
         qualityList.append(structuralTrigger);
         await waitFor(() => Number(win.__ETAGI_INK_EFFICIENCY_CHECKS__ || 0) > structuralBaseline, 2500, 'прямое изменение списка не запустило проверку подсказки');
         await delay(180);

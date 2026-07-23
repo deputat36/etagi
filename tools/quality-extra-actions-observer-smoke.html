@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Etagi quality extra actions observer smoke</title>
+  <style>
+    body{font-family:Arial,sans-serif;margin:16px}
+    #appFrame{width:1280px;height:900px;border:1px solid #cbd5e1}
+    #uiActionsSmokeResult{white-space:pre-wrap;padding:12px;border:1px solid #cbd5e1;border-radius:8px;background:#f8fafc}
+  </style>
+</head>
+<body>
+  <pre id="uiActionsSmokeResult" data-status="pending">Quality extra actions observer smoke is running…</pre>
+  <iframe id="appFrame" title="Генератор расклеек"></iframe>
+  <script>
+    const result = document.getElementById('uiActionsSmokeResult');
+    const frame = document.getElementById('appFrame');
+    const checks = [];
+    const runtimeErrors = [];
+    let lastAction = 'startup';
+
+    frame.addEventListener('load', async () => {
+      const win = frame.contentWindow;
+      const doc = frame.contentDocument;
+      runtimeErrors.push(...(Array.isArray(win.__ETAGI_EARLY_ERRORS__) ? win.__ETAGI_EARLY_ERRORS__ : []));
+      win.addEventListener('error', event => runtimeErrors.push(event.message || 'window error'));
+      win.addEventListener('unhandledrejection', event => runtimeErrors.push(String(event.reason || 'unhandled rejection')));
+      let directItem = null;
+      let wrapper = null;
+
+      try{
+        await waitFor(() => doc.querySelector('#qualityList .qitem'), 10000, 'список качества не появился');
+        await waitFor(() => Number(win.__ETAGI_QUALITY_EXTRA_ACTION_RUNS__ || 0) >= 1, 5000, 'начальное добавление быстрых исправлений не выполнилось');
+        await delay(700);
+
+        const qualityList = doc.getElementById('qualityList');
+        const initialIssue = doc.querySelector('#qualityList .qitem');
+        assert(qualityList && initialIssue, 'не найдены элементы проверки качества');
+
+        lastAction = 'extra-actions.descendant';
+        const descendantBaseline = runs(win);
+        const descendant = doc.createElement('span');
+        descendant.className = 'quality-extra-actions-descendant-smoke';
+        descendant.textContent = 'marker';
+        initialIssue.append(descendant);
+        await delay(300);
+        assert(runs(win) === descendantBaseline, 'внутренняя мутация замечания повторно запустила быстрые исправления');
+        descendant.remove();
+        await delay(250);
+        assert(runs(win) === descendantBaseline, 'удаление внутреннего marker повторно запустило быстрые исправления');
+        pass('observer игнорирует внутренние изменения замечания');
+
+        lastAction = 'extra-actions.irrelevant-direct-child';
+        const irrelevantBaseline = runs(win);
+        const marker = doc.createElement('div');
+        marker.hidden = true;
+        marker.dataset.qualityExtraActionsSmokeMarker = '';
+        qualityList.append(marker);
+        await delay(300);
+        assert(runs(win) === irrelevantBaseline, 'нерелевантный прямой элемент запустил обход быстрых исправлений');
+        marker.remove();
+        pass('observer игнорирует нерелевантные прямые элементы');
+
+        lastAction = 'extra-actions.direct-qitem';
+        const directBaseline = runs(win);
+        directItem = doc.createElement('div');
+        directItem.className = 'qitem warn';
+        directItem.innerHTML = '<b>Нет канала отклика</b><span>Тестовое замечание</span>';
+        qualityList.append(directItem);
+        await waitFor(() => directItem.querySelector('[data-extra-quality-fix="responseChannel"]'), 2500, 'к новому прямому замечанию не добавилось быстрое исправление');
+        assert(runs(win) > directBaseline, 'добавление нового замечания не запустило обработку');
+        assert(directItem.querySelectorAll('[data-extra-quality-fix]').length === 1, 'к замечанию добавилось несколько быстрых исправлений');
+        await delay(450);
+        const directSettledRuns = runs(win);
+        await delay(450);
+        assert(runs(win) === directSettledRuns, `после собственной кнопки продолжился observer-цикл: ${directSettledRuns} → ${runs(win)}`);
+        pass('новое замечание получает одну кнопку без самоповтора');
+
+        lastAction = 'extra-actions.nested-qitem';
+        const nestedBaseline = runs(win);
+        wrapper = doc.createElement('section');
+        wrapper.innerHTML = '<div class="qitem tip"><b>Нет призыва в контактах</b><span>Тестовое замечание во wrapper</span></div>';
+        qualityList.append(wrapper);
+        const nestedItem = wrapper.querySelector('.qitem');
+        await waitFor(() => nestedItem.querySelector('[data-extra-quality-fix="contactCta"]'), 2500, 'замечание внутри нового wrapper не обработано');
+        assert(runs(win) > nestedBaseline, 'wrapper с новым замечанием не запустил обработку');
+        assert(nestedItem.querySelectorAll('[data-extra-quality-fix]').length === 1, 'вложенное замечание получило несколько кнопок');
+        await delay(450);
+        const nestedSettledRuns = runs(win);
+        await delay(450);
+        assert(runs(win) === nestedSettledRuns, `после кнопки во wrapper продолжился observer-цикл: ${nestedSettledRuns} → ${runs(win)}`);
+        pass('новые замечания во wrapper обрабатываются без наблюдения всего поддерева');
+
+        directItem.remove();
+        directItem = null;
+        wrapper.remove();
+        wrapper = null;
+        if(runtimeErrors.length) throw new Error(`runtime errors: ${runtimeErrors.join(' | ')}`);
+        lastAction = 'completed';
+        result.dataset.status = 'passed';
+        result.textContent = `PASSED\n${checks.map(item => `✓ ${item}`).join('\n')}`;
+      } catch(error){
+        directItem?.remove();
+        wrapper?.remove();
+        result.dataset.status = 'failed';
+        result.dataset.lastAction = lastAction;
+        result.textContent = `FAILED\n${checks.map(item => `✓ ${item}`).join('\n')}\n✗ ${error.message || error}\nПоследнее действие: ${lastAction}\nСостояние: ${JSON.stringify(snapshot(doc, win))}`;
+      }
+    }, {once:true});
+
+    frame.src = '/index.html?smoke=quality-extra-actions-observer';
+
+    window.setTimeout(() => {
+      if(result.dataset.status === 'pending'){
+        result.dataset.status = 'failed';
+        result.dataset.lastAction = lastAction;
+        result.textContent = `FAILED\n${checks.map(item => `✓ ${item}`).join('\n')}\n✗ timeout quality extra actions observer smoke\nПоследнее действие: ${lastAction}`;
+      }
+    }, 22000);
+
+    function snapshot(doc, win){
+      return {
+        status:doc.getElementById('statusLine')?.textContent || '',
+        quality:doc.getElementById('qualityScore')?.textContent || '',
+        issues:doc.querySelectorAll('#qualityList .qitem').length,
+        extraButtons:doc.querySelectorAll('#qualityList [data-extra-quality-fix]').length,
+        runs:runs(win)
+      };
+    }
+    function runs(win){ return Number(win.__ETAGI_QUALITY_EXTRA_ACTION_RUNS__ || 0); }
+    function pass(message){ checks.push(message); }
+    function assert(condition, message){ if(!condition) throw new Error(message); }
+    function delay(ms){ return new Promise(resolve => setTimeout(resolve, ms)); }
+    function waitFor(check, timeoutMs, message){
+      const started = Date.now();
+      return new Promise((resolve, reject) => {
+        const tick = () => {
+          try{ if(check()) return resolve(); } catch(error){ return reject(error); }
+          if(Date.now() - started >= timeoutMs) return reject(new Error(message));
+          setTimeout(tick, 50);
+        };
+        tick();
+      });
+    }
+  </script>
+</body>
+</html>

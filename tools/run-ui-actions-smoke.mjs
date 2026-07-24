@@ -55,6 +55,12 @@ const smokePages = failureFixtureMode ? [
     timeoutMs:28000
   },
   {
+    label:'Shared quality list updates smoke',
+    path:'tools/quality-list-updates-smoke.html',
+    virtualTimeBudget:20000,
+    timeoutMs:34000
+  },
+  {
     label:'Ink efficiency observer smoke',
     path:'tools/ink-efficiency-observer-smoke.html',
     virtualTimeBudget:18000,

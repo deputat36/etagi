@@ -6,6 +6,8 @@ const rootDir = process.cwd();
 const errors = [];
 const files = {
   helper: 'assets/js/spnInkEfficiency.js',
+  styles: 'assets/css/quality-runtime.css',
+  index: 'index.html',
   entry: 'assets/js/spnUiMode.js',
   screenshot: 'tools/print-screenshot.html',
   guide: 'docs/ink-efficiency.md',
@@ -29,10 +31,30 @@ requireSnippets(files.helper, sources.helper, [
   'window.__ETAGI_INK_EFFICIENCY_SCHEDULES__ = Number(window.__ETAGI_INK_EFFICIENCY_SCHEDULES__ || 0) + 1;',
   'window.__ETAGI_INK_EFFICIENCY_CHECKS__ = Number(window.__ETAGI_INK_EFFICIENCY_CHECKS__ || 0) + 1;',
   'subscribeQualityListUpdates(({list}) => handleQualityListUpdate(list)',
-  "priority: 5",
+  'priority: 5',
   "label: 'ink-efficiency'",
   'function handleQualityListUpdate(list)',
-  'updateInkTip(list);',
+  'updateInkTip(list);'
+]);
+
+forbidSnippets(files.helper, sources.helper, [
+  "document.addEventListener('click'",
+  "window.addEventListener('click'",
+  'showPhoto.checked = false',
+  'showQr.checked = false',
+  "colorMode.value = 'bw'",
+  'new MutationObserver',
+  'observeQualityList(',
+  'subtree: true',
+  'subtree:true',
+  "createElement('style')",
+  'document.head.appendChild(style)',
+  'spnInkEfficiencyStyles',
+  '.flyer .contact{'
+]);
+
+requireSnippets(files.styles, sources.styles, [
+  'Устойчивые стили runtime-помощников качества и экономной печати',
   '.flyer .contact{',
   'background:#fff!important',
   'border:.45mm solid var(--accent)!important',
@@ -44,22 +66,20 @@ requireSnippets(files.helper, sources.helper, [
   'box-shadow:inset 0 1.1mm 0 var(--accent)!important',
   '.flyer.color-economy.layout-photo_card:not(.photo-mode-plan) .headline',
   'background:rgba(255,255,255,.94)!important',
+  '.ink-efficiency-tip button',
+  '.quality-photo-layout-action',
   '-webkit-print-color-adjust:exact',
   'print-color-adjust:exact'
 ]);
 
-forbidSnippets(files.helper, sources.helper, [
-  "document.addEventListener('click'",
-  "window.addEventListener('click'",
-  'showPhoto.checked = false',
-  'showQr.checked = false',
-  "colorMode.value = 'bw'",
-  'background:#111827!important',
-  'new MutationObserver',
-  'observeQualityList(',
-  'subtree: true',
-  'subtree:true'
+requireSnippets(files.index, sources.index, [
+  'assets/css/quality-runtime.css?v=3.85.0'
 ]);
+const printCssIndex = sources.index.indexOf('assets/css/print.css?v=3.85.0');
+const qualityCssIndex = sources.index.indexOf('assets/css/quality-runtime.css?v=3.85.0');
+if(!(printCssIndex >= 0 && qualityCssIndex > printCssIndex)){
+  errors.push('index.html: quality-runtime.css должен загружаться после print.css, как прежний поздний injected style');
+}
 
 requireSnippets(files.entry, sources.entry, [
   "import './spnInkEfficiency.js';"

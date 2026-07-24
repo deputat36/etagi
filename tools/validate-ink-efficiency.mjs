@@ -16,6 +16,7 @@ const sources = Object.fromEntries(
 );
 
 requireSnippets(files.helper, sources.helper, [
+  "import { subscribeQualityListUpdates } from './qualityListUpdates.js';",
   '[data-layout-mode="economy"], [data-layout-mode="entrance"]',
   "colorMode.value !== 'brand'",
   "colorMode.value = 'economy'",
@@ -27,13 +28,11 @@ requireSnippets(files.helper, sources.helper, [
   "const SMOKE_MODE = new URLSearchParams(window.location.search).has('smoke');",
   'window.__ETAGI_INK_EFFICIENCY_SCHEDULES__ = Number(window.__ETAGI_INK_EFFICIENCY_SCHEDULES__ || 0) + 1;',
   'window.__ETAGI_INK_EFFICIENCY_CHECKS__ = Number(window.__ETAGI_INK_EFFICIENCY_CHECKS__ || 0) + 1;',
-  'observeQualityList(qualityList);',
-  'function observeQualityList(list)',
-  'if(records.some(hasRelevantQualityMutation)) scheduleInkTip(list);',
-  'observer.observe(list, {childList:true});',
-  'function hasRelevantQualityMutation(record)',
-  'function isInkTipNode(node)',
-  'node.hasAttribute(TIP_ATTR)',
+  'subscribeQualityListUpdates(({list}) => handleQualityListUpdate(list)',
+  "priority: 5",
+  "label: 'ink-efficiency'",
+  'function handleQualityListUpdate(list)',
+  'updateInkTip(list);',
   '.flyer .contact{',
   'background:#fff!important',
   'border:.45mm solid var(--accent)!important',
@@ -56,6 +55,8 @@ forbidSnippets(files.helper, sources.helper, [
   'showQr.checked = false',
   "colorMode.value = 'bw'",
   'background:#111827!important',
+  'new MutationObserver',
+  'observeQualityList(',
   'subtree: true',
   'subtree:true'
 ]);

@@ -4,6 +4,7 @@ const pendingReasons = new Set();
 let observedList = null;
 let observer = null;
 let updateFrame = 0;
+let updateTimer = 0;
 let updateSequence = 0;
 
 export function subscribeQualityListUpdates(callback, options = {}) {
@@ -88,12 +89,28 @@ function containsQualityItem(node) {
 
 function scheduleQualityListUpdate(reason) {
   pendingReasons.add(String(reason || 'update'));
-  if (updateFrame) return;
+  if (updateFrame || updateTimer) return;
 
-  updateFrame = window.requestAnimationFrame(() => {
-    updateFrame = 0;
-    flushQualityListUpdates();
-  });
+  updateFrame = window.requestAnimationFrame(() => flushScheduledQualityUpdates('frame'));
+  updateTimer = window.setTimeout(() => flushScheduledQualityUpdates('timeout'), 96);
+}
+
+function flushScheduledQualityUpdates(transport) {
+  if (!updateFrame && !updateTimer) return;
+
+  if (updateFrame) window.cancelAnimationFrame(updateFrame);
+  if (updateTimer) window.clearTimeout(updateTimer);
+  updateFrame = 0;
+  updateTimer = 0;
+
+  if (SMOKE_MODE) {
+    window.__ETAGI_QUALITY_LIST_UPDATE_TRANSPORT__ = transport;
+    if (transport === 'timeout') {
+      window.__ETAGI_QUALITY_LIST_UPDATE_FALLBACKS__ = Number(window.__ETAGI_QUALITY_LIST_UPDATE_FALLBACKS__ || 0) + 1;
+    }
+  }
+
+  flushQualityListUpdates();
 }
 
 function flushQualityListUpdates() {

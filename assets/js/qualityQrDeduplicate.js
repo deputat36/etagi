@@ -26,15 +26,17 @@ import { subscribeQualityListUpdates } from './qualityListUpdates.js';
     if (!softItem) return;
 
     if (hardItem) {
-      softItem.dataset.qualitySuppressed = SUPPRESSED_REASON;
-      softItem.hidden = true;
+      if (softItem.dataset.qualitySuppressed !== SUPPRESSED_REASON) {
+        softItem.dataset.qualitySuppressed = SUPPRESSED_REASON;
+      }
+      if (!softItem.hidden) softItem.hidden = true;
       return;
     }
 
     if (softItem.dataset.qualitySuppressed === SUPPRESSED_REASON) {
       delete softItem.dataset.qualitySuppressed;
-      softItem.hidden = false;
     }
+    if (softItem.hidden) softItem.hidden = false;
   }
 
   function findIssueByTitle(list, title) {

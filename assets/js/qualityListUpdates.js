@@ -91,7 +91,9 @@ function scheduleQualityListUpdate(reason) {
   pendingReasons.add(String(reason || 'update'));
   if (updateFrame || updateTimer) return;
 
-  updateFrame = window.requestAnimationFrame(() => flushScheduledQualityUpdates('frame'));
+  updateFrame = window.requestAnimationFrame(() => {
+    flushScheduledQualityUpdates('frame');
+  });
   updateTimer = window.setTimeout(() => flushScheduledQualityUpdates('timeout'), 96);
 }
 

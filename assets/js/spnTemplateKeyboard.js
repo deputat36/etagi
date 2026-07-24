@@ -1,6 +1,5 @@
 const CARD_SELECTOR = '[data-template]';
 const FAVORITE_SELECTOR = '[data-favorite-template]';
-const STYLE_ID = 'spn-template-keyboard-style';
 const FOCUS_RESTORE_STABLE_PASSES = 6;
 const FOCUS_RESTORE_MAX_MS = 1500;
 let focusRestoreToken = 0;
@@ -13,7 +12,6 @@ let focusRestoreToken = 0;
     list.dataset.templateKeyboardBound = 'true';
     list.setAttribute('role', 'listbox');
     list.setAttribute('aria-label', 'Шаблоны расклейки');
-    ensureStyle();
     enhanceCards(list);
 
     list.addEventListener('keydown', event => handleKeydown(event, list));
@@ -156,19 +154,4 @@ function buildCardLabel(card, selected){
 function escapeSelectorValue(value){
   if(window.CSS?.escape) return CSS.escape(String(value || ''));
   return String(value || '').replace(/["\\]/g, '\\$&');
-}
-
-function ensureStyle(){
-  if(document.getElementById(STYLE_ID)) return;
-  const style = document.createElement('style');
-  style.id = STYLE_ID;
-  style.textContent = `
-    .tpl-card[role="option"]:focus{outline:none}
-    .tpl-card[role="option"]:focus-visible{
-      outline:3px solid var(--accent);
-      outline-offset:2px;
-      box-shadow:0 0 0 5px color-mix(in srgb,var(--accent) 16%,transparent)
-    }
-  `;
-  document.head.appendChild(style);
 }

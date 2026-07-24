@@ -74,14 +74,14 @@
     "relationCount": 97,
     "sideEffectModuleCount": 54,
     "dynamicModuleCount": 0,
-    "domIdCount": 315,
+    "domIdCount": 312,
     "indexDomIdCount": 86,
-    "runtimeCreatedDomIdCount": 224,
+    "runtimeCreatedDomIdCount": 221,
     "storageKeyCount": 22,
     "dynamicStorageKeyCount": 2,
     "observerModuleCount": 20,
     "observerInstanceCount": 22,
-    "styleIdCount": 46
+    "styleIdCount": 43
   },
   "ownership": {
     "domIds": [
@@ -2970,22 +2970,6 @@
         "referencedBy": []
       },
       {
-        "id": "spn-template-keyboard-style",
-        "declaredInIndex": false,
-        "ownershipBasis": "runtime-create",
-        "owners": [
-          "assets/js/spnTemplateKeyboard.js"
-        ],
-        "createdBy": [
-          "assets/js/spnTemplateKeyboard.js"
-        ],
-        "boundBy": [],
-        "mutatedBy": [],
-        "referencedBy": [
-          "assets/js/spnTemplateKeyboard.js"
-        ]
-      },
-      {
         "id": "spnAdvancedWorkbench",
         "declaredInIndex": false,
         "ownershipBasis": "runtime-create",
@@ -3448,22 +3432,6 @@
         "mutatedBy": [],
         "referencedBy": [
           "assets/js/spnHeadlineHelper.js"
-        ]
-      },
-      {
-        "id": "spnInkEfficiencyStyles",
-        "declaredInIndex": false,
-        "ownershipBasis": "runtime-create",
-        "owners": [
-          "assets/js/spnInkEfficiency.js"
-        ],
-        "createdBy": [
-          "assets/js/spnInkEfficiency.js"
-        ],
-        "boundBy": [],
-        "mutatedBy": [],
-        "referencedBy": [
-          "assets/js/spnInkEfficiency.js"
         ]
       },
       {
@@ -4127,22 +4095,6 @@
         "mutatedBy": [],
         "referencedBy": [
           "assets/js/spnPhoneHelper.js"
-        ]
-      },
-      {
-        "id": "spnPhotoLayoutQualityActionStyles",
-        "declaredInIndex": false,
-        "ownershipBasis": "runtime-create",
-        "owners": [
-          "assets/js/spnPhotoLayoutQualityActions.js"
-        ],
-        "createdBy": [
-          "assets/js/spnPhotoLayoutQualityActions.js"
-        ],
-        "boundBy": [],
-        "mutatedBy": [],
-        "referencedBy": [
-          "assets/js/spnPhotoLayoutQualityActions.js"
         ]
       },
       {
@@ -6019,15 +5971,6 @@
         ]
       },
       {
-        "id": "spn-template-keyboard-style",
-        "modules": [
-          "assets/js/spnTemplateKeyboard.js"
-        ],
-        "createdBy": [
-          "assets/js/spnTemplateKeyboard.js"
-        ]
-      },
-      {
         "id": "spnAdvancedWorkbenchStyles",
         "modules": [
           "assets/js/spnAdvancedWorkbench.js"
@@ -6115,15 +6058,6 @@
         ],
         "createdBy": [
           "assets/js/spnDistributionTaskHelper.js"
-        ]
-      },
-      {
-        "id": "spnInkEfficiencyStyles",
-        "modules": [
-          "assets/js/spnInkEfficiency.js"
-        ],
-        "createdBy": [
-          "assets/js/spnInkEfficiency.js"
         ]
       },
       {
@@ -6259,15 +6193,6 @@
         ],
         "createdBy": [
           "assets/js/spnPhoneHelper.js"
-        ]
-      },
-      {
-        "id": "spnPhotoLayoutQualityActionStyles",
-        "modules": [
-          "assets/js/spnPhotoLayoutQualityActions.js"
-        ],
-        "createdBy": [
-          "assets/js/spnPhotoLayoutQualityActions.js"
         ]
       },
       {

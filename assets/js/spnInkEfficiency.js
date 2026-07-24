@@ -1,3 +1,5 @@
+import { subscribeQualityListUpdates } from './qualityListUpdates.js';
+
 const STYLE_ID = 'spnInkEfficiencyStyles';
 const TIP_ATTR = 'data-ink-efficiency-tip';
 const SMOKE_MODE = new URLSearchParams(window.location.search).has('smoke');
@@ -13,27 +15,19 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 
   if(qualityList){
-    scheduleInkTip(qualityList);
-    observeQualityList(qualityList);
+    subscribeQualityListUpdates(({list}) => handleQualityListUpdate(list), {
+      priority: 5,
+      label: 'ink-efficiency'
+    });
     qualityList.addEventListener('click', handleInkAction);
   }
 });
 
-let tipFrame = 0;
-
-function observeQualityList(list){
-  const observer = new MutationObserver(records => {
-    if(records.some(hasRelevantQualityMutation)) scheduleInkTip(list);
-  });
-  observer.observe(list, {childList:true});
-}
-
-function hasRelevantQualityMutation(record){
-  return [...record.addedNodes, ...record.removedNodes].some(node => !isInkTipNode(node));
-}
-
-function isInkTipNode(node){
-  return node instanceof Element && node.hasAttribute(TIP_ATTR);
+function handleQualityListUpdate(list){
+  if(SMOKE_MODE){
+    window.__ETAGI_INK_EFFICIENCY_SCHEDULES__ = Number(window.__ETAGI_INK_EFFICIENCY_SCHEDULES__ || 0) + 1;
+  }
+  updateInkTip(list);
 }
 
 function prepareCompactLayoutColor(event){
@@ -46,18 +40,6 @@ function prepareCompactLayoutColor(event){
   colorMode.value = 'economy';
   colorMode.dispatchEvent(new Event('change', {bubbles:true}));
   setStatus('Для плотной печати включён облегчённый фирменный цвет без больших сплошных заливок.');
-}
-
-function scheduleInkTip(list){
-  if(SMOKE_MODE){
-    window.__ETAGI_INK_EFFICIENCY_SCHEDULES__ = Number(window.__ETAGI_INK_EFFICIENCY_SCHEDULES__ || 0) + 1;
-  }
-
-  window.cancelAnimationFrame(tipFrame);
-  tipFrame = window.requestAnimationFrame(() => {
-    tipFrame = 0;
-    updateInkTip(list);
-  });
 }
 
 function updateInkTip(list){

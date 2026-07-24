@@ -6,6 +6,8 @@ const errors = [];
 const files = {
   helper: 'assets/js/spnLayoutModeAccessibility.js',
   templateHelper: 'assets/js/spnTemplateKeyboard.js',
+  templateStyles: 'assets/css/template-keyboard.css',
+  index: 'index.html',
   entry: 'assets/js/spnUiMode.js',
   smoke: 'tools/browser-smoke.html',
   templateSmoke: 'tools/template-keyboard-smoke.html',
@@ -61,8 +63,7 @@ requireSnippets(files.templateHelper, sources.templateHelper, [
   'function setTabIndexIfChanged(element, value)',
   'if(element.tabIndex === value) return',
   "event.target.closest(FAVORITE_SELECTOR)",
-  "new MutationObserver(() => enhanceCards(list))",
-  ':focus-visible'
+  "new MutationObserver(() => enhanceCards(list))"
 ]);
 
 forbidSnippets(files.templateHelper, sources.templateHelper, [
@@ -73,8 +74,30 @@ forbidSnippets(files.templateHelper, sources.templateHelper, [
   'requestAnimationFrame(() => requestAnimationFrame',
   "card.setAttribute('role', 'option')",
   "card.setAttribute('aria-selected'",
-  'card.tabIndex = card === tabCard ? 0 : -1'
+  'card.tabIndex = card === tabCard ? 0 : -1',
+  "createElement('style')",
+  'document.head.appendChild(style)',
+  'spn-template-keyboard-style',
+  ':focus-visible'
 ]);
+
+requireSnippets(files.templateStyles, sources.templateStyles, [
+  'Доступный клавиатурный фокус карточек шаблонов',
+  '.tpl-card[role="option"]:focus{outline:none}',
+  '.tpl-card[role="option"]:focus-visible',
+  'outline:3px solid var(--accent)',
+  'outline-offset:2px',
+  'box-shadow:0 0 0 5px color-mix(in srgb,var(--accent) 16%,transparent)'
+]);
+
+requireSnippets(files.index, sources.index, [
+  'assets/css/template-keyboard.css?v=3.85.0'
+]);
+const printCssIndex = sources.index.indexOf('assets/css/print.css?v=3.85.0');
+const templateCssIndex = sources.index.indexOf('assets/css/template-keyboard.css?v=3.85.0');
+if(!(printCssIndex >= 0 && templateCssIndex > printCssIndex)){
+  errors.push('index.html: template-keyboard.css должен загружаться после print.css, как прежний поздний injected style');
+}
 
 requireSnippets(files.entry, sources.entry, [
   "import './spnLayoutModeAccessibility.js';",

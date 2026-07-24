@@ -1,12 +1,9 @@
 import { subscribeQualityListUpdates } from './qualityListUpdates.js';
 
-const STYLE_ID = 'spnPhotoLayoutQualityActionStyles';
-
 window.addEventListener('DOMContentLoaded', () => {
   const list = document.getElementById('qualityList');
   if(!list) return;
 
-  injectStyles();
   subscribeQualityListUpdates(({list: qualityList}) => enhancePhotoLayoutIssues(qualityList), {
     priority: 12,
     label: 'photo-layout-quality-actions'
@@ -74,12 +71,4 @@ function handlePhotoLayoutAction(event){
 function setStatus(text){
   const status = document.getElementById('statusLine');
   if(status) status.textContent = text;
-}
-
-function injectStyles(){
-  if(document.getElementById(STYLE_ID)) return;
-  const style = document.createElement('style');
-  style.id = STYLE_ID;
-  style.textContent = '.quality-photo-layout-action{margin-top:7px;font-size:12px;padding:7px 9px;background:#fff;border:1px solid #cbd5e1;color:#334155}';
-  document.head.appendChild(style);
 }

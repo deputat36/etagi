@@ -1,0 +1,8 @@
+/* Доступный клавиатурный фокус карточек шаблонов. */
+
+.tpl-card[role="option"]:focus{outline:none}
+.tpl-card[role="option"]:focus-visible{
+  outline:3px solid var(--accent);
+  outline-offset:2px;
+  box-shadow:0 0 0 5px color-mix(in srgb,var(--accent) 16%,transparent);
+}

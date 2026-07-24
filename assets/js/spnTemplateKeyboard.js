@@ -1,6 +1,9 @@
 const CARD_SELECTOR = '[data-template]';
 const FAVORITE_SELECTOR = '[data-favorite-template]';
 const STYLE_ID = 'spn-template-keyboard-style';
+const FOCUS_RESTORE_STABLE_PASSES = 6;
+const FOCUS_RESTORE_MAX_MS = 1500;
+let focusRestoreToken = 0;
 
 (function initTemplateKeyboardAccessibility(){
   document.addEventListener('DOMContentLoaded', () => {
@@ -66,11 +69,55 @@ function handleKeydown(event, list){
     event.preventDefault();
     const templateId = card.dataset.template;
     card.click();
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      enhanceCards(list);
-      const selected = list.querySelector(`${CARD_SELECTOR}.active`) || list.querySelector(`${CARD_SELECTOR}[data-template="${escapeSelectorValue(templateId)}"]`);
-      selected?.focus();
-    }));
+    restoreSelectedCardFocus(list, templateId);
+  }
+}
+
+function restoreSelectedCardFocus(list, templateId){
+  const token = ++focusRestoreToken;
+  const startedAt = performance.now();
+  let stableCard = null;
+  let stablePasses = 0;
+
+  const attempt = () => {
+    if(token !== focusRestoreToken) return;
+
+    enhanceCards(list);
+    const selected = findSelectedCard(list, templateId);
+    if(selected){
+      setRovingTabStop(list, selected);
+      focusWithoutScroll(selected);
+
+      if(selected === stableCard && selected.isConnected && document.activeElement === selected){
+        stablePasses += 1;
+      } else {
+        stableCard = selected;
+        stablePasses = document.activeElement === selected ? 1 : 0;
+      }
+    } else {
+      stableCard = null;
+      stablePasses = 0;
+    }
+
+    if(stablePasses >= FOCUS_RESTORE_STABLE_PASSES) return;
+    if(performance.now() - startedAt >= FOCUS_RESTORE_MAX_MS) return;
+
+    window.setTimeout(() => window.requestAnimationFrame(attempt), 40);
+  };
+
+  window.requestAnimationFrame(attempt);
+}
+
+function findSelectedCard(list, templateId){
+  return list.querySelector(`${CARD_SELECTOR}.active`)
+    || list.querySelector(`${CARD_SELECTOR}[data-template="${escapeSelectorValue(templateId)}"]`);
+}
+
+function focusWithoutScroll(element){
+  try {
+    element.focus({preventScroll:true});
+  } catch(error) {
+    element.focus();
   }
 }
 

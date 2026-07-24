@@ -11,9 +11,10 @@ export function subscribeQualityListUpdates(callback, options = {}) {
     throw new TypeError('qualityListUpdates: callback должен быть функцией');
   }
 
+  const numericPriority = Number(options.priority);
   const record = {
     callback,
-    priority: Number(options.priority) || 100,
+    priority: Number.isFinite(numericPriority) ? numericPriority : 100,
     label: String(options.label || callback.name || 'anonymous')
   };
 

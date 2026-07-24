@@ -118,7 +118,7 @@ requireSnippets(files.templateChecklist, sources.templateChecklist, [
   'role="option"',
   'aria-selected="true|false"',
   'Кнопка избранного остаётся самостоятельной кнопкой',
-  'нескольких последовательных кадров',
+  'несколькими последовательными кадрами',
   'не создаёт постоянный таймер'
 ]);
 

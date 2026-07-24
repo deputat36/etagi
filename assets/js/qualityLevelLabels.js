@@ -1,3 +1,5 @@
+import { subscribeQualityListUpdates } from './qualityListUpdates.js';
+
 (function () {
   const levelLabels = {
     error: 'Ошибка',
@@ -11,8 +13,10 @@
     const list = document.getElementById('qualityList');
     if (!list) return;
 
-    new MutationObserver(enhanceQualityItems).observe(list, { childList: true });
-    enhanceQualityItems();
+    subscribeQualityListUpdates(enhanceQualityItems, {
+      priority: 10,
+      label: 'quality-level-labels'
+    });
   }
 
   function enhanceQualityItems() {

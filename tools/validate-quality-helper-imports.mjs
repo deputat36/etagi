@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 
 const indexSource = read('index.html');
+const appSource = read('assets/js/app.js');
 const sharedUpdatesSource = read('assets/js/qualityListUpdates.js');
 const preprintSource = read('assets/js/preprintSummary.js');
 const layoutSyncSource = read('assets/js/layoutExtrasSync.js');
@@ -29,16 +30,28 @@ checkScriptOrder(
   'помощники качества должны загружаться до быстрых исправлений'
 );
 
+check(appSource, 'app.js', [
+  "import { requestQualityListUpdate } from './qualityListUpdates.js';",
+  "requestQualityListUpdate(show ? 'manual-quality' : 'automatic-quality');"
+]);
+
 check(sharedUpdatesSource, 'qualityListUpdates.js', [
   'export function subscribeQualityListUpdates(callback, options = {})',
   "export function requestQualityListUpdate(reason = 'manual')",
   "attributeFilter: ['data-quality-suppressed']",
-  'subscribers.sort((left, right) => left.priority - right.priority',
-  'bindManualQualityTrigger();',
-  "document.getElementById('qualityBtn')",
-  "manualTriggerElement.addEventListener('click', handleManualQualityTrigger, true)",
-  "scheduleQualityListUpdate('manual-quality')"
+  'subscribers.sort((left, right) => left.priority - right.priority'
 ]);
+
+for (const forbidden of [
+  'bindManualQualityTrigger',
+  'manualTriggerElement',
+  "document.getElementById('qualityBtn')",
+  "scheduleQualityListUpdate('manual-quality')"
+]) {
+  if (sharedUpdatesSource.includes(forbidden)) {
+    errors.push(`qualityListUpdates.js: общий канал не должен перехватывать кнопку напрямую — ${forbidden}`);
+  }
+}
 
 const sharedConsumers = [
   'assets/js/qualityLevelLabels.js',

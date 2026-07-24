@@ -3,7 +3,6 @@ const subscribers = [];
 const pendingReasons = new Set();
 let observedList = null;
 let observer = null;
-let manualTriggerElement = null;
 let updateFrame = 0;
 let updateSequence = 0;
 
@@ -38,7 +37,6 @@ export function requestQualityListUpdate(reason = 'manual') {
 }
 
 function ensureQualityListObserver() {
-  bindManualQualityTrigger();
   const list = document.getElementById('qualityList');
   if (!list || (observer && observedList === list)) return;
 
@@ -62,19 +60,6 @@ function ensureQualityListObserver() {
   if (SMOKE_MODE) {
     window.__ETAGI_QUALITY_LIST_OBSERVER_INSTANCES__ = Number(window.__ETAGI_QUALITY_LIST_OBSERVER_INSTANCES__ || 0) + 1;
   }
-}
-
-function bindManualQualityTrigger() {
-  const button = document.getElementById('qualityBtn');
-  if (!button || manualTriggerElement === button) return;
-
-  manualTriggerElement?.removeEventListener('click', handleManualQualityTrigger, true);
-  manualTriggerElement = button;
-  manualTriggerElement.addEventListener('click', handleManualQualityTrigger, true);
-}
-
-function handleManualQualityTrigger() {
-  scheduleQualityListUpdate('manual-quality');
 }
 
 function isRelevantQualityMutation(record, list) {

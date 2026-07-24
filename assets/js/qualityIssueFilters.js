@@ -1,3 +1,5 @@
+import { subscribeQualityListUpdates } from './qualityListUpdates.js';
+
 (function () {
   const filters = [
     { key: 'all', label: 'Все' },
@@ -15,8 +17,10 @@
 
     ensureFilterElement();
     document.getElementById('qualityIssueFilters')?.addEventListener('click', handleFilterClick);
-    new MutationObserver(updateFilters).observe(list, { childList: true, subtree: true, attributes: true, attributeFilter: ['data-quality-suppressed', 'hidden'] });
-    updateFilters();
+    subscribeQualityListUpdates(updateFilters, {
+      priority: 29,
+      label: 'quality-issue-filters'
+    });
   }
 
   function ensureFilterElement() {

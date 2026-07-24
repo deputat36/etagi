@@ -1,3 +1,5 @@
+import { subscribeQualityListUpdates } from './qualityListUpdates.js';
+
 (function () {
   const SOFT_QR_TITLE = 'QR может быть мелким';
   const HARD_QR_TITLE = 'QR слишком мал для мини-макета';
@@ -9,8 +11,10 @@
     const list = document.getElementById('qualityList');
     if (!list) return;
 
-    new MutationObserver(hideSoftQrHintWhenHardHintExists).observe(list, { childList: true, subtree: true });
-    hideSoftQrHintWhenHardHintExists();
+    subscribeQualityListUpdates(hideSoftQrHintWhenHardHintExists, {
+      priority: 0,
+      label: 'quality-qr-deduplicate'
+    });
   }
 
   function hideSoftQrHintWhenHardHintExists() {

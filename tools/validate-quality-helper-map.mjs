@@ -9,6 +9,9 @@ check(mapSource, 'docs/quality-helper-map.md', [
   'включая прямой переход к полю ссылки для пустого QR, к полям загрузки для пустых фото и к безопасной настройке канала отклика',
   '## Единый канал обновлений списка качества',
   '`assets/js/qualityListUpdates.js` создаёт один `MutationObserver` для `#qualityList`',
+  '`assets/js/app.js` импортирует `requestQualityListUpdate()`',
+  '`runQuality()` сформировал HTML списка и привязал штатные кнопки исправлений',
+  'автоматическая и ручная проверка имеют одинаковый явный сигнал завершения',
   '`subscribeQualityListUpdates()`',
   '`data-quality-suppressed`',
   'Атрибут `hidden` намеренно не наблюдается',
@@ -27,6 +30,7 @@ check(mapSource, 'docs/quality-helper-map.md', [
   '`qualityListUpdates.js`',
   '## Документация и проверки',
   '`tools/validate-quality-helper-imports.mjs`',
+  'проверяет явный сигнал `app.js`',
   '`tools/validate-quality-helper-map.mjs`',
   '`tools/validate-readme-quality-docs.mjs`',
   '`tools/validate-photo-intent-action.mjs`',
@@ -36,6 +40,7 @@ check(mapSource, 'docs/quality-helper-map.md', [
   '`tools/validate-response-channel-action.mjs`',
   'замечание без канала отклика обрабатывается прямым действием `responseChannel`, а не старым `showContact`',
   '`tools/quality-list-updates-smoke.html`',
+  'явный рендер-сигнал',
   '`.github/workflows/validate.yml`',
   '`docs/**` и `README.md`',
   '`tools/validate-changelog.mjs`',
@@ -49,6 +54,8 @@ check(mapSource, 'docs/quality-helper-map.md', [
   '`qualitySuppressedPriority.js` удалён',
   'Файл, который лежит в `assets/js`, но не подключён ожидаемым импортом, считается нерабочим',
   'не должен создавать собственный `MutationObserver`',
+  'обязан после заполнения `#qualityList` вызвать `requestQualityListUpdate()`',
+  'Нельзя заменять этот сигнал перехватом кнопки, постоянным таймером или ещё одним observer',
   'нужно обновить не только эту карту, но и `docs/maintenance-guide.md`'
 ]);
 

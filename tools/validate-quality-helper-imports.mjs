@@ -39,17 +39,26 @@ check(sharedUpdatesSource, 'qualityListUpdates.js', [
   'export function subscribeQualityListUpdates(callback, options = {})',
   "export function requestQualityListUpdate(reason = 'manual')",
   "attributeFilter: ['data-quality-suppressed']",
-  'subscribers.sort((left, right) => left.priority - right.priority'
+  'subscribers.sort((left, right) => left.priority - right.priority',
+  'let updateTimer = 0;',
+  'if (updateFrame || updateTimer) return;',
+  "flushScheduledQualityUpdates('frame')",
+  "window.setTimeout(() => flushScheduledQualityUpdates('timeout'), 96)",
+  'function flushScheduledQualityUpdates(transport)',
+  'window.cancelAnimationFrame(updateFrame)',
+  'window.clearTimeout(updateTimer)',
+  'window.__ETAGI_QUALITY_LIST_UPDATE_FALLBACKS__'
 ]);
 
 for (const forbidden of [
   'bindManualQualityTrigger',
   'manualTriggerElement',
   "document.getElementById('qualityBtn')",
-  "scheduleQualityListUpdate('manual-quality')"
+  "scheduleQualityListUpdate('manual-quality')",
+  'setInterval('
 ]) {
   if (sharedUpdatesSource.includes(forbidden)) {
-    errors.push(`qualityListUpdates.js: общий канал не должен перехватывать кнопку напрямую — ${forbidden}`);
+    errors.push(`qualityListUpdates.js: найден запрещённый механизм общего канала — ${forbidden}`);
   }
 }
 

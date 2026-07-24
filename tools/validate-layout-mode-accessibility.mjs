@@ -48,17 +48,24 @@ requireSnippets(files.templateHelper, sources.templateHelper, [
   "key === 'Home'",
   "key === 'End'",
   'card.click()',
-  'requestAnimationFrame(() => requestAnimationFrame',
+  'restoreSelectedCardFocus(list, templateId)',
+  'const FOCUS_RESTORE_STABLE_PASSES = 6',
+  'const FOCUS_RESTORE_MAX_MS = 1500',
+  'function restoreSelectedCardFocus(list, templateId)',
+  'selected === stableCard && selected.isConnected && document.activeElement === selected',
+  'window.setTimeout(() => window.requestAnimationFrame(attempt), 40)',
+  'element.focus({preventScroll:true})',
   "event.target.closest(FAVORITE_SELECTOR)",
   "new MutationObserver(() => enhanceCards(list))",
-  ":focus-visible"
+  ':focus-visible'
 ]);
 
 forbidSnippets(files.templateHelper, sources.templateHelper, [
   "document.addEventListener('keydown'",
   "window.addEventListener('keydown'",
   'localStorage.setItem',
-  'applyTemplate('
+  'applyTemplate(',
+  'requestAnimationFrame(() => requestAnimationFrame'
 ]);
 
 requireSnippets(files.entry, sources.entry, [
@@ -110,7 +117,9 @@ requireSnippets(files.templateChecklist, sources.templateChecklist, [
   'role="listbox"',
   'role="option"',
   'aria-selected="true|false"',
-  'Кнопка избранного остаётся самостоятельной кнопкой'
+  'Кнопка избранного остаётся самостоятельной кнопкой',
+  'нескольких последовательных кадров',
+  'не создаёт постоянный таймер'
 ]);
 
 if(errors.length){

@@ -51,8 +51,9 @@
           'quality-priority-hint',
           'quality-print-guard'
         ].forEach(label => assert(labels.includes(label), `не зарегистрирован потребитель ${label}`));
+        assert(subscribers[0]?.label === 'quality-qr-deduplicate' && subscribers[0]?.priority === 0, 'QR-дедупликация не имеет первого нулевого приоритета');
         assert(Number(win.__ETAGI_QUALITY_LIST_OBSERVER_INSTANCES__ || 0) === 1, 'создано больше одного общего observer');
-        pass('восемь потребителей используют один observer');
+        pass('восемь потребителей используют один observer с правильным порядком');
 
         lastAction = 'shared-observer.controlled-list';
         qualityList.replaceChildren();
@@ -109,16 +110,19 @@
         pass('подавление синхронно обновляет фильтр, приоритет и защиту печати');
 
         lastAction = 'shared-observer.qr-deduplicate';
+        warning.remove();
+        error.remove();
+        await waitFor(() => !printBtn.classList.contains('print-has-warnings'), 3000, 'контрольные замечания не удалились перед QR-проверкой');
         const softQr = createIssue(doc, 'tip', 'QR может быть мелким', 'Мягкий совет');
         const hardQr = createIssue(doc, 'warn', 'QR слишком мал для мини-макета', 'Более важное предупреждение');
         qualityList.append(softQr, hardQr);
         await waitFor(() => softQr.dataset.qualitySuppressed === 'qr-size-duplicate', 3000, 'мягкий QR-дубль не подавлен');
+        await waitFor(() => doc.getElementById('qualityPriorityHint')?.textContent.includes('QR слишком мал'), 3000, 'приоритет не учитывает результат QR-дедупликации');
         await delay(700);
         const qrSettled = flushes(win);
         await delay(500);
         assert(flushes(win) === qrSettled, 'QR-дедупликация продолжила цикл после стабилизации');
         assert(softQr.hidden, 'подавленный QR-дубль не скрыт');
-        assert(doc.getElementById('qualityPriorityHint')?.textContent.includes('QR слишком мал'), 'приоритет не учитывает результат QR-дедупликации');
         pass('QR-дедупликация выполняется раньше визуальных потребителей');
 
         lastAction = 'shared-observer.restore';

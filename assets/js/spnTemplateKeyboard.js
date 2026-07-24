@@ -40,10 +40,10 @@ function enhanceCards(list){
 
   cards.forEach(card => {
     const selected = card.classList.contains('active');
-    card.setAttribute('role', 'option');
-    card.setAttribute('aria-selected', selected ? 'true' : 'false');
-    card.setAttribute('aria-label', buildCardLabel(card, selected));
-    card.tabIndex = card === tabCard ? 0 : -1;
+    setAttributeIfChanged(card, 'role', 'option');
+    setAttributeIfChanged(card, 'aria-selected', selected ? 'true' : 'false');
+    setAttributeIfChanged(card, 'aria-label', buildCardLabel(card, selected));
+    setTabIndexIfChanged(card, card === tabCard ? 0 : -1);
   });
 }
 
@@ -130,7 +130,17 @@ function getTargetIndex(key, index, length){
 }
 
 function setRovingTabStop(list, target){
-  getCards(list).forEach(card => { card.tabIndex = card === target ? 0 : -1; });
+  getCards(list).forEach(card => setTabIndexIfChanged(card, card === target ? 0 : -1));
+}
+
+function setAttributeIfChanged(element, name, value){
+  if(element.getAttribute(name) === value) return;
+  element.setAttribute(name, value);
+}
+
+function setTabIndexIfChanged(element, value){
+  if(element.tabIndex === value) return;
+  element.tabIndex = value;
 }
 
 function getCards(list){

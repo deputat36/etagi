@@ -71,7 +71,7 @@
   "summary": {
     "entrypointCount": 16,
     "moduleCount": 82,
-    "relationCount": 96,
+    "relationCount": 97,
     "sideEffectModuleCount": 54,
     "dynamicModuleCount": 0,
     "domIdCount": 315,
@@ -2279,7 +2279,6 @@
         "mutatedBy": [],
         "referencedBy": [
           "assets/js/app.js",
-          "assets/js/qualityListUpdates.js",
           "assets/js/spnChecklist.js",
           "assets/js/spnDistributionReportHelper.js",
           "assets/js/spnPreviewQuickBar.js",
@@ -6430,6 +6429,10 @@
           "mode": "dependency"
         },
         {
+          "path": "assets/js/qualityListUpdates.js",
+          "mode": "dependency"
+        },
+        {
           "path": "assets/js/render.js",
           "mode": "dependency"
         },
@@ -6736,6 +6739,10 @@
         "dependency"
       ],
       "importedBy": [
+        {
+          "path": "assets/js/app.js",
+          "mode": "dependency"
+        },
         {
           "path": "assets/js/qualityIssueFilters.js",
           "mode": "dependency"

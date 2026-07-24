@@ -6,6 +6,7 @@ import { applyCss, renderSheet, getGrid } from './render.js';
 import { checkQuality } from './quality.js';
 import { autoSave, saveNamed, loadNamed, loadAutoSave, saveProfile, loadProfile, listSavedLayouts, saveLayout, loadLayout, deleteLayout, listFavoriteTemplates, toggleFavoriteTemplate } from './storage.js';
 import { applyLayoutMode, applyLayoutModePreservingMedia, getLayoutHints } from './layoutRules.js';
+import { requestQualityListUpdate } from './qualityListUpdates.js';
 
 let state = cloneDefaultState();
 let templates = [];
@@ -520,6 +521,7 @@ function runQuality(show){
   $('qualityScore').className = lastQuality.score>=80 ? 'score-good' : lastQuality.score>=60 ? 'score-mid' : 'score-bad';
   $('qualityList').innerHTML = lastQuality.issues.length ? lastQuality.issues.map(issueHtml).join('') : '<div class="qitem tip"><b>Макет готов</b>Критичных замечаний нет. Проверьте телефон и печатайте.</div>';
   $('qualityList').querySelectorAll('[data-fix]').forEach(b=>b.onclick=()=>applyFix(b.dataset.fix));
+  requestQualityListUpdate(show ? 'manual-quality' : 'automatic-quality');
   updatePreviewStatus();
   if(show) setStatus(lastQuality.issues.length ? 'Есть замечания. Исправьте важные перед печатью.' : 'Проверка пройдена.');
   return lastQuality;

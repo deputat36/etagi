@@ -39,26 +39,41 @@ forbidSnippets(files.helper, sources.helper, [
 
 requireSnippets(files.templateHelper, sources.templateHelper, [
   "list.setAttribute('role', 'listbox')",
-  "card.setAttribute('role', 'option')",
-  "card.setAttribute('aria-selected'",
-  'card.tabIndex = card === tabCard ? 0 : -1',
+  "setAttributeIfChanged(card, 'role', 'option')",
+  "setAttributeIfChanged(card, 'aria-selected'",
+  "setAttributeIfChanged(card, 'aria-label'",
+  'setTabIndexIfChanged(card, card === tabCard ? 0 : -1)',
   "event.key === 'Enter' || event.key === ' '",
   "key === 'ArrowDown' || key === 'ArrowRight'",
   "key === 'ArrowUp' || key === 'ArrowLeft'",
   "key === 'Home'",
   "key === 'End'",
   'card.click()',
-  'requestAnimationFrame(() => requestAnimationFrame',
+  'restoreSelectedCardFocus(list, templateId)',
+  'const FOCUS_RESTORE_STABLE_PASSES = 6',
+  'const FOCUS_RESTORE_MAX_MS = 1500',
+  'function restoreSelectedCardFocus(list, templateId)',
+  'selected === stableCard && selected.isConnected && document.activeElement === selected',
+  'window.setTimeout(() => window.requestAnimationFrame(attempt), 40)',
+  'element.focus({preventScroll:true})',
+  'function setAttributeIfChanged(element, name, value)',
+  'if(element.getAttribute(name) === value) return',
+  'function setTabIndexIfChanged(element, value)',
+  'if(element.tabIndex === value) return',
   "event.target.closest(FAVORITE_SELECTOR)",
   "new MutationObserver(() => enhanceCards(list))",
-  ":focus-visible"
+  ':focus-visible'
 ]);
 
 forbidSnippets(files.templateHelper, sources.templateHelper, [
   "document.addEventListener('keydown'",
   "window.addEventListener('keydown'",
   'localStorage.setItem',
-  'applyTemplate('
+  'applyTemplate(',
+  'requestAnimationFrame(() => requestAnimationFrame',
+  "card.setAttribute('role', 'option')",
+  "card.setAttribute('aria-selected'",
+  'card.tabIndex = card === tabCard ? 0 : -1'
 ]);
 
 requireSnippets(files.entry, sources.entry, [
@@ -84,6 +99,7 @@ requireSnippets(files.templateSmoke, sources.templateSmoke, [
   "press(win, enterTarget, 'Enter')",
   "press(win, spaceTarget, ' ')",
   'после Enter фокус не вернулся на выбранную карточку',
+  'внутренняя мутация карточки повторно запустила ARIA-обход',
   'обработчик карточек перехватил клавиши кнопки избранного'
 ]);
 
@@ -110,7 +126,10 @@ requireSnippets(files.templateChecklist, sources.templateChecklist, [
   'role="listbox"',
   'role="option"',
   'aria-selected="true|false"',
-  'Кнопка избранного остаётся самостоятельной кнопкой'
+  'Кнопка избранного остаётся самостоятельной кнопкой',
+  'несколькими последовательными кадрами',
+  'не создаёт постоянный таймер',
+  'атрибуты повторно не записываются'
 ]);
 
 if(errors.length){

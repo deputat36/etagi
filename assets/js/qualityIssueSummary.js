@@ -1,3 +1,5 @@
+import { subscribeQualityListUpdates } from './qualityListUpdates.js';
+
 (function () {
   const levels = [
     { key: 'error', label: 'Ошибки' },
@@ -13,8 +15,10 @@
 
     ensureSummaryElement();
     document.getElementById('qualityIssueSummary')?.addEventListener('click', handleSummaryClick);
-    new MutationObserver(updateSummary).observe(list, { childList: true, subtree: true, attributes: true, attributeFilter: ['data-quality-suppressed', 'hidden'] });
-    updateSummary();
+    subscribeQualityListUpdates(updateSummary, {
+      priority: 30,
+      label: 'quality-issue-summary'
+    });
   }
 
   function ensureSummaryElement() {

@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 
 const qualitySource = read('assets/js/quality.js');
+const sharedUpdatesSource = read('assets/js/qualityListUpdates.js');
 const dedupeSource = read('assets/js/qualityQrDeduplicate.js');
 const filtersSource = read('assets/js/qualityIssueFilters.js');
 const summarySource = read('assets/js/qualityIssueSummary.js');
@@ -20,35 +21,68 @@ check(qualitySource, 'quality.js', [
 checkQrSourceGuard(qualitySource);
 checkRemovedSuppressedPriority();
 
-check(dedupeSource, 'qualityQrDeduplicate.js', [
-  "const SUPPRESSED_REASON = 'qr-size-duplicate'",
-  'softItem.dataset.qualitySuppressed = SUPPRESSED_REASON',
-  'delete softItem.dataset.qualitySuppressed'
+check(sharedUpdatesSource, 'qualityListUpdates.js', [
+  "attributeFilter: ['data-quality-suppressed']",
+  "record.target.matches('.qitem')",
+  "scheduleQualityListUpdate('mutation')"
 ]);
+if (sharedUpdatesSource.includes("attributeFilter: ['data-quality-suppressed', 'hidden']")) {
+  errors.push('qualityListUpdates.js: общий observer не должен следить за hidden, который меняют фильтры');
+}
+
+check(dedupeSource, 'qualityQrDeduplicate.js', [
+  "import { subscribeQualityListUpdates } from './qualityListUpdates.js';",
+  "const SUPPRESSED_REASON = 'qr-size-duplicate'",
+  "priority: 0",
+  'softItem.dataset.qualitySuppressed !== SUPPRESSED_REASON',
+  'softItem.dataset.qualitySuppressed = SUPPRESSED_REASON',
+  'if (!softItem.hidden) softItem.hidden = true',
+  'delete softItem.dataset.qualitySuppressed',
+  'if (softItem.hidden) softItem.hidden = false'
+]);
+if (/if \(hardItem\) \{\s*softItem\.dataset\.qualitySuppressed = SUPPRESSED_REASON/.test(dedupeSource)) {
+  errors.push('qualityQrDeduplicate.js: нельзя повторно записывать то же подавление на каждом общем проходе');
+}
 
 check(filtersSource, 'qualityIssueFilters.js', [
-  "attributeFilter: ['data-quality-suppressed', 'hidden']",
+  "import { subscribeQualityListUpdates } from './qualityListUpdates.js';",
+  "label: 'quality-issue-filters'",
   'const items = allItems.filter((item) => !item.dataset.qualitySuppressed)',
   'suppressedItems.forEach((item) => { item.hidden = true; })'
 ]);
 
 check(summarySource, 'qualityIssueSummary.js', [
-  "attributeFilter: ['data-quality-suppressed', 'hidden']",
+  "import { subscribeQualityListUpdates } from './qualityListUpdates.js';",
+  "label: 'quality-issue-summary'",
   "filter((item) => !item.dataset.qualitySuppressed)",
   'count: activeItems.filter((item) => item.classList.contains(level.key)).length'
 ]);
 
 check(priorityHintSource, 'qualityPriorityHint.js', [
-  "attributeFilter: ['data-quality-suppressed']",
+  "import { subscribeQualityListUpdates } from './qualityListUpdates.js';",
+  "label: 'quality-priority-hint'",
   "find((entry) => !entry.dataset.qualitySuppressed)"
 ]);
 
 check(printGuardSource, 'qualityPrintGuardHint.js', [
-  "attributeFilter: ['data-quality-suppressed']",
+  "import { subscribeQualityListUpdates } from './qualityListUpdates.js';",
+  "label: 'quality-print-guard'",
   "const hasError = Boolean(findActiveIssue(list, 'error'))",
   "const hasWarning = Boolean(findActiveIssue(list, 'warn'))",
   "find((item) => !item.dataset.qualitySuppressed)"
 ]);
+
+for (const [file, source] of [
+  ['qualityQrDeduplicate.js', dedupeSource],
+  ['qualityIssueFilters.js', filtersSource],
+  ['qualityIssueSummary.js', summarySource],
+  ['qualityPriorityHint.js', priorityHintSource],
+  ['qualityPrintGuardHint.js', printGuardSource]
+]) {
+  if (source.includes('new MutationObserver')) {
+    errors.push(`${file}: не должен создавать отдельный observer списка качества`);
+  }
+}
 
 check(preprintSource, 'preprintSummary.js', [
   "filter((item) => !item.dataset.qualitySuppressed)",

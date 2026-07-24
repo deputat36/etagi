@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Etagi shared quality list updates smoke</title>
+  <style>
+    body{font-family:Arial,sans-serif;margin:16px}
+    #appFrame{width:1280px;height:900px;border:1px solid #cbd5e1}
+    #uiActionsSmokeResult{white-space:pre-wrap;padding:12px;border:1px solid #cbd5e1;border-radius:8px;background:#f8fafc}
+  </style>
+</head>
+<body>
+  <pre id="uiActionsSmokeResult" data-status="pending">Shared quality list updates smoke is running…</pre>
+  <iframe id="appFrame" title="Генератор расклеек"></iframe>
+  <script>
+    const result = document.getElementById('uiActionsSmokeResult');
+    const frame = document.getElementById('appFrame');
+    const checks = [];
+    const runtimeErrors = [];
+    let lastAction = 'startup';
+
+    frame.addEventListener('load', async () => {
+      const win = frame.contentWindow;
+      const doc = frame.contentDocument;
+      runtimeErrors.push(...(Array.isArray(win.__ETAGI_EARLY_ERRORS__) ? win.__ETAGI_EARLY_ERRORS__ : []));
+      win.addEventListener('error', event => runtimeErrors.push(event.message || 'window error'));
+      win.addEventListener('unhandledrejection', event => runtimeErrors.push(String(event.reason || 'unhandled rejection')));
+      let originalMarkup = '';
+
+      try{
+        await waitFor(() => doc.querySelector('#qualityList .qitem'), 10000, 'список качества не появился');
+        await waitFor(() => Number(win.__ETAGI_QUALITY_LIST_OBSERVER_INSTANCES__ || 0) === 1, 5000, 'единый observer списка качества не запустился');
+        await waitFor(() => Array.isArray(win.__ETAGI_QUALITY_LIST_SUBSCRIBERS__) && win.__ETAGI_QUALITY_LIST_SUBSCRIBERS__.length >= 8, 5000, 'не зарегистрированы все потребители списка качества');
+        await waitFor(() => Number(win.__ETAGI_QUALITY_LIST_UPDATE_FLUSHES__ || 0) >= 1, 5000, 'начальный общий цикл обновления не выполнен');
+        await delay(700);
+
+        const qualityList = doc.getElementById('qualityList');
+        const printBtn = doc.getElementById('printBtn');
+        assert(qualityList && printBtn, 'не найдены элементы общего канала качества');
+        originalMarkup = qualityList.innerHTML;
+
+        const subscribers = win.__ETAGI_QUALITY_LIST_SUBSCRIBERS__ || [];
+        const labels = subscribers.map(item => item.label);
+        [
+          'quality-qr-deduplicate',
+          'ink-efficiency',
+          'quality-level-labels',
+          'photo-layout-quality-actions',
+          'quality-issue-filters',
+          'quality-issue-summary',
+          'quality-priority-hint',
+          'quality-print-guard'
+        ].forEach(label => assert(labels.includes(label), `не зарегистрирован потребитель ${label}`));
+        assert(subscribers[0]?.label === 'quality-qr-deduplicate' && subscribers[0]?.priority === 0, 'QR-дедупликация не имеет первого нулевого приоритета');
+        assert(Number(win.__ETAGI_QUALITY_LIST_OBSERVER_INSTANCES__ || 0) === 1, 'создано больше одного общего observer');
+        pass('восемь потребителей используют один observer с правильным порядком');
+
+        lastAction = 'shared-observer.controlled-list';
+        qualityList.replaceChildren();
+        const warning = createIssue(doc, 'warn', 'Нет призыва в контактах', 'Контрольное важное замечание');
+        qualityList.append(warning);
+        await waitFor(() => warning.querySelector('.quality-level-warn'), 3000, 'новое замечание не получило подпись уровня');
+        await waitFor(() => doc.querySelector('[data-quality-summary-filter="warn"]'), 3000, 'сводка не увидела важное замечание');
+        await waitFor(() => doc.getElementById('qualityPriorityHint')?.classList.contains('warn'), 3000, 'приоритет не обновился до важного замечания');
+        await waitFor(() => printBtn.classList.contains('print-has-warnings'), 3000, 'защита печати не увидела важное замечание');
+        assert(warning.querySelectorAll('[data-extra-quality-fix]').length <= 1, 'быстрое исправление продублировалось');
+        pass('единый цикл обновил подпись, сводку, приоритет и печать');
+
+        lastAction = 'shared-observer.descendant';
+        const descendantBaseline = flushes(win);
+        const descendant = doc.createElement('span');
+        descendant.textContent = 'marker';
+        warning.append(descendant);
+        await delay(350);
+        assert(flushes(win) === descendantBaseline, 'внутренняя мутация замечания вызвала общий цикл');
+        descendant.remove();
+        await delay(250);
+        assert(flushes(win) === descendantBaseline, 'удаление внутреннего marker вызвало общий цикл');
+        pass('внутренние DOM-изменения замечания игнорируются');
+
+        lastAction = 'shared-observer.irrelevant-direct-child';
+        const irrelevantBaseline = flushes(win);
+        const marker = doc.createElement('div');
+        marker.hidden = true;
+        marker.dataset.sharedQualitySmokeMarker = '';
+        qualityList.append(marker);
+        await delay(350);
+        assert(flushes(win) === irrelevantBaseline, 'нерелевантный прямой элемент вызвал общий цикл');
+        marker.remove();
+        pass('нерелевантные прямые элементы игнорируются');
+
+        lastAction = 'shared-observer.filter-hidden';
+        const filterButton = doc.querySelector('[data-quality-filter="warn"]');
+        assert(filterButton && !filterButton.hidden, 'не найден фильтр важного замечания');
+        filterButton.click();
+        await delay(350);
+        const filterSettled = flushes(win);
+        await delay(450);
+        assert(flushes(win) === filterSettled, 'собственные hidden-изменения фильтра вызвали повторный цикл');
+        pass('фильтрация не будит общий observer');
+
+        lastAction = 'shared-observer.error-and-suppression';
+        const error = createIssue(doc, 'error', 'Контрольная ошибка', 'Печать должна быть заблокирована');
+        qualityList.append(error);
+        await waitFor(() => printBtn.classList.contains('print-blocked'), 3000, 'новая ошибка не заблокировала печать');
+        await waitFor(() => doc.getElementById('qualityPriorityHint')?.classList.contains('error'), 3000, 'новая ошибка не стала первым приоритетом');
+        error.dataset.qualitySuppressed = 'smoke';
+        await waitFor(() => !printBtn.classList.contains('print-blocked'), 3000, 'подавленная ошибка продолжает блокировать печать');
+        assert(error.hidden, 'подавленная ошибка не скрыта фильтром');
+        pass('подавление синхронно обновляет фильтр, приоритет и защиту печати');
+
+        lastAction = 'shared-observer.qr-deduplicate';
+        warning.remove();
+        error.remove();
+        await waitFor(() => !printBtn.classList.contains('print-has-warnings'), 3000, 'контрольные замечания не удалились перед QR-проверкой');
+        const softQr = createIssue(doc, 'tip', 'QR может быть мелким', 'Мягкий совет');
+        const hardQr = createIssue(doc, 'warn', 'QR слишком мал для мини-макета', 'Более важное предупреждение');
+        qualityList.append(softQr, hardQr);
+        await waitFor(() => softQr.dataset.qualitySuppressed === 'qr-size-duplicate', 3000, 'мягкий QR-дубль не подавлен');
+        await waitFor(() => doc.getElementById('qualityPriorityHint')?.textContent.includes('QR слишком мал'), 3000, 'приоритет не учитывает результат QR-дедупликации');
+        await delay(700);
+        const qrSettled = flushes(win);
+        await delay(500);
+        assert(flushes(win) === qrSettled, 'QR-дедупликация продолжила цикл после стабилизации');
+        assert(softQr.hidden, 'подавленный QR-дубль не скрыт');
+        pass('QR-дедупликация выполняется раньше визуальных потребителей');
+
+        lastAction = 'shared-observer.restore';
+        qualityList.innerHTML = originalMarkup;
+        await waitFor(() => qualityList.querySelector('.qitem'), 3000, 'исходный список качества не восстановился');
+        await delay(700);
+        assert(Number(win.__ETAGI_QUALITY_LIST_OBSERVER_INSTANCES__ || 0) === 1, 'после восстановления создан новый observer');
+        if(runtimeErrors.length) throw new Error(`runtime errors: ${runtimeErrors.join(' | ')}`);
+        lastAction = 'completed';
+        result.dataset.status = 'passed';
+        result.textContent = `PASSED\n${checks.map(item => `✓ ${item}`).join('\n')}`;
+      } catch(error){
+        const list = doc.getElementById('qualityList');
+        if(list && originalMarkup) list.innerHTML = originalMarkup;
+        result.dataset.status = 'failed';
+        result.dataset.lastAction = lastAction;
+        result.textContent = `FAILED\n${checks.map(item => `✓ ${item}`).join('\n')}\n✗ ${error.message || error}\nПоследнее действие: ${lastAction}\nСостояние: ${JSON.stringify(snapshot(doc, win))}`;
+      }
+    }, {once:true});
+
+    frame.src = '/index.html?smoke=quality-list-updates';
+
+    window.setTimeout(() => {
+      if(result.dataset.status === 'pending'){
+        result.dataset.status = 'failed';
+        result.dataset.lastAction = lastAction;
+        result.textContent = `FAILED\n${checks.map(item => `✓ ${item}`).join('\n')}\n✗ timeout shared quality list updates smoke\nПоследнее действие: ${lastAction}`;
+      }
+    }, 24000);
+
+    function createIssue(doc, level, title, text){
+      const item = doc.createElement('div');
+      item.className = `qitem ${level}`;
+      item.innerHTML = `<b>${title}</b><span>${text}</span>`;
+      return item;
+    }
+    function flushes(win){ return Number(win.__ETAGI_QUALITY_LIST_UPDATE_FLUSHES__ || 0); }
+    function snapshot(doc, win){
+      return {
+        status:doc.getElementById('statusLine')?.textContent || '',
+        issues:doc.querySelectorAll('#qualityList .qitem').length,
+        subscribers:(win.__ETAGI_QUALITY_LIST_SUBSCRIBERS__ || []).length,
+        observerInstances:Number(win.__ETAGI_QUALITY_LIST_OBSERVER_INSTANCES__ || 0),
+        observerCallbacks:Number(win.__ETAGI_QUALITY_LIST_OBSERVER_CALLBACKS__ || 0),
+        flushes:flushes(win),
+        printClass:doc.getElementById('printBtn')?.className || ''
+      };
+    }
+    function pass(message){ checks.push(message); }
+    function assert(condition, message){ if(!condition) throw new Error(message); }
+    function delay(ms){ return new Promise(resolve => setTimeout(resolve, ms)); }
+    function waitFor(check, timeoutMs, message){
+      const started = Date.now();
+      return new Promise((resolve, reject) => {
+        const tick = () => {
+          try{ if(check()) return resolve(); } catch(error){ return reject(error); }
+          if(Date.now() - started >= timeoutMs) return reject(new Error(message));
+          setTimeout(tick, 50);
+        };
+        tick();
+      });
+    }
+  </script>
+</body>
+</html>

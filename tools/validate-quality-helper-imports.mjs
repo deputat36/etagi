@@ -1,6 +1,8 @@
 import fs from 'node:fs';
 
 const indexSource = read('index.html');
+const appSource = read('assets/js/app.js');
+const sharedUpdatesSource = read('assets/js/qualityListUpdates.js');
 const preprintSource = read('assets/js/preprintSummary.js');
 const layoutSyncSource = read('assets/js/layoutExtrasSync.js');
 const qrSizeSource = read('assets/js/qrSizeHint.js');
@@ -28,6 +30,56 @@ checkScriptOrder(
   'помощники качества должны загружаться до быстрых исправлений'
 );
 
+check(appSource, 'app.js', [
+  "import { requestQualityListUpdate } from './qualityListUpdates.js';",
+  "requestQualityListUpdate(show ? 'manual-quality' : 'automatic-quality');"
+]);
+
+check(sharedUpdatesSource, 'qualityListUpdates.js', [
+  'export function subscribeQualityListUpdates(callback, options = {})',
+  "export function requestQualityListUpdate(reason = 'manual')",
+  "attributeFilter: ['data-quality-suppressed']",
+  'subscribers.sort((left, right) => left.priority - right.priority',
+  'let updateTimer = 0;',
+  'if (updateFrame || updateTimer) return;',
+  "flushScheduledQualityUpdates('frame')",
+  "window.setTimeout(() => flushScheduledQualityUpdates('timeout'), 96)",
+  'function flushScheduledQualityUpdates(transport)',
+  'window.cancelAnimationFrame(updateFrame)',
+  'window.clearTimeout(updateTimer)',
+  'window.__ETAGI_QUALITY_LIST_UPDATE_FALLBACKS__'
+]);
+
+for (const forbidden of [
+  'bindManualQualityTrigger',
+  'manualTriggerElement',
+  "document.getElementById('qualityBtn')",
+  "scheduleQualityListUpdate('manual-quality')",
+  'setInterval('
+]) {
+  if (sharedUpdatesSource.includes(forbidden)) {
+    errors.push(`qualityListUpdates.js: найден запрещённый механизм общего канала — ${forbidden}`);
+  }
+}
+
+const sharedConsumers = [
+  'assets/js/qualityLevelLabels.js',
+  'assets/js/qualityIssueSummary.js',
+  'assets/js/qualityPriorityHint.js',
+  'assets/js/qualityPrintGuardHint.js',
+  'assets/js/qualityIssueFilters.js',
+  'assets/js/qualityQrDeduplicate.js',
+  'assets/js/spnPhotoLayoutQualityActions.js',
+  'assets/js/spnInkEfficiency.js'
+];
+for (const file of sharedConsumers) {
+  const source = read(file);
+  check(source, file, ["import { subscribeQualityListUpdates } from './qualityListUpdates.js';"]);
+  if (source.includes('new MutationObserver')) {
+    errors.push(`${file}: потребитель общего списка качества не должен создавать отдельный MutationObserver`);
+  }
+}
+
 check(preprintSource, 'preprintSummary.js', [
   "import './layoutExtrasSync.js';"
 ]);
@@ -41,6 +93,7 @@ check(qrSizeSource, 'qrSizeHint.js', [
   "import './qualityQrDeduplicate.js';"
 ]);
 
+checkConnectedHelper('assets/js/qualityListUpdates.js', sharedUpdatesSource, 'export function subscribeQualityListUpdates');
 checkConnectedHelper('assets/js/qrSizeHint.js', layoutSyncSource, "import './qrSizeHint.js';");
 checkConnectedHelper('assets/js/qualityQrDeduplicate.js', qrSizeSource, "import './qualityQrDeduplicate.js';");
 checkRemovedHelper('assets/js/qualitySuppressedPriority.js');
@@ -103,14 +156,14 @@ function escapeRegex(value) {
   return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-function checkConnectedHelper(file, source, importSnippet) {
+function checkConnectedHelper(file, source, expectedSnippet) {
   if (!fs.existsSync(file)) {
     errors.push(`${file}: файл помощника не найден`);
     return;
   }
 
-  if (!source.includes(importSnippet)) {
-    errors.push(`${file}: файл существует, но не подключён ожидаемым импортом ${importSnippet}`);
+  if (!source.includes(expectedSnippet)) {
+    errors.push(`${file}: файл существует, но не содержит ожидаемое подключение или экспорт ${expectedSnippet}`);
   }
 }
 

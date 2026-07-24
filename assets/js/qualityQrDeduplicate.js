@@ -1,3 +1,5 @@
+import { subscribeQualityListUpdates } from './qualityListUpdates.js';
+
 (function () {
   const SOFT_QR_TITLE = 'QR может быть мелким';
   const HARD_QR_TITLE = 'QR слишком мал для мини-макета';
@@ -9,8 +11,10 @@
     const list = document.getElementById('qualityList');
     if (!list) return;
 
-    new MutationObserver(hideSoftQrHintWhenHardHintExists).observe(list, { childList: true, subtree: true });
-    hideSoftQrHintWhenHardHintExists();
+    subscribeQualityListUpdates(hideSoftQrHintWhenHardHintExists, {
+      priority: 0,
+      label: 'quality-qr-deduplicate'
+    });
   }
 
   function hideSoftQrHintWhenHardHintExists() {
@@ -22,15 +26,17 @@
     if (!softItem) return;
 
     if (hardItem) {
-      softItem.dataset.qualitySuppressed = SUPPRESSED_REASON;
-      softItem.hidden = true;
+      if (softItem.dataset.qualitySuppressed !== SUPPRESSED_REASON) {
+        softItem.dataset.qualitySuppressed = SUPPRESSED_REASON;
+      }
+      if (!softItem.hidden) softItem.hidden = true;
       return;
     }
 
     if (softItem.dataset.qualitySuppressed === SUPPRESSED_REASON) {
       delete softItem.dataset.qualitySuppressed;
-      softItem.hidden = false;
     }
+    if (softItem.hidden) softItem.hidden = false;
   }
 
   function findIssueByTitle(list, title) {

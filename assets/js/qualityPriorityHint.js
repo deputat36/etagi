@@ -1,3 +1,5 @@
+import { subscribeQualityListUpdates } from './qualityListUpdates.js';
+
 (function () {
   const priorities = [
     { key: 'error', label: 'Сначала исправьте ошибку' },
@@ -12,8 +14,10 @@
     if (!list) return;
 
     ensurePriorityElement();
-    new MutationObserver(updatePriority).observe(list, { childList: true, subtree: true, attributes: true, attributeFilter: ['data-quality-suppressed'] });
-    updatePriority();
+    subscribeQualityListUpdates(updatePriority, {
+      priority: 31,
+      label: 'quality-priority-hint'
+    });
   }
 
   function ensurePriorityElement() {

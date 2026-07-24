@@ -15,6 +15,7 @@ const files = {
   layoutAccessibility: 'assets/js/spnLayoutModeAccessibility.js',
   templateKeyboard: 'assets/js/spnTemplateKeyboard.js',
   templateBadges: 'assets/js/spnTemplateCardBadges.js',
+  qualityListUpdates: 'assets/js/qualityListUpdates.js',
   qualityLevelLabels: 'assets/js/qualityLevelLabels.js',
   workspaceBackup: 'assets/js/spnWorkspaceBackup.js',
   distributionFieldMode: 'assets/js/spnDistributionFieldMode.js',
@@ -131,11 +132,31 @@ forbidSnippets(files.templateBadges, sources.templateBadges, [
   'subtree: true'
 ]);
 
+requireSnippets(files.qualityListUpdates, sources.qualityListUpdates, [
+  'const subscribers = [];',
+  'export function subscribeQualityListUpdates(callback, options = {})',
+  'priority: Number.isFinite(numericPriority) ? numericPriority : 100',
+  'subscribers.sort((left, right) => left.priority - right.priority',
+  'observer = new MutationObserver((records) => {',
+  "attributeFilter: ['data-quality-suppressed']",
+  "scheduleQualityListUpdate('mutation')",
+  'window.requestAnimationFrame(() => {',
+  'subscribers.slice().forEach((record) => {'
+]);
+
+forbidSnippets(files.qualityListUpdates, sources.qualityListUpdates, [
+  "attributeFilter: ['data-quality-suppressed', 'hidden']",
+  'setInterval('
+]);
+
 requireSnippets(files.qualityLevelLabels, sources.qualityLevelLabels, [
-  'new MutationObserver(enhanceQualityItems).observe(list, { childList: true });'
+  "import { subscribeQualityListUpdates } from './qualityListUpdates.js';",
+  'subscribeQualityListUpdates(enhanceQualityItems',
+  "label: 'quality-level-labels'"
 ]);
 
 forbidSnippets(files.qualityLevelLabels, sources.qualityLevelLabels, [
+  'new MutationObserver',
   '{ childList: true, subtree: true }',
   'subtree: true'
 ]);

@@ -1,3 +1,5 @@
+import { subscribeQualityListUpdates } from './qualityListUpdates.js';
+
 const STYLE_ID = 'spnPhotoLayoutQualityActionStyles';
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -5,8 +7,10 @@ window.addEventListener('DOMContentLoaded', () => {
   if(!list) return;
 
   injectStyles();
-  enhancePhotoLayoutIssues(list);
-  new MutationObserver(() => enhancePhotoLayoutIssues(list)).observe(list, {childList:true, subtree:true});
+  subscribeQualityListUpdates(({list: qualityList}) => enhancePhotoLayoutIssues(qualityList), {
+    priority: 12,
+    label: 'photo-layout-quality-actions'
+  });
   list.addEventListener('click', handlePhotoLayoutAction);
 });
 

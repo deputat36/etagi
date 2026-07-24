@@ -34,9 +34,15 @@ check(dedupeSource, 'qualityQrDeduplicate.js', [
   "import { subscribeQualityListUpdates } from './qualityListUpdates.js';",
   "const SUPPRESSED_REASON = 'qr-size-duplicate'",
   "priority: 0",
+  'softItem.dataset.qualitySuppressed !== SUPPRESSED_REASON',
   'softItem.dataset.qualitySuppressed = SUPPRESSED_REASON',
-  'delete softItem.dataset.qualitySuppressed'
+  'if (!softItem.hidden) softItem.hidden = true',
+  'delete softItem.dataset.qualitySuppressed',
+  'if (softItem.hidden) softItem.hidden = false'
 ]);
+if (/if \(hardItem\) \{\s*softItem\.dataset\.qualitySuppressed = SUPPRESSED_REASON/.test(dedupeSource)) {
+  errors.push('qualityQrDeduplicate.js: нельзя повторно записывать то же подавление на каждом общем проходе');
+}
 
 check(filtersSource, 'qualityIssueFilters.js', [
   "import { subscribeQualityListUpdates } from './qualityListUpdates.js';",

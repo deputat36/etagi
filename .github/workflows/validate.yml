@@ -43,6 +43,17 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Generate runtime registry
+        run: npm run runtime:registry
+
+      - name: Upload generated runtime registry
+        uses: actions/upload-artifact@v4
+        with:
+          name: generated-runtime-registry
+          path: data/runtime-modules.json
+          if-no-files-found: error
+          retention-days: 1
+
       - name: Validate project
         run: npm run validate
 

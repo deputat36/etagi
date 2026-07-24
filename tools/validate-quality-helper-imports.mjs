@@ -31,9 +31,13 @@ checkScriptOrder(
 
 check(sharedUpdatesSource, 'qualityListUpdates.js', [
   'export function subscribeQualityListUpdates(callback, options = {})',
-  'export function requestQualityListUpdate(reason = \'manual\')',
+  "export function requestQualityListUpdate(reason = 'manual')",
   "attributeFilter: ['data-quality-suppressed']",
-  'subscribers.sort((left, right) => left.priority - right.priority'
+  'subscribers.sort((left, right) => left.priority - right.priority',
+  'bindManualQualityTrigger();',
+  "document.getElementById('qualityBtn')",
+  "manualTriggerElement.addEventListener('click', handleManualQualityTrigger, true)",
+  "scheduleQualityListUpdate('manual-quality')"
 ]);
 
 const sharedConsumers = [

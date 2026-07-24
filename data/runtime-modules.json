@@ -70,8 +70,8 @@
   ],
   "summary": {
     "entrypointCount": 16,
-    "moduleCount": 81,
-    "relationCount": 88,
+    "moduleCount": 82,
+    "relationCount": 96,
     "sideEffectModuleCount": 54,
     "dynamicModuleCount": 0,
     "domIdCount": 315,
@@ -79,8 +79,8 @@
     "runtimeCreatedDomIdCount": 224,
     "storageKeyCount": 22,
     "dynamicStorageKeyCount": 2,
-    "observerModuleCount": 27,
-    "observerInstanceCount": 29,
+    "observerModuleCount": 20,
+    "observerInstanceCount": 22,
     "styleIdCount": 46
   },
   "ownership": {
@@ -2349,6 +2349,7 @@
           "assets/js/qualityIssueFilters.js",
           "assets/js/qualityIssueSummary.js",
           "assets/js/qualityLevelLabels.js",
+          "assets/js/qualityListUpdates.js",
           "assets/js/qualityPrintGuardHint.js",
           "assets/js/qualityPriorityHint.js",
           "assets/js/qualityQrDeduplicate.js",
@@ -5863,42 +5864,7 @@
         "disconnectCalls": 0
       },
       {
-        "module": "assets/js/qualityIssueFilters.js",
-        "type": "MutationObserver",
-        "count": 1,
-        "observeCalls": 0,
-        "disconnectCalls": 0
-      },
-      {
-        "module": "assets/js/qualityIssueSummary.js",
-        "type": "MutationObserver",
-        "count": 1,
-        "observeCalls": 0,
-        "disconnectCalls": 0
-      },
-      {
-        "module": "assets/js/qualityLevelLabels.js",
-        "type": "MutationObserver",
-        "count": 1,
-        "observeCalls": 0,
-        "disconnectCalls": 0
-      },
-      {
-        "module": "assets/js/qualityPrintGuardHint.js",
-        "type": "MutationObserver",
-        "count": 1,
-        "observeCalls": 0,
-        "disconnectCalls": 0
-      },
-      {
-        "module": "assets/js/qualityPriorityHint.js",
-        "type": "MutationObserver",
-        "count": 1,
-        "observeCalls": 0,
-        "disconnectCalls": 0
-      },
-      {
-        "module": "assets/js/qualityQrDeduplicate.js",
+        "module": "assets/js/qualityListUpdates.js",
         "type": "MutationObserver",
         "count": 1,
         "observeCalls": 0,
@@ -5930,13 +5896,6 @@
         "type": "MutationObserver",
         "count": 1,
         "observeCalls": 0,
-        "disconnectCalls": 0
-      },
-      {
-        "module": "assets/js/spnInkEfficiency.js",
-        "type": "MutationObserver",
-        "count": 1,
-        "observeCalls": 1,
         "disconnectCalls": 0
       },
       {
@@ -5976,13 +5935,6 @@
       },
       {
         "module": "assets/js/spnNewbieWizardPatch.js",
-        "type": "MutationObserver",
-        "count": 1,
-        "observeCalls": 0,
-        "disconnectCalls": 0
-      },
-      {
-        "module": "assets/js/spnPhotoLayoutQualityActions.js",
         "type": "MutationObserver",
         "count": 1,
         "observeCalls": 0,
@@ -6741,7 +6693,12 @@
         "entrypoint"
       ],
       "importedBy": [],
-      "imports": []
+      "imports": [
+        {
+          "path": "assets/js/qualityListUpdates.js",
+          "mode": "dependency"
+        }
+      ]
     },
     {
       "path": "assets/js/qualityIssueSummary.js",
@@ -6750,7 +6707,12 @@
         "entrypoint"
       ],
       "importedBy": [],
-      "imports": []
+      "imports": [
+        {
+          "path": "assets/js/qualityListUpdates.js",
+          "mode": "dependency"
+        }
+      ]
     },
     {
       "path": "assets/js/qualityLevelLabels.js",
@@ -6759,6 +6721,53 @@
         "entrypoint"
       ],
       "importedBy": [],
+      "imports": [
+        {
+          "path": "assets/js/qualityListUpdates.js",
+          "mode": "dependency"
+        }
+      ]
+    },
+    {
+      "path": "assets/js/qualityListUpdates.js",
+      "domain": "quality",
+      "loadedAs": [
+        "dependency"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/qualityIssueFilters.js",
+          "mode": "dependency"
+        },
+        {
+          "path": "assets/js/qualityIssueSummary.js",
+          "mode": "dependency"
+        },
+        {
+          "path": "assets/js/qualityLevelLabels.js",
+          "mode": "dependency"
+        },
+        {
+          "path": "assets/js/qualityPrintGuardHint.js",
+          "mode": "dependency"
+        },
+        {
+          "path": "assets/js/qualityPriorityHint.js",
+          "mode": "dependency"
+        },
+        {
+          "path": "assets/js/qualityQrDeduplicate.js",
+          "mode": "dependency"
+        },
+        {
+          "path": "assets/js/spnInkEfficiency.js",
+          "mode": "dependency"
+        },
+        {
+          "path": "assets/js/spnPhotoLayoutQualityActions.js",
+          "mode": "dependency"
+        }
+      ],
       "imports": []
     },
     {
@@ -6768,7 +6777,12 @@
         "entrypoint"
       ],
       "importedBy": [],
-      "imports": []
+      "imports": [
+        {
+          "path": "assets/js/qualityListUpdates.js",
+          "mode": "dependency"
+        }
+      ]
     },
     {
       "path": "assets/js/qualityPriorityHint.js",
@@ -6777,7 +6791,12 @@
         "entrypoint"
       ],
       "importedBy": [],
-      "imports": []
+      "imports": [
+        {
+          "path": "assets/js/qualityListUpdates.js",
+          "mode": "dependency"
+        }
+      ]
     },
     {
       "path": "assets/js/qualityQrDeduplicate.js",
@@ -6791,7 +6810,12 @@
           "mode": "side-effect"
         }
       ],
-      "imports": []
+      "imports": [
+        {
+          "path": "assets/js/qualityListUpdates.js",
+          "mode": "dependency"
+        }
+      ]
     },
     {
       "path": "assets/js/render.js",
@@ -7078,7 +7102,12 @@
           "mode": "side-effect"
         }
       ],
-      "imports": []
+      "imports": [
+        {
+          "path": "assets/js/qualityListUpdates.js",
+          "mode": "dependency"
+        }
+      ]
     },
     {
       "path": "assets/js/spnInlinePreviewEditor.js",
@@ -7386,7 +7415,12 @@
           "mode": "side-effect"
         }
       ],
-      "imports": []
+      "imports": [
+        {
+          "path": "assets/js/qualityListUpdates.js",
+          "mode": "dependency"
+        }
+      ]
     },
     {
       "path": "assets/js/spnPhotoLayoutStyle.js",

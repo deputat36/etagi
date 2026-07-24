@@ -1,3 +1,5 @@
+import { subscribeQualityListUpdates } from './qualityListUpdates.js';
+
 (function () {
   document.addEventListener('DOMContentLoaded', init);
 
@@ -11,13 +13,10 @@
     }
 
     printBtn.addEventListener('click', handlePrintClick);
-    new MutationObserver(updatePrintState).observe(list, {
-      childList: true,
-      subtree: true,
-      attributes: true,
-      attributeFilter: ['data-quality-suppressed']
+    subscribeQualityListUpdates(updatePrintState, {
+      priority: 32,
+      label: 'quality-print-guard'
     });
-    updatePrintState();
   }
 
   function updatePrintState() {

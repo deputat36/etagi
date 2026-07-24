@@ -2279,6 +2279,7 @@
         "mutatedBy": [],
         "referencedBy": [
           "assets/js/app.js",
+          "assets/js/qualityListUpdates.js",
           "assets/js/spnChecklist.js",
           "assets/js/spnDistributionReportHelper.js",
           "assets/js/spnPreviewQuickBar.js",

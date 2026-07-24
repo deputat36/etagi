@@ -1,0 +1,72 @@
+/* Устойчивые стили runtime-помощников качества и экономной печати. */
+
+.flyer .contact{
+  background:#fff!important;
+  color:#111827!important;
+  border:.45mm solid var(--accent)!important;
+  padding:2.2mm 2.8mm!important;
+  gap:.7mm!important;
+  box-shadow:inset 0 1mm 0 var(--accent)!important;
+}
+.flyer .contact .phone,
+.flyer .contact .person{color:#111827!important}
+.flyer .contact .cta{color:#334155!important}
+.flyer.private .contact{
+  border-color:#475569!important;
+  box-shadow:inset 0 1mm 0 #475569!important;
+}
+.flyer.color-economy{--accent:#0b72b9}
+.flyer.color-economy .brand-mark{
+  background:#fff!important;
+  color:var(--accent)!important;
+  border:.35mm solid currentColor;
+}
+.flyer.color-economy .contact{
+  background:#fff!important;
+  color:#111827!important;
+  border:.55mm solid var(--accent)!important;
+  box-shadow:inset 0 1.1mm 0 var(--accent)!important;
+}
+.flyer.color-economy .contact .cta,
+.flyer.color-economy .qr-row span{color:#334155!important}
+.flyer.color-economy .benefit:before{
+  background:#fff!important;
+  color:var(--accent)!important;
+  border:.25mm solid currentColor;
+}
+.flyer.color-economy .meta div{
+  background:#f8fafc!important;
+  border:.2mm solid #e2e8f0;
+}
+.flyer.color-economy.layout-photo_card:not(.photo-mode-plan) .headline{
+  color:#111827!important;
+  background:rgba(255,255,255,.94)!important;
+  border-left:1.2mm solid var(--accent)!important;
+  text-shadow:none!important;
+  box-shadow:0 1mm 3mm rgba(15,23,42,.12)!important;
+}
+.flyer.color-economy.layout-agent_brand_photo .agent-brand-identity{
+  background:#fff!important;
+  border-top:.2mm solid #e2e8f0;
+  border-right:.2mm solid #e2e8f0;
+  border-bottom:.2mm solid #e2e8f0;
+}
+.flyer.color-economy.layout-newbuild_visual .photos,
+.flyer.color-economy.layout-agent_brand_photo .photos{box-shadow:none!important}
+.ink-efficiency-tip button{background:#fff;border:1px solid #94a3b8;color:#1e293b}
+.quality-photo-layout-action{
+  margin-top:7px;
+  font-size:12px;
+  padding:7px 9px;
+  background:#fff;
+  border:1px solid #cbd5e1;
+  color:#334155;
+}
+
+@media print{
+  .flyer .contact,
+  .flyer.color-economy{
+    -webkit-print-color-adjust:exact;
+    print-color-adjust:exact;
+  }
+}

@@ -1,10 +1,8 @@
 import { loadTemplates } from './templates.js';
 
-const STYLE_ID = 'spnTemplateCardBadgesStyle';
 let templateMap = new Map();
 
 window.addEventListener('DOMContentLoaded', () => {
-  injectStyles();
   enhanceTemplateCards();
   observeTemplateList();
   loadOfficeMetadata();
@@ -128,38 +126,4 @@ function escapeHtml(value=''){
     '"':'&quot;',
     "'":'&#039;'
   }[character]));
-}
-
-function injectStyles(){
-  if(document.getElementById(STYLE_ID)) return;
-  const style = document.createElement('style');
-  style.id = STYLE_ID;
-  style.textContent = `
-    .tpl-card-office-badges{display:flex;flex-wrap:wrap;gap:4px;margin:0 0 5px}
-    .tpl-office-badge{display:inline-flex;align-items:center;border-radius:999px;padding:3px 6px;font-size:10px;line-height:1;font-weight:900;border:1px solid #dbe3ee;background:#fff;color:#334155}
-    .tpl-office-badge-deprecated{background:#fef2f2;border-color:#fecaca;color:#b91c1c}
-    .tpl-office-badge-test{background:#fff7ed;border-color:#fed7aa;color:#c2410c}
-    .tpl-office-badge-newbie{background:#ecfdf5;border-color:#bbf7d0;color:#047857}
-    .tpl-office-badge-manager{background:#fff7ed;border-color:#fed7aa;color:#c2410c}
-    .tpl-office-badge-safe{background:#eff6ff;border-color:#bfdbfe;color:#1d4ed8}
-    .tpl-office-badge-risk{background:#fef3c7;border-color:#fde68a;color:#92400e}
-    .tpl-office-badge-print{background:#f5f3ff;border-color:#ddd6fe;color:#5b21b6}
-    .tpl-office-badge-entrance{background:#f8fafc;border-color:#cbd5e1;color:#334155}
-    .tpl-office-badge-newbuild{background:#fdf2f8;border-color:#fbcfe8;color:#be185d}
-    .tpl-office-badge-trust{background:#f0fdf4;border-color:#bbf7d0;color:#166534}
-    .tpl-office-badge-blank{background:#fef2f2;border-color:#fecaca;color:#b91c1c}
-    .tpl-office-badge-photo{background:#eef2ff;border-color:#c7d2fe;color:#4338ca}
-    .tpl-card-office-reason{margin:0 0 6px;padding:6px 7px;border-radius:10px;font-size:10.5px;line-height:1.22;font-weight:800;background:#f8fafc;color:#475569;border:1px solid #e2e8f0}
-    .tpl-card-office-reason-deprecated{background:#fef2f2;border-color:#fecaca;color:#991b1b}
-    .tpl-card-office-reason-test{background:#fff7ed;border-color:#fed7aa;color:#9a3412}
-    .tpl-card-office-reason-newbie,.tpl-card-office-reason-safe{background:#f0fdf4;border-color:#bbf7d0;color:#166534}
-    .tpl-card-office-reason-manager{background:#fff7ed;border-color:#fed7aa;color:#c2410c}
-    .tpl-card-office-reason-entrance{background:#f8fafc;border-color:#cbd5e1;color:#334155}
-    .tpl-card-office-reason-newbuild{background:#fdf2f8;border-color:#fbcfe8;color:#be185d}
-    .tpl-card.active .tpl-office-badge{border-color:color-mix(in srgb,var(--accent) 40%,#fff)}
-    .tpl-card.active .tpl-card-office-reason{background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.28);color:#fff}
-    @media(max-width:520px){.tpl-office-badge{padding:4px 7px;font-size:11px;line-height:1.1}.tpl-card-office-reason{font-size:11.5px;line-height:1.3}}
-    @media print{.tpl-card-office-badges,.tpl-card-office-reason{display:none!important}}
-  `;
-  document.head.appendChild(style);
 }

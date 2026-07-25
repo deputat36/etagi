@@ -7,6 +7,7 @@ const dataDir = path.join(rootDir, 'data');
 const registryPath = path.join(dataDir, 'template_portfolio_status.json');
 const loaderPath = path.join(rootDir, 'assets/js/templates.js');
 const badgesPath = path.join(rootDir, 'assets/js/spnTemplateCardBadges.js');
+const badgesStylesPath = path.join(rootDir, 'assets/css/template-library.css');
 const freshnessPath = path.join(rootDir, 'tools/validate-template-inventory-freshness.mjs');
 const validStatuses = new Set(['working', 'test', 'deprecated']);
 const errors = [];
@@ -20,6 +21,7 @@ const templateFileById = new Map(templates.map(template => [template.id, templat
 const registry = readRegistry();
 const loaderSource = readRequired(loaderPath);
 const badgesSource = readRequired(badgesPath);
+const badgesStylesSource = readRequired(badgesStylesPath);
 
 if(!validStatuses.has(registry.defaultStatus)) {
   errors.push(`template_portfolio_status.json: неизвестный defaultStatus ${registry.defaultStatus}`);
@@ -75,10 +77,20 @@ requireSnippets('assets/js/spnTemplateCardBadges.js', badgesSource, [
   'portfolio.replacementId',
   'escapeHtml(title)',
   'escapeHtml(text)',
-  'tpl-office-badge-deprecated',
-  'tpl-office-badge-test',
-  'tpl-card-office-reason-deprecated',
-  'tpl-card-office-reason-test'
+  'tpl-office-badge',
+  'tpl-card-office-reason'
+]);
+
+requireSnippets('assets/css/template-library.css', badgesStylesSource, [
+  '.tpl-office-badge-deprecated',
+  '.tpl-office-badge-test',
+  '.tpl-card-office-reason-deprecated',
+  '.tpl-card-office-reason-test'
+]);
+
+forbidSnippets('assets/js/spnTemplateCardBadges.js', badgesSource, [
+  "createElement('style')",
+  'spnTemplateCardBadgesStyle'
 ]);
 
 if(errors.length){
@@ -208,6 +220,12 @@ function countStatuses(items, registryData){
 function requireSnippets(file, source, snippets){
   for(const snippet of snippets){
     if(!source.includes(snippet)) errors.push(`${file}: отсутствует ${snippet}`);
+  }
+}
+
+function forbidSnippets(file, source, snippets){
+  for(const snippet of snippets){
+    if(source.includes(snippet)) errors.push(`${file}: найден запрещённый фрагмент — ${snippet}`);
   }
 }
 

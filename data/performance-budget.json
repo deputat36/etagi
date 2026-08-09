@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "scenario": "headline-edit-light-layout",
+  "status": "requires-system-chrome",
+  "warmups": 2,
+  "samples": 7,
+  "counts": {
+    "1": { "medianCeilingMs": 250, "baselineMedianMs": null, "baselineWorstMs": null },
+    "2": { "medianCeilingMs": 300, "baselineMedianMs": null, "baselineWorstMs": null },
+    "4": { "medianCeilingMs": 450, "baselineMedianMs": null, "baselineWorstMs": null },
+    "8": { "medianCeilingMs": 700, "baselineMedianMs": null, "baselineWorstMs": null }
+  },
+  "worstSampleMultiplier": 4,
+  "scaling": {
+    "from": 4,
+    "to": 8,
+    "multiplier": 3,
+    "allowanceMs": 50
+  },
+  "structural": {
+    "domGrowthFactor": 1.35,
+    "domFixedAllowance": 40,
+    "stabilityQuietWindowMs": 80,
+    "stabilityObservationMs": 120
+  }
+}

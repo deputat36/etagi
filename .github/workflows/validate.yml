@@ -46,6 +46,9 @@ jobs:
       - name: Validate project
         run: npm run validate
 
+      - name: Validate performance budget contract
+        run: node tools/validate-performance-budget.mjs
+
       - name: Verify release status details
         run: npm run test:release-status-details
 
@@ -128,12 +131,24 @@ jobs:
       - name: UI actions smoke
         run: npm run smoke:ui-actions
 
+      - name: Performance budget
+        run: npm run performance:budget
+
       - name: Upload browser smoke failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: browser-smoke-failure
           path: browser-smoke-failure.log
+          if-no-files-found: warn
+          retention-days: 3
+
+      - name: Upload performance budget failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-budget-failure
+          path: performance-budget-failure.json
           if-no-files-found: warn
           retention-days: 3
 

@@ -74,14 +74,14 @@
     "relationCount": 97,
     "sideEffectModuleCount": 54,
     "dynamicModuleCount": 0,
-    "domIdCount": 305,
+    "domIdCount": 301,
     "indexDomIdCount": 86,
-    "runtimeCreatedDomIdCount": 214,
+    "runtimeCreatedDomIdCount": 210,
     "storageKeyCount": 22,
     "dynamicStorageKeyCount": 2,
     "observerModuleCount": 20,
     "observerInstanceCount": 22,
-    "styleIdCount": 36
+    "styleIdCount": 32
   },
   "ownership": {
     "domIds": [
@@ -272,22 +272,6 @@
         ]
       },
       {
-        "id": "brandRowEditorStyles",
-        "declaredInIndex": false,
-        "ownershipBasis": "runtime-create",
-        "owners": [
-          "assets/js/spnBrandEditor.js"
-        ],
-        "createdBy": [
-          "assets/js/spnBrandEditor.js"
-        ],
-        "boundBy": [],
-        "mutatedBy": [],
-        "referencedBy": [
-          "assets/js/spnBrandEditor.js"
-        ]
-      },
-      {
         "id": "brandSideText",
         "declaredInIndex": false,
         "ownershipBasis": "runtime-create",
@@ -467,22 +451,6 @@
         "referencedBy": [
           "assets/js/spnContactEditor.js",
           "assets/js/spnPhoneHelper.js"
-        ]
-      },
-      {
-        "id": "contactCtaEditorStyles",
-        "declaredInIndex": false,
-        "ownershipBasis": "runtime-create",
-        "owners": [
-          "assets/js/spnContactEditor.js"
-        ],
-        "createdBy": [
-          "assets/js/spnContactEditor.js"
-        ],
-        "boundBy": [],
-        "mutatedBy": [],
-        "referencedBy": [
-          "assets/js/spnContactEditor.js"
         ]
       },
       {
@@ -2218,22 +2186,6 @@
         ]
       },
       {
-        "id": "qrCaptionHelperStyles",
-        "declaredInIndex": false,
-        "ownershipBasis": "runtime-create",
-        "owners": [
-          "assets/js/spnQrEditor.js"
-        ],
-        "createdBy": [
-          "assets/js/spnQrEditor.js"
-        ],
-        "boundBy": [],
-        "mutatedBy": [],
-        "referencedBy": [
-          "assets/js/spnQrEditor.js"
-        ]
-      },
-      {
         "id": "qrCleanLinkBtn",
         "declaredInIndex": false,
         "ownershipBasis": "runtime-create",
@@ -3019,22 +2971,6 @@
       },
       {
         "id": "spnAgentHelper",
-        "declaredInIndex": false,
-        "ownershipBasis": "runtime-create",
-        "owners": [
-          "assets/js/spnAgentHelper.js"
-        ],
-        "createdBy": [
-          "assets/js/spnAgentHelper.js"
-        ],
-        "boundBy": [],
-        "mutatedBy": [],
-        "referencedBy": [
-          "assets/js/spnAgentHelper.js"
-        ]
-      },
-      {
-        "id": "spnAgentHelperStyles",
         "declaredInIndex": false,
         "ownershipBasis": "runtime-create",
         "owners": [
@@ -5832,33 +5768,6 @@
     ],
     "styleIds": [
       {
-        "id": "brandRowEditorStyles",
-        "modules": [
-          "assets/js/spnBrandEditor.js"
-        ],
-        "createdBy": [
-          "assets/js/spnBrandEditor.js"
-        ]
-      },
-      {
-        "id": "contactCtaEditorStyles",
-        "modules": [
-          "assets/js/spnContactEditor.js"
-        ],
-        "createdBy": [
-          "assets/js/spnContactEditor.js"
-        ]
-      },
-      {
-        "id": "qrCaptionHelperStyles",
-        "modules": [
-          "assets/js/spnQrEditor.js"
-        ],
-        "createdBy": [
-          "assets/js/spnQrEditor.js"
-        ]
-      },
-      {
         "id": "spnAdvancedWorkbenchStyles",
         "modules": [
           "assets/js/spnAdvancedWorkbench.js"
@@ -5874,15 +5783,6 @@
         ],
         "createdBy": [
           "assets/js/spnAgentBrandModeGuard.js"
-        ]
-      },
-      {
-        "id": "spnAgentHelperStyles",
-        "modules": [
-          "assets/js/spnAgentHelper.js"
-        ],
-        "createdBy": [
-          "assets/js/spnAgentHelper.js"
         ]
       },
       {

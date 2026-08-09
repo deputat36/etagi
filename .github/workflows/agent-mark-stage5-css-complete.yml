@@ -1,0 +1,37 @@
+name: Mark stage 5 CSS scope complete
+
+on:
+  push:
+    branches:
+      - agent/mark-stage5-css-scope-complete
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  update-roadmap:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Update issue 66 roadmap
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue view 66 --repo deputat36/etagi --json body --jq .body > /tmp/body.md
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('/tmp/body.md')
+          text=p.read_text(encoding='utf-8')
+          old='- [ ] Переносить устойчивые injected styles в CSS доменами.'
+          new='- [x] Переносить устойчивые injected styles в CSS доменами.'
+          if old not in text:
+              if new in text:
+                  raise SystemExit(0)
+              raise SystemExit('roadmap checkbox not found')
+          text=text.replace(old,new,1)
+          p.write_text(text,encoding='utf-8')
+          PY
+          gh issue edit 66 --repo deputat36/etagi --body-file /tmp/body.md
+          gh issue comment 66 --repo deputat36/etagi --body 'CSS-подэтап этапа 5 закрыт в релизном scope: PR #113–#116 последовательно перенесли четыре устойчивых домена и снизили runtime `styleIdCount` с 46 до 32 с полным зелёным CI. Автоматическая классификация остатка показала 27 статических, 3 dynamic и 2 unknown; дальнейшая низкоприоритетная очистка вынесена в post-release issue #117 и не блокирует 3.86.0. Следующий и последний незакрытый пункт этапа 5 — performance budget для 1/2/4/8 копий.'

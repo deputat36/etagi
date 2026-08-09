@@ -10,7 +10,6 @@ const ctaPresets = [
 ];
 
 document.addEventListener('DOMContentLoaded', () => {
-  injectStyles();
   const phone = document.getElementById('agentPhone');
   const phoneLabel = phone?.closest('label');
   if(!phone || !phoneLabel || document.getElementById('contactCtaEditor')) return;
@@ -65,13 +64,7 @@ function saveCta(value){
 function loadCta(){
   return getLayoutExtra(null, 'contactCta');
 }
-function injectStyles(){
-  if(document.getElementById('contactCtaEditorStyles')) return;
-  const style = document.createElement('style');
-  style.id = 'contactCtaEditorStyles';
-  style.textContent = `.spn-contact-editor{margin:-3px 0 9px;padding:9px;border:1px solid #bbf7d0;border-radius:13px;background:#f0fdf4}.spn-contact-editor label{display:grid;gap:5px;font-size:11px;font-weight:900;color:#166534}.spn-contact-editor input{background:#fff}.spn-contact-presets{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:7px}.spn-contact-presets button{padding:7px 8px;border-radius:10px;border:1px solid #bbf7d0;background:#fff;color:#166534;text-align:left;font-size:10px;line-height:1.15;font-weight:900;box-shadow:none}.spn-contact-presets button:hover{transform:none;box-shadow:none;background:#dcfce7}.spn-contact-editor p{margin:7px 0 0;color:#475569;font-size:10.5px;line-height:1.25;font-weight:700}@media(max-width:520px){.spn-contact-presets{grid-template-columns:1fr}}@media print{.spn-contact-editor{display:none!important}}`;
-  document.head.appendChild(style);
-}
+
 function escapeHtml(value){
   return String(value || '').replace(/[&<>'"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
 }

@@ -34,6 +34,7 @@ npm run validate:agent-brand-mode-guard
 npm run validate:layout-mode-accessibility
 npm run validate:template-library-css
 npm run validate:field-helper-css
+npm run validate:editor-helper-css
 npm run validate:preview-quickbar
 npm run validate:advanced-workbench
 npm run validate:post-print-workspace

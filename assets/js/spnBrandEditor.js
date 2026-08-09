@@ -4,7 +4,6 @@ const brandNamePresets = ['Этажи', 'Этажи Борисоглебск', '
 const sidePresets = ['etagi.com', 'Борисоглебск', 'Этажи Борисоглебск', 'Недвижимость'];
 
 document.addEventListener('DOMContentLoaded', () => {
-  injectStyles();
   const showBrand = document.getElementById('showBrand');
   const showBrandLabel = showBrand?.closest('label');
   if(!showBrand || !showBrandLabel || document.getElementById('brandRowEditor')) return;
@@ -93,13 +92,7 @@ function loadBrandName(){
 function loadBrandSide(){
   return getLayoutExtra(null, 'brandSideText');
 }
-function injectStyles(){
-  if(document.getElementById('brandRowEditorStyles')) return;
-  const style = document.createElement('style');
-  style.id = 'brandRowEditorStyles';
-  style.textContent = `.spn-brand-editor{margin:-2px 0 9px;padding:9px;border:1px solid #fecaca;border-radius:13px;background:#fff7f7}.spn-brand-editor.disabled{opacity:.58}.spn-brand-editor-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}.spn-brand-editor label{display:grid;gap:5px;font-size:11px;font-weight:900;color:#991b1b}.spn-brand-editor input{background:#fff}.spn-brand-presets{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}.spn-brand-presets button{padding:6px 7px;border-radius:999px;border:1px solid #fecaca;background:#fff;color:#b91c1c;font-size:10px;font-weight:900;box-shadow:none}.spn-brand-presets button:hover{transform:none;box-shadow:none;background:#fee2e2}.spn-brand-editor p{margin:7px 0 0;color:#64748b;font-size:10.5px;line-height:1.25;font-weight:700}@media(max-width:520px){.spn-brand-editor-grid{grid-template-columns:1fr}}@media print{.spn-brand-editor{display:none!important}}`;
-  document.head.appendChild(style);
-}
+
 function escapeHtml(value){
   return String(value || '').replace(/[&<>'"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
 }

@@ -1,0 +1,75 @@
+name: Runtime style classification
+
+on:
+  push:
+    branches:
+      - agent/runtime-style-classification
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  classify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Classify remaining runtime styles
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python - <<'PY' > /tmp/style-report.md
+          import json, re
+          from pathlib import Path
+
+          registry = json.loads(Path('data/runtime-modules.json').read_text(encoding='utf-8'))
+          styles = registry.get('ownership', {}).get('styleIds', [])
+          rows=[]
+          static=dynamic=unknown=0
+          for item in styles:
+              sid=item['id']
+              module=item.get('modules',[None])[0]
+              source=Path(module).read_text(encoding='utf-8') if module and Path(module).exists() else ''
+              kind='unknown'; detail='assignment not recognized'
+              # Locate the style id and nearby style.textContent assignment.
+              idpos=source.find(sid)
+              window=source[max(0,idpos-1200):idpos+8000] if idpos>=0 else source
+              m=re.search(r"style\.textContent\s*=\s*`([\s\S]*?)`;", window)
+              if m:
+                  css=m.group(1)
+                  if '${' in css:
+                      kind='dynamic'; dynamic+=1; detail='template interpolation'
+                  else:
+                      kind='static'; static+=1; detail=f'literal CSS, {len(css)} chars'
+              else:
+                  m2=re.search(r"style\.textContent\s*=\s*(['\"])([\s\S]*?)\1\s*;", window)
+                  if m2:
+                      kind='static'; static+=1; detail=f'literal CSS, {len(m2.group(2))} chars'
+                  elif re.search(r"style\.textContent\s*=", window):
+                      kind='dynamic'; dynamic+=1; detail='non-literal assignment'
+                  else:
+                      unknown+=1
+              rows.append((sid,module or '—',kind,detail))
+
+          print('## Автоматическая классификация оставшихся runtime styles')
+          print()
+          print(f'Источник: `data/runtime-modules.json` на `{Path("package.json").read_text(encoding="utf-8").split("\"version\": \"")[1].split("\"")[0]}`; всего style IDs: **{len(styles)}**.')
+          print()
+          print(f'- полностью статические literal CSS: **{static}**')
+          print(f'- runtime/dynamic: **{dynamic}**')
+          print(f'- требуют ручной проверки: **{unknown}**')
+          print()
+          print('| style ID | модуль | класс | основание |')
+          print('|---|---|---|---|')
+          for sid,module,kind,detail in rows:
+              print(f'| `{sid}` | `{module}` | **{kind}** | {detail} |')
+          print()
+          if static:
+              print('Вывод: CSS-пункт ещё нельзя считать завершённым только на основании предыдущих миграций: в remaining registry остаются полностью статические literal CSS. Их следует сгруппировать в несколько крупных, но логичных доменов и после них зафиксировать оставшиеся dynamic/exception styles как runtime-by-design.')
+          elif unknown:
+              print('Вывод: перед закрытием CSS-пункта нужна ручная проверка unknown-элементов.')
+          else:
+              print('Вывод: оставшиеся style IDs являются runtime-зависимыми; CSS-пункт можно закрывать документированным исключением и переходить к performance budget.')
+          PY
+          gh issue comment 66 --repo deputat36/etagi --body-file /tmp/style-report.md

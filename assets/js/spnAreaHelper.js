@@ -19,7 +19,6 @@ const contextPresets = [
 ];
 
 document.addEventListener('DOMContentLoaded', () => {
-  injectStyles();
   const area = document.getElementById('area');
   const areaLabel = area?.closest('label');
   if(!area || !areaLabel || document.getElementById('spnAreaHelper')) return;
@@ -141,13 +140,7 @@ function setStatus(text){
   const status = document.getElementById('statusLine');
   if(status) status.textContent = text;
 }
-function injectStyles(){
-  if(document.getElementById('spnAreaHelperStyles')) return;
-  const style = document.createElement('style');
-  style.id = 'spnAreaHelperStyles';
-  style.textContent = `.spn-area-helper{margin:-3px 0 9px;padding:9px;border:1px solid #bae6fd;border-radius:13px;background:#f0f9ff}.spn-area-helper.disabled{opacity:.58}.spn-area-helper.empty-area{border-style:dashed}.spn-area-helper-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:7px}.spn-area-helper-head b{font-size:11px;font-weight:900;color:#075985}.spn-area-helper-head button{padding:6px 7px;border-radius:9px;border:1px solid #bae6fd;background:#fff;color:#0369a1;font-size:10px;font-weight:900;box-shadow:none}.spn-area-presets,.spn-area-context{display:grid;grid-template-columns:1fr 1fr;gap:5px}.spn-area-context{margin-top:5px}.spn-area-presets button,.spn-area-context button{padding:7px 8px;border-radius:10px;border:1px solid #bae6fd;background:#fff;color:#075985;text-align:left;font-size:10px;line-height:1.15;font-weight:900;box-shadow:none}.spn-area-context button{color:#0369a1;background:#f8fdff}.spn-area-presets button:hover,.spn-area-context button:hover,.spn-area-helper-head button:hover{transform:none;box-shadow:none;background:#e0f2fe}.spn-area-helper p{margin:7px 0 0;color:#475569;font-size:10.5px;line-height:1.25;font-weight:700}@media(max-width:520px){.spn-area-presets,.spn-area-context{grid-template-columns:1fr}}@media print{.spn-area-helper{display:none!important}}`;
-  document.head.appendChild(style);
-}
+
 function escapeHtml(value){
   return String(value || '').replace(/[&<>'"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
 }

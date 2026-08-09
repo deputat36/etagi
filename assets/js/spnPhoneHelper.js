@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-  injectStyles();
   const phone = document.getElementById('agentPhone');
   const anchor = document.getElementById('contactCtaEditor') || phone?.closest('label');
   if(!phone || !anchor || document.getElementById('spnPhoneHelper')) return;
@@ -128,11 +127,4 @@ function focusField(id){
 function setStatus(text){
   const status = document.getElementById('statusLine');
   if(status) status.textContent = text;
-}
-function injectStyles(){
-  if(document.getElementById('spnPhoneHelperStyles')) return;
-  const style = document.createElement('style');
-  style.id = 'spnPhoneHelperStyles';
-  style.textContent = `.spn-phone-helper{margin:-3px 0 9px;padding:9px;border:1px solid #bbf7d0;border-radius:13px;background:#f0fdf4}.spn-phone-helper.warn{border-color:#fecaca;background:#fff7f7}.spn-phone-helper-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:7px}.spn-phone-helper-head b{font-size:11px;font-weight:900;color:#166534}.spn-phone-helper.warn .spn-phone-helper-head b{color:#991b1b}.spn-phone-helper-head span{font-size:10px;font-weight:900;color:#166534}.spn-phone-helper.warn .spn-phone-helper-head span{color:#b91c1c}.spn-phone-actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px}.spn-phone-actions button{padding:7px 8px;border-radius:10px;border:1px solid #bbf7d0;background:#fff;color:#166534;text-align:center;font-size:10px;line-height:1.15;font-weight:900;box-shadow:none}.spn-phone-helper.warn .spn-phone-actions button{border-color:#fecaca;color:#b91c1c}.spn-phone-actions button:hover{transform:none;box-shadow:none;background:#dcfce7}.spn-phone-helper.warn .spn-phone-actions button:hover{background:#fee2e2}.spn-phone-helper p{margin:7px 0 0;color:#475569;font-size:10.5px;line-height:1.25;font-weight:700}@media(max-width:520px){.spn-phone-actions{grid-template-columns:1fr}}@media print{.spn-phone-helper{display:none!important}}`;
-  document.head.appendChild(style);
 }

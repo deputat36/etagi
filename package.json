@@ -29,6 +29,7 @@
     "validate:agent-brand-mode-guard": "node tools/validate-agent-brand-mode-guard.mjs",
     "validate:layout-mode-accessibility": "node tools/validate-layout-mode-accessibility.mjs",
     "validate:template-library-css": "node tools/validate-template-library-css.mjs",
+    "validate:field-helper-css": "node tools/validate-field-helper-css.mjs",
     "validate:preview-quickbar": "node tools/validate-preview-controls.mjs",
     "validate:advanced-workbench": "node tools/validate-advanced-workbench.mjs",
     "validate:post-print-workspace": "node tools/validate-post-print-workspace.mjs",

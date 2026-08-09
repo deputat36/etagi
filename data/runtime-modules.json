@@ -74,14 +74,14 @@
     "relationCount": 97,
     "sideEffectModuleCount": 54,
     "dynamicModuleCount": 0,
-    "domIdCount": 309,
+    "domIdCount": 305,
     "indexDomIdCount": 86,
-    "runtimeCreatedDomIdCount": 218,
+    "runtimeCreatedDomIdCount": 214,
     "storageKeyCount": 22,
     "dynamicStorageKeyCount": 2,
     "observerModuleCount": 20,
     "observerInstanceCount": 22,
-    "styleIdCount": 40
+    "styleIdCount": 36
   },
   "ownership": {
     "domIds": [
@@ -3086,22 +3086,6 @@
         ]
       },
       {
-        "id": "spnAreaHelperStyles",
-        "declaredInIndex": false,
-        "ownershipBasis": "runtime-create",
-        "owners": [
-          "assets/js/spnAreaHelper.js"
-        ],
-        "createdBy": [
-          "assets/js/spnAreaHelper.js"
-        ],
-        "boundBy": [],
-        "mutatedBy": [],
-        "referencedBy": [
-          "assets/js/spnAreaHelper.js"
-        ]
-      },
-      {
         "id": "spnBlockControls",
         "declaredInIndex": false,
         "ownershipBasis": "runtime-create",
@@ -4014,22 +3998,6 @@
         ]
       },
       {
-        "id": "spnParamsHelperStyles",
-        "declaredInIndex": false,
-        "ownershipBasis": "runtime-create",
-        "owners": [
-          "assets/js/spnParamsHelper.js"
-        ],
-        "createdBy": [
-          "assets/js/spnParamsHelper.js"
-        ],
-        "boundBy": [],
-        "mutatedBy": [],
-        "referencedBy": [
-          "assets/js/spnParamsHelper.js"
-        ]
-      },
-      {
         "id": "spnParamsIdeas",
         "declaredInIndex": false,
         "ownershipBasis": "runtime-create",
@@ -4061,22 +4029,6 @@
         "mutatedBy": [
           "assets/js/spnPhoneHelper.js"
         ],
-        "referencedBy": [
-          "assets/js/spnPhoneHelper.js"
-        ]
-      },
-      {
-        "id": "spnPhoneHelperStyles",
-        "declaredInIndex": false,
-        "ownershipBasis": "runtime-create",
-        "owners": [
-          "assets/js/spnPhoneHelper.js"
-        ],
-        "createdBy": [
-          "assets/js/spnPhoneHelper.js"
-        ],
-        "boundBy": [],
-        "mutatedBy": [],
         "referencedBy": [
           "assets/js/spnPhoneHelper.js"
         ]
@@ -4195,22 +4147,6 @@
         "mutatedBy": [
           "assets/js/spnPriceHelper.js"
         ],
-        "referencedBy": [
-          "assets/js/spnPriceHelper.js"
-        ]
-      },
-      {
-        "id": "spnPriceHelperStyles",
-        "declaredInIndex": false,
-        "ownershipBasis": "runtime-create",
-        "owners": [
-          "assets/js/spnPriceHelper.js"
-        ],
-        "createdBy": [
-          "assets/js/spnPriceHelper.js"
-        ],
-        "boundBy": [],
-        "mutatedBy": [],
         "referencedBy": [
           "assets/js/spnPriceHelper.js"
         ]
@@ -5950,15 +5886,6 @@
         ]
       },
       {
-        "id": "spnAreaHelperStyles",
-        "modules": [
-          "assets/js/spnAreaHelper.js"
-        ],
-        "createdBy": [
-          "assets/js/spnAreaHelper.js"
-        ]
-      },
-      {
         "id": "spnBlockControlsStyles",
         "modules": [
           "assets/js/spnBlockControls.js"
@@ -6121,24 +6048,6 @@
         ]
       },
       {
-        "id": "spnParamsHelperStyles",
-        "modules": [
-          "assets/js/spnParamsHelper.js"
-        ],
-        "createdBy": [
-          "assets/js/spnParamsHelper.js"
-        ]
-      },
-      {
-        "id": "spnPhoneHelperStyles",
-        "modules": [
-          "assets/js/spnPhoneHelper.js"
-        ],
-        "createdBy": [
-          "assets/js/spnPhoneHelper.js"
-        ]
-      },
-      {
         "id": "spnPhotoLayoutStyle",
         "modules": [
           "assets/js/spnPhotoLayoutStyle.js"
@@ -6163,15 +6072,6 @@
         ],
         "createdBy": [
           "assets/js/spnPreviewQuickBar.js"
-        ]
-      },
-      {
-        "id": "spnPriceHelperStyles",
-        "modules": [
-          "assets/js/spnPriceHelper.js"
-        ],
-        "createdBy": [
-          "assets/js/spnPriceHelper.js"
         ]
       },
       {

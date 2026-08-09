@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "scenario": "headline-edit-light-layout",
+  "status": "baseline-recorded",
+  "baseline": {
+    "workflowRunId": 31325937276,
+    "headSha": "6f54543f7ff659e02add5b16888bfd52d4e90709",
+    "runner": "ubuntu-24.04 / system Chrome",
+    "recordedAt": "2026-08-09"
+  },
+  "warmups": 2,
+  "samples": 7,
+  "counts": {
+    "1": { "medianCeilingMs": 120, "baselineMedianMs": 33.2, "baselineWorstMs": 40.9 },
+    "2": { "medianCeilingMs": 140, "baselineMedianMs": 33.1, "baselineWorstMs": 42.6 },
+    "4": { "medianCeilingMs": 180, "baselineMedianMs": 33.0, "baselineWorstMs": 33.3 },
+    "8": { "medianCeilingMs": 240, "baselineMedianMs": 32.9, "baselineWorstMs": 34.0 }
+  },
+  "worstSampleMultiplier": 4,
+  "scaling": {
+    "from": 4,
+    "to": 8,
+    "multiplier": 3,
+    "allowanceMs": 50
+  },
+  "structural": {
+    "domGrowthFactor": 1.35,
+    "domFixedAllowance": 40,
+    "stabilityQuietWindowMs": 80,
+    "stabilityObservationMs": 120
+  }
+}

@@ -17,7 +17,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const search = document.getElementById('templateSearch');
   const toolbar = search?.closest('.toolbar-row');
   if(!search || !toolbar || document.getElementById('spnOfficeTemplateFilters')) return;
-  injectStyles();
   toolbar.insertAdjacentHTML('afterend', renderFilters());
   document.getElementById('spnOfficeTemplateFilters')?.addEventListener('click', event => {
     const btn = event.target.closest('[data-office-query]');
@@ -72,32 +71,4 @@ function fire(search){
 function status(text){
   const el = document.getElementById('statusLine');
   if(el) el.textContent = text;
-}
-
-function injectStyles(){
-  if(document.getElementById('spnOfficeTemplateFiltersStyles')) return;
-  const style = document.createElement('style');
-  style.id = 'spnOfficeTemplateFiltersStyles';
-  style.textContent = `
-    .spn-office-template-filters{margin:8px 0 10px;padding:10px;border:1px solid #dbeafe;border-radius:18px;background:#eff6ff}
-    .spn-office-template-filters-head{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;margin-bottom:9px}
-    .spn-office-template-filters-head b{display:block;font-size:12px;font-weight:900;color:#111827}
-    .spn-office-template-filters-head span{display:block;margin-top:3px;font-size:11px;line-height:1.25;color:#475569;font-weight:700}
-    .spn-office-template-filters-head button{padding:7px 9px;border:1px solid #bfdbfe;background:#fff;color:#1e3a8a;font-size:11px;box-shadow:none}
-    .spn-office-template-filter-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-    .spn-office-template-card{position:relative;min-height:76px;padding:9px 8px 8px;text-align:left;border:1px solid #bfdbfe;background:#fff;border-radius:15px;box-shadow:none;color:#172033;overflow:hidden}
-    .spn-office-template-card:hover{transform:none;box-shadow:0 8px 18px rgba(15,23,42,.1)}
-    .spn-office-template-card.active{border-color:var(--accent);background:var(--accent);color:#fff}
-    .spn-office-template-card.active .spn-office-template-card-note{background:rgba(255,255,255,.22);color:#fff;border-color:rgba(255,255,255,.35)}
-    .spn-office-template-card b{display:block;margin-top:18px;font-size:12px;line-height:1.1;font-weight:900}
-    .spn-office-template-card-hint{display:block;margin-top:4px;font-size:10.5px;line-height:1.18;font-weight:700;opacity:.76}
-    .spn-office-template-card-note{position:absolute;top:7px;left:7px;display:inline-flex;max-width:calc(100% - 14px);align-items:center;border:1px solid #dbe3ee;border-radius:999px;padding:3px 6px;background:#f8fafc;color:#475569;font-size:9px;line-height:1;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .spn-office-template-card-safe .spn-office-template-card-note,.spn-office-template-card-newbie .spn-office-template-card-note{background:#ecfdf5;border-color:#bbf7d0;color:#047857}
-    .spn-office-template-card-manager .spn-office-template-card-note,.spn-office-template-card-blank .spn-office-template-card-note{background:#fff7ed;border-color:#fed7aa;color:#c2410c}
-    .spn-office-template-card-local .spn-office-template-card-note,.spn-office-template-card-newbuild .spn-office-template-card-note{background:#fdf2f8;border-color:#fbcfe8;color:#be185d}
-    .spn-office-template-card-photo .spn-office-template-card-note{background:#eef2ff;border-color:#c7d2fe;color:#4338ca}
-    @media(max-width:520px){.spn-office-template-filter-grid,.spn-office-template-filters-head{grid-template-columns:1fr}.spn-office-template-card{min-height:74px}.spn-office-template-card b{margin-top:22px}.spn-office-template-card-hint{font-size:11.5px;line-height:1.25}.spn-office-template-card-note{padding:4px 7px;font-size:10.5px;line-height:1.1}}
-    @media print{.spn-office-template-filters{display:none!important}}
-  `;
-  document.head.appendChild(style);
 }

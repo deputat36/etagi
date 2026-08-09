@@ -74,14 +74,14 @@
     "relationCount": 97,
     "sideEffectModuleCount": 54,
     "dynamicModuleCount": 0,
-    "domIdCount": 312,
+    "domIdCount": 309,
     "indexDomIdCount": 86,
-    "runtimeCreatedDomIdCount": 221,
+    "runtimeCreatedDomIdCount": 218,
     "storageKeyCount": 22,
     "dynamicStorageKeyCount": 2,
     "observerModuleCount": 20,
     "observerInstanceCount": 22,
-    "styleIdCount": 43
+    "styleIdCount": 40
   },
   "ownership": {
     "domIds": [
@@ -3996,22 +3996,6 @@
         ]
       },
       {
-        "id": "spnOfficeTemplateFiltersStyles",
-        "declaredInIndex": false,
-        "ownershipBasis": "runtime-create",
-        "owners": [
-          "assets/js/spnOfficeTemplateFilters.js"
-        ],
-        "createdBy": [
-          "assets/js/spnOfficeTemplateFilters.js"
-        ],
-        "boundBy": [],
-        "mutatedBy": [],
-        "referencedBy": [
-          "assets/js/spnOfficeTemplateFilters.js"
-        ]
-      },
-      {
         "id": "spnParamsHelper",
         "declaredInIndex": false,
         "ownershipBasis": "runtime-create",
@@ -4561,22 +4545,6 @@
         ],
         "referencedBy": [
           "assets/js/spnWizard.js"
-        ]
-      },
-      {
-        "id": "spnTemplateCardBadgesStyle",
-        "declaredInIndex": false,
-        "ownershipBasis": "runtime-create",
-        "owners": [
-          "assets/js/spnTemplateCardBadges.js"
-        ],
-        "createdBy": [
-          "assets/js/spnTemplateCardBadges.js"
-        ],
-        "boundBy": [],
-        "mutatedBy": [],
-        "referencedBy": [
-          "assets/js/spnTemplateCardBadges.js"
         ]
       },
       {
@@ -5265,22 +5233,6 @@
           "assets/js/spnWizard.js",
           "assets/js/spnWizardFlow.js",
           "assets/js/spnWizardStepStatus.js"
-        ]
-      },
-      {
-        "id": "templateMenuCompactStyles",
-        "declaredInIndex": false,
-        "ownershipBasis": "runtime-create",
-        "owners": [
-          "assets/js/spnTemplateMenuCompact.js"
-        ],
-        "createdBy": [
-          "assets/js/spnTemplateMenuCompact.js"
-        ],
-        "boundBy": [],
-        "mutatedBy": [],
-        "referencedBy": [
-          "assets/js/spnTemplateMenuCompact.js"
         ]
       },
       {
@@ -6169,15 +6121,6 @@
         ]
       },
       {
-        "id": "spnOfficeTemplateFiltersStyles",
-        "modules": [
-          "assets/js/spnOfficeTemplateFilters.js"
-        ],
-        "createdBy": [
-          "assets/js/spnOfficeTemplateFilters.js"
-        ]
-      },
-      {
         "id": "spnParamsHelperStyles",
         "modules": [
           "assets/js/spnParamsHelper.js"
@@ -6268,15 +6211,6 @@
         ]
       },
       {
-        "id": "spnTemplateCardBadgesStyle",
-        "modules": [
-          "assets/js/spnTemplateCardBadges.js"
-        ],
-        "createdBy": [
-          "assets/js/spnTemplateCardBadges.js"
-        ]
-      },
-      {
         "id": "spnTextStepChecklistStyle",
         "modules": [
           "assets/js/spnTextStepChecklist.js"
@@ -6319,15 +6253,6 @@
         ],
         "createdBy": [
           "assets/js/spnTearOffEditor.js"
-        ]
-      },
-      {
-        "id": "templateMenuCompactStyles",
-        "modules": [
-          "assets/js/spnTemplateMenuCompact.js"
-        ],
-        "createdBy": [
-          "assets/js/spnTemplateMenuCompact.js"
         ]
       }
     ]

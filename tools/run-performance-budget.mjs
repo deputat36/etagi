@@ -14,9 +14,7 @@ fs.rmSync(failurePath, {force:true});
 
 const budget = JSON.parse(fs.readFileSync(budgetPath, 'utf8'));
 const chrome = findChrome();
-if(!chrome){
-  writeFailureAndExit({type:'infrastructure', reason:'Chrome/Chromium не найден. Укажите CHROME_BIN или установите системный браузер.'});
-}
+if(!chrome) writeFailureAndExit({type:'infrastructure', reason:'Chrome/Chromium не найден. Укажите CHROME_BIN или установите системный браузер.'});
 
 const server = createStaticServer(rootDir);
 server.keepAliveTimeout = 1;
@@ -78,7 +76,7 @@ async function runOnce(command, profileDir, port, config, attempt){
     await cdp.send('Emulation.setDeviceMetricsOverride', {
       width:1440, height:1200, deviceScaleFactor:1, mobile:false, screenWidth:1440, screenHeight:1200
     }, sessionId);
-    await cdp.send('Page.navigate', {url:`http://127.0.0.1:${port}/index.html`}, sessionId, 12000);
+    await cdp.send('Page.navigate', {url:`http://127.0.0.1:${port}/index.html?smoke=performance-budget`}, sessionId, 12000);
     const evaluated = await cdp.send('Runtime.evaluate', {
       expression: benchmarkExpression(config),
       returnByValue:true,
@@ -108,6 +106,7 @@ function benchmarkExpression(config){
     const headlineInput = () => document.getElementById('headline');
     const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
     const raf = () => new Promise(resolve => requestAnimationFrame(() => resolve()));
+
     async function waitFor(predicate, timeout = 15000, label = 'condition'){
       const started = performance.now();
       while(performance.now() - started < timeout){
@@ -117,12 +116,13 @@ function benchmarkExpression(config){
       throw new Error('timeout: ' + label);
     }
 
-    await waitFor(() => sheet()?.querySelector('.flyer') && headlineInput() && document.querySelector('[data-count="8"]'), 20000, 'app ready');
+    // Повторяем доказанный контракт form-input-render-smoke: сначала ждём
+    // полной загрузки библиотеки, затем даём init() закончить применение шаблона.
+    await waitFor(() => document.querySelectorAll('#templateList .tpl-card').length > 1, 12000, 'templates ready');
+    await waitFor(() => sheet()?.querySelector('.flyer') && headlineInput() && document.querySelector('[data-count="8"]'), 8000, 'app ready');
+    await sleep(700);
 
-    const simpleCheckboxes = [
-      ['showHeadline', true], ['showPhoto', false], ['showQr', false], ['tearOffs', false]
-    ];
-    for(const [id, checked] of simpleCheckboxes){
+    for(const [id, checked] of [['showHeadline', true], ['showPhoto', false], ['showQr', false], ['tearOffs', false]]){
       const el = document.getElementById(id);
       if(el && el.checked !== checked){
         el.checked = checked;
@@ -145,15 +145,18 @@ function benchmarkExpression(config){
       let mutationCallbacks = 0;
       const observer = new MutationObserver(() => { mutationCallbacks += 1; });
       observer.observe(sheet(), {subtree:true, childList:true, characterData:true, attributes:true});
+
       input.value = value;
       const start = performance.now();
       input.dispatchEvent(new Event('input', {bubbles:true}));
       const syncMs = performance.now() - start;
+
       await waitFor(() => {
         const flyers = [...sheet().querySelectorAll('.flyer')];
         return flyers.length === count && flyers.every(f => (f.querySelector('.headline')?.textContent || '').trim() === value);
       }, 5000, 'headline propagation ' + count);
       await raf(); await raf();
+
       const settleMs = performance.now() - start;
       const flyers = [...sheet().querySelectorAll('.flyer')];
       const headlineMatches = flyers.filter(f => (f.querySelector('.headline')?.textContent || '').trim() === value).length;
@@ -163,9 +166,8 @@ function benchmarkExpression(config){
       await sleep(config.structural.stabilityQuietWindowMs);
       const callbacksAfterQuiet = mutationCallbacks;
       observer.disconnect();
-      if(callbacksAfterQuiet !== callbacksAfterObservation){
-        throw new Error('printSheet mutations continue after stabilization for count ' + count);
-      }
+      if(callbacksAfterQuiet !== callbacksAfterObservation) throw new Error('printSheet mutations continue after stabilization for count ' + count);
+
       return {settleMs, syncMs, domNodes, flyerCount:flyers.length, headlineMatches, mutationCallbacks:callbacksAfterQuiet};
     }
 
@@ -244,9 +246,7 @@ function printResult(result, config){
   }
   const four = result.results.find(x => x.count === 4);
   const eight = result.results.find(x => x.count === 8);
-  if(four && eight){
-    console.log(`scaling 4→8: ${eight.medianMs} <= ${four.medianMs} × ${config.scaling.multiplier} + ${config.scaling.allowanceMs}`);
-  }
+  if(four && eight) console.log(`scaling 4→8: ${eight.medianMs} <= ${four.medianMs} × ${config.scaling.multiplier} + ${config.scaling.allowanceMs}`);
 }
 
 function writeFailureAndExit(payload){
@@ -316,10 +316,7 @@ function createCdpPipeClient(child){
         input.write(`${JSON.stringify(payload)}\0`);
       });
     },
-    close(){
-      failAll(new Error('CDP pipe закрыт runner-ом.'));
-      input.end();
-    }
+    close(){ failAll(new Error('CDP pipe закрыт runner-ом.')); input.end(); }
   };
 }
 
@@ -349,10 +346,10 @@ function createStaticServer(root){
       if(!resolved.startsWith(rootResolved) || !fs.existsSync(resolved) || fs.statSync(resolved).isDirectory()){
         response.writeHead(404); response.end('Not found'); return;
       }
-      response.writeHead(200, {'Content-Type':contentType(resolved), 'Cache-Control':'no-store'});
+      response.writeHead(200, {'Content-Type':contentType(resolved), 'Cache-Control':'no-store', 'Connection':'close'});
       fs.createReadStream(resolved).pipe(response);
     } catch(error){
-      response.writeHead(500); response.end(String(error?.message || error));
+      response.writeHead(500, {'Connection':'close'}); response.end(String(error?.message || error));
     }
   });
 }
@@ -362,7 +359,7 @@ function contentType(file){
   return ({
     '.html':'text/html; charset=utf-8', '.js':'text/javascript; charset=utf-8', '.mjs':'text/javascript; charset=utf-8',
     '.css':'text/css; charset=utf-8', '.json':'application/json; charset=utf-8', '.svg':'image/svg+xml',
-    '.png':'image/png', '.jpg':'image/jpeg', '.jpeg':'image/jpeg'
+    '.png':'image/png', '.jpg':'image/jpeg', '.jpeg':'image/jpeg', '.webp':'image/webp'
   })[ext] || 'application/octet-stream';
 }
 

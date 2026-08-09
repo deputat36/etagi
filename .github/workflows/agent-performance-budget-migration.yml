@@ -1,0 +1,534 @@
+name: Agent performance budget migration
+
+on:
+  push:
+    branches:
+      - agent/performance-budget-1-2-4-8
+
+permissions:
+  contents: write
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/performance-budget-1-2-4-8
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Add performance budget infrastructure
+        shell: bash
+        run: |
+          cat > data/performance-budget.json <<'EOF'
+          {
+            "schemaVersion": 1,
+            "scenario": "headline-edit-light-layout",
+            "status": "requires-system-chrome",
+            "warmups": 2,
+            "samples": 7,
+            "counts": {
+              "1": { "medianCeilingMs": 250, "baselineMedianMs": null, "baselineWorstMs": null },
+              "2": { "medianCeilingMs": 300, "baselineMedianMs": null, "baselineWorstMs": null },
+              "4": { "medianCeilingMs": 450, "baselineMedianMs": null, "baselineWorstMs": null },
+              "8": { "medianCeilingMs": 700, "baselineMedianMs": null, "baselineWorstMs": null }
+            },
+            "worstSampleMultiplier": 4,
+            "scaling": {
+              "from": 4,
+              "to": 8,
+              "multiplier": 3,
+              "allowanceMs": 50
+            },
+            "structural": {
+              "domGrowthFactor": 1.35,
+              "domFixedAllowance": 40,
+              "stabilityQuietWindowMs": 80,
+              "stabilityObservationMs": 120
+            }
+          }
+          EOF
+
+          cat > tools/run-performance-budget.mjs <<'EOF'
+          import fs from 'node:fs';
+          import http from 'node:http';
+          import os from 'node:os';
+          import path from 'node:path';
+          import { spawn, spawnSync } from 'node:child_process';
+          import { attachCdpPipeErrorHandlers } from './cdp-pipe-error-guard.mjs';
+
+          class BenchmarkFailure extends Error {}
+
+          const rootDir = process.cwd();
+          const budgetPath = path.join(rootDir, 'data/performance-budget.json');
+          const failurePath = path.join(rootDir, 'performance-budget-failure.json');
+          fs.rmSync(failurePath, {force:true});
+
+          const budget = JSON.parse(fs.readFileSync(budgetPath, 'utf8'));
+          const chrome = findChrome();
+          if(!chrome){
+            fail({type:'infrastructure', reason:'Chrome/Chromium не найден. Укажите CHROME_BIN или установите системный браузер.'});
+          }
+
+          const server = createStaticServer(rootDir);
+          server.keepAliveTimeout = 1;
+          server.headersTimeout = 5000;
+          const port = await listen(server);
+
+          try {
+            const result = await runWithRetry(chrome, port, budget);
+            validateResult(result, budget);
+            printResult(result, budget);
+          } catch(error){
+            if(error instanceof BenchmarkFailure){
+              fail({type:'benchmark', reason:error.message, details:error.details || null});
+            }
+            fail({type:'infrastructure', reason:String(error?.message || error)});
+          } finally {
+            await closeServer(server);
+          }
+
+          async function runWithRetry(command, port, config){
+            let lastError;
+            for(let attempt = 1; attempt <= 2; attempt += 1){
+              const profileDir = fs.mkdtempSync(path.join(os.tmpdir(), `etagi-performance-${attempt}-`));
+              try {
+                return await runOnce(command, profileDir, port, config, attempt);
+              } catch(error){
+                if(error instanceof BenchmarkFailure) throw error;
+                lastError = error;
+                if(attempt === 2) throw error;
+              } finally {
+                fs.rmSync(profileDir, {recursive:true, force:true});
+              }
+            }
+            throw lastError || new Error('Performance benchmark не завершён.');
+          }
+
+          async function runOnce(command, profileDir, port, config, attempt){
+            const child = spawn(command, [
+              '--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage',
+              '--disable-background-networking', '--disable-component-update', '--disable-default-apps',
+              '--no-first-run', '--no-default-browser-check', '--hide-scrollbars',
+              '--run-all-compositor-stages-before-draw', '--force-device-scale-factor=1',
+              '--window-size=1440,1200', `--user-data-dir=${profileDir}`, '--remote-debugging-pipe', 'about:blank'
+            ], {cwd:rootDir, stdio:['ignore','ignore','pipe','pipe','pipe']});
+
+            let stderr = '';
+            child.stderr.setEncoding('utf8');
+            child.stderr.on('data', chunk => { stderr = tail(stderr + chunk); });
+            const cdp = createCdpPipeClient(child);
+
+            try {
+              const {targetId} = await cdp.send('Target.createTarget', {url:'about:blank'}, '', 12000);
+              const {sessionId} = await cdp.send('Target.attachToTarget', {targetId, flatten:true}, '', 12000);
+              await cdp.send('Page.enable', {}, sessionId);
+              await cdp.send('Runtime.enable', {}, sessionId);
+              await cdp.send('Emulation.setDeviceMetricsOverride', {
+                width:1440, height:1200, deviceScaleFactor:1, mobile:false, screenWidth:1440, screenHeight:1200
+              }, sessionId);
+              await cdp.send('Page.navigate', {url:`http://127.0.0.1:${port}/index.html`}, sessionId, 12000);
+              const evaluated = await cdp.send('Runtime.evaluate', {
+                expression: benchmarkExpression(config),
+                returnByValue:true,
+                awaitPromise:true
+              }, sessionId, 120000);
+              if(evaluated?.exceptionDetails){
+                throw new BenchmarkFailure(`Browser benchmark exception: ${evaluated.exceptionDetails.text || 'unknown'}`);
+              }
+              const value = evaluated?.result?.value;
+              if(!value || !Array.isArray(value.results)) throw new BenchmarkFailure('Browser benchmark не вернул результаты.');
+              return {...value, attempt};
+            } catch(error){
+              if(error instanceof BenchmarkFailure) throw error;
+              throw new Error(stderr ? `${error.message || error}\n${stderr}` : String(error.message || error));
+            } finally {
+              cdp.close();
+              await terminateProcess(child);
+            }
+          }
+
+          function benchmarkExpression(config){
+            const serialized = JSON.stringify(config).replace(/</g, '\\u003c');
+            return `(async () => {
+              const config = ${serialized};
+              const counts = [1,2,4,8];
+              const sheet = () => document.getElementById('printSheet');
+              const headlineInput = () => document.getElementById('headline');
+              const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+              const raf = () => new Promise(resolve => requestAnimationFrame(() => resolve()));
+              async function waitFor(predicate, timeout = 15000, label = 'condition'){
+                const started = performance.now();
+                while(performance.now() - started < timeout){
+                  if(predicate()) return;
+                  await sleep(25);
+                }
+                throw new Error('timeout: ' + label);
+              }
+              await waitFor(() => sheet()?.querySelector('.flyer') && headlineInput() && document.querySelector('[data-count="8"]'), 20000, 'app ready');
+
+              const showPhoto = document.getElementById('showPhoto');
+              if(showPhoto?.checked){ showPhoto.checked = false; showPhoto.dispatchEvent(new Event('change', {bubbles:true})); }
+              const showQr = document.getElementById('showQr');
+              if(showQr?.checked){ showQr.checked = false; showQr.dispatchEvent(new Event('change', {bubbles:true})); }
+              const tearOffs = document.getElementById('tearOffs');
+              if(tearOffs?.checked){ tearOffs.checked = false; tearOffs.dispatchEvent(new Event('change', {bubbles:true})); }
+              await raf(); await raf();
+
+              async function setCount(count){
+                const button = document.querySelector('[data-count="' + count + '"]');
+                if(!button) throw new Error('missing count button ' + count);
+                button.click();
+                await waitFor(() => sheet().querySelectorAll('.flyer').length === count, 5000, 'flyer count ' + count);
+                await raf(); await raf();
+              }
+
+              async function editOnce(count, token){
+                const input = headlineInput();
+                const value = 'Perf ' + count + ' ' + token + ' ' + Math.random().toString(36).slice(2,8);
+                let mutationCallbacks = 0;
+                const observer = new MutationObserver(() => { mutationCallbacks += 1; });
+                observer.observe(sheet(), {subtree:true, childList:true, characterData:true, attributes:true});
+                input.value = value;
+                const start = performance.now();
+                input.dispatchEvent(new Event('input', {bubbles:true}));
+                const syncMs = performance.now() - start;
+                await waitFor(() => {
+                  const flyers = [...sheet().querySelectorAll('.flyer')];
+                  return flyers.length === count && flyers.every(f => (f.querySelector('.headline')?.textContent || '').trim() === value);
+                }, 5000, 'headline propagation ' + count);
+                await raf(); await raf();
+                const settleMs = performance.now() - start;
+                const flyers = [...sheet().querySelectorAll('.flyer')];
+                const headlineMatches = flyers.filter(f => (f.querySelector('.headline')?.textContent || '').trim() === value).length;
+                const domNodes = sheet().querySelectorAll('*').length;
+                await sleep(config.structural.stabilityObservationMs);
+                const callbacksAfterObservation = mutationCallbacks;
+                await sleep(config.structural.stabilityQuietWindowMs);
+                const callbacksAfterQuiet = mutationCallbacks;
+                observer.disconnect();
+                if(callbacksAfterQuiet !== callbacksAfterObservation){
+                  throw new Error('printSheet mutations continue after stabilization for count ' + count);
+                }
+                return {settleMs, syncMs, domNodes, flyerCount:flyers.length, headlineMatches, mutationCallbacks:callbacksAfterQuiet};
+              }
+
+              const results = [];
+              for(const count of counts){
+                await setCount(count);
+                for(let i=0;i<config.warmups;i++) await editOnce(count, 'warmup-' + i);
+                const samples = [];
+                for(let i=0;i<config.samples;i++) samples.push(await editOnce(count, 'sample-' + i));
+                const settle = samples.map(x => x.settleMs).sort((a,b) => a-b);
+                const sync = samples.map(x => x.syncMs).sort((a,b) => a-b);
+                const middle = Math.floor(settle.length / 2);
+                const medianMs = settle.length % 2 ? settle[middle] : (settle[middle-1] + settle[middle]) / 2;
+                const syncMedianMs = sync.length % 2 ? sync[middle] : (sync[middle-1] + sync[middle]) / 2;
+                results.push({
+                  count,
+                  samplesMs:samples.map(x => Number(x.settleMs.toFixed(2))),
+                  syncSamplesMs:samples.map(x => Number(x.syncMs.toFixed(2))),
+                  medianMs:Number(medianMs.toFixed(2)),
+                  syncMedianMs:Number(syncMedianMs.toFixed(2)),
+                  worstMs:Number(Math.max(...samples.map(x => x.settleMs)).toFixed(2)),
+                  domNodes:Math.max(...samples.map(x => x.domNodes)),
+                  flyerCount:samples.at(-1).flyerCount,
+                  headlineMatches:samples.at(-1).headlineMatches,
+                  mutationCallbacks:Math.max(...samples.map(x => x.mutationCallbacks))
+                });
+              }
+              return {chrome:navigator.userAgent, results};
+            })()`;
+          }
+
+          function validateResult(result, config){
+            const failures = [];
+            const byCount = new Map(result.results.map(item => [Number(item.count), item]));
+            for(const count of [1,2,4,8]){
+              const item = byCount.get(count);
+              const ceiling = Number(config.counts[String(count)].medianCeilingMs);
+              if(!item){ failures.push(`count ${count}: result missing`); continue; }
+              if(item.flyerCount !== count) failures.push(`count ${count}: flyers ${item.flyerCount}, expected ${count}`);
+              if(item.headlineMatches !== count) failures.push(`count ${count}: updated headlines ${item.headlineMatches}, expected ${count}`);
+              if(item.medianMs > ceiling) failures.push(`count ${count}: median ${item.medianMs}ms > budget ${ceiling}ms`);
+              if(item.worstMs > ceiling * Number(config.worstSampleMultiplier || 4)) failures.push(`count ${count}: worst ${item.worstMs}ms is an extreme hang`);
+            }
+            const one = byCount.get(1);
+            if(one){
+              for(const count of [2,4,8]){
+                const item = byCount.get(count);
+                if(!item) continue;
+                const maxDom = one.domNodes * count * Number(config.structural.domGrowthFactor) + Number(config.structural.domFixedAllowance);
+                if(item.domNodes > maxDom) failures.push(`count ${count}: DOM ${item.domNodes} > structural limit ${Math.round(maxDom)}`);
+              }
+            }
+            const four = byCount.get(Number(config.scaling.from));
+            const eight = byCount.get(Number(config.scaling.to));
+            if(four && eight){
+              const limit = four.medianMs * Number(config.scaling.multiplier) + Number(config.scaling.allowanceMs);
+              if(eight.medianMs > limit) failures.push(`scaling 4→8: ${eight.medianMs}ms > ${limit.toFixed(2)}ms`);
+            }
+            if(failures.length){
+              const error = new BenchmarkFailure(failures.join('; '));
+              error.details = {results:result.results, budget:config};
+              throw error;
+            }
+          }
+
+          function printResult(result, config){
+            console.log('Performance budget passed.');
+            console.log('copies | median | worst | sync median | budget | DOM');
+            for(const item of result.results){
+              const ceiling = config.counts[String(item.count)].medianCeilingMs;
+              console.log(`${item.count} | ${item.medianMs} ms | ${item.worstMs} ms | ${item.syncMedianMs} ms | ${ceiling} ms | ${item.domNodes}`);
+              console.log(`  samples: ${item.samplesMs.join(', ')}`);
+            }
+            const four = result.results.find(x => x.count === 4);
+            const eight = result.results.find(x => x.count === 8);
+            if(four && eight){
+              console.log(`scaling 4→8: ${eight.medianMs} <= ${four.medianMs} × ${config.scaling.multiplier} + ${config.scaling.allowanceMs}`);
+            }
+          }
+
+          function fail(payload){
+            try { fs.writeFileSync(failurePath, `${JSON.stringify(payload, null, 2)}\n`, 'utf8'); } catch(error){}
+            console.error(`Performance budget failed: ${payload.reason}`);
+            if(payload.details) console.error(JSON.stringify(payload.details, null, 2));
+            process.exitCode = 1;
+            throw new BenchmarkFailure(payload.reason);
+          }
+
+          function createCdpPipeClient(child){
+            const input = child.stdio[3];
+            const output = child.stdio[4];
+            const pending = new Map();
+            let nextId = 1;
+            let buffer = Buffer.alloc(0);
+            let closed = false;
+            output.on('data', chunk => {
+              buffer = Buffer.concat([buffer, chunk]);
+              let separatorIndex = buffer.indexOf(0);
+              while(separatorIndex >= 0){
+                const raw = buffer.subarray(0, separatorIndex).toString('utf8');
+                buffer = buffer.subarray(separatorIndex + 1);
+                if(raw) handleMessage(raw);
+                separatorIndex = buffer.indexOf(0);
+              }
+            });
+            const failAll = error => {
+              if(closed) return;
+              closed = true;
+              for(const item of pending.values()){
+                clearTimeout(item.timer);
+                item.reject(error);
+              }
+              pending.clear();
+            };
+            attachCdpPipeErrorHandlers(input, output, failAll);
+            child.once('error', failAll);
+            child.once('close', (code, signal) => failAll(new Error(`Chrome CDP pipe закрыт: code=${code}, signal=${signal || ''}`)));
+            function handleMessage(raw){
+              let message;
+              try { message = JSON.parse(raw); }
+              catch { failAll(new Error(`Некорректный ответ CDP: ${raw.slice(0,300)}`)); return; }
+              if(!message.id) return;
+              const item = pending.get(message.id);
+              if(!item) return;
+              pending.delete(message.id);
+              clearTimeout(item.timer);
+              if(message.error) item.reject(new Error(`${item.method}: ${message.error.message || 'CDP error'}`));
+              else item.resolve(message.result || {});
+            }
+            return {
+              send(method, params = {}, sessionId = '', timeout = 10000){
+                if(closed) return Promise.reject(new Error(`CDP pipe закрыт до команды ${method}.`));
+                const id = nextId++;
+                const payload = {id, method, params};
+                if(sessionId) payload.sessionId = sessionId;
+                return new Promise((resolve, reject) => {
+                  const timer = setTimeout(() => { pending.delete(id); reject(new Error(`${method}: timeout ${timeout} мс`)); }, timeout);
+                  pending.set(id, {method, resolve, reject, timer});
+                  input.write(`${JSON.stringify(payload)}\0`);
+                });
+              },
+              close(){ failAll(new Error('CDP pipe закрыт runner-ом.')); input.end(); }
+            };
+          }
+
+          function findChrome(){
+            const candidates = [process.env.CHROME_BIN, '/usr/bin/google-chrome', '/usr/bin/google-chrome-stable', '/usr/bin/chromium', '/usr/bin/chromium-browser', 'google-chrome', 'google-chrome-stable', 'chromium', 'chromium-browser'].filter(Boolean);
+            for(const candidate of candidates){
+              if(path.isAbsolute(candidate) && !fs.existsSync(candidate)) continue;
+              const probe = spawnSync(candidate, ['--version'], {encoding:'utf8', timeout:5000});
+              if(!probe.error && probe.status === 0) return candidate;
+            }
+            return '';
+          }
+
+          function createStaticServer(root){
+            return http.createServer((request, response) => {
+              try {
+                const url = new URL(request.url || '/', 'http://127.0.0.1');
+                let pathname = decodeURIComponent(url.pathname);
+                if(pathname === '/') pathname = '/index.html';
+                const resolved = path.resolve(root, `.${pathname}`);
+                if(!resolved.startsWith(path.resolve(root)) || !fs.existsSync(resolved) || fs.statSync(resolved).isDirectory()){
+                  response.writeHead(404); response.end('Not found'); return;
+                }
+                const type = contentType(resolved);
+                response.writeHead(200, {'Content-Type':type, 'Cache-Control':'no-store'});
+                fs.createReadStream(resolved).pipe(response);
+              } catch(error){ response.writeHead(500); response.end(String(error?.message || error)); }
+            });
+          }
+          function contentType(file){
+            const ext = path.extname(file).toLowerCase();
+            return ({'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.mjs':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.json':'application/json; charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg'})[ext] || 'application/octet-stream';
+          }
+          function listen(server){ return new Promise((resolve,reject) => { server.once('error',reject); server.listen(0,'127.0.0.1',()=>resolve(server.address().port)); }); }
+          function closeServer(server){ return new Promise(resolve => server.close(()=>resolve())); }
+          function delay(ms){ return new Promise(resolve => setTimeout(resolve, ms)); }
+          async function terminateProcess(child){
+            if(child.exitCode !== null) return;
+            child.kill('SIGTERM');
+            await Promise.race([new Promise(resolve => child.once('exit', resolve)), delay(1500)]);
+            if(child.exitCode === null) child.kill('SIGKILL');
+          }
+          function tail(text, max = 6000){ return String(text || '').slice(-max); }
+          EOF
+
+          cat > tools/validate-performance-budget.mjs <<'EOF'
+          import fs from 'node:fs';
+
+          const errors = [];
+          const read = file => {
+            if(!fs.existsSync(file)){ errors.push(`${file}: отсутствует`); return ''; }
+            return fs.readFileSync(file, 'utf8');
+          };
+          const jsonText = read('data/performance-budget.json');
+          let budget = {};
+          try { budget = JSON.parse(jsonText); } catch(error){ errors.push(`performance-budget.json: ${error.message}`); }
+          const pkg = JSON.parse(read('package.json') || '{}');
+          const workflow = read('.github/workflows/validate.yml');
+          const docs = read('docs/performance-budget.md');
+          const maintenance = read('docs/maintenance-guide.md');
+          const runner = read('tools/run-performance-budget.mjs');
+
+          if(budget.schemaVersion !== 1) errors.push('performance-budget.json: schemaVersion должен быть 1');
+          if(budget.warmups < 2) errors.push('performance-budget.json: нужно минимум 2 warm-up');
+          if(budget.samples < 5) errors.push('performance-budget.json: нужно минимум 5 samples');
+          for(const count of ['1','2','4','8']){
+            const item = budget.counts?.[count];
+            if(!item || !Number.isFinite(item.medianCeilingMs) || item.medianCeilingMs <= 0) errors.push(`performance-budget.json: нет fixed ceiling для ${count}`);
+            const baselineValues = [item?.baselineMedianMs, item?.baselineWorstMs];
+            if(baselineValues.some(value => value !== null && !Number.isFinite(value))) errors.push(`performance-budget.json: baseline ${count} должен быть number или null`);
+          }
+          if(budget.scaling?.from !== 4 || budget.scaling?.to !== 8) errors.push('performance-budget.json: scaling должен контролировать 4→8');
+          if(pkg.scripts?.['performance:budget'] !== 'node tools/run-performance-budget.mjs') errors.push('package.json: отсутствует performance:budget');
+          if(pkg.scripts?.['validate:performance-budget'] !== 'node tools/validate-performance-budget.mjs') errors.push('package.json: отсутствует validate:performance-budget');
+          for(const token of ['npm run smoke:browser','npm run smoke:ui-actions','npm run performance:budget']) if(!workflow.includes(token)) errors.push(`validate.yml: отсутствует ${token}`);
+          const browserIndex = workflow.indexOf('npm run smoke:browser');
+          const uiIndex = workflow.indexOf('npm run smoke:ui-actions');
+          const perfIndex = workflow.indexOf('npm run performance:budget');
+          if(!(browserIndex >= 0 && browserIndex < uiIndex && uiIndex < perfIndex)) errors.push('validate.yml: performance budget должен идти после browser/UI smoke');
+          if(!workflow.includes('performance-budget-failure.json')) errors.push('validate.yml: failure JSON не включён в artifact');
+          for(const token of ['1 / 2 / 4 / 8','baseline','median','4 → 8']) if(!docs.toLowerCase().includes(token.toLowerCase())) errors.push(`performance-budget.md: отсутствует ${token}`);
+          if(!maintenance.includes('npm run performance:budget') || !maintenance.includes('npm run validate:performance-budget')) errors.push('maintenance-guide.md: команды performance budget не синхронизированы');
+          for(const token of ['MutationObserver','medianMs','worstMs','syncMedianMs']) if(!runner.includes(token)) errors.push(`run-performance-budget.mjs: отсутствует ${token}`);
+
+          if(errors.length){ console.error('Ошибки performance budget:\n' + errors.map(x => `- ${x}`).join('\n')); process.exit(1); }
+          console.log('Проверка performance budget пройдена.');
+          EOF
+
+          cat > docs/performance-budget.md <<'EOF'
+          # Performance budget 1 / 2 / 4 / 8
+
+          ## Назначение
+
+          Performance budget защищает основной пользовательский сценарий: специалист редактирует заголовок уже подготовленного лёгкого макета, а генератор обновляет все печатные копии. Проверка не является микробенчмарком отдельной функции — она запускает реальный `index.html` в системном headless Chrome и работает через те же DOM-события, что и пользователь.
+
+          ## Сценарий
+
+          Для 1 / 2 / 4 / 8 копий runner отключает тяжёлые фото, QR и отрывные полосы, выполняет 2 warm-up изменения, затем 7 измеряемых изменений заголовка. Для каждой серии сохраняются samples, median, worst sample и median синхронной части dispatch/render. После совпадения текста во всех `.flyer` runner ждёт два `requestAnimationFrame` и проверяет, что mutations печатного листа прекращаются.
+
+          ## Baseline
+
+          Исходный локальный checkout не имел системного Chrome, поэтому baseline при первом commit помечен `requires-system-chrome`. До merge baseline обязан быть получен на GitHub runner с системным Chrome и записан в `data/performance-budget.json` как `baselineMedianMs` / `baselineWorstMs` для каждого количества копий. После записи статус меняется на `baseline-recorded`.
+
+          Предварительные fixed ceilings до первого GitHub baseline: 250 / 300 / 450 / 700 ms для 1 / 2 / 4 / 8. Они не вычисляются из результата текущего запуска. После получения baseline их разрешено один раз уточнить в этом PR, если фактический зелёный `main` показывает, что предварительный ceiling не соответствует нормальной работе runner. Любое уточнение должно оставлять заметный запас от baseline и быть объяснено в PR.
+
+          ## Scaling guard
+
+          Граница 4 → 8 дополнительно проверяется независимо от абсолютных ceilings:
+
+          `median(8) <= median(4) × 3 + 50 ms`.
+
+          Правило намеренно широкое: оно ловит явный сверхлинейный рост, но не превращает шум GitHub runner в release blocker.
+
+          ## Structural guards
+
+          Runner проверяет точное количество `.flyer`, обновление заголовка во всех копиях, линейно ограниченный рост DOM относительно одной копии и прекращение mutation callbacks после окна стабилизации. Один единичный выброс не проваливает build, если median в бюджете и worst sample не выглядит как экстремальное зависание.
+
+          ## Когда менять budget
+
+          Budget нельзя автоматически повышать после красного CI. Сначала нужно отличить инфраструктурный/CDP сбой от настоящего regression, посмотреть samples, median, worst, DOM и scaling. Изменение fixed ceilings после этого PR допускается только отдельным обоснованным изменением с новым подтверждённым baseline и без ослабления функциональных guards.
+          EOF
+
+          python - <<'PY'
+          from pathlib import Path
+
+          package = Path('package.json')
+          text = package.read_text(encoding='utf-8')
+          perf = '    "performance:budget": "node tools/run-performance-budget.mjs",\n'
+          anchor = '    "smoke:ui-actions": "node tools/run-ui-actions-smoke.mjs",\n'
+          if perf not in text:
+              if anchor not in text: raise SystemExit('package.json smoke anchor missing')
+              text = text.replace(anchor, anchor + perf, 1)
+          validator = '    "validate:performance-budget": "node tools/validate-performance-budget.mjs",\n'
+          anchor2 = '    "validate:editor-helper-css": "node tools/validate-editor-helper-css.mjs",\n'
+          if validator not in text:
+              if anchor2 not in text: raise SystemExit('package.json validator anchor missing')
+              text = text.replace(anchor2, anchor2 + validator, 1)
+          package.write_text(text, encoding='utf-8')
+
+          maintenance = Path('docs/maintenance-guide.md')
+          text = maintenance.read_text(encoding='utf-8')
+          anchor = 'npm run validate:editor-helper-css\n'
+          addition = 'npm run validate:performance-budget\nnpm run performance:budget\n'
+          if 'npm run validate:performance-budget' not in text:
+              if anchor not in text: raise SystemExit('maintenance guide anchor missing')
+              text = text.replace(anchor, anchor + addition, 1)
+          maintenance.write_text(text, encoding='utf-8')
+
+          workflow = Path('.github/workflows/validate.yml')
+          text = workflow.read_text(encoding='utf-8')
+          perf_step = '''\n      - name: Performance budget\n        run: npm run performance:budget\n'''
+          ui = '''      - name: UI actions smoke\n        run: npm run smoke:ui-actions\n'''
+          if 'run: npm run performance:budget' not in text:
+              if ui not in text: raise SystemExit('validate.yml UI actions anchor missing')
+              text = text.replace(ui, ui + perf_step, 1)
+          old_path = '''          path: browser-smoke-failure.log\n          if-no-files-found: warn\n'''
+          new_path = '''          path: |\n            browser-smoke-failure.log\n            performance-budget-failure.json\n          if-no-files-found: warn\n'''
+          if 'performance-budget-failure.json' not in text:
+              if old_path not in text: raise SystemExit('validate.yml artifact anchor missing')
+              text = text.replace(old_path, new_path, 1)
+          workflow.write_text(text, encoding='utf-8')
+          PY
+
+          npm run validate:performance-budget
+          npm run validate
+          node --check tools/run-performance-budget.mjs
+          node --check tools/validate-performance-budget.mjs
+          git diff --check
+
+          if git diff --quiet && [ -z "$(git ls-files --others --exclude-standard)" ]; then
+            echo 'Performance budget infrastructure already applied.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .github/workflows/validate.yml data/performance-budget.json docs/maintenance-guide.md docs/performance-budget.md package.json tools/run-performance-budget.mjs tools/validate-performance-budget.mjs
+          git commit -m 'perf: добавить performance budget для 1 2 4 8 копий'
+          git push origin HEAD:agent/performance-budget-1-2-4-8

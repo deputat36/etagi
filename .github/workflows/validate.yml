@@ -54,11 +54,12 @@ jobs:
         run: |
           git fetch origin main
           python3 tools/apply-issue-122.py
+          python3 tools/fix-issue-122-contract.py
           npm run templates:inventory
           node tools/validate-manager-sensitive-review.mjs
           npm run validate
           git show origin/main:.github/workflows/validate.yml > .github/workflows/validate.yml
-          rm -f tools/apply-issue-122.py
+          rm -f tools/apply-issue-122.py tools/fix-issue-122-contract.py
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A

@@ -33,6 +33,44 @@ const issue120ReviewDecisions = {
 };
 
 
+const issue121Approved = {
+  newbuild_no_commission: {
+    title:'Новостройки с понятными условиями',
+    headline:'НОВОСТРОЙКИ\nС ПОНЯТНЫМИ\nУСЛОВИЯМИ',
+    description:'Подберу актуальные варианты и заранее объясню стоимость и порядок услуг.',
+    benefits:'Актуальные квартиры\nСравнение вариантов\nУсловия по договору',
+    shortText:'Новостройки с понятными условиями. Подберу актуальные варианты.'
+  },
+  newbuild_budget: {
+    title:'Новостройка под бюджет',
+    headline:'НОВОСТРОЙКА\nПОД ВАШ\nБЮДЖЕТ',
+    description:'Подберу варианты по бюджету и сроку сдачи. Сравним актуальные условия покупки.',
+    benefits:'Сравнение вариантов\nПодбор планировки\nПредварительный расчёт',
+    shortText:'Подберу новостройку по бюджету и сроку сдачи.'
+  }
+};
+const issue121ReviewDecisions = {
+  newbuild_no_commission: 'Решение: Утверждённая редакция реализована в issue #121; templateId сохранён, абсолютное обещание «без комиссии» удалено.',
+  newbuild_budget: 'Решение: Утверждённая редакция реализована в issue #121; шаблон остаётся test.'
+};
+
+
+const managerSensitivePinnedIds = new Set([
+  'buyer_mortgage',
+  'newbuild_no_commission',
+  'newbuild_budget',
+  'newbuild_mortgage',
+  'service_mortgage',
+  'buyer_maternity_capital',
+  'newbuild_family_mortgage',
+  'service_complex_sale',
+  'seller_empty_flat',
+  'trust_service_documents_check',
+  'custom_service_consultation',
+  'service_micro_4'
+]);
+
+
 const review = readRequired(reviewPath);
 const evidence = readRequired(evidencePath);
 const overrides = readJson(overridesPath, {version:1, templates:{}});
@@ -141,6 +179,36 @@ if(maternity){
   if(/\b\d[\d\s]{3,}\s*(?:руб|₽)|автоматическ\w*\s+одобр|гарантир/.test(text)) errors.push('buyer_maternity_capital: issue #120 запрещает устаревшие суммы и гарантии одобрения');
 }
 
+
+for(const [id, expected] of Object.entries(issue121Approved)){
+  const template = (templateGroups.get(id) || [])[0];
+  if(!template) continue;
+  const office = template.office || {};
+  const rule = portfolio.templates?.[id] || {};
+  if(template.title !== expected.title) errors.push(`${id}: issue #121 требует точное значение title`);
+  for(const field of ['headline','description','benefits']){
+    if(template.data?.[field] !== expected[field]) errors.push(`${id}: issue #121 требует точное значение data.${field}`);
+  }
+  if(template.portfolioStatus !== 'test') errors.push(`${id}: issue #121 требует status=test`);
+  if(rule && typeof rule === 'object' && 'replacementId' in rule) errors.push(`${id}: issue #121 запрещает replacementId`);
+  if(office.level !== 'manager' || office.risk !== 'high' || office.recommended !== false) errors.push(`${id}: issue #121 требует office manager/high/recommended=false`);
+  requireSnippets(`issue #121: короткий запасной текст ${id}`, evidence, [`- Короткий запасной текст: ${expected.shortText}`]);
+  requireSnippets(`issue #121: решение ${id}`, reviewSection(review, id), [
+    '- [x] Решение и необходимые изменения зафиксированы.',
+    issue121ReviewDecisions[id]
+  ]);
+}
+const issue121NoCommission = (templateGroups.get('newbuild_no_commission') || [])[0];
+if(issue121NoCommission){
+  const ownText = normalize([issue121NoCommission.title, issue121NoCommission.note, ...(issue121NoCommission.tags || []), issue121NoCommission.data?.headline, issue121NoCommission.data?.description, issue121NoCommission.data?.benefits].join(' '));
+  if(/без\s+комисси|бесплатн/.test(ownText)) errors.push('newbuild_no_commission: issue #121 запрещает обещание «без комиссии»/«бесплатно» в рекламных данных и tags');
+}
+const issue121Budget = (templateGroups.get('newbuild_budget') || [])[0];
+if(issue121Budget){
+  const ownText = normalize([issue121Budget.data?.headline, issue121Budget.data?.description, issue121Budget.data?.benefits].join(' '));
+  if(/выгодн|бесплатн|расч[её]т\s+платеж|первоначальн/.test(ownText)) errors.push('newbuild_budget: issue #121 запрещает «выгоднее», бесплатность и обещания платежа/взноса');
+}
+
 if(errors.length){
   console.error('\nОшибки менеджерской проверки чувствительных шаблонов:');
   errors.forEach(error => console.error(`- ${error}`));
@@ -180,6 +248,7 @@ function loadTemplates(){
 function isSensitiveTemplate(template){
   const office = template.office || {};
   if(template.portfolioStatus !== 'test' || office.level !== 'manager' || office.risk !== 'high' || office.recommended !== false) return false;
+  if(managerSensitivePinnedIds.has(template.id)) return true;
 
   const catalog = normalize([
     template.title,

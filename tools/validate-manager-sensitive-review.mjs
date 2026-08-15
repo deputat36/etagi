@@ -17,6 +17,20 @@ const issue120Approved = {
   newbuild_family_mortgage: {headline:'СЕМЕЙНАЯ\nИПОТЕКА И\nНОВОСТРОЙКА', description:'Оценивайте свои финансовые возможности и риски.', benefits:'Проверка условий\nАктуальные квартиры\nИпотечный специалист'}
 };
 const issue120MortgageIds = ['buyer_mortgage','newbuild_mortgage','service_mortgage','newbuild_family_mortgage'];
+const issue120ShortTexts = {
+  buyer_mortgage: 'КВАРТИРА С ИПОТЕКОЙ. Оценивайте свои финансовые возможности и риски.',
+  newbuild_mortgage: 'НОВОСТРОЙКА С ИПОТЕКОЙ. Оценивайте свои финансовые возможности и риски.',
+  service_mortgage: 'КОНСУЛЬТАЦИЯ ПО ИПОТЕКЕ. Оценивайте свои финансовые возможности и риски.',
+  buyer_maternity_capital: 'КВАРТИРА С МАТКАПИТАЛОМ. Разберём условия и подберём варианты.',
+  newbuild_family_mortgage: 'СЕМЕЙНАЯ ИПОТЕКА. Оценивайте свои финансовые возможности и риски.'
+};
+const issue120ReviewDecisions = {
+  buyer_mortgage: 'Решение: Утверждённая редакция реализована в issue #120; шаблон остаётся test.',
+  newbuild_mortgage: 'Решение: Утверждённая редакция реализована в issue #120; шаблон остаётся test.',
+  service_mortgage: 'Решение: Утверждённая редакция реализована в issue #120; шаблон остаётся test.',
+  buyer_maternity_capital: 'Решение: Утвердить без изменения рекламного текста; policy синхронизирована в issue #120.',
+  newbuild_family_mortgage: 'Решение: Утверждённая редакция реализована в issue #120; шаблон остаётся test.'
+};
 
 
 const review = readRequired(reviewPath);
@@ -96,6 +110,24 @@ for(const [id, expected] of Object.entries(issue120Approved)){
   if(rule && typeof rule === 'object' && 'replacementId' in rule) errors.push(`${id}: issue #120 запрещает replacementId`);
   if(office.level !== 'manager' || office.risk !== 'high' || office.recommended !== false) errors.push(`${id}: issue #120 требует office manager/high/recommended=false`);
 }
+
+for(const [id, shortText] of Object.entries(issue120ShortTexts)){
+  requireSnippets(`issue #120: короткий запасной текст ${id}`, evidence, [
+    `- Короткий запасной текст: ${shortText}`
+  ]);
+  const section = reviewSection(review, id);
+  requireSnippets(`issue #120: решение ${id}`, section, [
+    '- [x] Решение и необходимые изменения зафиксированы.',
+    issue120ReviewDecisions[id]
+  ]);
+}
+for(const id of issue120MortgageIds){
+  const section = reviewSection(review, id);
+  requireSnippets(`issue #120: незакрытая юридическая проверка ${id}`, section, [
+    'единая юридическая проверка применимости и площади остаётся отдельным незакрытым условием.'
+  ]);
+}
+
 for(const id of issue120MortgageIds){
   const template = (templateGroups.get(id) || [])[0];
   if(!template) continue;
@@ -216,6 +248,25 @@ function compareArrays(actual, expected, label){
   if(actual.length !== expected.length || actual.some((id, index) => id !== expected[index])){
     errors.push(`${label}; ожидается: ${expected.join(', ')}; найдено: ${actual.join(', ')}`);
   }
+}
+
+
+function reviewSection(source, id){
+  const text = String(source || '');
+  const markerIndex = text.indexOf(`\`${id}\``);
+  if(markerIndex < 0){
+    errors.push(`${id}: в основном бланке не найден раздел решения issue #120`);
+    return '';
+  }
+  const start = text.lastIndexOf('### ', markerIndex);
+  const nextHeading = text.indexOf('\n### ', markerIndex);
+  const finalHeading = text.indexOf('\n## Итог менеджера', markerIndex);
+  const end = nextHeading < 0 ? finalHeading : (finalHeading >= 0 && finalHeading < nextHeading ? finalHeading : nextHeading);
+  if(start < 0 || end < 0){
+    errors.push(`${id}: не удалось выделить границы раздела решения issue #120`);
+    return '';
+  }
+  return text.slice(start, end);
 }
 
 function customBlock(template){

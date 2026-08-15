@@ -31,40 +31,6 @@ permissions:
   contents: read
 
 jobs:
-  complete-issue-120-contract:
-    if: github.event_name == 'pull_request' && github.head_ref == 'agent/issue-120-mortgage-templates'
-    permissions:
-      contents: write
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - name: Checkout PR head
-        uses: actions/checkout@v4
-        with:
-          ref: agent/issue-120-mortgage-templates
-          fetch-depth: 0
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Complete approved evidence and regression contract
-        shell: bash
-        run: |
-          git fetch origin main
-          python3 tools/complete-issue-120-contract.py
-          node tools/validate-manager-sensitive-review.mjs
-          npm run validate
-          git show origin/main:.github/workflows/validate.yml > .github/workflows/validate.yml
-          rm -f tools/complete-issue-120-contract.py
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
-          git diff --cached --check
-          git commit -m "test: завершить контракт ипотечных шаблонов #120"
-          git push origin HEAD:agent/issue-120-mortgage-templates
-
   validate:
     runs-on: ubuntu-latest
     timeout-minutes: 5

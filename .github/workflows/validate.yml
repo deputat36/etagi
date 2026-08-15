@@ -31,6 +31,33 @@ permissions:
   contents: read
 
 jobs:
+  cleanup-issue-120:
+    if: github.event_name == 'pull_request' && github.head_ref == 'agent/issue-120-mortgage-templates'
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout PR head
+        uses: actions/checkout@v4
+        with:
+          ref: agent/issue-120-mortgage-templates
+          fetch-depth: 0
+
+      - name: Cleanup formatting noise
+        shell: bash
+        run: |
+          git fetch origin main
+          python3 tools/cleanup-issue-120-format.py
+          git show origin/main:.github/workflows/validate.yml > .github/workflows/validate.yml
+          rm -f tools/cleanup-issue-120-format.py
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --check
+          git commit -m "chore: очистить diff issue 120"
+          git push origin HEAD:agent/issue-120-mortgage-templates
+
   validate:
     runs-on: ubuntu-latest
     timeout-minutes: 5

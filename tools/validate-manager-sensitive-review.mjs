@@ -9,6 +9,30 @@ const overridesPath = path.join(dataDir, 'template_office_overrides.json');
 const portfolioPath = path.join(dataDir, 'template_portfolio_status.json');
 const errors = [];
 
+const issue120Approved = {
+  buyer_mortgage: {headline:'КВАРТИРА\nС ИПОТЕКОЙ', description:'Оценивайте свои финансовые возможности и риски.', benefits:'Подбор объекта\nПредварительный расчёт\nИпотечный специалист'},
+  newbuild_mortgage: {headline:'НОВОСТРОЙКА\nС ИПОТЕКОЙ', description:'Оценивайте свои финансовые возможности и риски.', benefits:'Актуальные квартиры\nПредварительный расчёт\nИпотечный специалист'},
+  service_mortgage: {headline:'КОНСУЛЬТАЦИЯ\nПО ИПОТЕКЕ', description:'Оценивайте свои финансовые возможности и риски.', benefits:'Разбор ситуации\nПредварительный расчёт\nПодготовка к заявке'},
+  buyer_maternity_capital: {headline:'КВАРТИРА\nС МАТКАПИТАЛОМ', description:'Подскажу, какие варианты можно рассматривать, и помогу пройти сделку без лишней путаницы.', benefits:'Разбор условий\nПодбор объекта\nСопровождение документов'},
+  newbuild_family_mortgage: {headline:'СЕМЕЙНАЯ\nИПОТЕКА И\nНОВОСТРОЙКА', description:'Оценивайте свои финансовые возможности и риски.', benefits:'Проверка условий\nАктуальные квартиры\nИпотечный специалист'}
+};
+const issue120MortgageIds = ['buyer_mortgage','newbuild_mortgage','service_mortgage','newbuild_family_mortgage'];
+const issue120ShortTexts = {
+  buyer_mortgage: 'КВАРТИРА С ИПОТЕКОЙ. Оценивайте свои финансовые возможности и риски.',
+  newbuild_mortgage: 'НОВОСТРОЙКА С ИПОТЕКОЙ. Оценивайте свои финансовые возможности и риски.',
+  service_mortgage: 'КОНСУЛЬТАЦИЯ ПО ИПОТЕКЕ. Оценивайте свои финансовые возможности и риски.',
+  buyer_maternity_capital: 'КВАРТИРА С МАТКАПИТАЛОМ. Разберём условия и подберём варианты.',
+  newbuild_family_mortgage: 'СЕМЕЙНАЯ ИПОТЕКА. Оценивайте свои финансовые возможности и риски.'
+};
+const issue120ReviewDecisions = {
+  buyer_mortgage: 'Решение: Утверждённая редакция реализована в issue #120; шаблон остаётся test.',
+  newbuild_mortgage: 'Решение: Утверждённая редакция реализована в issue #120; шаблон остаётся test.',
+  service_mortgage: 'Решение: Утверждённая редакция реализована в issue #120; шаблон остаётся test.',
+  buyer_maternity_capital: 'Решение: Утвердить без изменения рекламного текста; policy синхронизирована в issue #120.',
+  newbuild_family_mortgage: 'Решение: Утверждённая редакция реализована в issue #120; шаблон остаётся test.'
+};
+
+
 const review = readRequired(reviewPath);
 const evidence = readRequired(evidencePath);
 const overrides = readJson(overridesPath, {version:1, templates:{}});
@@ -71,6 +95,50 @@ for(const id of reviewIds){
   ];
 
   requireSnippets(`доказательный пакет:${id}`, evidence, expectedLines);
+}
+
+for(const [id, expected] of Object.entries(issue120Approved)){
+  const group = templateGroups.get(id) || [];
+  if(group.length !== 1) continue;
+  const template = group[0];
+  const office = template.office || {};
+  const rule = portfolio.templates?.[id] || {};
+  for(const [field, expectedValue] of Object.entries(expected)){
+    if(template.data?.[field] !== expectedValue) errors.push(`${id}: issue #120 требует точное значение data.${field}`);
+  }
+  if(template.portfolioStatus !== 'test') errors.push(`${id}: issue #120 требует status=test`);
+  if(rule && typeof rule === 'object' && 'replacementId' in rule) errors.push(`${id}: issue #120 запрещает replacementId`);
+  if(office.level !== 'manager' || office.risk !== 'high' || office.recommended !== false) errors.push(`${id}: issue #120 требует office manager/high/recommended=false`);
+}
+
+for(const [id, shortText] of Object.entries(issue120ShortTexts)){
+  requireSnippets(`issue #120: короткий запасной текст ${id}`, evidence, [
+    `- Короткий запасной текст: ${shortText}`
+  ]);
+  const section = reviewSection(review, id);
+  requireSnippets(`issue #120: решение ${id}`, section, [
+    '- [x] Решение и необходимые изменения зафиксированы.',
+    issue120ReviewDecisions[id]
+  ]);
+}
+for(const id of issue120MortgageIds){
+  const section = reviewSection(review, id);
+  requireSnippets(`issue #120: незакрытая юридическая проверка ${id}`, section, [
+    'единая юридическая проверка применимости и площади остаётся отдельным незакрытым условием.'
+  ]);
+}
+
+for(const id of issue120MortgageIds){
+  const template = (templateGroups.get(id) || [])[0];
+  if(!template) continue;
+  if(template.data?.description !== 'Оценивайте свои финансовые возможности и риски.') errors.push(`${id}: ипотечное предупреждение issue #120 должно быть полным`);
+  const text = normalize([template.data?.headline, template.data?.description, template.data?.benefits].join(' '));
+  if(/\b\d+(?:[.,]\d+)?\s*%|гарантир|одобрен|бесплатн|точн\w*\s+платеж/.test(text)) errors.push(`${id}: issue #120 запрещает ставки, гарантии, бесплатность и точный платёж`);
+}
+const maternity = (templateGroups.get('buyer_maternity_capital') || [])[0];
+if(maternity){
+  const text = normalize([maternity.data?.headline, maternity.data?.description, maternity.data?.benefits].join(' '));
+  if(/\b\d[\d\s]{3,}\s*(?:руб|₽)|автоматическ\w*\s+одобр|гарантир/.test(text)) errors.push('buyer_maternity_capital: issue #120 запрещает устаревшие суммы и гарантии одобрения');
 }
 
 if(errors.length){
@@ -180,6 +248,25 @@ function compareArrays(actual, expected, label){
   if(actual.length !== expected.length || actual.some((id, index) => id !== expected[index])){
     errors.push(`${label}; ожидается: ${expected.join(', ')}; найдено: ${actual.join(', ')}`);
   }
+}
+
+
+function reviewSection(source, id){
+  const text = String(source || '');
+  const markerIndex = text.indexOf(`\`${id}\``);
+  if(markerIndex < 0){
+    errors.push(`${id}: в основном бланке не найден раздел решения issue #120`);
+    return '';
+  }
+  const start = text.lastIndexOf('### ', markerIndex);
+  const nextHeading = text.indexOf('\n### ', markerIndex);
+  const finalHeading = text.indexOf('\n## Итог менеджера', markerIndex);
+  const end = nextHeading < 0 ? finalHeading : (finalHeading >= 0 && finalHeading < nextHeading ? finalHeading : nextHeading);
+  if(start < 0 || end < 0){
+    errors.push(`${id}: не удалось выделить границы раздела решения issue #120`);
+    return '';
+  }
+  return text.slice(start, end);
 }
 
 function customBlock(template){

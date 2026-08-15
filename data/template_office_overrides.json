@@ -43,7 +43,7 @@
     },
     "buyer_mortgage": {
       "tags": ["офис", "менеджер", "тестовый", "ипотека"],
-      "office": {"recommended": false, "level": "manager", "scenario": "base_buyer_mortgage", "risk": "high", "recommendedPrintCount": 2, "managerNote": "Перед каждым тиражом проверить актуальные ипотечные программы, ставки, требования банков и объём юридического сопровождения; не обещать одобрение, платёж или условия без расчёта."}
+      "office": {"recommended": false, "level": "manager", "scenario": "base_buyer_mortgage", "risk": "high", "recommendedPrintCount": 2, "managerNote": "Использовать только с актуальными ипотечными программами: не указывать ставку, платёж или одобрение без индивидуального расчёта; предупреждение «Оценивайте свои финансовые возможности и риски.» не сокращать; перед тиражом проверить актуальные условия."}
     },
     "buyer_specific_search": {
       "tags": ["офис", "менеджер", "тестовый", "подтверждённый спрос"],
@@ -95,7 +95,7 @@
     },
     "newbuild_mortgage": {
       "tags": ["офис", "менеджер", "тестовый", "новостройки", "ипотека"],
-      "office": {"recommended": false, "level": "manager", "scenario": "base_newbuild_mortgage", "risk": "high", "recommendedPrintCount": 2, "managerNote": "Проверить актуальные ставки, банки, программы, первоначальный взнос и требования к клиенту; платёж и доступность квартиры указывать только по свежему расчёту без гарантии одобрения."}
+      "office": {"recommended": false, "level": "manager", "scenario": "base_newbuild_mortgage", "risk": "high", "recommendedPrintCount": 2, "managerNote": "Использовать только после проверки актуальной программы и наличия квартиры; не указывать ставку, платёж, первоначальный взнос, конкретные банки или бесплатность; предупреждение «Оценивайте свои финансовые возможности и риски.» не сокращать."}
     },
     "service_estimate": {
       "tags": ["офис", "рекомендовано", "новичку", "оценка"],
@@ -103,7 +103,7 @@
     },
     "service_mortgage": {
       "tags": ["офис", "менеджер", "тестовый", "ипотека"],
-      "office": {"recommended": false, "level": "manager", "scenario": "base_service_mortgage", "risk": "high", "recommendedPrintCount": 2, "managerNote": "Перед печатью проверить актуальные программы, документы и требования банков; не обещать конкретный платёж, подачу заявки, одобрение или подходящий объект без консультации и расчёта."}
+      "office": {"recommended": false, "level": "manager", "scenario": "base_service_mortgage", "risk": "high", "recommendedPrintCount": 2, "managerNote": "Использовать как приглашение к первичной консультации: расчёт только предварительный, заявку и решение банка не обещать; предупреждение «Оценивайте свои финансовые возможности и риски.» не сокращать."}
     },
     "service_complex_sale": {
       "tags": ["офис", "менеджер", "тестовый", "юридическая проверка"],
@@ -163,7 +163,7 @@
     },
     "buyer_maternity_capital": {
       "tags": ["офис", "менеджер", "тестовый"],
-      "office": {"recommended": false, "level": "manager", "scenario": "extra_buyer_maternity_capital", "risk": "high", "recommendedPrintCount": 2, "managerNote": "Перед печатью проверить актуальные правила использования материнского капитала, требования банка и отсутствие обещаний гарантированного одобрения."}
+      "office": {"recommended": false, "level": "manager", "scenario": "extra_buyer_maternity_capital", "risk": "high", "recommendedPrintCount": 2, "managerNote": "Перед тиражом проверить действующие правила СФР; при ипотеке — требования банка; по конкретной сделке подключать профильных специалистов. Не использовать устаревшие суммы или обещания автоматического одобрения СФР/банка."}
     },
     "buyer_low_budget": {
       "tags": ["офис", "рекомендовано", "новичку"],
@@ -179,7 +179,7 @@
     },
     "newbuild_family_mortgage": {
       "tags": ["офис", "менеджер", "тестовый"],
-      "office": {"recommended": false, "level": "manager", "scenario": "extra_newbuild_family_mortgage", "risk": "high", "recommendedPrintCount": 2, "managerNote": "Перед каждым тиражом проверить актуальные условия семейной ипотеки, доступные проекты, сроки сдачи и отсутствие гарантий одобрения."}
+      "office": {"recommended": false, "level": "manager", "scenario": "extra_newbuild_family_mortgage", "risk": "high", "recommendedPrintCount": 2, "managerNote": "Перед тиражом проверить актуальную программу семейной ипотеки, клиента, объект и банк; не печатать ставку, первоначальный взнос, платёж или обещание одобрения; предупреждение «Оценивайте свои финансовые возможности и риски.» не сокращать."}
     },
     "newbuild_layout_choice": {
       "tags": ["офис", "рекомендовано", "менеджер"],

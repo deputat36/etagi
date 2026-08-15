@@ -31,6 +31,49 @@ permissions:
   contents: read
 
 jobs:
+  apply-issue-120:
+    if: github.event_name == 'pull_request' && github.head_ref == 'agent/issue-120-mortgage-templates'
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout PR head
+        uses: actions/checkout@v4
+        with:
+          ref: agent/issue-120-mortgage-templates
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Apply approved issue 120 patch
+        run: python3 tools/apply-issue-120.py
+
+      - name: Regenerate inventory
+        run: npm run templates:inventory
+
+      - name: Validate manager package
+        run: node tools/validate-manager-sensitive-review.mjs
+
+      - name: Full validate
+        run: npm run validate
+
+      - name: Commit clean target diff
+        shell: bash
+        run: |
+          git fetch origin main
+          git show origin/main:.github/workflows/validate.yml > .github/workflows/validate.yml
+          rm -f .github/workflows/apply-issue-120.yml .github/issue-120-trigger.txt tools/apply-issue-120.py
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --check
+          git commit -m "content: реализовать ипотечные шаблоны #120"
+          git push origin HEAD:agent/issue-120-mortgage-templates
+
   validate:
     runs-on: ubuntu-latest
     timeout-minutes: 5

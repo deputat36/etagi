@@ -81,13 +81,21 @@ if 'function reviewSection(source, id)' not in validator:
     anchor = 'function customBlock(template){\n'
     helper = """
 function reviewSection(source, id){
-  const escaped = String(id).replace(/[.*+?^${}()|[\\]\\\\]/g, '\\$&');
-  const match = String(source || '').match(new RegExp(`### \\d+\\. \\`${escaped}\\`[^\\n]*\\n([\\s\\S]*?)(?=\\n### \\d+\\.|\\n## Итог менеджера)`));
-  if(!match){
+  const text = String(source || '');
+  const markerIndex = text.indexOf(`\\`${id}\\``);
+  if(markerIndex < 0){
     errors.push(`${id}: в основном бланке не найден раздел решения issue #120`);
     return '';
   }
-  return match[1];
+  const start = text.lastIndexOf('### ', markerIndex);
+  const nextHeading = text.indexOf('\\n### ', markerIndex);
+  const finalHeading = text.indexOf('\\n## Итог менеджера', markerIndex);
+  const end = nextHeading < 0 ? finalHeading : (finalHeading >= 0 && finalHeading < nextHeading ? finalHeading : nextHeading);
+  if(start < 0 || end < 0){
+    errors.push(`${id}: не удалось выделить границы раздела решения issue #120`);
+    return '';
+  }
+  return text.slice(start, end);
 }
 
 """

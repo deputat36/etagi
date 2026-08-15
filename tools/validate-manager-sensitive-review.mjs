@@ -71,6 +71,47 @@ const managerSensitivePinnedIds = new Set([
 ]);
 
 
+const issue122Approved = {
+  service_complex_sale: {
+    headline:'СЛОЖНАЯ\nПРОДАЖА?',
+    description:'Ипотека, маткапитал, встречная покупка, доли, наследство, документы — разберём ситуацию и составим план действий.',
+    benefits:'План сделки\nЮридическая консультация\nКонтроль сроков',
+    shortText:'СЛОЖНАЯ ПРОДАЖА? Разберём ситуацию и составим план.'
+  },
+  seller_empty_flat: {
+    title:'Пустует квартира?', headline:'ПУСТУЕТ\nКВАРТИРА?',
+    description:'Помогу оценить варианты: продажа, аренда или подготовка документов.',
+    benefits:'Можно без ремонта\nОриентир по цене\nПонятный план действий',
+    shortText:'Пустует квартира? Разберём варианты продажи или аренды.'
+  },
+  trust_service_documents_check: {
+    headline:'ДОКУМЕНТЫ\nПЕРЕД СДЕЛКОЙ',
+    description:'Помогу собрать исходные данные и передать документы профильному специалисту.',
+    benefits:'Список документов\nПодключение юриста\nПонятный следующий шаг',
+    customBlockTitle:'Важно', customBlockText:'Итоговая правовая оценка после проверки специалистом.',
+    shortText:'Соберём документы и передадим профильному специалисту.'
+  },
+  custom_service_consultation: {
+    headline:'НУЖНА\nКОНСУЛЬТАЦИЯ\nПО НЕДВИЖИМОСТИ?',
+    description:'Замените текст на конкретную услугу: оценка цены, документы, ипотека, продажа или покупка.',
+    benefits:'Объясним простым языком\nПодскажем риски\nПоможем с планом действий',
+    shortText:'Заглушку не печатать. Нужен индивидуальный согласованный текст одной услуги.'
+  },
+  service_micro_4: {
+    headline:'ПОМОЩЬ\nС НЕДВИЖИМОСТЬЮ',
+    description:'Продажа или покупка: разберём задачу и определим следующий шаг.',
+    benefits:'', shortText:'Продажа или покупка — начнём с разбора задачи.'
+  }
+};
+const issue122ReviewDecisions = {
+  service_complex_sale: 'Решение: Утверждённое условие реализовано в issue #122; рекламный текст сохранён, шаблон остаётся test.',
+  seller_empty_flat: 'Решение: Утверждённая редакция реализована в issue #122; ложное «Куплю» удалено, шаблон остаётся test.',
+  trust_service_documents_check: 'Решение: Утверждённая редакция реализована в issue #122; роли СПН и профильного специалиста разделены.',
+  custom_service_consultation: 'Решение: Утверждённое условие реализовано в issue #122; заготовка остаётся test/manager и не является готовой рекламой.',
+  service_micro_4: 'Решение: Утверждённая редакция реализована в issue #122; шаблон остаётся test.'
+};
+
+
 const review = readRequired(reviewPath);
 const evidence = readRequired(evidencePath);
 const overrides = readJson(overridesPath, {version:1, templates:{}});
@@ -207,6 +248,45 @@ const issue121Budget = (templateGroups.get('newbuild_budget') || [])[0];
 if(issue121Budget){
   const ownText = normalize([issue121Budget.data?.headline, issue121Budget.data?.description, issue121Budget.data?.benefits].join(' '));
   if(/выгодн|бесплатн|расч[её]т\s+платеж|первоначальн/.test(ownText)) errors.push('newbuild_budget: issue #121 запрещает «выгоднее», бесплатность и обещания платежа/взноса');
+}
+
+
+for(const [id, expected] of Object.entries(issue122Approved)){
+  const template = (templateGroups.get(id) || [])[0];
+  if(!template) continue;
+  const office = template.office || {};
+  const rule = portfolio.templates?.[id] || {};
+  if(expected.title && template.title !== expected.title) errors.push(`${id}: issue #122 требует точное значение title`);
+  for(const field of ['headline','description','benefits','customBlockTitle','customBlockText']){
+    if(field in expected && template.data?.[field] !== expected[field]) errors.push(`${id}: issue #122 требует точное значение data.${field}`);
+  }
+  if(template.portfolioStatus !== 'test') errors.push(`${id}: issue #122 требует status=test`);
+  if(rule && typeof rule === 'object' && 'replacementId' in rule) errors.push(`${id}: issue #122 запрещает replacementId`);
+  if(office.level !== 'manager' || office.risk !== 'high' || office.recommended !== false) errors.push(`${id}: issue #122 требует office manager/high/recommended=false`);
+  requireSnippets(`issue #122: короткий запасной текст ${id}`, evidence, [`- Короткий запасной текст: ${expected.shortText}`]);
+  requireSnippets(`issue #122: решение ${id}`, reviewSection(review, id), [
+    '- [x] Решение и необходимые изменения зафиксированы.', issue122ReviewDecisions[id]
+  ]);
+}
+const issue122Seller = (templateGroups.get('seller_empty_flat') || [])[0];
+if(issue122Seller){
+  const ownText = normalize([issue122Seller.title, issue122Seller.note, ...(issue122Seller.tags || []), issue122Seller.data?.headline, issue122Seller.data?.description, issue122Seller.data?.benefits].join(' '));
+  if(/\bкуплю\b|готов\w*\s+покупател/.test(ownText)) errors.push('seller_empty_flat: issue #122 запрещает рекламное «Куплю»/«готовый покупатель»');
+}
+const issue122Trust = (templateGroups.get('trust_service_documents_check') || [])[0];
+if(issue122Trust){
+  const text = normalize([issue122Trust.data?.description, issue122Trust.data?.benefits, issue122Trust.data?.customBlockText, issue122Trust.office?.managerNote].join(' '));
+  if(!text.includes('профильн') || !text.includes('специалист') || !text.includes('итоговая правовая')) errors.push('trust_service_documents_check: issue #122 требует явного разделения ролей СПН и профильного специалиста');
+}
+const issue122Custom = (templateGroups.get('custom_service_consultation') || [])[0];
+if(issue122Custom){
+  const note = normalize(issue122Custom.office?.managerNote || '');
+  if(!note.includes('полностью заменить') || !note.includes('заглушку не печатать') || !note.includes('менеджер')) errors.push('custom_service_consultation: issue #122 требует запрет печати заглушки до полной замены и менеджерской проверки');
+}
+const issue122Micro = (templateGroups.get('service_micro_4') || [])[0];
+if(issue122Micro){
+  const ownText = normalize([issue122Micro.data?.headline, issue122Micro.data?.description, issue122Micro.data?.benefits].join(' '));
+  if(/ипотек|документ/.test(ownText)) errors.push('service_micro_4: issue #122 запрещает объединять ипотеку и документы в массовом рекламном тексте');
 }
 
 if(errors.length){

@@ -107,7 +107,7 @@
     },
     "service_complex_sale": {
       "tags": ["офис", "менеджер", "тестовый", "юридическая проверка"],
-      "office": {"recommended": false, "level": "manager", "scenario": "base_service_complex_sale", "risk": "high", "recommendedPrintCount": 4, "managerNote": "Сценарий использовать после первичного разбора ситуации; доли, наследство, материнский капитал, обременения и юридическую консультацию согласовать с профильным специалистом."}
+      "office": {"recommended": false, "level": "manager", "scenario": "base_service_complex_sale", "risk": "high", "recommendedPrintCount": 4, "managerNote": "Использовать после первичного разбора задачи: сначала определить ситуацию и план, затем доли, наследство, маткапитал, обременения и правовую позицию передать юристу или профильному специалисту; не обещать юридический результат, отсутствие рисков, гарантированный срок или возможность сделки."}
     },
     "service_intercity": {
       "tags": ["офис", "рекомендовано", "менеджер", "межгород"],
@@ -151,11 +151,11 @@
     },
     "service_micro_4": {
       "tags": ["офис", "менеджер", "тестовый", "короткий", "услуга"],
-      "office": {"recommended": false, "level": "manager", "scenario": "base_service_micro_4", "risk": "high", "recommendedPrintCount": 4, "managerNote": "До массовой печати выбрать конкретный вид консультации; ипотеку, документы и оценку нельзя объединять без определения объёма услуги и участия профильных специалистов."}
+      "office": {"recommended": false, "level": "manager", "scenario": "base_service_micro_4", "risk": "high", "recommendedPrintCount": 4, "managerNote": "Использовать как общий вход только в продажу или покупку: разберём задачу и определим следующий шаг. Ипотечные и юридические темы рекламировать отдельными шаблонами с соответствующими условиями и профильными специалистами."}
     },
     "seller_empty_flat": {
       "tags": ["офис", "менеджер", "тестовый"],
-      "office": {"recommended": false, "level": "manager", "scenario": "extra_empty_flat_options", "risk": "high", "recommendedPrintCount": 4, "managerNote": "Использовать только после проверки: заголовок «Куплю» допустим при подтверждённом спросе; иначе заменить его на предложение оценки и вариантов использования квартиры."}
+      "office": {"recommended": false, "level": "manager", "scenario": "extra_empty_flat_options", "risk": "high", "recommendedPrintCount": 4, "managerNote": "Не использовать от первого лица как покупателя. Если есть реально подтверждённая заявка, применять отдельный объектный сценарий с фактическими критериями и сроком актуальности; здесь не обещать «Куплю», готового покупателя, быструю продажу или точную рыночную цену."}
     },
     "buyer_first_flat": {
       "tags": ["офис", "рекомендовано", "новичку"],
@@ -211,7 +211,7 @@
     },
     "custom_service_consultation": {
       "tags": ["офис", "менеджер", "тестовый", "конструктор"],
-      "office": {"recommended": false, "level": "manager", "scenario": "custom_service_consultation", "risk": "high", "recommendedPrintCount": 2, "managerNote": "До печати выбрать одну конкретную услугу и проверить её объём; юридические, оценочные и ипотечные формулировки согласовать с ответственным специалистом."}
+      "office": {"recommended": false, "level": "manager", "scenario": "custom_service_consultation", "risk": "high", "recommendedPrintCount": 2, "managerNote": "Перед печатью полностью заменить заголовок, описание, преимущества и дополнительный блок на текст одной конкретной услуги. Заглушку не печатать; после полной замены текст проверяет менеджер, а ипотечные, документарные и оценочные обещания — профильный специалист."}
     },
     "custom_ab_test_short": {
       "tags": ["офис", "менеджер", "тестовый", "конструктор"],
@@ -227,7 +227,7 @@
     },
     "trust_service_documents_check": {
       "tags": ["офис", "менеджер", "тестовый", "доверие"],
-      "office": {"recommended": false, "level": "manager", "scenario": "trust_service_documents_check", "risk": "high", "recommendedPrintCount": 2, "managerNote": "Использовать только после согласования объёма консультации и участия квалифицированного специалиста; не обещать полную юридическую проверку или отсутствие рисков сделки."}
+      "office": {"recommended": false, "level": "manager", "scenario": "trust_service_documents_check", "risk": "high", "recommendedPrintCount": 2, "managerNote": "Использовать только если офис реально организует передачу документов профильному специалисту; СПН собирает исходные данные и не делает окончательный правовой вывод; не обещать полную юридическую безопасность, отсутствие рисков или гарантированный результат проверки."}
     },
     "trust_buyer_safe_purchase": {
       "tags": ["офис", "рекомендовано", "новичку", "доверие"],

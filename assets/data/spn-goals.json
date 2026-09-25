@@ -1,0 +1,50 @@
+[
+  {
+    "id": "seller",
+    "title": "Найти продавца",
+    "description": "Поиск собственников квартир, домов и участков.",
+    "recommendedTemplates": [
+      "seller_buy_flat_house",
+      "seller_price_check",
+      "seller_neighbors"
+    ],
+    "questions": [
+      "Кому подходит шаблон?",
+      "Какую задачу решает?",
+      "Где лучше использовать?"
+    ]
+  },
+  {
+    "id": "buyer",
+    "title": "Найти покупателя",
+    "description": "Привлечение клиентов под подбор или конкретный объект.",
+    "recommendedTemplates": [
+      "buyer_have_object",
+      "buyer_need_family"
+    ],
+    "questions": [
+      "Какой объект продвигаем?",
+      "Какой следующий шаг для клиента?"
+    ]
+  },
+  {
+    "id": "object",
+    "title": "Продвинуть объект",
+    "description": "Расклейка для квартиры, дома или новостройки.",
+    "recommendedTemplates": [],
+    "questions": [
+      "Что продаём?",
+      "Почему клиенту стоит позвонить?"
+    ]
+  },
+  {
+    "id": "personal_brand",
+    "title": "Рассказать о себе",
+    "description": "Знакомство с СПН и формирование доверия.",
+    "recommendedTemplates": [],
+    "questions": [
+      "Кто вы?",
+      "Чем помогаете клиентам?"
+    ]
+  }
+]

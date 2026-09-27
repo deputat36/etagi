@@ -70,8 +70,8 @@
   ],
   "summary": {
     "entrypointCount": 16,
-    "moduleCount": 82,
-    "relationCount": 97,
+    "moduleCount": 83,
+    "relationCount": 98,
     "sideEffectModuleCount": 54,
     "dynamicModuleCount": 0,
     "domIdCount": 301,
@@ -6087,6 +6087,10 @@
           "mode": "dependency"
         },
         {
+          "path": "assets/js/spnGoals.js",
+          "mode": "dependency"
+        },
+        {
           "path": "assets/js/state.js",
           "mode": "dependency"
         },
@@ -6735,6 +6739,20 @@
         {
           "path": "assets/js/spnUiMode.js",
           "mode": "side-effect"
+        }
+      ],
+      "imports": []
+    },
+    {
+      "path": "assets/js/spnGoals.js",
+      "domain": "interface",
+      "loadedAs": [
+        "dependency"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/app.js",
+          "mode": "dependency"
         }
       ],
       "imports": []

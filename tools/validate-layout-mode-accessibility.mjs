@@ -31,7 +31,8 @@ requireSnippets(files.helper, sources.helper, [
   'window.cancelAnimationFrame(syncFrame)',
   'window.requestAnimationFrame',
   "new MutationObserver(() => scheduleSync(grid)).observe(grid",
-  ':focus-visible'
+  ':focus-visible',
+  'FOCUS_RESTORE_STABLE_PASSES'
 ]);
 
 forbidSnippets(files.helper, sources.helper, [
@@ -52,11 +53,14 @@ requireSnippets(files.templateHelper, sources.templateHelper, [
   "key === 'End'",
   'card.click()',
   'restoreSelectedCardFocus(list, templateId)',
-  'const FOCUS_RESTORE_STABLE_PASSES = 6',
-  'const FOCUS_RESTORE_MAX_MS = 1500',
+  'const FOCUS_RESTORE_STABLE_MS = 1200',
+  'const FOCUS_RESTORE_MAX_MS = 2500',
+  'const FOCUS_RESTORE_RETRY_MS = 40',
   'function restoreSelectedCardFocus(list, templateId)',
-  'selected === stableCard && selected.isConnected && document.activeElement === selected',
-  'window.setTimeout(() => window.requestAnimationFrame(attempt), 40)',
+  'if(active !== selected && !isRecoverableFocusLoss(active, list)) return',
+  'if(now - stableSince >= FOCUS_RESTORE_STABLE_MS) return',
+  'window.setTimeout(() => window.requestAnimationFrame(attempt), FOCUS_RESTORE_RETRY_MS)',
+  'function isRecoverableFocusLoss(active, list)',
   'element.focus({preventScroll:true})',
   'function setAttributeIfChanged(element, name, value)',
   'if(element.getAttribute(name) === value) return',
@@ -122,6 +126,8 @@ requireSnippets(files.templateSmoke, sources.templateSmoke, [
   "press(win, enterTarget, 'Enter')",
   "press(win, spaceTarget, ' ')",
   'после Enter фокус не вернулся на выбранную карточку',
+  'стабилизатор фокуса перехватил намеренный переход на кнопку избранного',
+  'после стабильного окна Space фокус снова потерян',
   'внутренняя мутация карточки повторно запустила ARIA-обход',
   'обработчик карточек перехватил клавиши кнопки избранного'
 ]);
@@ -151,6 +157,8 @@ requireSnippets(files.templateChecklist, sources.templateChecklist, [
   'aria-selected="true|false"',
   'Кнопка избранного остаётся самостоятельной кнопкой',
   'несколькими последовательными кадрами',
+  'не по фиксированному числу проходов',
+  'guard немедленно прекращает восстановление',
   'не создаёт постоянный таймер',
   'атрибуты повторно не записываются'
 ]);

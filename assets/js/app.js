@@ -523,6 +523,9 @@ function pickProfile(source){
 function syncFormFromState(){
   syncFormValuesFromState();
   syncChoiceControlsFromState();
+  document.dispatchEvent(new CustomEvent('spn:form-synced', {
+    detail:{templateId:state.templateId || '', goal:state.goal || ''}
+  }));
 }
 function syncFormValuesFromState(){
   fields.forEach(id => { if($(id)) $(id).value = state[id] ?? ''; });

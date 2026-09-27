@@ -370,7 +370,6 @@ function listen(server){
   });
 }
 function closeServer(server){ return new Promise(resolve => server.close(()=>resolve())); }
-function delay(ms){ return new Promise(resolve => setTimeout(resolve, ms)); }
 function waitForProcessExit(child, timeoutMs){
   if(child.exitCode !== null || child.signalCode !== null) return Promise.resolve(true);
   return new Promise(resolve => {

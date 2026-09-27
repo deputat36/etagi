@@ -136,7 +136,7 @@ function renderGoals(){
     selectedSpnGoal = goal.id;
     state.goal = goal.defaultGoal;
     state.templateId = '';
-    selectedScenario = goal.scenario || 'all';
+    selectedScenario = 'all';
     $('templateSearch').value = '';
     $('templateDensityFilter').value = 'all';
     renderAll();

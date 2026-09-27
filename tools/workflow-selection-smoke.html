@@ -90,6 +90,38 @@
         assert(doc.getElementById('spnClarityTemplateContext')?.textContent.trim() !== 'Не выбран', 'маршрут не показал выбранный шаблон');
         pass('шаблон: применяется явно и синхронизирует сценарий');
 
+        lastAction = 'adaptation.route-sync';
+        const clarityDataStep = doc.querySelector('[data-clarity-target="#agentName"]');
+        const adaptationChecklist = doc.getElementById('spnTextStepChecklist');
+        assert(clarityDataStep && adaptationChecklist, 'маршрут или чек-лист адаптации не готовы');
+        setField(win, doc, '#agentName', 'Анна Smoke');
+        setField(win, doc, '#agentPhone', '+7 900 123-45-67');
+        setField(win, doc, '#area', '');
+        await waitFor(() => doc.getElementById('spnNextActionText')?.textContent.includes('Район / адрес / ЖК'), 2500, 'маршрут не назвал район первым незаполненным полем');
+        assert(!clarityDataStep.classList.contains('done'), 'адаптация ошибочно готова при пустом районе');
+        click(doc, '#spnGoNextActionBtn');
+        await waitFor(() => doc.activeElement?.id === 'area', 2000, 'кнопка Перейти не сфокусировала конкретное незаполненное поле');
+
+        const fieldValues = {
+          agentName:'Анна Smoke',
+          agentPhone:'+7 900 123-45-67',
+          area:'Северный smoke',
+          propertyType:'Квартира',
+          price:'4 500 000 ₽',
+          params:'2-комн., 48 м², 3/5 эт.',
+          headline:'Тестовый заголовок',
+          description:'Подробное тестовое описание выбранного шаблона.',
+          benefits:'Тихий двор\nУдобный этаж',
+          customBlockText:'Тестовое условие'
+        };
+        for(const item of [...adaptationChecklist.querySelectorAll('[data-text-step-field].todo')]){
+          const fieldId = item.dataset.textStepField;
+          if(fieldId && fieldValues[fieldId] !== undefined) setField(win, doc, `#${fieldId}`, fieldValues[fieldId]);
+        }
+        await waitFor(() => !adaptationChecklist.querySelector('[data-text-step-field].todo'), 3000, 'не удалось заполнить все релевантные пункты чек-листа');
+        await waitFor(() => clarityDataStep.classList.contains('done'), 2500, 'маршрут не стал готовым после заполнения всего чек-листа');
+        pass('адаптация: маршрут следует чек-листу и ведёт к первому незаполненному полю');
+
         lastAction = 'template.adapt-next';
         const selectedNext = doc.querySelector('[data-selected-template-next]');
         const adaptButton = doc.querySelector('[data-adapt-selected-template]');

@@ -86,13 +86,12 @@ function restoreSelectedCardFocus(list, templateId){
     const now = performance.now();
 
     if(selected){
-      setRovingTabStop(list, selected);
       const active = document.activeElement;
 
-      if(active !== selected){
-        if(!isRecoverableFocusLoss(active, list)) return;
-        focusWithoutScroll(selected);
-      }
+      if(active !== selected && !isRecoverableFocusLoss(active, list)) return;
+
+      setRovingTabStop(list, selected);
+      if(active !== selected) focusWithoutScroll(selected);
 
       if(selected.isConnected && document.activeElement === selected){
         if(selected !== stableCard){

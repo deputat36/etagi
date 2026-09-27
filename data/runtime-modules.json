@@ -701,7 +701,6 @@
         "declaredInIndex": true,
         "ownershipBasis": "reference-only",
         "owners": [
-          "assets/js/app.js",
           "assets/js/qualityExtraActions.js",
           "assets/js/spnHeadlineHelper.js"
         ],
@@ -709,7 +708,6 @@
         "boundBy": [],
         "mutatedBy": [],
         "referencedBy": [
-          "assets/js/app.js",
           "assets/js/qualityExtraActions.js",
           "assets/js/spnHeadlineHelper.js"
         ]
@@ -2134,7 +2132,8 @@
           "assets/js/app.js"
         ],
         "referencedBy": [
-          "assets/js/app.js"
+          "assets/js/app.js",
+          "assets/js/spnTextStepChecklist.js"
         ]
       },
       {
@@ -4514,7 +4513,9 @@
           "assets/js/spnTextStepChecklist.js"
         ],
         "boundBy": [],
-        "mutatedBy": [],
+        "mutatedBy": [
+          "assets/js/spnTextStepChecklist.js"
+        ],
         "referencedBy": [
           "assets/js/spnTextStepChecklist.js"
         ]

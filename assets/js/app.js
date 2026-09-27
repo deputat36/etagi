@@ -523,6 +523,9 @@ function pickProfile(source){
 function syncFormFromState(){
   syncFormValuesFromState();
   syncChoiceControlsFromState();
+  document.dispatchEvent(new CustomEvent('spn:form-synced', {
+    detail:{templateId:state.templateId || '', goal:state.goal || ''}
+  }));
 }
 function syncFormValuesFromState(){
   fields.forEach(id => { if($(id)) $(id).value = state[id] ?? ''; });
@@ -634,13 +637,13 @@ function shortenDescription(){
   const current = String(state.description || '').trim();
   if(!current){
     setStatus('Сначала добавьте описание объекта — сокращать пока нечего.');
-    $('description').focus();
+    focusFormField('description');
     return;
   }
   const next = shorten(current, 190);
   if(next === current){
     setStatus('Описание уже короче 190 символов. Заголовок и преимущества не изменены.');
-    $('description').focus();
+    focusFormField('description');
     return;
   }
   state.description = next;
@@ -652,7 +655,7 @@ function shortenDescription(){
 function strengthenText(){
   if(!String(state.description || '').trim()){
     setStatus('Сначала добавьте описание объекта — пустой текст усилить нельзя.');
-    $('description').focus();
+    focusFormField('description');
     return;
   }
   if(!/позвон|напишите|подскажу/i.test(state.description)) state.description += ' Позвоните — подскажу детали и помогу разобраться.';
@@ -692,6 +695,13 @@ function clearObjectData(){
   if($('savedLayouts')) $('savedLayouts').value='';
   syncFormFromState(); renderAll();
   setStatus('Данные объекта очищены. Имя, телефон и настройки контактов сохранены.');
+}
+function focusFormField(id){
+  const field = $(id);
+  if(!field) return;
+  document.dispatchEvent(new CustomEvent('spn:reveal-form-field', {detail:{id}}));
+  field.focus();
+  field.scrollIntoView({behavior:'smooth', block:'center'});
 }
 function shorten(text, max){
   const s = String(text || '').trim();

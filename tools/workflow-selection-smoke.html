@@ -65,6 +65,17 @@
         assert(doc.querySelector('[data-scenario="newbuild"]')?.classList.contains('active'), 'выбранный шаблон не синхронизировал сценарий Новостройки');
         pass('шаблон: применяется явно и синхронизирует сценарий');
 
+        lastAction = 'template.adapt-next';
+        const selectedNext = doc.querySelector('[data-selected-template-next]');
+        const adaptButton = doc.querySelector('[data-adapt-selected-template]');
+        assert(selectedNext && adaptButton, 'после выбора не появился понятный следующий шаг');
+        assert(selectedNext.textContent.includes('Шаблон выбран'), 'подтверждение не объясняет, что шаблон уже применён');
+        adaptButton.click();
+        await waitFor(() => doc.body.dataset.wizardStep === 'content', 2000, 'кнопка Адаптировать не открыла шаг адаптации');
+        await waitFor(() => ['agentName','agentPhone','area','headline','description'].includes(doc.activeElement?.id), 2000, 'после перехода фокус не попал в поле адаптации');
+        assert(explicitTemplateClicks === 1, 'кнопка Адаптировать повторно применила карточку шаблона');
+        pass('шаблон: подтверждение выбора ведёт прямо к адаптации без повторного применения');
+
         lastAction = 'mode.quick-hides-scenario';
         click(doc, '[data-spn-ui-mode="quick"]');
         await waitFor(() => doc.body.dataset.spnUiMode === 'quick', 2000, 'быстрый режим не включился');

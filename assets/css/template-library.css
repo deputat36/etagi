@@ -535,3 +535,36 @@ body[data-template-menu-mode="compact"] .tpl-card.active{
     display:none!important;
   }
 }
+
+
+/* Краткая практическая информация перед выбором шаблона */
+.tpl-adaptation-info{
+  display:flex;
+  flex-wrap:wrap;
+  gap:4px 8px;
+  margin:6px 28px 5px 0;
+  font-size:9.5px;
+  line-height:1.25;
+  font-weight:800;
+  color:#64748b;
+}
+.tpl-adaptation-info span{
+  display:inline-flex;
+  align-items:center;
+  min-width:0;
+}
+.tpl-adaptation-info strong{
+  margin-right:4px;
+  color:#334155;
+  font-weight:900;
+}
+.tpl-card.active .tpl-adaptation-info,
+.tpl-card.active .tpl-adaptation-info strong{
+  color:#fff;
+}
+@media(max-width:520px){
+  .tpl-adaptation-info{
+    font-size:10.5px;
+    gap:3px 7px;
+  }
+}

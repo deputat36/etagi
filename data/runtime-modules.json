@@ -90,6 +90,7 @@
         "declaredInIndex": true,
         "ownershipBasis": "reference-only",
         "owners": [
+          "assets/js/app.js",
           "assets/js/spnAgentHelper.js",
           "assets/js/spnPhotoLayoutQualityActions.js",
           "assets/js/spnTextStepChecklist.js",
@@ -99,6 +100,7 @@
         "boundBy": [],
         "mutatedBy": [],
         "referencedBy": [
+          "assets/js/app.js",
           "assets/js/spnAgentHelper.js",
           "assets/js/spnPhotoLayoutQualityActions.js",
           "assets/js/spnTextStepChecklist.js",

@@ -75,11 +75,15 @@
 - отдельный screenshot формата 8;
 - единый browser coverage форматов 1/2/3/4/6/8;
 - `npm run release:status` и подробный режим;
-- `npm run test:release-readiness-states`.
+- `npm run test:release-readiness-states`;
+- подтверждённый контекст задачи/шаблона без ложного выбора на старте;
+- маршрут, синхронизированный с обязательными полями адаптации и Фото/QR;
+- защищённый cleanup Chrome-профиля performance budget;
+- стабильный keyboard-focus карточек шаблонов после Enter/Space.
 
 ## Автоматические доказательства
 
-Последний полный контроль: GitHub Actions workflow run #1883 от 21 июля 2026 года.
+Последний полный контроль: GitHub Actions workflow run #2327 от 27 сентября 2026 года (PR #148).
 
 Подтверждено:
 
@@ -99,18 +103,21 @@
 Основной workflow:
 
 ```text
-run #1883
-ID 29824496781
-head 85406931140f369bcabe297d7dd4ba21ee10c237
-artifact print-screenshots 8492754380
-sha256:2edc6a1d42effe845a16687d20c6398e7a492f10aec9805f660964d556de5c03
+run #2327
+ID 36316570188
+head d5ff8b2321e7d46eb3637203b0e438c8b5c9a834
+main merge 5f566283c561622aebf77fc299d65518be23284e
+artifact print-screenshots 10931026110
+sha256:3d452583a76ebc88a8aaf1fdae9844226970a2390ef4eb159292cf7405bb0621
 ```
 
 Дополнительные доказательства:
 
 ```text
-Validate 8 on A4: run #10, ID 29823514538
-Validate print format coverage: run #7, ID 29824496884
+Validate 8 on A4: run #232, ID 36316570151
+artifact print-screenshot-eight-economy 10930278465
+sha256:4dc7691a6d440cfd8e5e06e2a1c49864820bcd64bc218f27bbefaa57252347f3
+Validate print format coverage: run #229, ID 36316570125
 ```
 
 Автоматическая техническая часть не заменяет ручной сценарий 0, физическую печать, проверку QR камерой телефона и менеджерскую оценку чувствительных рекламных формулировок.

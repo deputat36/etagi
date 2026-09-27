@@ -79,19 +79,59 @@ function updateClarityPanel(){
 function getChecks(){
   const hasGoal = document.body.dataset.taskSelectionConfirmed === 'true';
   const hasTemplate = document.body.dataset.templateSelectionConfirmed === 'true';
-  const hasPhone = Boolean(value('agentPhone'));
-  const hasHeadline = Boolean(value('headline'));
   const hasPrint = Boolean(document.querySelector('[data-count].active'));
   const quality = Number(String(document.getElementById('qualityScore')?.textContent || '').replace(/\D/g, '')) || 0;
+  const adaptation = getAdaptationCheck(hasTemplate);
   const media = getMediaCheck();
   return [
     { ok: hasGoal, text:'Выберите задачу: кого нужно привлечь.', target:'.start-card' },
     { ok: hasTemplate, text:'Выберите подходящий шаблон.', target:'#templateList' },
-    { ok: hasPhone && hasHeadline, text: hasPhone ? 'Заполните или проверьте заголовок.' : 'Введите телефон для отклика.', target: hasPhone ? '#headline' : '#agentPhone' },
+    adaptation,
     media,
     { ok: hasPrint, text:'Выберите сценарий печати или количество на А4.', target:'.print-card' },
     { ok: quality >= 70, text:'Нажмите «Проверить» и устраните важные замечания.', target:'#qualityBtn' }
   ];
+}
+
+function getAdaptationCheck(hasTemplate){
+  if(!hasTemplate){
+    return {
+      ok:false,
+      text:'Сначала выберите шаблон, затем адаптируйте его данные.',
+      target:'#templateList'
+    };
+  }
+
+  const checklist = document.getElementById('spnTextStepChecklist');
+  const items = checklist ? [...checklist.querySelectorAll('[data-text-step-field]')] : [];
+  if(items.length){
+    const missing = items.find(item => item.classList.contains('todo'));
+    if(!missing){
+      return {
+        ok:true,
+        text:'Все нужные данные выбранного шаблона заполнены.',
+        target:'#agentName'
+      };
+    }
+
+    const fieldId = String(missing.dataset.textStepField || '').trim();
+    const fieldTitle = String(missing.querySelector('span')?.textContent || 'поле')
+      .replace(/^[✓•]\s*/, '')
+      .trim();
+    return {
+      ok:false,
+      text:`Заполните: ${fieldTitle}.`,
+      target:fieldId ? `#${fieldId}` : '#agentName'
+    };
+  }
+
+  const hasPhone = Boolean(value('agentPhone'));
+  const hasHeadline = Boolean(value('headline'));
+  return {
+    ok:hasPhone && hasHeadline,
+    text:hasPhone ? 'Заполните или проверьте заголовок.' : 'Введите телефон для отклика.',
+    target:hasPhone ? '#headline' : '#agentPhone'
+  };
 }
 
 function getMediaCheck(){
@@ -182,12 +222,13 @@ function applyHelperVisibility(show){
 }
 
 function scrollToTarget(selector){
-  const el = document.querySelector(selector)?.closest?.('.card') || document.querySelector(selector);
-  if(!el) return;
-  el.scrollIntoView({behavior:'smooth', block:'start'});
-  el.classList.add('spn-focus-pulse');
-  window.setTimeout(() => el.classList.remove('spn-focus-pulse'), 900);
-  if(el.matches('input, textarea, select, button')) el.focus();
+  const target = document.querySelector(selector);
+  if(!target) return;
+  const container = target.closest?.('.card') || target;
+  container.scrollIntoView({behavior:'smooth', block:'start'});
+  container.classList.add('spn-focus-pulse');
+  window.setTimeout(() => container.classList.remove('spn-focus-pulse'), 900);
+  if(target.matches('input, textarea, select, button')) target.focus();
 }
 
 function value(id){

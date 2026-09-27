@@ -138,6 +138,25 @@
         pass('режим Новичок включён');
         pass('пошаговая подготовка включена автоматически');
 
+        const adaptationChecklist = await waitForElement(doc, '#spnTextStepChecklist', 3000, 'чек-лист адаптации шаблона не появился');
+        const adaptationMore = adaptationChecklist.querySelector('[data-adaptation-more]');
+        const benefitsLabel = doc.getElementById('benefits')?.closest('label');
+        assert(adaptationMore && benefitsLabel, 'не найдены элементы упрощённой адаптации');
+        setCheckbox(doc, '#showBenefits', true);
+        await waitFor(() => !benefitsLabel.classList.contains('spn-adaptation-extra-field'), 2000, 'используемое поле преимуществ ошибочно скрыто');
+        setCheckbox(doc, '#showBenefits', false);
+        await waitFor(() => benefitsLabel.classList.contains('spn-adaptation-extra-field'), 2000, 'неиспользуемое поле преимуществ не отмечено дополнительным');
+        assert(!adaptationChecklist.querySelector('[data-text-step-field="benefits"]'), 'чек-лист требует поле, отключённое в макете');
+        assert(!adaptationMore.hidden, 'новичку недоступно раскрытие дополнительных полей');
+        adaptationMore.click();
+        await waitFor(() => doc.body.dataset.spnAdaptationExpanded === 'true', 2000, 'дополнительные поля не раскрылись');
+        assert(adaptationMore.textContent.includes('Скрыть дополнительные'), 'кнопка не объясняет обратное действие после раскрытия');
+        adaptationMore.click();
+        await waitFor(() => doc.body.dataset.spnAdaptationExpanded === 'false', 2000, 'дополнительные поля не скрылись обратно');
+        setCheckbox(doc, '#showBenefits', true);
+        await waitFor(() => !benefitsLabel.classList.contains('spn-adaptation-extra-field') && adaptationChecklist.querySelector('[data-text-step-field="benefits"]'), 2000, 'включённое поле не вернулось в адаптацию');
+        pass('адаптация шаблона: показываются только используемые поля, дополнительные можно раскрыть');
+
         click(doc, '[data-wizard-step="check"]');
         await waitFor(() => doc.body.dataset.wizardStep === 'check', 2000, 'шаг Проверка не открылся');
         click(doc, '#spnWizardNext');

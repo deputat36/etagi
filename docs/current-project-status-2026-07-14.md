@@ -133,7 +133,7 @@ docs/print-screenshot-regression.md
 
 ### Закреплённое техническое доказательство
 
-Последний полностью завершённый release-gate: workflow run #2327 от 27 сентября 2026 года в PR #148.
+Последний полный запуск, зафиксированный в релиз-кандидате: workflow run #2327 от 27 сентября 2026 года (PR #148).
 
 Run #2327 успешно с первой попытки выполнил `validate`, browser smoke, UI actions smoke, performance budget, оба fault jobs, семь print-screenshot jobs и `collect-print-screenshots`. В этом gate уже присутствует усиленная проверка keyboard/focus после выбора шаблона через Space.
 

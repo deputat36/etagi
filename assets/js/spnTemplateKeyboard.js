@@ -1,7 +1,8 @@
 const CARD_SELECTOR = '[data-template]';
 const FAVORITE_SELECTOR = '[data-favorite-template]';
-const FOCUS_RESTORE_STABLE_PASSES = 6;
-const FOCUS_RESTORE_MAX_MS = 1500;
+const FOCUS_RESTORE_STABLE_MS = 1200;
+const FOCUS_RESTORE_MAX_MS = 2500;
+const FOCUS_RESTORE_RETRY_MS = 40;
 let focusRestoreToken = 0;
 
 (function initTemplateKeyboardAccessibility(){
@@ -75,35 +76,52 @@ function restoreSelectedCardFocus(list, templateId){
   const token = ++focusRestoreToken;
   const startedAt = performance.now();
   let stableCard = null;
-  let stablePasses = 0;
+  let stableSince = 0;
 
   const attempt = () => {
     if(token !== focusRestoreToken) return;
 
     enhanceCards(list);
     const selected = findSelectedCard(list, templateId);
-    if(selected){
-      setRovingTabStop(list, selected);
-      focusWithoutScroll(selected);
+    const now = performance.now();
 
-      if(selected === stableCard && selected.isConnected && document.activeElement === selected){
-        stablePasses += 1;
+    if(selected){
+      const active = document.activeElement;
+
+      if(active !== selected && !isRecoverableFocusLoss(active, list)) return;
+
+      setRovingTabStop(list, selected);
+      if(active !== selected) focusWithoutScroll(selected);
+
+      if(selected.isConnected && document.activeElement === selected){
+        if(selected !== stableCard){
+          stableCard = selected;
+          stableSince = now;
+        } else if(!stableSince){
+          stableSince = now;
+        }
+        if(now - stableSince >= FOCUS_RESTORE_STABLE_MS) return;
       } else {
-        stableCard = selected;
-        stablePasses = document.activeElement === selected ? 1 : 0;
+        stableCard = null;
+        stableSince = 0;
       }
     } else {
       stableCard = null;
-      stablePasses = 0;
+      stableSince = 0;
     }
 
-    if(stablePasses >= FOCUS_RESTORE_STABLE_PASSES) return;
-    if(performance.now() - startedAt >= FOCUS_RESTORE_MAX_MS) return;
+    if(now - startedAt >= FOCUS_RESTORE_MAX_MS) return;
 
-    window.setTimeout(() => window.requestAnimationFrame(attempt), 40);
+    window.setTimeout(() => window.requestAnimationFrame(attempt), FOCUS_RESTORE_RETRY_MS);
   };
 
   window.requestAnimationFrame(attempt);
+}
+
+function isRecoverableFocusLoss(active, list){
+  if(!active || active === document.body || active === document.documentElement) return true;
+  if(!active.isConnected || active === list) return true;
+  return false;
 }
 
 function findSelectedCard(list, templateId){

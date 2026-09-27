@@ -82,6 +82,14 @@
         assertNoDuplicateBadges(doc);
         pass('Enter: шаблон выбран, состояние, фокус и бейджи синхронизированы');
 
+        const enterCardAfterSelection = doc.querySelector(`#templateList [data-template="${escapeSelector(enterId)}"]`);
+        const enterFavoriteAfterSelection = enterCardAfterSelection?.querySelector('[data-favorite-template]');
+        assert(enterFavoriteAfterSelection, 'после Enter не найдена кнопка избранного выбранной карточки');
+        enterFavoriteAfterSelection.focus();
+        await delay(180);
+        assert(doc.activeElement === enterFavoriteAfterSelection, 'стабилизатор фокуса перехватил намеренный переход на кнопку избранного');
+        pass('Enter: стабилизатор не крадёт намеренный фокус');
+
         lastAction = 'template-keyboard.space';
         cards = getCards(doc);
         const activeIndex = cards.findIndex(card => card.dataset.template === enterId);
@@ -91,9 +99,11 @@
         press(win, spaceTarget, ' ');
         await waitFor(() => doc.querySelector('#templateList [data-template].active')?.dataset.template === spaceId, 4000, 'Space не выбрал шаблон');
         await waitFor(() => doc.activeElement?.dataset?.template === spaceId, 4000, 'после Space фокус не вернулся на выбранную карточку');
+        await delay(1350);
+        assert(doc.activeElement?.dataset?.template === spaceId, 'после стабильного окна Space фокус снова потерян');
         assertSelectionContract(doc, spaceId);
         assertNoDuplicateBadges(doc);
-        pass('Space: шаблон выбран без повторных Tab-stop и бейджей');
+        pass('Space: шаблон выбран, фокус пережил стабильное окно без повторных Tab-stop и бейджей');
 
         lastAction = 'template-keyboard.favorite';
         const activeCard = doc.querySelector(`#templateList [data-template="${escapeSelector(spaceId)}"]`);

@@ -401,7 +401,7 @@ body[data-template-menu-mode="compact"] .tpl-card.active{
   border-radius:9px;
   background:#eff6ff;
 }
-.tpl-recommendation b{
+.tpl-recommendation-title{
   margin:0!important;
   font-size:10px!important;
   line-height:1.15!important;
@@ -417,7 +417,7 @@ body[data-template-menu-mode="compact"] .tpl-card.active{
   background:rgba(255,255,255,.16);
   border-color:rgba(255,255,255,.3);
 }
-.tpl-card.active .tpl-recommendation b,
+.tpl-card.active .tpl-recommendation-title,
 .tpl-card.active .tpl-recommendation span{
   color:#fff;
 }
@@ -442,7 +442,7 @@ body[data-template-menu-mode="compact"] .tpl-card.active{
   .goal-more summary{
     font-size:12px;
   }
-  .tpl-recommendation b{
+  .tpl-recommendation-title{
     font-size:11px!important;
   }
   .tpl-recommendation span{

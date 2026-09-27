@@ -2,21 +2,21 @@
 
 Статус: ПРОЙДЕНА
 
-Проверяемая база: `main` на коммите `6158012ad1ae5f4b35952a7ea41308517a147bd3`
+Проверяемая база: `main` на merge-коммите `5f566283c561622aebf77fc299d65518be23284e`
 
-Проверочная ветка: `agent/print-format-coverage-smoke`
+Проверочная ветка: `a11y/template-space-focus-stability`
 
-Pull request: #91
+Pull request: #148
 
 Исторический release-gate Pull request: #52
 
-Успешный workflow run: #1883
+Успешный workflow run: #2327
 
-Workflow run ID: `29824496781`
+Workflow run ID: `36316570188`
 
-Проверенный head SHA: `85406931140f369bcabe297d7dd4ba21ee10c237`
+Проверенный head SHA: `d5ff8b2321e7d46eb3637203b0e438c8b5c9a834`
 
-Дата проверки: 21 июля 2026 года
+Дата проверки: 27 сентября 2026 года
 
 Цель документа — зафиксировать технический срез после завершения этапов сохранности данных и полной автоматической печатной матрицы. Документ не заменяет ручную приёмку issue #40 и менеджерское решение issue #51.
 
@@ -26,12 +26,12 @@ Workflow run #1458 корректно обнаружил пропущенный 
 
 Исторический run #1474 и Pull request #52 закрепили первый полный release-gate с пятью screenshot-сценариями. После него проект получил дополнительные browser-контракты, защиту данных и форматы 3/6/8.
 
-## Результат run #1883
+## Результат run #2327
 
 - [x] `validate` — выполнен полный `npm run validate`;
 - [x] `Verify release status details` — подтверждён список ручных блокеров;
 - [x] `browser-smoke` — пройден настоящий Chrome smoke;
-- [x] `UI actions smoke` — пройдены действия, сохранение и восстановление;
+- [x] `UI actions smoke` — пройдены действия, сохранение, восстановление и усиленный keyboard/focus после Enter/Space;
 - [x] `cdp-failure-artifact`;
 - [x] `ui-actions-failure-artifact`;
 - [x] `print-screenshot / one-no-photo`;
@@ -47,9 +47,9 @@ Workflow run #1458 корректно обнаружил пропущенный 
 
 Итоговый artifact: `print-screenshots`
 
-Artifact ID: `8492754380`
+Artifact ID: `10931026110`
 
-Digest: `sha256:2edc6a1d42effe845a16687d20c6398e7a492f10aec9805f660964d556de5c03`
+Digest: `sha256:3d452583a76ebc88a8aaf1fdae9844226970a2390ef4eb159292cf7405bb0621`
 
 Проверенное содержимое:
 
@@ -70,15 +70,15 @@ Digest: `sha256:2edc6a1d42effe845a16687d20c6398e7a492f10aec9805f660964d556de5c03
 
 Workflow: `Validate 8 on A4`
 
-Успешный run: #10
+Успешный run: #232
 
-Workflow run ID: `29823514538`
+Workflow run ID: `36316570151`
 
 Artifact: `print-screenshot-eight-economy`
 
-Artifact ID: `8492331845`
+Artifact ID: `10930278465`
 
-Digest: `sha256:2c502f7c59670f18d5b6329f34c5200dcea41ce330661c384bc40ed7f2f8dfc8`
+Digest: `sha256:4dc7691a6d440cfd8e5e06e2a1c49864820bcd64bc218f27bbefaa57252347f3`
 
 Проверены восемь карточек 2×4, отсутствие overflow, границы контактов, полный телефон, имя СПН, телефон не меньше 16 px и заголовок не меньше 12 px.
 
@@ -86,9 +86,9 @@ Digest: `sha256:2c502f7c59670f18d5b6329f34c5200dcea41ce330661c384bc40ed7f2f8dfc8
 
 Workflow: `Validate print format coverage`
 
-Успешный run: #7
+Успешный run: #229
 
-Workflow run ID: `29824496884`
+Workflow run ID: `36316570125`
 
 Последовательно проверены форматы `1 / 2 / 3 / 4 / 6 / 8`:
 
@@ -107,6 +107,8 @@ Workflow run ID: `29824496884`
 - официальные форматы — 1, 2, 3, 4, 6 и 8 на A4;
 - значения 10/12 блокируются;
 - screenshot matrix и browser coverage проходят;
+- performance budget проходит с защищённым lifecycle/cleanup Chrome-профиля;
+- fault-artifact UI actions имеет детерминированный основной диагноз;
 - ручные issues #40 и #51 не закрыты автоматическим запуском.
 
 ## Ограничение результата

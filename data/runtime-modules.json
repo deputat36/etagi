@@ -2104,6 +2104,7 @@
         "referencedBy": [
           "assets/js/app.js",
           "assets/js/preprintSummary.js",
+          "assets/js/spnClarityPanel.js",
           "assets/js/spnDestructiveSnapshot.js",
           "assets/js/spnFitPreview.js",
           "assets/js/spnInkEfficiency.js",
@@ -2870,12 +2871,14 @@
         "declaredInIndex": true,
         "ownershipBasis": "reference-only",
         "owners": [
+          "assets/js/spnClarityPanel.js",
           "assets/js/spnWizardStepStatus.js"
         ],
         "createdBy": [],
         "boundBy": [],
         "mutatedBy": [],
         "referencedBy": [
+          "assets/js/spnClarityPanel.js",
           "assets/js/spnWizardStepStatus.js"
         ]
       },
@@ -2908,6 +2911,7 @@
           "assets/js/spnQrEditor.js"
         ],
         "referencedBy": [
+          "assets/js/spnClarityPanel.js",
           "assets/js/spnQrEditor.js",
           "assets/js/spnWizardStepStatus.js"
         ]

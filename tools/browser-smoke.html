@@ -116,6 +116,23 @@
         wizard.click();
         const mediaDebug = () => `showPhoto=${doc.getElementById('showPhoto')?.checked}; showQr=${doc.getElementById('showQr')?.checked}; qrLink=${doc.getElementById('qrLink')?.value || '—'}; state=${mediaStep?.dataset.stepStatus || '—'}; badge=${mediaStep?.querySelector('.spn-wizard-step-status')?.textContent || '—'}`;
         await waitFor(() => mediaStep?.dataset.stepStatus === 'optional' && mediaStep.querySelector('.spn-wizard-step-status')?.textContent === 'необязательно', 3000, () => `выключенные Фото / QR не стали необязательными (${mediaDebug()})`);
+        const clarityMediaStep = doc.querySelector('[data-clarity-target=".media-card"]');
+        assert(clarityMediaStep, 'в маршруте отсутствует шаг Фото/QR');
+        await waitFor(() => clarityMediaStep.classList.contains('optional') && !clarityMediaStep.classList.contains('done'), 2000, 'выключенные Фото/QR не стали необязательными в маршруте');
+        assert(clarityMediaStep.title.includes('необязателен'), 'маршрут не объясняет необязательность Фото/QR');
+
+        setCheckbox(doc, '#showQr', true);
+        await waitFor(() => !clarityMediaStep.classList.contains('optional') && !clarityMediaStep.classList.contains('done'), 2000, 'включённый пустой QR не стал обязательным незавершённым шагом');
+        setField(win, doc, '#qrLink', 'https://example.com/route-qr');
+        await waitFor(() => clarityMediaStep.classList.contains('done') && !clarityMediaStep.classList.contains('optional'), 2000, 'QR со ссылкой не стал готовым в маршруте');
+        setCheckbox(doc, '#showQr', false);
+        setField(win, doc, '#qrLink', '');
+
+        click(doc, '[data-photo="two"]');
+        await waitFor(() => !clarityMediaStep.classList.contains('optional') && !clarityMediaStep.classList.contains('done'), 2000, 'режим двух фото без файлов не стал обязательным незавершённым шагом');
+        click(doc, '[data-photo="none"]');
+        await waitFor(() => clarityMediaStep.classList.contains('optional'), 2000, 'после отключения фото маршрут не вернул необязательный статус');
+        pass('маршрут: Фото / QR обязательны только когда включены');
         pass('статусы: Фото / QR корректно стали необязательными');
 
         click(doc, '[data-spn-ui-mode="newbie"]');
@@ -278,6 +295,8 @@
         await waitFor(() => doc.querySelector('#photoModeRow [data-photo="two"].active'), 3000, 'режим двух изображений не включился');
         mediaStep.click();
         await waitFor(() => mediaStep?.dataset.stepStatus === 'ready', 3000, 'загруженные фото не обновили статус медиа');
+        await waitFor(() => clarityMediaStep.classList.contains('done') && !clarityMediaStep.classList.contains('optional'), 3000, 'маршрут не отметил обязательные фото готовыми после загрузки двух файлов');
+        pass('маршрут: обязательные фото становятся готовыми только после загрузки');
         pass('статусы: загруженные фото готовы');
 
         click(doc, '[data-count="1"]');

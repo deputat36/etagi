@@ -312,3 +312,149 @@ body[data-template-menu-mode="compact"] .tpl-card.active{
   .tpl-card-office-badges,
   .tpl-card-office-reason{display:none!important}
 }
+
+
+/* Понятный выбор рабочей задачи СПН */
+.goal-grid .goal-helper{
+  grid-column:1/-1;
+  display:grid;
+  gap:3px;
+  margin:0 0 2px;
+  padding:9px 10px;
+  border:1px solid #e2e8f0;
+  border-radius:13px;
+  background:#f8fafc;
+}
+.goal-grid .goal-helper b{
+  font-size:12px;
+  line-height:1.2;
+  font-weight:900;
+  color:#111827;
+}
+.goal-grid .goal-helper span{
+  font-size:10.5px;
+  line-height:1.3;
+  font-weight:700;
+  color:#64748b;
+}
+.spn-goal-btn{
+  min-height:74px;
+  text-align:left;
+}
+.spn-goal-btn span{
+  line-height:1.3;
+}
+.goal-more{
+  grid-column:1/-1;
+  margin-top:2px;
+  border-top:1px solid #e2e8f0;
+  padding-top:6px;
+}
+.goal-more summary{
+  cursor:pointer;
+  color:#475569;
+  font-size:11px;
+  font-weight:900;
+}
+.goal-more-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:6px;
+  margin-top:7px;
+}
+.goal-btn-secondary{
+  min-height:58px;
+  opacity:.88;
+}
+
+/* Рекомендации шаблонов по выбранной задаче */
+.template-recommendation-intro{
+  grid-column:1/-1;
+  display:grid;
+  gap:3px;
+  margin:1px 0 4px;
+  padding:9px 10px;
+  border:1px solid #bfdbfe;
+  border-radius:13px;
+  background:#eff6ff;
+}
+.template-recommendation-intro b{
+  font-size:12px;
+  font-weight:900;
+  color:#1e3a8a;
+}
+.template-recommendation-intro span{
+  font-size:10.5px;
+  line-height:1.3;
+  font-weight:700;
+  color:#475569;
+}
+.tpl-card-recommended{
+  border-color:#bfdbfe;
+}
+.tpl-recommendation{
+  display:grid;
+  gap:2px;
+  margin:0 28px 6px 0;
+  padding:6px 7px;
+  border:1px solid #dbeafe;
+  border-radius:9px;
+  background:#eff6ff;
+}
+.tpl-recommendation b{
+  margin:0!important;
+  font-size:10px!important;
+  line-height:1.15!important;
+  color:#1d4ed8;
+}
+.tpl-recommendation span{
+  font-size:9.5px;
+  line-height:1.22;
+  font-weight:800;
+  color:#475569;
+}
+.tpl-card.active .tpl-recommendation{
+  background:rgba(255,255,255,.16);
+  border-color:rgba(255,255,255,.3);
+}
+.tpl-card.active .tpl-recommendation b,
+.tpl-card.active .tpl-recommendation span{
+  color:#fff;
+}
+
+@media(max-width:520px){
+  .goal-grid .goal-helper{
+    padding:10px;
+  }
+  .goal-grid .goal-helper b{
+    font-size:13px;
+  }
+  .goal-grid .goal-helper span,
+  .template-recommendation-intro span{
+    font-size:11.5px;
+  }
+  .spn-goal-btn{
+    min-height:82px;
+  }
+  .goal-more-grid{
+    grid-template-columns:1fr;
+  }
+  .goal-more summary{
+    font-size:12px;
+  }
+  .tpl-recommendation b{
+    font-size:11px!important;
+  }
+  .tpl-recommendation span{
+    font-size:10.5px;
+  }
+}
+
+@media print{
+  .goal-helper,
+  .goal-more,
+  .template-recommendation-intro,
+  .tpl-recommendation{
+    display:none!important;
+  }
+}

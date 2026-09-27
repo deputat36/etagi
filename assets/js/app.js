@@ -480,6 +480,12 @@ function renderTemplates(){
     openSelectedTemplateAdaptation();
   });
   $('templateList').querySelectorAll('[data-template]').forEach(el=>el.onclick=()=>{ const t=templates.find(x=>x.id===el.dataset.template); applyTemplate(t); setSelectionContext({taskConfirmed:true, templateConfirmed:true}); renderAll(); });
+  document.dispatchEvent(new CustomEvent('spn:templates-rendered', {
+    detail:{
+      templateId:state.templateId || '',
+      confirmed:templateSelectionConfirmed
+    }
+  }));
 }
 function openSelectedTemplateAdaptation(){
   if(!state.templateId){

@@ -508,11 +508,49 @@ function templateCard(t, recommendation = null){
   const miniClass = t.photo === 'two' ? 'two-photo' : (t.photo && t.photo !== 'none' ? 'has-photo' : '');
   const isFavorite = favoriteTemplateIds.has(t.id);
   const recommendationHtml = recommendation ? `<div class="tpl-recommendation"><span class="tpl-recommendation-title">${recommendation.rank === 1 ? 'Рекомендуем начать с этого' : `Подходит для задачи №${recommendation.rank}`}</span><span>${esc(recommendation.text)}</span></div>` : '';
+  const adaptation = getTemplateAdaptationInfo(t);
   return `<div class="tpl-card ${recommendation ? 'tpl-card-recommended' : ''} ${state.templateId===t.id?'active':''}" data-template="${t.id}">
     <button type="button" class="favorite-template-btn ${isFavorite ? 'active' : ''}" data-favorite-template="${t.id}" title="${isFavorite ? 'Убрать из избранного' : 'Добавить в избранное'}">${isFavorite ? '★' : '☆'}</button>
     <div class="tpl-mini ${miniClass}"><div class="mh"></div><div class="ml"></div><div class="ml"></div><div class="mp"></div></div>
-    <div>${recommendationHtml}<b>${esc(t.title)}</b><p>${esc(t.note || '')}</p><div class="badges">${(t.tags||[]).slice(0,5).map(x=>`<span class="badge">${esc(x)}</span>`).join('')}</div></div>
+    <div>${recommendationHtml}<b>${esc(t.title)}</b><p>${esc(t.note || '')}</p>
+      <div class="tpl-adaptation-info"><span><strong>Заполнить:</strong> ${esc(adaptation.fields)}</span><span>${esc(adaptation.format)}</span></div>
+      <div class="badges">${(t.tags||[]).slice(0,5).map(x=>`<span class="badge">${esc(x)}</span>`).join('')}</div>
+    </div>
   </div>`;
+}
+
+function getTemplateAdaptationInfo(template){
+  const data = {...cloneDefaultState(), ...(template?.data || {})};
+  const fields = [];
+  const hasText = value => String(value || '').trim().length > 0;
+
+  if(!hasText(data.agentName) || !hasText(data.agentPhone)) fields.push('контакты');
+  if(!hasText(data.area)) fields.push('район');
+  if(data.showPrice && !hasText(data.price)) fields.push('цена');
+  if(data.showMeta && !hasText(data.propertyType)) fields.push('тип объекта');
+  if(data.showMeta && !hasText(data.params)) fields.push('параметры');
+  if(data.showHeadline && !hasText(data.headline)) fields.push('заголовок');
+  if(data.showDescription && !hasText(data.description)) fields.push('описание');
+  if(data.showBenefits && !hasText(data.benefits)) fields.push('преимущества');
+  if(data.showCustomBlock && !hasText(data.customBlockText)) fields.push('доп. блок');
+
+  const visibleFields = fields.slice(0, 4);
+  const rest = Math.max(0, fields.length - visibleFields.length);
+  const fieldsText = visibleFields.length
+    ? `${visibleFields.join(' · ')}${rest ? ` · +${rest}` : ''}`
+    : 'только проверить готовый текст';
+
+  const photoText = template?.photo === 'two'
+    ? '2 фото'
+    : template?.photo && template.photo !== 'none'
+      ? template.photo === 'plan' ? 'планировка' : '1 фото'
+      : 'без фото';
+  const count = Number(template?.printCount) || Number(data.printCount) || 1;
+
+  return {
+    fields: fieldsText,
+    format: `${photoText} · ${count} на А4`
+  };
 }
 function applyTemplate(t){
   if(!t) return;

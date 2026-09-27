@@ -20,6 +20,12 @@
       let explicitTemplateClicks = 0;
       try{
         await waitFor(() => doc.querySelectorAll('.tpl-card').length > 0, 12000, 'шаблоны не появились');
+        const firstAdaptationInfo = doc.querySelector('.tpl-card .tpl-adaptation-info');
+        assert(firstAdaptationInfo, 'в карточке шаблона нет краткой информации по адаптации');
+        assert(firstAdaptationInfo.textContent.includes('Заполнить:'), 'карточка не объясняет, что нужно заполнить');
+        assert(firstAdaptationInfo.textContent.includes('на А4'), 'карточка не показывает рекомендуемый формат печати');
+        assert(!firstAdaptationInfo.querySelector('button, input, select, textarea, a'), 'информация по адаптации добавила лишний интерактивный элемент в карточку');
+        pass('карточка: заранее показывает объём адаптации и формат без нового действия');
         await waitFor(() => doc.getElementById('spnWizard'), 5000, 'офисный подбор не появился');
         click(doc, '[data-spn-ui-mode="advanced"]');
         await waitFor(() => doc.body.dataset.spnUiMode === 'advanced', 3000, 'расширенный режим не включился');

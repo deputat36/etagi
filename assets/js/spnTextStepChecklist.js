@@ -64,6 +64,13 @@ function bindPanel(){
 
   document.addEventListener('spn:form-synced', updatePanel);
   document.addEventListener('spn:ui-mode-change', updatePanel);
+  document.addEventListener('spn:reveal-form-field', event => {
+    const item = checks.find(check => check.id === event.detail?.id);
+    if(item && !isRelevant(item)){
+      document.body.dataset.spnAdaptationExpanded = 'true';
+      updateMoreButton();
+    }
+  });
 }
 
 function updatePanel(){

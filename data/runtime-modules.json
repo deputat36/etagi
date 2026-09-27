@@ -2134,7 +2134,8 @@
           "assets/js/app.js"
         ],
         "referencedBy": [
-          "assets/js/app.js"
+          "assets/js/app.js",
+          "assets/js/spnTextStepChecklist.js"
         ]
       },
       {

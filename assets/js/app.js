@@ -124,8 +124,8 @@ function bindStaticUi(){
 }
 
 function renderGoals(){
-  const coveredGoals = new Set(spnGoals.flatMap(item => item.goalIds));
-  const extraGoals = goals.filter(item => !coveredGoals.has(item.id));
+  const primaryTechnicalGoals = new Set(spnGoals.map(item => item.defaultGoal));
+  const extraGoals = goals.filter(item => !primaryTechnicalGoals.has(item.id));
   const primary = spnGoals.map(g=>`<button type="button" class="goal-btn spn-goal-btn" data-spn-goal="${g.id}" data-goal="${g.defaultGoal}"><b>${esc(g.title)}</b><span>${esc(g.description)}</span></button>`).join('');
   const extra = extraGoals.length ? `<details class="goal-more"><summary>Другие задачи</summary><div class="goal-more-grid">${extraGoals.map(g=>`<button type="button" class="goal-btn goal-btn-secondary" data-legacy-goal="${g.id}" data-goal="${g.id}"><b>${esc(g.title)}</b><span>${esc(g.hint)}</span></button>`).join('')}</div></details>` : '';
   $('goalGrid').innerHTML = `<div class="goal-helper"><b>Что вы хотите сделать?</b><span>Выберите рабочую задачу — подходящие шаблоны будут выше в списке.</span></div>${primary}${extra}`;
@@ -530,7 +530,7 @@ function syncFormValuesFromState(){
 }
 function syncChoiceControlsFromState(){
   document.querySelectorAll('[data-spn-goal]').forEach(b=>b.classList.toggle('active', b.dataset.spnGoal===selectedSpnGoal));
-  document.querySelectorAll('[data-legacy-goal]').forEach(b=>b.classList.toggle('active', !selectedSpnGoal && b.dataset.legacyGoal===state.goal));
+  document.querySelectorAll('[data-legacy-goal]').forEach(b=>b.classList.toggle('active', b.dataset.legacyGoal===state.goal));
   document.querySelectorAll('[data-photo]').forEach(b=>b.classList.toggle('active', b.dataset.photo===state.photoMode));
   document.querySelectorAll('[data-count]').forEach(b=>b.classList.toggle('active', Number(b.dataset.count)===Number(state.printCount)));
   document.querySelectorAll('[data-property]').forEach(b=>b.classList.toggle('active', b.dataset.property===state.propertyType));

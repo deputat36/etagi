@@ -7,12 +7,14 @@ import { checkQuality } from './quality.js';
 import { autoSave, saveNamed, loadNamed, loadAutoSave, saveProfile, loadProfile, listSavedLayouts, saveLayout, loadLayout, deleteLayout, listFavoriteTemplates, toggleFavoriteTemplate } from './storage.js';
 import { applyLayoutMode, applyLayoutModePreservingMedia, getLayoutHints } from './layoutRules.js';
 import { requestQualityListUpdate } from './qualityListUpdates.js';
+import { spnGoals, getSpnGoal, getSpnGoalForTemplateGoal } from './spnGoals.js';
 
 let state = cloneDefaultState();
 let templates = [];
 let lastQuality = null;
 let favoriteTemplateIds = new Set();
 let selectedScenario = 'all';
+let selectedSpnGoal = 'seller';
 let pendingLayoutConflict = null;
 let qualityTimer = 0;
 const debouncedSave = debounce(()=>autoSave(state), 500);
@@ -59,6 +61,7 @@ async function init(){
   templates = await loadTemplates();
   const saved = loadAutoSave();
   if(saved){ state = {...state, ...saved, version: state.version}; }
+  selectedSpnGoal = getSpnGoalForTemplateGoal(state.goal)?.id || '';
   if(!state.templateId){
     const first = templates.find(t=>t.goal === state.goal) || templates[0];
     applyTemplate(first);
@@ -121,14 +124,36 @@ function bindStaticUi(){
 }
 
 function renderGoals(){
-  $('goalGrid').innerHTML = goals.map(g=>`<button type="button" class="goal-btn" data-goal="${g.id}"><b>${esc(g.title)}</b><span>${esc(g.hint)}</span></button>`).join('');
-  $('goalGrid').querySelectorAll('[data-goal]').forEach(btn=>btn.onclick=()=>{
-    state.goal = btn.dataset.goal;
+  const primaryTechnicalGoals = new Set(spnGoals.map(item => item.defaultGoal));
+  const extraGoals = goals.filter(item => !primaryTechnicalGoals.has(item.id));
+  const primary = spnGoals.map(g=>`<button type="button" class="goal-btn spn-goal-btn" data-spn-goal="${g.id}" data-goal="${g.defaultGoal}"><b>${esc(g.title)}</b><span>${esc(g.description)}</span></button>`).join('');
+  const extra = extraGoals.length ? `<details class="goal-more"><summary>Другие задачи</summary><div class="goal-more-grid">${extraGoals.map(g=>`<button type="button" class="goal-btn goal-btn-secondary" data-legacy-goal="${g.id}" data-goal="${g.id}"><b>${esc(g.title)}</b><span>${esc(g.hint)}</span></button>`).join('')}</div></details>` : '';
+  $('goalGrid').innerHTML = `<div class="goal-helper"><b>Что вы хотите сделать?</b><span>Выберите рабочую задачу — подходящие шаблоны будут выше в списке.</span></div>${primary}${extra}`;
+
+  $('goalGrid').querySelectorAll('[data-spn-goal]').forEach(btn=>btn.onclick=()=>{
+    const goal = getSpnGoal(btn.dataset.spnGoal);
+    if(!goal) return;
+    selectedSpnGoal = goal.id;
+    state.goal = goal.defaultGoal;
     state.templateId = '';
     selectedScenario = 'all';
+    $('templateSearch').value = '';
+    $('templateDensityFilter').value = 'all';
+    renderAll();
+    document.dispatchEvent(new CustomEvent('spn:task-selection', {detail:{goal:state.goal, spnGoal:selectedSpnGoal}}));
+    setStatus(`${goal.title}: подходящие и безопасные шаблоны показаны первыми. Выберите макет, чтобы заменить текст.`);
+  });
+
+  $('goalGrid').querySelectorAll('[data-legacy-goal]').forEach(btn=>btn.onclick=()=>{
+    selectedSpnGoal = '';
+    state.goal = btn.dataset.legacyGoal;
+    state.templateId = '';
+    selectedScenario = 'all';
+    $('templateSearch').value = '';
+    $('templateDensityFilter').value = 'all';
     renderAll();
     document.dispatchEvent(new CustomEvent('spn:task-selection', {detail:{goal:state.goal}}));
-    setStatus('Задача выбрана. Текущий макет сохранён — выберите шаблон явно, чтобы заменить текст.');
+    setStatus('Дополнительная задача выбрана. Выберите подходящий шаблон.');
   });
 }
 function applyWorkflowSelection(event){
@@ -138,6 +163,7 @@ function applyWorkflowSelection(event){
   const nextPrintCount = printPresets.some(item => Number(item.count) === Number(detail.printCount)) ? Number(detail.printCount) : state.printCount;
 
   state.goal = nextGoal;
+  selectedSpnGoal = getSpnGoalForTemplateGoal(nextGoal)?.id || '';
   state.templateId = '';
   selectedScenario = scenarioPresets.some(item => item.id === detail.scenario) ? detail.scenario : 'all';
   $('templateSearch').value = String(detail.query || '');
@@ -196,10 +222,54 @@ function renderScenarioFilters(){
   updateScenarioFilters();
 }
 function getBaseTemplateList(){
-  let list = filterTemplates(templates, state.goal, $('templateSearch').value, $('templateDensityFilter').value);
+  const search = $('templateSearch').value;
+  const density = $('templateDensityFilter').value;
+  const spnGoal = getSpnGoal(selectedSpnGoal);
+  let list;
+
+  if(spnGoal){
+    const byId = new Map();
+    spnGoal.goalIds.forEach(goalId => {
+      filterTemplates(templates, goalId, search, density).forEach(template => byId.set(template.id, template));
+    });
+    list = [...byId.values()];
+    list.sort((a, b) => scoreTemplateForSpnGoal(b, spnGoal) - scoreTemplateForSpnGoal(a, spnGoal));
+  } else {
+    list = filterTemplates(templates, state.goal, search, density);
+  }
+
   const favoritesOnly = $('showFavoriteTemplatesOnly')?.checked;
   if(favoritesOnly) list = list.filter(t => favoriteTemplateIds.has(t.id));
   return list;
+}
+
+function scoreTemplateForSpnGoal(template, spnGoal){
+  let score = 0;
+  const portfolioStatus = String(template.portfolio?.status || 'working');
+  if(portfolioStatus === 'working') score += 30;
+  if(portfolioStatus === 'test') score -= 15;
+  if(portfolioStatus === 'deprecated') score -= 100;
+
+  if(template.office?.recommended === true) score += 45;
+  if(template.office?.level === 'newbie') score += 20;
+  if(template.office?.risk === 'low') score += 15;
+  if(template.office?.risk === 'high') score -= 20;
+
+  const text = `${template.title || ''} ${template.note || ''} ${(template.tags || []).join(' ')}`.toLowerCase();
+  for(const keyword of spnGoal.keywords || []){
+    if(text.includes(String(keyword).toLowerCase())) score += 3;
+  }
+  return score;
+}
+
+function getTemplateRecommendation(template, rank){
+  if(!selectedSpnGoal || rank > 3) return null;
+  const reasons = [];
+  if(template.office?.recommended === true) reasons.push('рекомендован для офиса');
+  if(template.office?.level === 'newbie') reasons.push('подходит новичку');
+  if(template.office?.risk === 'low') reasons.push('низкий риск формулировок');
+  if(!reasons.length) reasons.push('хорошо соответствует выбранной задаче');
+  return {rank, text: reasons.slice(0, 2).join(' · ')};
 }
 function updateScenarioFilters(baseList = getBaseTemplateList()){
   const row = $('scenarioFilterRow');
@@ -374,7 +444,9 @@ function renderTemplates(){
   updateTemplateCountLine(list.length, baseList.length);
   const favoritesOnly = $('showFavoriteTemplatesOnly')?.checked;
   const emptyText = favoritesOnly ? 'В этой задаче пока нет избранных шаблонов' : selectedScenario !== 'all' ? 'В этом сценарии пока нет шаблонов' : 'Под эту задачу ничего не найдено';
-  $('templateList').innerHTML = list.length ? list.map(t=>templateCard(t)).join('') : `<div class="empty">${emptyText}</div>`;
+  const spnGoal = getSpnGoal(selectedSpnGoal);
+  const intro = spnGoal && list.length ? `<div class="template-recommendation-intro"><b>${esc(spnGoal.title)}</b><span>${esc(spnGoal.description)} Сначала показаны наиболее безопасные и подходящие варианты.</span></div>` : '';
+  $('templateList').innerHTML = list.length ? intro + list.map((t, index)=>templateCard(t, getTemplateRecommendation(t, index + 1))).join('') : `<div class="empty">${emptyText}</div>`;
   $('templateList').querySelectorAll('[data-favorite-template]').forEach(btn=>btn.onclick=(event)=>{
     event.stopPropagation();
     const favorites = toggleFavoriteTemplate(btn.dataset.favoriteTemplate);
@@ -409,13 +481,14 @@ function inferTemplateScenario(t, currentScenario = selectedScenario){
   return 'all';
 }
 
-function templateCard(t){
+function templateCard(t, recommendation = null){
   const miniClass = t.photo === 'two' ? 'two-photo' : (t.photo && t.photo !== 'none' ? 'has-photo' : '');
   const isFavorite = favoriteTemplateIds.has(t.id);
-  return `<div class="tpl-card ${state.templateId===t.id?'active':''}" data-template="${t.id}">
+  const recommendationHtml = recommendation ? `<div class="tpl-recommendation"><span class="tpl-recommendation-title">${recommendation.rank === 1 ? 'Рекомендуем начать с этого' : `Подходит для задачи №${recommendation.rank}`}</span><span>${esc(recommendation.text)}</span></div>` : '';
+  return `<div class="tpl-card ${recommendation ? 'tpl-card-recommended' : ''} ${state.templateId===t.id?'active':''}" data-template="${t.id}">
     <button type="button" class="favorite-template-btn ${isFavorite ? 'active' : ''}" data-favorite-template="${t.id}" title="${isFavorite ? 'Убрать из избранного' : 'Добавить в избранное'}">${isFavorite ? '★' : '☆'}</button>
     <div class="tpl-mini ${miniClass}"><div class="mh"></div><div class="ml"></div><div class="ml"></div><div class="mp"></div></div>
-    <div><b>${esc(t.title)}</b><p>${esc(t.note || '')}</p><div class="badges">${(t.tags||[]).slice(0,5).map(x=>`<span class="badge">${esc(x)}</span>`).join('')}</div></div>
+    <div>${recommendationHtml}<b>${esc(t.title)}</b><p>${esc(t.note || '')}</p><div class="badges">${(t.tags||[]).slice(0,5).map(x=>`<span class="badge">${esc(x)}</span>`).join('')}</div></div>
   </div>`;
 }
 function applyTemplate(t){
@@ -440,6 +513,7 @@ function applyTemplate(t){
   if(t.density) state.layoutDensity = t.density;
   if(state.photoMode === 'none') state.showPhoto = false;
   if(state.showPhoto && state.photoMode !== 'none' && (state.photoOne || state.photoTwo)) state.showPhoto = true;
+  selectedSpnGoal = getSpnGoalForTemplateGoal(t.goal)?.id || '';
   selectedScenario = inferTemplateScenario(t);
   syncFormFromState();
 }
@@ -455,7 +529,8 @@ function syncFormValuesFromState(){
   checks.forEach(id => { if($(id)) $(id).checked = !!state[id]; });
 }
 function syncChoiceControlsFromState(){
-  document.querySelectorAll('[data-goal]').forEach(b=>b.classList.toggle('active', b.dataset.goal===state.goal));
+  document.querySelectorAll('[data-spn-goal]').forEach(b=>b.classList.toggle('active', b.dataset.spnGoal===selectedSpnGoal));
+  document.querySelectorAll('[data-legacy-goal]').forEach(b=>b.classList.toggle('active', b.dataset.legacyGoal===state.goal));
   document.querySelectorAll('[data-photo]').forEach(b=>b.classList.toggle('active', b.dataset.photo===state.photoMode));
   document.querySelectorAll('[data-count]').forEach(b=>b.classList.toggle('active', Number(b.dataset.count)===Number(state.printCount)));
   document.querySelectorAll('[data-property]').forEach(b=>b.classList.toggle('active', b.dataset.property===state.propertyType));

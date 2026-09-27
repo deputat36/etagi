@@ -35,6 +35,9 @@ if(!(browserIndex >= 0 && browserIndex < uiIndex && uiIndex < perfIndex)) errors
 if(!workflow.includes('performance-budget-failure.json')) errors.push('validate.yml: failure JSON не включён в artifact');
 for(const token of ['1 / 2 / 4 / 8','baseline','median','4 → 8']) if(!docs.toLowerCase().includes(token.toLowerCase())) errors.push(`performance-budget.md: отсутствует ${token}`);
 for(const token of ['MutationObserver','medianMs','worstMs','syncMedianMs']) if(!runner.includes(token)) errors.push(`run-performance-budget.mjs: отсутствует ${token}`);
+for(const token of ['waitForProcessExit', "child.kill('SIGKILL')", 'await waitForProcessExit(child, 1500)', 'cleanupProfileDir(profileDir)', 'maxRetries:6', 'retryDelay:150', 'Performance cleanup warning']){
+  if(!runner.includes(token)) errors.push(`run-performance-budget.mjs: отсутствует защита cleanup — ${token}`);
+}
 
 if(errors.length){
   console.error('Ошибки performance budget:\n' + errors.map(x => `- ${x}`).join('\n'));

@@ -48,7 +48,7 @@ async function runWithRetry(command, port, config){
       lastError = error;
       if(attempt === 2) throw error;
     } finally {
-      fs.rmSync(profileDir, {recursive:true, force:true});
+      cleanupProfileDir(profileDir);
     }
   }
   throw lastError || new Error('Performance benchmark не завершён.');
@@ -370,11 +370,38 @@ function listen(server){
   });
 }
 function closeServer(server){ return new Promise(resolve => server.close(()=>resolve())); }
-function delay(ms){ return new Promise(resolve => setTimeout(resolve, ms)); }
+function waitForProcessExit(child, timeoutMs){
+  if(child.exitCode !== null || child.signalCode !== null) return Promise.resolve(true);
+  return new Promise(resolve => {
+    let timer = 0;
+    const onExit = () => {
+      clearTimeout(timer);
+      resolve(true);
+    };
+    child.once('exit', onExit);
+    timer = setTimeout(() => {
+      child.off('exit', onExit);
+      resolve(false);
+    }, timeoutMs);
+  });
+}
 async function terminateProcess(child){
-  if(child.exitCode !== null) return;
+  if(child.exitCode !== null || child.signalCode !== null) return;
   child.kill('SIGTERM');
-  await Promise.race([new Promise(resolve => child.once('exit', resolve)), delay(1500)]);
-  if(child.exitCode === null) child.kill('SIGKILL');
+  if(await waitForProcessExit(child, 1500)) return;
+  child.kill('SIGKILL');
+  await waitForProcessExit(child, 1500);
+}
+function cleanupProfileDir(profileDir){
+  try{
+    fs.rmSync(profileDir, {
+      recursive:true,
+      force:true,
+      maxRetries:6,
+      retryDelay:150
+    });
+  } catch(error){
+    console.warn(`Performance cleanup warning: не удалось удалить временный Chrome-профиль ${profileDir}: ${error?.message || error}`);
+  }
 }
 function tail(text, max = 6000){ return String(text || '').slice(-max); }

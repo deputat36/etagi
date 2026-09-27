@@ -31,8 +31,7 @@ requireSnippets(files.helper, sources.helper, [
   'window.cancelAnimationFrame(syncFrame)',
   'window.requestAnimationFrame',
   "new MutationObserver(() => scheduleSync(grid)).observe(grid",
-  ':focus-visible',
-  'FOCUS_RESTORE_STABLE_PASSES'
+  ':focus-visible'
 ]);
 
 forbidSnippets(files.helper, sources.helper, [
@@ -82,7 +81,8 @@ forbidSnippets(files.templateHelper, sources.templateHelper, [
   "createElement('style')",
   'document.head.appendChild(style)',
   'spn-template-keyboard-style',
-  ':focus-visible'
+  ':focus-visible',
+  'FOCUS_RESTORE_STABLE_PASSES'
 ]);
 
 requireSnippets(files.templateStyles, sources.templateStyles, [

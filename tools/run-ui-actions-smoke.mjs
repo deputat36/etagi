@@ -162,11 +162,12 @@ async function runSmokePage(page){
   const stderr = String(result.stderr || '').trim();
   const smoke = parseSmokeResult(dom);
 
-  if(result.code !== 0 && smoke.status !== 'passed'){
-    throw new Error([`${page.label}: Chrome завершился с кодом ${result.code}.`, smoke.text, stderr].filter(Boolean).join('\n'));
-  }
   if(smoke.status !== 'passed'){
-    throw new Error([`${page.label}: статус ${smoke.status}.`, smoke.text, stderr].filter(Boolean).join('\n'));
+    const exitContext = result.code !== 0 ? `${page.label}: Chrome завершился с кодом ${result.code}.` : '';
+    throw new Error([`${page.label}: статус ${smoke.status}.`, smoke.text, exitContext, stderr].filter(Boolean).join('\n'));
+  }
+  if(result.code !== 0){
+    throw new Error([`${page.label}: Chrome завершился с кодом ${result.code}, хотя DOM сообщил статус passed.`, stderr].filter(Boolean).join('\n'));
   }
 
   return smoke;

@@ -446,7 +446,12 @@ function renderTemplates(){
   const emptyText = favoritesOnly ? 'В этой задаче пока нет избранных шаблонов' : selectedScenario !== 'all' ? 'В этом сценарии пока нет шаблонов' : 'Под эту задачу ничего не найдено';
   const spnGoal = getSpnGoal(selectedSpnGoal);
   const intro = spnGoal && list.length ? `<div class="template-recommendation-intro"><b>${esc(spnGoal.title)}</b><span>${esc(spnGoal.description)} Сначала показаны наиболее безопасные и подходящие варианты.</span></div>` : '';
-  $('templateList').innerHTML = list.length ? intro + list.map((t, index)=>templateCard(t, getTemplateRecommendation(t, index + 1))).join('') : `<div class="empty">${emptyText}</div>`;
+  const selectedTemplate = state.templateId ? templates.find(item => item.id === state.templateId) : null;
+  const selectedNext = selectedTemplate ? `<div class="template-selected-next" data-selected-template-next>
+    <div><span>Шаблон выбран</span><b>${esc(selectedTemplate.title || state.layoutName || 'Готовый шаблон')}</b><small>Дальше замените контакты и данные под свою задачу. Сам макет уже применён.</small></div>
+    <button type="button" data-adapt-selected-template>Адаптировать шаблон</button>
+  </div>` : '';
+  $('templateList').innerHTML = list.length ? intro + selectedNext + list.map((t, index)=>templateCard(t, getTemplateRecommendation(t, index + 1))).join('') : `<div class="empty">${emptyText}</div>`;
   $('templateList').querySelectorAll('[data-favorite-template]').forEach(btn=>btn.onclick=(event)=>{
     event.stopPropagation();
     const favorites = toggleFavoriteTemplate(btn.dataset.favoriteTemplate);
@@ -455,7 +460,25 @@ function renderTemplates(){
     renderTemplates();
     setStatus(favoriteTemplateIds.has(btn.dataset.favoriteTemplate) ? 'Шаблон добавлен в избранное.' : 'Шаблон убран из избранного.');
   });
+  $('templateList').querySelector('[data-adapt-selected-template]')?.addEventListener('click', event => {
+    event.stopPropagation();
+    openSelectedTemplateAdaptation();
+  });
   $('templateList').querySelectorAll('[data-template]').forEach(el=>el.onclick=()=>{ const t=templates.find(x=>x.id===el.dataset.template); applyTemplate(t); renderAll(); });
+}
+function openSelectedTemplateAdaptation(){
+  if(!state.templateId){
+    setStatus('Сначала выберите шаблон.');
+    return;
+  }
+  const contentStep = document.querySelector('[data-wizard-step="content"]');
+  contentStep?.click();
+  const contentCard = $('agentName')?.closest('.card');
+  window.requestAnimationFrame(() => {
+    contentCard?.scrollIntoView({behavior:'smooth', block:'start'});
+    document.dispatchEvent(new CustomEvent('spn:focus-first-adaptation-field'));
+  });
+  setStatus('Шаблон выбран. Адаптируйте контакты и данные под свою задачу.');
 }
 function matchScenario(t, scenario){
   if(!scenario || scenario === 'all') return true;

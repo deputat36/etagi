@@ -52,6 +52,7 @@ function bindPanel(){
     document.addEventListener(eventName, () => window.setTimeout(updateClarityPanel, 90));
   });
   document.addEventListener('spn:selection-context', updateClarityPanel);
+  document.addEventListener('spn:templates-rendered', updateClarityPanel);
 }
 
 function updateClarityPanel(){

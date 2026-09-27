@@ -484,7 +484,7 @@ function inferTemplateScenario(t, currentScenario = selectedScenario){
 function templateCard(t, recommendation = null){
   const miniClass = t.photo === 'two' ? 'two-photo' : (t.photo && t.photo !== 'none' ? 'has-photo' : '');
   const isFavorite = favoriteTemplateIds.has(t.id);
-  const recommendationHtml = recommendation ? `<div class="tpl-recommendation"><b>${recommendation.rank === 1 ? 'Рекомендуем начать с этого' : `Подходит для задачи №${recommendation.rank}`}</b><span>${esc(recommendation.text)}</span></div>` : '';
+  const recommendationHtml = recommendation ? `<div class="tpl-recommendation"><span class="tpl-recommendation-title">${recommendation.rank === 1 ? 'Рекомендуем начать с этого' : `Подходит для задачи №${recommendation.rank}`}</span><span>${esc(recommendation.text)}</span></div>` : '';
   return `<div class="tpl-card ${recommendation ? 'tpl-card-recommended' : ''} ${state.templateId===t.id?'active':''}" data-template="${t.id}">
     <button type="button" class="favorite-template-btn ${isFavorite ? 'active' : ''}" data-favorite-template="${t.id}" title="${isFavorite ? 'Убрать из избранного' : 'Добавить в избранное'}">${isFavorite ? '★' : '☆'}</button>
     <div class="tpl-mini ${miniClass}"><div class="mh"></div><div class="ml"></div><div class="ml"></div><div class="mp"></div></div>

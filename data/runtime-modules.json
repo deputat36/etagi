@@ -4515,7 +4515,9 @@
           "assets/js/spnTextStepChecklist.js"
         ],
         "boundBy": [],
-        "mutatedBy": [],
+        "mutatedBy": [
+          "assets/js/spnTextStepChecklist.js"
+        ],
         "referencedBy": [
           "assets/js/spnTextStepChecklist.js"
         ]

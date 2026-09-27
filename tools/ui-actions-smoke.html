@@ -106,7 +106,9 @@
         doc.getElementById('savedLayouts').value = namedLayoutId;
         click(doc, '#loadNamedLayoutBtn');
         await waitFor(() => doc.getElementById('headline')?.value === 'Обновлённый заголовок именованного макета' && doc.getElementById('area')?.value === 'Северный smoke', 3000, 'именованный макет не восстановил явно обновлённые поля');
-        pass('именованные макеты: сохранение и загрузка');
+        assert(doc.body.dataset.taskSelectionConfirmed === 'true', 'загрузка именованного макета не подтвердила задачу');
+        assert(doc.body.dataset.templateSelectionConfirmed === 'true', 'загрузка именованного макета не подтвердила шаблон');
+        pass('именованные макеты: сохранение и загрузка подтверждают рабочий контекст');
 
         lastAction = 'layout.last-save';
         setField(win, doc, '#headline', 'Заголовок последнего макета');
@@ -120,7 +122,8 @@
         setField(win, doc, '#price', '1 ₽');
         click(doc, '#loadLocalBtn');
         await waitFor(() => doc.getElementById('headline')?.value === 'Заголовок последнего макета' && doc.getElementById('price')?.value === '3 500 000 ₽', 3000, 'последний макет не восстановил поля');
-        pass('ручной резерв: сохранение и загрузка');
+        assert(doc.body.dataset.taskSelectionConfirmed === 'true' && doc.body.dataset.templateSelectionConfirmed === 'true', 'ручной резерв не подтвердил загруженный рабочий контекст');
+        pass('ручной резерв: сохранение и загрузка подтверждают рабочий контекст');
 
         lastAction = 'object.clear';
         const objectValues = {
@@ -379,7 +382,8 @@
         await setFile(win, doc, '#uploadFile', downloadCapture.filename, exportedText, 'application/json');
         await waitFor(() => doc.getElementById('headline')?.value === exportedValues.headline, 4000, 'тот же файл нельзя импортировать повторно');
         await waitFor(() => doc.getElementById('uploadFile')?.files?.length === 0, 1000, 'file input не сброшен после повторного импорта');
-        pass('JSON: импорт восстанавливает макет без смешивания и допускает повторный выбор того же файла');
+        assert(doc.body.dataset.taskSelectionConfirmed === 'true' && doc.body.dataset.templateSelectionConfirmed === 'true', 'импорт валидного макета не подтвердил загруженный контекст');
+        pass('JSON: импорт восстанавливает макет, подтверждает контекст и допускает повторный выбор того же файла');
 
         if(runtimeErrors.length) throw new Error(`runtime errors: ${runtimeErrors.join(' | ')}`);
         lastAction = 'completed';

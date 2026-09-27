@@ -701,7 +701,6 @@
         "declaredInIndex": true,
         "ownershipBasis": "reference-only",
         "owners": [
-          "assets/js/app.js",
           "assets/js/qualityExtraActions.js",
           "assets/js/spnHeadlineHelper.js"
         ],
@@ -709,7 +708,6 @@
         "boundBy": [],
         "mutatedBy": [],
         "referencedBy": [
-          "assets/js/app.js",
           "assets/js/qualityExtraActions.js",
           "assets/js/spnHeadlineHelper.js"
         ]

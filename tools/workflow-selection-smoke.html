@@ -88,7 +88,7 @@
         assert(doc.body.dataset.templateSelectionConfirmed === 'true', 'явный клик не подтвердил шаблон');
         assert(!doc.querySelector('[data-template-preview-notice]'), 'после явного выбора осталось сообщение предпросмотра');
         assert(doc.getElementById('spnClarityTemplateContext')?.textContent.trim() !== 'Не выбран', 'маршрут не показал выбранный шаблон');
-        pass('шаблон: применяется явно, подтверждает выбор и синхронизирует сценарий');
+        pass('шаблон: применяется явно и синхронизирует сценарий');
 
         lastAction = 'template.adapt-next';
         const selectedNext = doc.querySelector('[data-selected-template-next]');
@@ -125,7 +125,7 @@
         assert(doc.body.dataset.taskSelectionConfirmed === 'true', 'ручная задача не зафиксирована как явный выбор');
         assert(doc.body.dataset.templateSelectionConfirmed === 'false', 'смена задачи не сбросила подтверждение шаблона');
         assert(doc.getElementById('spnClarityTemplateContext')?.textContent.includes('Не выбран'), 'маршрут не требует новый шаблон после смены задачи');
-        pass('задача: подтверждается явно и фильтрует библиотеку без автоматического шаблона');
+        pass('задача: фильтрует библиотеку без автоматического шаблона');
 
         lastAction = 'route.search-is-not-situation';
         click(doc, '[data-spn-reset]');

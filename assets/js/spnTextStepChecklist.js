@@ -71,6 +71,10 @@ function bindPanel(){
       updateMoreButton();
     }
   });
+  document.addEventListener('spn:focus-first-adaptation-field', () => {
+    const missing = getItems().find(item => !item.ok);
+    focusField(missing?.id || getItems()[0]?.id || 'agentName');
+  });
 }
 
 function updatePanel(){

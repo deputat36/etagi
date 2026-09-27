@@ -16,7 +16,7 @@ const sources = Object.fromEntries(Object.entries(files).map(([key, file]) => [k
 const pkg = readJson(files.package, sources.package);
 
 requireSnippets(files.readme, sources.readme, [
-  'PR-run #1883',
+  'PR-run #2327',
   '1 / 2 / 3 / 4 / 6 / 8 на А4',
   'семь PNG-сценариев',
   'node tools/run-eight-print-screenshot.mjs',
@@ -26,33 +26,34 @@ requireSnippets(files.readme, sources.readme, [
 ]);
 
 requireSnippets(files.status, sources.status, [
-  'Дата среза: 21 июля 2026 года',
+  'Дата среза: 27 сентября 2026 года',
   '1, 2, 3, 4, 6 и 8 макетов на A4',
   'семь независимых print-screenshot jobs',
-  'workflow run #1883',
-  'coverage run #7',
-  '8-на-A4 run #10',
+  'workflow run #2327',
+  'coverage run #229',
+  '8-на-A4 run #232',
   'физическую печать 1, 2, 3, 4, 6 и 8 макетов на A4',
   'issues #40 и #51 остаются открытыми'
 ]);
 
 requireSnippets(files.ci, sources.ci, [
-  'Pull request: #91',
-  'Успешный workflow run: #1883',
-  'Workflow run ID: `29824496781`',
-  'Проверенный head SHA: `85406931140f369bcabe297d7dd4ba21ee10c237`',
-  'Artifact ID: `8492754380`',
-  'sha256:2edc6a1d42effe845a16687d20c6398e7a492f10aec9805f660964d556de5c03',
+  'Pull request: #148',
+  'Успешный workflow run: #2327',
+  'Workflow run ID: `36316570188`',
+  'Проверенный head SHA: `d5ff8b2321e7d46eb3637203b0e438c8b5c9a834`',
+  'Artifact ID: `10931026110`',
+  'sha256:3d452583a76ebc88a8aaf1fdae9844226970a2390ef4eb159292cf7405bb0621',
   'Все семь сценариев используют `captureMethod: cdp-pipe`.',
-  'Artifact ID: `8492331845`',
-  'Workflow run ID: `29824496884`',
-  'ручные issues #40 и #51 не закрыты автоматическим запуском'
+  'Artifact ID: `10930278465`',
+  'Workflow run ID: `36316570125`',
+  'ручные issues #40 и #51 не закрыты автоматическим запуском',
+  'merge-коммите `5f566283c561622aebf77fc299d65518be23284e`'
 ]);
 
 requireSnippets(files.release, sources.release, [
   'Статус: DRAFT',
   'Текущая опубликованная версия: 3.85.0',
-  'Последний полный контроль: GitHub Actions workflow run #1883',
+  'Последний полный контроль: GitHub Actions workflow run #2327',
   '`print-screenshot` для семи сценариев — успешно',
   'отдельный workflow 8 на A4 — успешно',
   'единый browser coverage 1/2/3/4/6/8 — успешно',

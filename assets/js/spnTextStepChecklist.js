@@ -144,7 +144,7 @@ function updateMoreButton(){
   const note = document.querySelector('[data-adaptation-note]');
   if(!button) return;
 
-  const extraCount = document.querySelectorAll('.spn-adaptation-extra-field').length;
+  const extraCount = checks.filter(item => !isRelevant(item)).length;
   const expanded = document.body.dataset.spnAdaptationExpanded === 'true';
   const mode = document.body.dataset.spnUiMode || 'quick';
   const simpleMode = mode === 'quick' || mode === 'newbie';
@@ -200,8 +200,8 @@ function injectStyles(){
 
     body[data-spn-ui-mode="quick"]:not([data-spn-adaptation-expanded="true"]) .spn-adaptation-extra-field,
     body[data-spn-ui-mode="newbie"]:not([data-spn-adaptation-expanded="true"]) .spn-adaptation-extra-field{display:none!important}
-    body[data-spn-ui-mode="quick"] .field-grid.two.spn-adaptation-single-field,
-    body[data-spn-ui-mode="newbie"] .field-grid.two.spn-adaptation-single-field{grid-template-columns:1fr}
+    body[data-spn-ui-mode="quick"]:not([data-spn-adaptation-expanded="true"]) .field-grid.two.spn-adaptation-single-field,
+    body[data-spn-ui-mode="newbie"]:not([data-spn-adaptation-expanded="true"]) .field-grid.two.spn-adaptation-single-field{grid-template-columns:1fr}
     body[data-spn-ui-mode="advanced"] [data-adaptation-more]{display:none!important}
 
     @media(max-width:520px){

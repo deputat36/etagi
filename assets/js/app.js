@@ -15,9 +15,10 @@ let lastQuality = null;
 let favoriteTemplateIds = new Set();
 let selectedScenario = 'all';
 let selectedSpnGoal = 'seller';
+let taskSelectionConfirmed = false;
 let templateSelectionConfirmed = false;
 let pendingLayoutConflict = null;
-const TEMPLATE_CONFIRMATION_KEY = 'etagi-raskleyka-template-confirmed-v1';
+const SELECTION_CONTEXT_KEY = 'etagi-raskleyka-selection-context-v1';
 let qualityTimer = 0;
 const debouncedSave = debounce(()=>autoSave(state), 500);
 
@@ -64,13 +65,15 @@ async function init(){
   const saved = loadAutoSave();
   if(saved){ state = {...state, ...saved, version: state.version}; }
   selectedSpnGoal = getSpnGoalForTemplateGoal(state.goal)?.id || '';
+  const selectionContext = readSelectionContext();
+  taskSelectionConfirmed = Boolean(selectionContext.taskConfirmed && state.goal);
+  templateSelectionConfirmed = Boolean(selectionContext.templateConfirmed && state.templateId);
   if(!state.templateId){
     const first = templates.find(t=>t.goal === state.goal) || templates[0];
     applyTemplate(first);
-    setTemplateSelectionConfirmed(false);
+    setSelectionContext({taskConfirmed:taskSelectionConfirmed, templateConfirmed:false});
   } else {
-    templateSelectionConfirmed = readTemplateSelectionConfirmed();
-    setTemplateSelectionConfirmed(templateSelectionConfirmed);
+    setSelectionContext({taskConfirmed:taskSelectionConfirmed, templateConfirmed:templateSelectionConfirmed});
     syncFormFromState();
   }
   renderAll();
@@ -116,7 +119,7 @@ function bindStaticUi(){
     const s = loadNamed();
     if(s){
       state = cleanLoadedState(s);
-      setTemplateSelectionConfirmed(Boolean(state.templateId));
+      setSelectionContext({taskConfirmed:Boolean(state.goal), templateConfirmed:Boolean(state.templateId)});
       if($('savedLayouts')) $('savedLayouts').value='';
       syncFormFromState(); renderAll();
       setStatus('Ручной резерв открыт без смешивания с текущим макетом.');
@@ -142,7 +145,7 @@ function renderGoals(){
     selectedSpnGoal = goal.id;
     state.goal = goal.defaultGoal;
     state.templateId = '';
-    setTemplateSelectionConfirmed(false);
+    setSelectionContext({taskConfirmed:true, templateConfirmed:false});
     selectedScenario = 'all';
     $('templateSearch').value = '';
     $('templateDensityFilter').value = 'all';
@@ -155,7 +158,7 @@ function renderGoals(){
     selectedSpnGoal = '';
     state.goal = btn.dataset.legacyGoal;
     state.templateId = '';
-    setTemplateSelectionConfirmed(false);
+    setSelectionContext({taskConfirmed:true, templateConfirmed:false});
     selectedScenario = 'all';
     $('templateSearch').value = '';
     $('templateDensityFilter').value = 'all';
@@ -173,7 +176,7 @@ function applyWorkflowSelection(event){
   state.goal = nextGoal;
   selectedSpnGoal = getSpnGoalForTemplateGoal(nextGoal)?.id || '';
   state.templateId = '';
-  setTemplateSelectionConfirmed(false);
+  setSelectionContext({taskConfirmed:true, templateConfirmed:false});
   selectedScenario = scenarioPresets.some(item => item.id === detail.scenario) ? detail.scenario : 'all';
   $('templateSearch').value = String(detail.query || '');
   $('templateDensityFilter').value = 'all';
@@ -414,7 +417,7 @@ function loadSelectedLayout(){
   const item = loadLayout(id);
   if(!item){ setStatus('Сохранённый макет не найден.'); renderSavedLayouts(); return; }
   state = cleanLoadedState(item.state);
-  setTemplateSelectionConfirmed(Boolean(state.templateId));
+  setSelectionContext({taskConfirmed:Boolean(state.goal), templateConfirmed:Boolean(state.templateId)});
   syncFormFromState();
   renderAll();
   renderSavedLayouts(id);
@@ -476,7 +479,7 @@ function renderTemplates(){
     event.stopPropagation();
     openSelectedTemplateAdaptation();
   });
-  $('templateList').querySelectorAll('[data-template]').forEach(el=>el.onclick=()=>{ const t=templates.find(x=>x.id===el.dataset.template); applyTemplate(t); setTemplateSelectionConfirmed(true); renderAll(); });
+  $('templateList').querySelectorAll('[data-template]').forEach(el=>el.onclick=()=>{ const t=templates.find(x=>x.id===el.dataset.template); applyTemplate(t); setSelectionContext({taskConfirmed:true, templateConfirmed:true}); renderAll(); });
 }
 function openSelectedTemplateAdaptation(){
   if(!state.templateId){
@@ -769,21 +772,36 @@ function clearObjectData(){
   syncFormFromState(); renderAll();
   setStatus('Данные объекта очищены. Имя, телефон и настройки контактов сохранены.');
 }
-function readTemplateSelectionConfirmed(){
+function readSelectionContext(){
   try{
-    return localStorage.getItem(TEMPLATE_CONFIRMATION_KEY) === '1';
+    const raw = localStorage.getItem(SELECTION_CONTEXT_KEY);
+    const parsed = raw ? JSON.parse(raw) : {};
+    return {
+      taskConfirmed:parsed?.taskConfirmed === true,
+      templateConfirmed:parsed?.templateConfirmed === true
+    };
   } catch(error){
-    return false;
+    return {taskConfirmed:false, templateConfirmed:false};
   }
 }
-function setTemplateSelectionConfirmed(confirmed){
-  templateSelectionConfirmed = Boolean(confirmed && state.templateId);
+function setSelectionContext(next = {}){
+  taskSelectionConfirmed = Boolean(next.taskConfirmed && state.goal);
+  templateSelectionConfirmed = Boolean(next.templateConfirmed && taskSelectionConfirmed && state.templateId);
+  document.body.dataset.taskSelectionConfirmed = taskSelectionConfirmed ? 'true' : 'false';
   document.body.dataset.templateSelectionConfirmed = templateSelectionConfirmed ? 'true' : 'false';
   try{
-    localStorage.setItem(TEMPLATE_CONFIRMATION_KEY, templateSelectionConfirmed ? '1' : '0');
+    localStorage.setItem(SELECTION_CONTEXT_KEY, JSON.stringify({
+      taskConfirmed:taskSelectionConfirmed,
+      templateConfirmed:templateSelectionConfirmed
+    }));
   } catch(error){}
-  document.dispatchEvent(new CustomEvent('spn:template-selection-state', {
-    detail:{confirmed:templateSelectionConfirmed, templateId:state.templateId || ''}
+  document.dispatchEvent(new CustomEvent('spn:selection-context', {
+    detail:{
+      taskConfirmed:taskSelectionConfirmed,
+      templateConfirmed:templateSelectionConfirmed,
+      goal:state.goal || '',
+      templateId:state.templateId || ''
+    }
   }));
 }
 function focusFormField(id){
@@ -829,7 +847,7 @@ function loadFromFile(e){
       }
 
       state = cleanLoadedState(result.state);
-      setTemplateSelectionConfirmed(Boolean(state.templateId));
+      setSelectionContext({taskConfirmed:Boolean(state.goal), templateConfirmed:Boolean(state.templateId)});
       if($('savedLayouts')) $('savedLayouts').value='';
       syncFormFromState();
       renderAll();

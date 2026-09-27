@@ -458,3 +458,80 @@ body[data-template-menu-mode="compact"] .tpl-card.active{
     display:none!important;
   }
 }
+
+
+/* Явный следующий шаг после выбора шаблона */
+.template-selected-next{
+  grid-column:1/-1;
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:10px;
+  align-items:center;
+  margin:2px 0 5px;
+  padding:10px;
+  border:1px solid #bbf7d0;
+  border-radius:14px;
+  background:#f0fdf4;
+}
+.template-selected-next div{
+  display:grid;
+  gap:2px;
+  min-width:0;
+}
+.template-selected-next span{
+  font-size:10px;
+  line-height:1.1;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+  color:#15803d;
+}
+.template-selected-next b{
+  font-size:12px;
+  line-height:1.2;
+  font-weight:900;
+  color:#111827;
+}
+.template-selected-next small{
+  font-size:10.5px;
+  line-height:1.28;
+  font-weight:700;
+  color:#475569;
+}
+.template-selected-next button{
+  padding:9px 11px;
+  border:1px solid #16a34a;
+  border-radius:11px;
+  background:#16a34a;
+  color:#fff;
+  font-size:11px;
+  line-height:1.15;
+  font-weight:900;
+  box-shadow:none;
+  white-space:nowrap;
+}
+.template-selected-next button:hover{
+  transform:none;
+  box-shadow:none;
+  background:#15803d;
+}
+@media(max-width:520px){
+  .template-selected-next{
+    grid-template-columns:1fr;
+  }
+  .template-selected-next button{
+    width:100%;
+    white-space:normal;
+  }
+  .template-selected-next b{
+    font-size:13px;
+  }
+  .template-selected-next small{
+    font-size:11.5px;
+  }
+}
+@media print{
+  .template-selected-next{
+    display:none!important;
+  }
+}

@@ -26,8 +26,16 @@ requireSnippets(files.runner, source.runner, [
   "label:'UI actions failure fixture'",
   "path:'tools/ui-actions-failure-fixture.html'",
   "const failureLogPath = path.join(rootDir, 'browser-smoke-failure.log')",
+  "if(smoke.status !== 'passed')",
+  'const exitContext = result.code !== 0',
+  'DOM сообщил статус passed',
   'writeFailureLog(failure)'
 ]);
+const statusBranchIndex = source.runner.indexOf("if(smoke.status !== 'passed')");
+const exitBranchIndex = source.runner.indexOf("if(result.code !== 0)", statusBranchIndex + 1);
+if(!(statusBranchIndex >= 0 && exitBranchIndex > statusBranchIndex)){
+  errors.push(`${files.runner}: smoke status должен диагностироваться до отдельной ошибки exit code`);
+}
 requireSnippets(files.fixture, source.fixture, [
   'id="uiActionsSmokeResult"',
   'data-status="failed"',

@@ -15,7 +15,10 @@ let lastQuality = null;
 let favoriteTemplateIds = new Set();
 let selectedScenario = 'all';
 let selectedSpnGoal = 'seller';
+let taskSelectionConfirmed = false;
+let templateSelectionConfirmed = false;
 let pendingLayoutConflict = null;
+const SELECTION_CONTEXT_KEY = 'etagi-raskleyka-selection-context-v1';
 let qualityTimer = 0;
 const debouncedSave = debounce(()=>autoSave(state), 500);
 
@@ -62,10 +65,15 @@ async function init(){
   const saved = loadAutoSave();
   if(saved){ state = {...state, ...saved, version: state.version}; }
   selectedSpnGoal = getSpnGoalForTemplateGoal(state.goal)?.id || '';
+  const selectionContext = readSelectionContext();
+  taskSelectionConfirmed = Boolean(selectionContext.taskConfirmed && state.goal);
+  templateSelectionConfirmed = Boolean(selectionContext.templateConfirmed && state.templateId);
   if(!state.templateId){
     const first = templates.find(t=>t.goal === state.goal) || templates[0];
     applyTemplate(first);
+    setSelectionContext({taskConfirmed:taskSelectionConfirmed, templateConfirmed:false});
   } else {
+    setSelectionContext({taskConfirmed:taskSelectionConfirmed, templateConfirmed:templateSelectionConfirmed});
     syncFormFromState();
   }
   renderAll();
@@ -111,6 +119,7 @@ function bindStaticUi(){
     const s = loadNamed();
     if(s){
       state = cleanLoadedState(s);
+      setSelectionContext({taskConfirmed:Boolean(state.goal), templateConfirmed:Boolean(state.templateId)});
       if($('savedLayouts')) $('savedLayouts').value='';
       syncFormFromState(); renderAll();
       setStatus('Ручной резерв открыт без смешивания с текущим макетом.');
@@ -136,6 +145,7 @@ function renderGoals(){
     selectedSpnGoal = goal.id;
     state.goal = goal.defaultGoal;
     state.templateId = '';
+    setSelectionContext({taskConfirmed:true, templateConfirmed:false});
     selectedScenario = 'all';
     $('templateSearch').value = '';
     $('templateDensityFilter').value = 'all';
@@ -148,6 +158,7 @@ function renderGoals(){
     selectedSpnGoal = '';
     state.goal = btn.dataset.legacyGoal;
     state.templateId = '';
+    setSelectionContext({taskConfirmed:true, templateConfirmed:false});
     selectedScenario = 'all';
     $('templateSearch').value = '';
     $('templateDensityFilter').value = 'all';
@@ -165,6 +176,7 @@ function applyWorkflowSelection(event){
   state.goal = nextGoal;
   selectedSpnGoal = getSpnGoalForTemplateGoal(nextGoal)?.id || '';
   state.templateId = '';
+  setSelectionContext({taskConfirmed:true, templateConfirmed:false});
   selectedScenario = scenarioPresets.some(item => item.id === detail.scenario) ? detail.scenario : 'all';
   $('templateSearch').value = String(detail.query || '');
   $('templateDensityFilter').value = 'all';
@@ -405,6 +417,7 @@ function loadSelectedLayout(){
   const item = loadLayout(id);
   if(!item){ setStatus('Сохранённый макет не найден.'); renderSavedLayouts(); return; }
   state = cleanLoadedState(item.state);
+  setSelectionContext({taskConfirmed:Boolean(state.goal), templateConfirmed:Boolean(state.templateId)});
   syncFormFromState();
   renderAll();
   renderSavedLayouts(id);
@@ -447,9 +460,11 @@ function renderTemplates(){
   const spnGoal = getSpnGoal(selectedSpnGoal);
   const intro = spnGoal && list.length ? `<div class="template-recommendation-intro"><b>${esc(spnGoal.title)}</b><span>${esc(spnGoal.description)} Сначала показаны наиболее безопасные и подходящие варианты.</span></div>` : '';
   const selectedTemplate = state.templateId ? templates.find(item => item.id === state.templateId) : null;
-  const selectedNext = selectedTemplate ? `<div class="template-selected-next" data-selected-template-next>
+  const selectedNext = selectedTemplate && templateSelectionConfirmed ? `<div class="template-selected-next" data-selected-template-next>
     <div><span>Шаблон выбран</span><b>${esc(selectedTemplate.title || state.layoutName || 'Готовый шаблон')}</b><small>Дальше замените контакты и данные под свою задачу. Сам макет уже применён.</small></div>
     <button type="button" data-adapt-selected-template>Адаптировать шаблон</button>
+  </div>` : selectedTemplate ? `<div class="template-preview-notice" data-template-preview-notice>
+    <div><span>Предпросмотр</span><b>${esc(selectedTemplate.title || state.layoutName || 'Стартовый шаблон')}</b><small>Это технический стартовый макет. Нажмите на карточку, чтобы подтвердить его, или выберите другой шаблон.</small></div>
   </div>` : '';
   $('templateList').innerHTML = list.length ? intro + selectedNext + list.map((t, index)=>templateCard(t, getTemplateRecommendation(t, index + 1))).join('') : `<div class="empty">${emptyText}</div>`;
   $('templateList').querySelectorAll('[data-favorite-template]').forEach(btn=>btn.onclick=(event)=>{
@@ -464,7 +479,13 @@ function renderTemplates(){
     event.stopPropagation();
     openSelectedTemplateAdaptation();
   });
-  $('templateList').querySelectorAll('[data-template]').forEach(el=>el.onclick=()=>{ const t=templates.find(x=>x.id===el.dataset.template); applyTemplate(t); renderAll(); });
+  $('templateList').querySelectorAll('[data-template]').forEach(el=>el.onclick=()=>{ const t=templates.find(x=>x.id===el.dataset.template); applyTemplate(t); setSelectionContext({taskConfirmed:true, templateConfirmed:true}); renderAll(); });
+  document.dispatchEvent(new CustomEvent('spn:templates-rendered', {
+    detail:{
+      templateId:state.templateId || '',
+      confirmed:templateSelectionConfirmed
+    }
+  }));
 }
 function openSelectedTemplateAdaptation(){
   if(!state.templateId){
@@ -757,6 +778,38 @@ function clearObjectData(){
   syncFormFromState(); renderAll();
   setStatus('Данные объекта очищены. Имя, телефон и настройки контактов сохранены.');
 }
+function readSelectionContext(){
+  try{
+    const raw = localStorage.getItem(SELECTION_CONTEXT_KEY);
+    const parsed = raw ? JSON.parse(raw) : {};
+    return {
+      taskConfirmed:parsed?.taskConfirmed === true,
+      templateConfirmed:parsed?.templateConfirmed === true
+    };
+  } catch(error){
+    return {taskConfirmed:false, templateConfirmed:false};
+  }
+}
+function setSelectionContext(next = {}){
+  taskSelectionConfirmed = Boolean(next.taskConfirmed && state.goal);
+  templateSelectionConfirmed = Boolean(next.templateConfirmed && taskSelectionConfirmed && state.templateId);
+  document.body.dataset.taskSelectionConfirmed = taskSelectionConfirmed ? 'true' : 'false';
+  document.body.dataset.templateSelectionConfirmed = templateSelectionConfirmed ? 'true' : 'false';
+  try{
+    localStorage.setItem(SELECTION_CONTEXT_KEY, JSON.stringify({
+      taskConfirmed:taskSelectionConfirmed,
+      templateConfirmed:templateSelectionConfirmed
+    }));
+  } catch(error){}
+  document.dispatchEvent(new CustomEvent('spn:selection-context', {
+    detail:{
+      taskConfirmed:taskSelectionConfirmed,
+      templateConfirmed:templateSelectionConfirmed,
+      goal:state.goal || '',
+      templateId:state.templateId || ''
+    }
+  }));
+}
 function focusFormField(id){
   const field = $(id);
   if(!field) return;
@@ -800,6 +853,7 @@ function loadFromFile(e){
       }
 
       state = cleanLoadedState(result.state);
+      setSelectionContext({taskConfirmed:Boolean(state.goal), templateConfirmed:Boolean(state.templateId)});
       if($('savedLayouts')) $('savedLayouts').value='';
       syncFormFromState();
       renderAll();

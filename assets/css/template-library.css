@@ -568,3 +568,63 @@ body[data-template-menu-mode="compact"] .tpl-card.active{
     gap:3px 7px;
   }
 }
+
+
+/* Стартовый шаблон — только предпросмотр до явного подтверждения */
+.template-preview-notice{
+  grid-column:1/-1;
+  display:grid;
+  gap:3px;
+  margin:2px 0 5px;
+  padding:9px 10px;
+  border:1px dashed #fdba74;
+  border-radius:14px;
+  background:#fff7ed;
+}
+.template-preview-notice span{
+  font-size:10px;
+  line-height:1.1;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+  color:#c2410c;
+}
+.template-preview-notice b{
+  font-size:12px;
+  line-height:1.2;
+  font-weight:900;
+  color:#111827;
+}
+.template-preview-notice small{
+  font-size:10.5px;
+  line-height:1.28;
+  font-weight:700;
+  color:#475569;
+}
+body[data-template-selection-confirmed="false"] .tpl-card.active{
+  border-style:dashed;
+  border-color:#94a3b8;
+  background:#f8fafc;
+  box-shadow:0 0 0 2px rgba(148,163,184,.14);
+}
+body[data-template-selection-confirmed="false"] .tpl-card.active .tpl-recommendation{
+  background:#eff6ff;
+  border-color:#dbeafe;
+}
+body[data-template-selection-confirmed="false"] .tpl-card.active .tpl-recommendation-title{
+  color:#1d4ed8;
+}
+body[data-template-selection-confirmed="false"] .tpl-card.active .tpl-recommendation span{
+  color:#475569;
+}
+body[data-template-selection-confirmed="false"] .tpl-card.active .tpl-adaptation-info,
+body[data-template-selection-confirmed="false"] .tpl-card.active .tpl-adaptation-info strong{
+  color:#64748b;
+}
+@media(max-width:520px){
+  .template-preview-notice b{font-size:13px}
+  .template-preview-notice small{font-size:11.5px}
+}
+@media print{
+  .template-preview-notice{display:none!important}
+}

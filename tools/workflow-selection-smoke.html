@@ -20,6 +20,17 @@
       let explicitTemplateClicks = 0;
       try{
         await waitFor(() => doc.querySelectorAll('.tpl-card').length > 0, 12000, 'шаблоны не появились');
+        await waitFor(() => doc.body.dataset.taskSelectionConfirmed && doc.body.dataset.templateSelectionConfirmed, 3000, 'контекст подтверждения не инициализирован');
+        assert(doc.body.dataset.taskSelectionConfirmed === 'false', 'стартовая задача ошибочно считается подтверждённой');
+        assert(doc.body.dataset.templateSelectionConfirmed === 'false', 'стартовый шаблон ошибочно считается подтверждённым');
+        assert(doc.querySelector('[data-template-preview-notice]'), 'для стартового шаблона нет пояснения предпросмотра');
+        assert(!doc.querySelector('[data-selected-template-next]'), 'до явного выбора показано ложное «Шаблон выбран»');
+        await waitFor(() => doc.getElementById('spnClarityGoalContext'), 3000, 'контекст маршрута не появился');
+        assert(doc.getElementById('spnClarityGoalContext')?.textContent.trim() === 'Не выбрана', 'маршрут приписал пользователю стартовую задачу');
+        assert(doc.getElementById('spnClarityTemplateContext')?.textContent.includes('Предпросмотр'), 'маршрут не объясняет стартовый шаблон');
+        assert(doc.getElementById('spnNextActionText')?.textContent.includes('Выберите задачу'), 'маршрут не предлагает сначала подтвердить задачу');
+        pass('старт: технические задача и шаблон показаны как предпросмотр, а не как выбор');
+
         const firstAdaptationInfo = doc.querySelector('.tpl-card .tpl-adaptation-info');
         assert(firstAdaptationInfo, 'в карточке шаблона нет краткой информации по адаптации');
         assert(firstAdaptationInfo.textContent.includes('Заполнить:'), 'карточка не объясняет, что нужно заполнить');
@@ -49,6 +60,10 @@
         assert(doc.querySelector('[data-scenario="newbuild"]')?.classList.contains('active'), 'ситуация не выбрала сценарий Новостройки автоматически');
         assert(!doc.querySelector('#templateList [data-template].active'), 'до явного выбора неожиданно остался активный шаблон');
         assert(doc.getElementById('statusLine')?.textContent.includes('Текущий текст сохранён'), 'пользователь не получил объяснение сохранности текста');
+        assert(doc.body.dataset.taskSelectionConfirmed === 'true', 'явная офисная ситуация не подтвердила задачу');
+        assert(doc.body.dataset.templateSelectionConfirmed === 'false', 'офисная ситуация ошибочно подтвердила шаблон');
+        assert(doc.getElementById('spnClarityGoalContext')?.textContent.trim() !== 'Не выбрана', 'маршрут не показал подтверждённую задачу');
+        assert(doc.getElementById('spnClarityTemplateContext')?.textContent.includes('Не выбран'), 'маршрут не требует шаблон после выбора ситуации');
         pass('ситуация: задача, поиск и настройки применены одной транзакцией');
         pass('ситуация: текущий макет не заменён и активный шаблон не скрыт');
 
@@ -69,6 +84,10 @@
         assert(explicitTemplateClicks === 1, `ожидался один явный клик по шаблону, получено ${explicitTemplateClicks}`);
         assert(doc.querySelector('[data-goal="newbuild"]')?.classList.contains('active'), 'выбранный шаблон не синхронизировал задачу');
         assert(doc.querySelector('[data-scenario="newbuild"]')?.classList.contains('active'), 'выбранный шаблон не синхронизировал сценарий Новостройки');
+        assert(doc.body.dataset.taskSelectionConfirmed === 'true', 'выбор шаблона потерял подтверждение задачи');
+        assert(doc.body.dataset.templateSelectionConfirmed === 'true', 'явный клик не подтвердил шаблон');
+        assert(!doc.querySelector('[data-template-preview-notice]'), 'после явного выбора осталось сообщение предпросмотра');
+        assert(doc.getElementById('spnClarityTemplateContext')?.textContent.trim() !== 'Не выбран', 'маршрут не показал выбранный шаблон');
         pass('шаблон: применяется явно и синхронизирует сценарий');
 
         lastAction = 'template.adapt-next';
@@ -103,6 +122,9 @@
         assert(!doc.querySelector('#templateList [data-template].active'), 'ручной выбор задачи оставил скрытое активное выделение');
         assert(!doc.querySelector('[data-spn-situation].active'), 'ручная задача оставила несогласованную активную ситуацию');
         assert(doc.querySelector('[data-scenario="all"]')?.classList.contains('active'), 'ручная задача не сбросила дополнительный сценарий');
+        assert(doc.body.dataset.taskSelectionConfirmed === 'true', 'ручная задача не зафиксирована как явный выбор');
+        assert(doc.body.dataset.templateSelectionConfirmed === 'false', 'смена задачи не сбросила подтверждение шаблона');
+        assert(doc.getElementById('spnClarityTemplateContext')?.textContent.includes('Не выбран'), 'маршрут не требует новый шаблон после смены задачи');
         pass('задача: фильтрует библиотеку без автоматического шаблона');
 
         lastAction = 'route.search-is-not-situation';
@@ -126,6 +148,7 @@
       }
     }, {once:true});
 
+    try{ localStorage.removeItem('etagi-raskleyka-selection-context-v1'); } catch(error){}
     frame.src = '/index.html?smoke=workflow-selection-audit';
 
     setTimeout(() => {

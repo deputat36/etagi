@@ -20,6 +20,10 @@ function renderPanel(){
       </div>
       <button type="button" id="toggleHelperPanelsBtn">Подсказки</button>
     </div>
+    <div class="spn-clarity-context" aria-label="Текущий рабочий контекст">
+      <span><b>Задача</b><em id="spnClarityGoalContext">Не выбрана</em></span>
+      <span><b>Шаблон</b><em id="spnClarityTemplateContext">Предпросмотр</em></span>
+    </div>
     <div class="spn-clarity-steps">
       <button type="button" data-clarity-target=".start-card">1 Задача</button>
       <button type="button" data-clarity-target="#templateList">2 Шаблон</button>
@@ -47,15 +51,19 @@ function bindPanel(){
   ['input','change','click'].forEach(eventName => {
     document.addEventListener(eventName, () => window.setTimeout(updateClarityPanel, 90));
   });
+  document.addEventListener('spn:selection-context', updateClarityPanel);
+  document.addEventListener('spn:templates-rendered', updateClarityPanel);
 }
 
 function updateClarityPanel(){
   const progress = document.getElementById('spnClarityProgress');
   const nextText = document.getElementById('spnNextActionText');
   if(!progress || !nextText) return;
+  updateContextLabels();
   const checks = getChecks();
-  const done = checks.filter(item => item.ok).length;
-  progress.textContent = `${done}/${checks.length} шагов готово`;
+  const required = checks.filter(item => item.required !== false);
+  const done = required.filter(item => item.ok).length;
+  progress.textContent = `${done}/${required.length} обязательных шагов готово`;
   document.querySelectorAll('[data-clarity-target]').forEach((btn, index) => {
     btn.classList.toggle('done', Boolean(checks[index]?.ok));
   });
@@ -65,8 +73,8 @@ function updateClarityPanel(){
 }
 
 function getChecks(){
-  const hasGoal = Boolean(document.querySelector('.goal-btn.active'));
-  const hasTemplate = Boolean(document.querySelector('.tpl-card.active'));
+  const hasGoal = document.body.dataset.taskSelectionConfirmed === 'true';
+  const hasTemplate = document.body.dataset.templateSelectionConfirmed === 'true';
   const hasPhone = Boolean(value('agentPhone'));
   const hasHeadline = Boolean(value('headline'));
   const hasPrint = Boolean(document.querySelector('[data-count].active'));
@@ -75,10 +83,38 @@ function getChecks(){
     { ok: hasGoal, text:'Выберите задачу: кого нужно привлечь.', target:'.start-card' },
     { ok: hasTemplate, text:'Выберите подходящий шаблон.', target:'#templateList' },
     { ok: hasPhone && hasHeadline, text: hasPhone ? 'Заполните или проверьте заголовок.' : 'Введите телефон для отклика.', target: hasPhone ? '#headline' : '#agentPhone' },
-    { ok: true, text:'Фото и QR можно оставить выключенными или заполнить по задаче.', target:'.media-card' },
+    { ok: true, required:false, text:'Фото и QR можно оставить выключенными или заполнить по задаче.', target:'.media-card' },
     { ok: hasPrint, text:'Выберите сценарий печати или количество на А4.', target:'.print-card' },
     { ok: quality >= 70, text:'Нажмите «Проверить» и устраните важные замечания.', target:'#qualityBtn' }
   ];
+}
+
+function updateContextLabels(){
+  const goal = document.getElementById('spnClarityGoalContext');
+  const template = document.getElementById('spnClarityTemplateContext');
+  if(!goal || !template) return;
+
+  const taskConfirmed = document.body.dataset.taskSelectionConfirmed === 'true';
+  const templateConfirmed = document.body.dataset.templateSelectionConfirmed === 'true';
+  const activeGoal = document.querySelector('[data-spn-goal].active b, [data-legacy-goal].active b, .goal-btn.active b')?.textContent?.trim() || '';
+  const activeTemplate = document.querySelector('.tpl-card.active b')?.textContent?.trim() || '';
+
+  goal.textContent = taskConfirmed && activeGoal ? activeGoal : 'Не выбрана';
+  goal.classList.toggle('pending', !taskConfirmed);
+
+  if(templateConfirmed && activeTemplate){
+    template.textContent = activeTemplate;
+    template.classList.remove('pending');
+    template.classList.add('confirmed');
+  } else if(activeTemplate){
+    template.textContent = `Предпросмотр: ${activeTemplate}`;
+    template.classList.add('pending');
+    template.classList.remove('confirmed');
+  } else {
+    template.textContent = 'Не выбран';
+    template.classList.add('pending');
+    template.classList.remove('confirmed');
+  }
 }
 
 function toggleHelpers(){
@@ -118,6 +154,6 @@ function injectStyles(){
   if(document.getElementById('spnClarityPanelStyles')) return;
   const style = document.createElement('style');
   style.id = 'spnClarityPanelStyles';
-  style.textContent = `.spn-clarity-panel{position:sticky;top:8px;z-index:30;margin:0 0 12px;padding:10px;border:1px solid #fee2e2;border-radius:16px;background:linear-gradient(135deg,#fff,#fff7f7);box-shadow:0 8px 20px rgba(15,23,42,.08)}.spn-clarity-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px}.spn-clarity-head b{display:block;font-size:13px;font-weight:900;color:#111827}.spn-clarity-head span{display:block;margin-top:2px;font-size:10.5px;font-weight:800;color:#64748b}.spn-clarity-head button,.spn-next-action button{padding:7px 9px;border-radius:10px;border:1px solid #fecaca;background:#fff;color:#b91c1c;font-size:10.5px;font-weight:900;box-shadow:none}.spn-clarity-steps{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-bottom:8px}.spn-clarity-steps button{padding:7px 6px;border-radius:10px;border:1px solid #e5e7eb;background:#fff;color:#374151;font-size:10px;font-weight:900;box-shadow:none}.spn-clarity-steps button.done{border-color:#bbf7d0;background:#f0fdf4;color:#166534}.spn-next-action{display:grid;grid-template-columns:1fr auto;align-items:center;gap:8px;border:1px dashed #fecaca;border-radius:12px;background:#fff;padding:8px}.spn-next-action span{font-size:11px;line-height:1.3;font-weight:850;color:#111827}.spn-clarity-panel button:hover{transform:none;box-shadow:none;background:#fff1f2}.spn-focus-pulse{outline:3px solid rgba(239,68,68,.3);outline-offset:3px;transition:outline-color .3s}.spn-hide-helper-panels .spn-tear-editor,.spn-hide-helper-panels .spn-brand-editor,.spn-hide-helper-panels .spn-contact-editor,.spn-hide-helper-panels .spn-qr-editor,.spn-hide-helper-panels .spn-price-helper,.spn-hide-helper-panels .spn-params-helper,.spn-hide-helper-panels .spn-area-helper,.spn-hide-helper-panels .spn-phone-helper,.spn-hide-helper-panels .spn-agent-helper,.spn-hide-helper-panels .spn-print-campaign-helper,.spn-hide-helper-panels .spn-distribution-task,.spn-hide-helper-panels .spn-distribution-report{display:none!important}@media(max-width:520px){.spn-clarity-panel{top:0;border-radius:0 0 16px 16px}.spn-clarity-steps{grid-template-columns:1fr 1fr}.spn-next-action{grid-template-columns:1fr}}@media print{.spn-clarity-panel{display:none!important}}`;
+  style.textContent = `.spn-clarity-panel{position:sticky;top:8px;z-index:30;margin:0 0 12px;padding:10px;border:1px solid #fee2e2;border-radius:16px;background:linear-gradient(135deg,#fff,#fff7f7);box-shadow:0 8px 20px rgba(15,23,42,.08)}.spn-clarity-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px}.spn-clarity-head b{display:block;font-size:13px;font-weight:900;color:#111827}.spn-clarity-head span{display:block;margin-top:2px;font-size:10.5px;font-weight:800;color:#64748b}.spn-clarity-context{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:8px}.spn-clarity-context span{min-width:0;padding:6px 7px;border:1px solid #e5e7eb;border-radius:10px;background:#fff}.spn-clarity-context b{display:block;margin-bottom:2px;font-size:9px;line-height:1;text-transform:uppercase;letter-spacing:.04em;color:#64748b}.spn-clarity-context em{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10.5px;line-height:1.2;font-weight:900;font-style:normal;color:#166534}.spn-clarity-context em.pending{color:#9a3412}.spn-clarity-head button,.spn-next-action button{padding:7px 9px;border-radius:10px;border:1px solid #fecaca;background:#fff;color:#b91c1c;font-size:10.5px;font-weight:900;box-shadow:none}.spn-clarity-steps{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-bottom:8px}.spn-clarity-steps button{padding:7px 6px;border-radius:10px;border:1px solid #e5e7eb;background:#fff;color:#374151;font-size:10px;font-weight:900;box-shadow:none}.spn-clarity-steps button.done{border-color:#bbf7d0;background:#f0fdf4;color:#166534}.spn-next-action{display:grid;grid-template-columns:1fr auto;align-items:center;gap:8px;border:1px dashed #fecaca;border-radius:12px;background:#fff;padding:8px}.spn-next-action span{font-size:11px;line-height:1.3;font-weight:850;color:#111827}.spn-clarity-panel button:hover{transform:none;box-shadow:none;background:#fff1f2}.spn-focus-pulse{outline:3px solid rgba(239,68,68,.3);outline-offset:3px;transition:outline-color .3s}.spn-hide-helper-panels .spn-tear-editor,.spn-hide-helper-panels .spn-brand-editor,.spn-hide-helper-panels .spn-contact-editor,.spn-hide-helper-panels .spn-qr-editor,.spn-hide-helper-panels .spn-price-helper,.spn-hide-helper-panels .spn-params-helper,.spn-hide-helper-panels .spn-area-helper,.spn-hide-helper-panels .spn-phone-helper,.spn-hide-helper-panels .spn-agent-helper,.spn-hide-helper-panels .spn-print-campaign-helper,.spn-hide-helper-panels .spn-distribution-task,.spn-hide-helper-panels .spn-distribution-report{display:none!important}@media(max-width:520px){.spn-clarity-panel{top:0;border-radius:0 0 16px 16px}.spn-clarity-context{grid-template-columns:1fr}.spn-clarity-context em{white-space:normal}.spn-clarity-steps{grid-template-columns:1fr 1fr}.spn-next-action{grid-template-columns:1fr}}@media print{.spn-clarity-panel{display:none!important}}`;
   document.head.appendChild(style);
 }

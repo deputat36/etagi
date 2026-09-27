@@ -106,6 +106,8 @@
         doc.getElementById('savedLayouts').value = namedLayoutId;
         click(doc, '#loadNamedLayoutBtn');
         await waitFor(() => doc.getElementById('headline')?.value === 'Обновлённый заголовок именованного макета' && doc.getElementById('area')?.value === 'Северный smoke', 3000, 'именованный макет не восстановил явно обновлённые поля');
+        assert(doc.body.dataset.taskSelectionConfirmed === 'true', 'загрузка именованного макета не подтвердила задачу');
+        assert(doc.body.dataset.templateSelectionConfirmed === 'true', 'загрузка именованного макета не подтвердила шаблон');
         pass('именованные макеты: сохранение и загрузка');
 
         lastAction = 'layout.last-save';
@@ -120,6 +122,7 @@
         setField(win, doc, '#price', '1 ₽');
         click(doc, '#loadLocalBtn');
         await waitFor(() => doc.getElementById('headline')?.value === 'Заголовок последнего макета' && doc.getElementById('price')?.value === '3 500 000 ₽', 3000, 'последний макет не восстановил поля');
+        assert(doc.body.dataset.taskSelectionConfirmed === 'true' && doc.body.dataset.templateSelectionConfirmed === 'true', 'ручной резерв не подтвердил загруженный рабочий контекст');
         pass('ручной резерв: сохранение и загрузка');
 
         lastAction = 'object.clear';
@@ -379,6 +382,7 @@
         await setFile(win, doc, '#uploadFile', downloadCapture.filename, exportedText, 'application/json');
         await waitFor(() => doc.getElementById('headline')?.value === exportedValues.headline, 4000, 'тот же файл нельзя импортировать повторно');
         await waitFor(() => doc.getElementById('uploadFile')?.files?.length === 0, 1000, 'file input не сброшен после повторного импорта');
+        assert(doc.body.dataset.taskSelectionConfirmed === 'true' && doc.body.dataset.templateSelectionConfirmed === 'true', 'импорт валидного макета не подтвердил загруженный контекст');
         pass('JSON: импорт восстанавливает макет без смешивания и допускает повторный выбор того же файла');
 
         if(runtimeErrors.length) throw new Error(`runtime errors: ${runtimeErrors.join(' | ')}`);

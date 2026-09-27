@@ -74,10 +74,10 @@
     "relationCount": 98,
     "sideEffectModuleCount": 54,
     "dynamicModuleCount": 0,
-    "domIdCount": 301,
+    "domIdCount": 303,
     "indexDomIdCount": 86,
-    "runtimeCreatedDomIdCount": 210,
-    "storageKeyCount": 22,
+    "runtimeCreatedDomIdCount": 212,
+    "storageKeyCount": 23,
     "dynamicStorageKeyCount": 2,
     "observerModuleCount": 20,
     "observerInstanceCount": 22,
@@ -3125,6 +3125,24 @@
         ]
       },
       {
+        "id": "spnClarityGoalContext",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnClarityPanel.js"
+        ],
+        "createdBy": [
+          "assets/js/spnClarityPanel.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnClarityPanel.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnClarityPanel.js"
+        ]
+      },
+      {
         "id": "spnClarityPanel",
         "declaredInIndex": false,
         "ownershipBasis": "runtime-create",
@@ -3158,6 +3176,24 @@
       },
       {
         "id": "spnClarityProgress",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnClarityPanel.js"
+        ],
+        "createdBy": [
+          "assets/js/spnClarityPanel.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnClarityPanel.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnClarityPanel.js"
+        ]
+      },
+      {
+        "id": "spnClarityTemplateContext",
         "declaredInIndex": false,
         "ownershipBasis": "runtime-create",
         "owners": [
@@ -5490,6 +5526,18 @@
         "modules": [
           "assets/js/spnDestructiveSnapshot.js",
           "assets/js/storage.js"
+        ]
+      },
+      {
+        "area": "localStorage",
+        "key": "etagi-raskleyka-selection-context-v1",
+        "dynamic": false,
+        "operations": [
+          "getItem",
+          "setItem"
+        ],
+        "modules": [
+          "assets/js/app.js"
         ]
       },
       {

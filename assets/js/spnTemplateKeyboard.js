@@ -112,10 +112,10 @@ function restoreSelectedCardFocus(list, templateId){
 
     if(now - startedAt >= FOCUS_RESTORE_MAX_MS) return;
 
-    window.setTimeout(() => window.requestAnimationFrame(attempt), FOCUS_RESTORE_RETRY_MS);
+    window.setTimeout(attempt, FOCUS_RESTORE_RETRY_MS);
   };
 
-  window.requestAnimationFrame(attempt);
+  attempt();
 }
 
 function isRecoverableFocusLoss(active, list){

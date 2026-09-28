@@ -58,7 +58,8 @@ requireSnippets(files.templateHelper, sources.templateHelper, [
   'function restoreSelectedCardFocus(list, templateId)',
   'if(active !== selected && !isRecoverableFocusLoss(active, list)) return',
   'if(now - stableSince >= FOCUS_RESTORE_STABLE_MS) return',
-  'window.setTimeout(() => window.requestAnimationFrame(attempt), FOCUS_RESTORE_RETRY_MS)',
+  'window.setTimeout(attempt, FOCUS_RESTORE_RETRY_MS)',
+  'attempt();',
   'function isRecoverableFocusLoss(active, list)',
   'element.focus({preventScroll:true})',
   'function setAttributeIfChanged(element, name, value)',
@@ -82,7 +83,8 @@ forbidSnippets(files.templateHelper, sources.templateHelper, [
   'document.head.appendChild(style)',
   'spn-template-keyboard-style',
   ':focus-visible',
-  'FOCUS_RESTORE_STABLE_PASSES'
+  'FOCUS_RESTORE_STABLE_PASSES',
+  'window.requestAnimationFrame(attempt)'
 ]);
 
 requireSnippets(files.templateStyles, sources.templateStyles, [

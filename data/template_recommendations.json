@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "recommendations": {
+    "seller": [
+      {
+        "templateId": "seller_price_check",
+        "priority": 100,
+        "reason": [
+          "мягкий первый контакт с собственником",
+          "подходит для локальной расклейки",
+          "понятно объясняет пользу обращения"
+        ]
+      },
+      {
+        "templateId": "seller_neighbors",
+        "priority": 80,
+        "reason": [
+          "подходит для работы с конкретным домом или районом"
+        ]
+      }
+    ],
+    "buyer": [
+      {
+        "templateId": "buyer_apartment",
+        "priority": 100,
+        "reason": [
+          "ориентирован на людей, которые ищут недвижимость"
+        ]
+      }
+    ],
+    "object": [
+      {
+        "templateId": "object_sale",
+        "priority": 100,
+        "reason": [
+          "подходит для продвижения конкретного объекта"
+        ]
+      }
+    ],
+    "personal": []
+  }
+}

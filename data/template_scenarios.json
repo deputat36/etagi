@@ -1,0 +1,34 @@
+[
+  {
+    "id": "sell_property",
+    "title": "Продать объект",
+    "description": "Создать расклейку для привлечения покупателей на объект недвижимости.",
+    "icon": "🏠",
+    "goals": ["buyer"],
+    "recommendedTemplates": ["buyer_have_object", "buyer_need_family"]
+  },
+  {
+    "id": "find_seller",
+    "title": "Найти собственника",
+    "description": "Получить обращения владельцев квартир, домов или участков.",
+    "icon": "📞",
+    "goals": ["seller"],
+    "recommendedTemplates": ["seller_price_check", "seller_buy_flat_house", "seller_neighbors"]
+  },
+  {
+    "id": "promote_new_building",
+    "title": "Продвинуть новостройку",
+    "description": "Подготовить материалы для жилых комплексов и специальных предложений.",
+    "icon": "🏢",
+    "goals": ["newbuilding", "buyer"],
+    "recommendedTemplates": []
+  },
+  {
+    "id": "mortgage_leads",
+    "title": "Получить заявки по ипотеке",
+    "description": "Создать рекламный материал для консультаций по ипотеке.",
+    "icon": "💳",
+    "goals": ["all"],
+    "recommendedTemplates": []
+  }
+]

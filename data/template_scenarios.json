@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "scenarios": [
+    {
+      "id": "owner",
+      "title": "Найти собственника",
+      "description": "Получить обращения владельцев недвижимости.",
+      "icon": "📞",
+      "recommended": true,
+      "goal": "seller"
+    },
+    {
+      "id": "buyer",
+      "title": "Найти покупателя",
+      "description": "Получить обращения клиентов, выбирающих недвижимость.",
+      "icon": "👥",
+      "recommended": true,
+      "goal": "buyer"
+    },
+    {
+      "id": "object",
+      "title": "Продать объект",
+      "description": "Продвижение конкретной квартиры, дома или участка.",
+      "icon": "🏠",
+      "recommended": true,
+      "goal": "object"
+    },
+    {
+      "id": "newbuild",
+      "title": "Продвинуть новостройку",
+      "description": "Реклама жилого комплекса или нового проекта.",
+      "icon": "🏢",
+      "recommended": false,
+      "goal": "newbuild"
+    }
+  ]
+}

@@ -482,7 +482,7 @@ function renderTemplates(){
   });
   $('templateList').querySelector('[data-use-recommended-template]')?.addEventListener('click', event => {
     event.stopPropagation();
-    selectTemplate(event.currentTarget.dataset.useRecommendedTemplate);
+    selectTemplate(event.currentTarget.dataset.useRecommendedTemplate, {openAdaptation:true});
   });
   $('templateList').querySelectorAll('[data-template]').forEach(el=>el.onclick=()=>selectTemplate(el.dataset.template));
   document.dispatchEvent(new CustomEvent('spn:templates-rendered', {
@@ -517,7 +517,7 @@ function renderRecommendedTemplateHero(list, spnGoal){
         <span>${esc(adaptation.format)}</span>
       </div>
     </div>
-    <button type="button" data-use-recommended-template="${esc(template.id)}">Использовать рекомендуемый шаблон</button>
+    <button type="button" data-use-recommended-template="${esc(template.id)}">Использовать и заполнить</button>
   </section>`;
 }
 
@@ -529,7 +529,7 @@ function isSafeRecommendedTemplate(template){
   return true;
 }
 
-function selectTemplate(templateId){
+function selectTemplate(templateId, options = {}){
   const template = templates.find(item => item.id === templateId);
   if(!template){
     setStatus('Рекомендуемый шаблон сейчас недоступен. Выберите другой вариант из каталога.');
@@ -538,6 +538,7 @@ function selectTemplate(templateId){
   applyTemplate(template);
   setSelectionContext({taskConfirmed:true, templateConfirmed:true});
   renderAll();
+  if(options.openAdaptation) openSelectedTemplateAdaptation();
 }
 
 function openSelectedTemplateAdaptation(){

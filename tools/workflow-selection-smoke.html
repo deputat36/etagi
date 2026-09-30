@@ -25,6 +25,7 @@
         assert(doc.body.dataset.templateSelectionConfirmed === 'false', 'стартовый шаблон ошибочно считается подтверждённым');
         assert(doc.querySelector('[data-template-preview-notice]'), 'для стартового шаблона нет пояснения предпросмотра');
         assert(!doc.querySelector('[data-selected-template-next]'), 'до явного выбора показано ложное «Шаблон выбран»');
+        assert(!doc.querySelector('[data-template-recommended-hero]'), 'до явного выбора задачи показана рекомендация шаблона');
         await waitFor(() => doc.getElementById('spnClarityGoalContext'), 3000, 'контекст маршрута не появился');
         assert(doc.getElementById('spnClarityGoalContext')?.textContent.trim() === 'Не выбрана', 'маршрут приписал пользователю стартовую задачу');
         assert(doc.getElementById('spnClarityTemplateContext')?.textContent.includes('Предпросмотр'), 'маршрут не объясняет стартовый шаблон');
@@ -158,6 +159,27 @@
         assert(doc.body.dataset.templateSelectionConfirmed === 'false', 'смена задачи не сбросила подтверждение шаблона');
         assert(doc.getElementById('spnClarityTemplateContext')?.textContent.includes('Не выбран'), 'маршрут не требует новый шаблон после смены задачи');
         pass('задача: фильтрует библиотеку без автоматического шаблона');
+
+        lastAction = 'template.recommended-hero';
+        const recommendedHero = doc.querySelector('[data-template-recommended-hero]');
+        assert(recommendedHero, 'после явного выбора задачи не появился рекомендуемый шаблон');
+        const recommendedTemplateId = recommendedHero.dataset.recommendedTemplate;
+        assert(recommendedTemplateId, 'рекомендация не содержит templateId');
+        const recommendedCard = doc.querySelector(`#templateList [data-template="${cssEscape(recommendedTemplateId)}"]`);
+        assert(recommendedCard, 'рекомендуемый шаблон отсутствует в текущем каталоге');
+        assert(recommendedHero.textContent.includes(recommendedCard.querySelector('b')?.textContent?.trim() || ''), 'hero и карточка показывают разные шаблоны');
+        const recommendedButton = recommendedHero.querySelector('[data-use-recommended-template]');
+        assert(recommendedButton, 'в рекомендации нет кнопки быстрого применения');
+        const clicksBeforeRecommendation = explicitTemplateClicks;
+        recommendedButton.click();
+        await waitFor(() => doc.querySelector(`#templateList [data-template="${cssEscape(recommendedTemplateId)}"]`)?.classList.contains('active'), 3000, 'кнопка рекомендации не применила шаблон');
+        assert(doc.body.dataset.templateSelectionConfirmed === 'true', 'рекомендация не подтвердила выбор шаблона');
+        assert(explicitTemplateClicks === clicksBeforeRecommendation, 'кнопка рекомендации сгенерировала ложный пользовательский клик по карточке');
+        assert(!doc.querySelector('[data-template-recommended-hero]'), 'после выбора рекомендация продолжает занимать место');
+        pass('рекомендация: безопасный быстрый старт применяет шаблон без подмены клика по карточке');
+
+        click(doc, '[data-goal="seller"]');
+        await waitFor(() => doc.body.dataset.templateSelectionConfirmed === 'false', 2000, 'новая задача не сбросила подтверждение шаблона после рекомендации');
 
         lastAction = 'route.search-is-not-situation';
         click(doc, '[data-spn-reset]');

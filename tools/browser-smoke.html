@@ -148,6 +148,12 @@
         assert(visibleNewbieHelp.some(link => link.getAttribute('href') === 'help/quick-start.html'), 'новичку недоступен быстрый старт');
         assert(visibleNewbieHelp.some(link => link.getAttribute('href') === 'help/faq.html'), 'новичку недоступны вопросы и ответы');
         assert(helpTips && win.getComputedStyle(helpTips).display === 'none', 'новичку показан полный список справочных советов');
+        const adaptationCard = doc.getElementById('agentName')?.closest('.card');
+        const adaptationBlockManager = adaptationCard?.querySelector('.block-manager');
+        const adaptationQuickActions = adaptationCard?.querySelector('.quick-actions');
+        assert(adaptationBlockManager && win.getComputedStyle(adaptationBlockManager).display === 'none', 'новичку показана ручная компоновка выбранного шаблона');
+        assert(adaptationQuickActions && win.getComputedStyle(adaptationQuickActions).display === 'none', 'новичку показаны автоматические действия изменения текста');
+        pass('режим Новичок: ручная компоновка и автоизменение текста скрыты');
         pass('режим Новичок: повторная задача и лишняя плотность скрыты');
         pass('режим Новичок: компактная помощь доступна');
         assert(saveCard && win.getComputedStyle(saveCard).display === 'none', 'новичку показан отдельный блок сохранения вне учебного пути');
@@ -214,6 +220,9 @@
         assert(win.getComputedStyle(densityFilter).display !== 'none', 'после возврата в Быстро фильтр плотности не восстановился');
         assert(saveCard && win.getComputedStyle(saveCard).display !== 'none', 'после возврата в Быстро не восстановился компактный файл макета');
         assert(saveLayoutFileSection && win.getComputedStyle(saveLayoutFileSection).display !== 'none', 'после возврата в Быстро скрыт раздел файла макета');
+        assert(adaptationBlockManager && win.getComputedStyle(adaptationBlockManager).display === 'none', 'в режиме Быстро показана ручная компоновка выбранного шаблона');
+        assert(adaptationQuickActions && win.getComputedStyle(adaptationQuickActions).display !== 'none', 'в режиме Быстро скрыты быстрые текстовые действия');
+        pass('режим Быстро: ручная компоновка скрыта, быстрые текстовые действия доступны');
         const advancedWorkbench = await waitForElement(doc, '#spnAdvancedWorkbench', 6000, 'группа дополнительной аналитики не появилась');
         await waitFor(() => win.getComputedStyle(advancedWorkbench).display === 'none', 2000, 'дополнительная аналитика не скрылась в режиме Быстро');
         click(doc, '[data-spn-ui-mode="advanced"]');
@@ -229,6 +238,9 @@
         assert(saveNamedSection && win.getComputedStyle(saveNamedSection).display !== 'none', 'в расширенном режиме скрыты именованные макеты');
         assert(saveLayoutFileSection && win.getComputedStyle(saveLayoutFileSection).display !== 'none', 'в расширенном режиме скрыт файл одного макета');
         assert(savePrivacy && win.getComputedStyle(savePrivacy).display !== 'none', 'в расширенном режиме скрыто пояснение хранения');
+        assert(adaptationBlockManager && win.getComputedStyle(adaptationBlockManager).display !== 'none', 'в расширенном режиме скрыта ручная компоновка');
+        assert(adaptationQuickActions && win.getComputedStyle(adaptationQuickActions).display !== 'none', 'в расширенном режиме скрыты быстрые текстовые действия');
+        pass('режим Расширенно: ручная компоновка доступна');
         pass('режим Расширенно: ручная задача и фильтры доступны');
         pass('режим Расширенно: полный центр помощи доступен');
         pass('режим Расширенно: полный блок сохранения доступен');

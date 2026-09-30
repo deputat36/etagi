@@ -163,10 +163,10 @@
 
         click(doc, '[data-wizard-step="content"]');
         await waitFor(() => doc.body.dataset.wizardStep === 'content', 2000, 'шаг Адаптация не открылся перед проверкой optional media');
-        assert(doc.getElementById('spnWizardNext')?.textContent.includes('Проверка и печать'), 'новичку предложен необязательный шаг Фото / QR вместо Проверки');
+        await waitFor(() => doc.getElementById('spnWizardNext')?.textContent.includes('Проверка и печать'), 2000, 'новичку предложен необязательный шаг Фото / QR вместо Проверки');
         click(doc, '#spnWizardNext');
         await waitFor(() => doc.body.dataset.wizardStep === 'check', 2000, 'необязательный шаг Фото / QR не пропущен');
-        assert(doc.getElementById('spnWizardNext')?.textContent.includes('Задание'), 'на Проверке кнопка Далее ведёт текстом на скрытое Сохранение');
+        await waitFor(() => doc.getElementById('spnWizardNext')?.textContent.includes('Задание'), 2000, 'на Проверке кнопка Далее ведёт текстом на скрытое Сохранение');
         click(doc, '#spnWizardPrev');
         await waitFor(() => doc.body.dataset.wizardStep === 'content', 2000, 'Назад с Проверки не пропустил необязательный Фото / QR');
         mediaStep.click();

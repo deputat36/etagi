@@ -32,6 +32,9 @@ body[data-spn-ui-mode="quick"] .save-card [data-save-transfer-section="layout-fi
 body[data-spn-ui-mode="quick"] .save-card [data-save-transfer-section="layout-file"] .save-transfer-section-head{margin-bottom:8px}
 body[data-spn-ui-mode="quick"][data-wizard-flow="on"] .sidebar .start-card[data-wizard-section].spn-wizard-section-active,
 body[data-spn-ui-mode="newbie"][data-wizard-flow="on"] .sidebar .start-card[data-wizard-section].spn-wizard-section-active{display:none!important}
+body[data-spn-ui-mode="quick"] .block-manager,
+body[data-spn-ui-mode="newbie"] .block-manager{display:none!important}
+body[data-spn-ui-mode="newbie"] .quick-actions{display:none!important}
 body[data-spn-ui-mode="quick"] .block-manager .block-grid,
 body[data-spn-ui-mode="quick"] .block-manager .block-title,
 body[data-spn-ui-mode="quick"] .block-manager .block-order-head,

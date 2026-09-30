@@ -174,6 +174,8 @@
         recommendedButton.click();
         await waitFor(() => doc.querySelector(`#templateList [data-template="${cssEscape(recommendedTemplateId)}"]`)?.classList.contains('active'), 3000, 'кнопка рекомендации не применила шаблон');
         assert(doc.body.dataset.templateSelectionConfirmed === 'true', 'рекомендация не подтвердила выбор шаблона');
+        await waitFor(() => doc.body.dataset.wizardStep === 'content', 2000, 'рекомендация не открыла шаг адаптации');
+        await waitFor(() => ['agentName','agentPhone','area','headline','description','benefits','price','params','propertyType','customBlockText'].includes(doc.activeElement?.id), 2000, 'рекомендация не сфокусировала поле адаптации');
         assert(explicitTemplateClicks === clicksBeforeRecommendation, 'кнопка рекомендации сгенерировала ложный пользовательский клик по карточке');
         assert(!doc.querySelector('[data-template-recommended-hero]'), 'после выбора рекомендация продолжает занимать место');
         pass('рекомендация: безопасный быстрый старт применяет шаблон без подмены клика по карточке');

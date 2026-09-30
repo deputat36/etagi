@@ -459,6 +459,7 @@ function renderTemplates(){
   const emptyText = favoritesOnly ? 'В этой задаче пока нет избранных шаблонов' : selectedScenario !== 'all' ? 'В этом сценарии пока нет шаблонов' : 'Под эту задачу ничего не найдено';
   const spnGoal = getSpnGoal(selectedSpnGoal);
   const intro = spnGoal && list.length ? `<div class="template-recommendation-intro"><b>${esc(spnGoal.title)}</b><span>${esc(spnGoal.description)} Сначала показаны наиболее безопасные и подходящие варианты.</span></div>` : '';
+  const recommendationHero = renderRecommendedTemplateHero(list, spnGoal);
   const selectedTemplate = state.templateId ? templates.find(item => item.id === state.templateId) : null;
   const selectedNext = selectedTemplate && templateSelectionConfirmed ? `<div class="template-selected-next" data-selected-template-next>
     <div><span>Шаблон выбран</span><b>${esc(selectedTemplate.title || state.layoutName || 'Готовый шаблон')}</b><small>Дальше замените контакты и данные под свою задачу. Сам макет уже применён.</small></div>
@@ -466,7 +467,7 @@ function renderTemplates(){
   </div>` : selectedTemplate ? `<div class="template-preview-notice" data-template-preview-notice>
     <div><span>Предпросмотр</span><b>${esc(selectedTemplate.title || state.layoutName || 'Стартовый шаблон')}</b><small>Это технический стартовый макет. Нажмите на карточку, чтобы подтвердить его, или выберите другой шаблон.</small></div>
   </div>` : '';
-  $('templateList').innerHTML = list.length ? intro + selectedNext + list.map((t, index)=>templateCard(t, getTemplateRecommendation(t, index + 1))).join('') : `<div class="empty">${emptyText}</div>`;
+  $('templateList').innerHTML = list.length ? intro + recommendationHero + selectedNext + list.map((t, index)=>templateCard(t, getTemplateRecommendation(t, index + 1))).join('') : `<div class="empty">${emptyText}</div>`;
   $('templateList').querySelectorAll('[data-favorite-template]').forEach(btn=>btn.onclick=(event)=>{
     event.stopPropagation();
     const favorites = toggleFavoriteTemplate(btn.dataset.favoriteTemplate);
@@ -479,7 +480,11 @@ function renderTemplates(){
     event.stopPropagation();
     openSelectedTemplateAdaptation();
   });
-  $('templateList').querySelectorAll('[data-template]').forEach(el=>el.onclick=()=>{ const t=templates.find(x=>x.id===el.dataset.template); applyTemplate(t); setSelectionContext({taskConfirmed:true, templateConfirmed:true}); renderAll(); });
+  $('templateList').querySelector('[data-use-recommended-template]')?.addEventListener('click', event => {
+    event.stopPropagation();
+    selectTemplate(event.currentTarget.dataset.useRecommendedTemplate);
+  });
+  $('templateList').querySelectorAll('[data-template]').forEach(el=>el.onclick=()=>selectTemplate(el.dataset.template));
   document.dispatchEvent(new CustomEvent('spn:templates-rendered', {
     detail:{
       templateId:state.templateId || '',
@@ -487,6 +492,54 @@ function renderTemplates(){
     }
   }));
 }
+function renderRecommendedTemplateHero(list, spnGoal){
+  if(!taskSelectionConfirmed || templateSelectionConfirmed || !spnGoal || !list.length) return '';
+  if(selectedScenario !== 'all') return '';
+  if(String($('templateSearch')?.value || '').trim()) return '';
+  if(String($('templateDensityFilter')?.value || 'all') !== 'all') return '';
+  if($('showFavoriteTemplatesOnly')?.checked) return '';
+
+  const template = list.find(isSafeRecommendedTemplate);
+  if(!template) return '';
+
+  const recommendation = getTemplateRecommendation(template, 1);
+  const adaptation = getTemplateAdaptationInfo(template);
+  const reason = recommendation?.text || 'лучше всего соответствует выбранной задаче';
+
+  return `<section class="template-recommended-hero" data-template-recommended-hero data-recommended-template="${esc(template.id)}" aria-label="Рекомендуемый шаблон">
+    <div class="template-recommended-hero-copy">
+      <span class="template-recommended-kicker">Рекомендуем начать с этого</span>
+      <b>${esc(template.title)}</b>
+      <p>${esc(template.note || spnGoal.description || '')}</p>
+      <div class="template-recommended-facts">
+        <span><strong>Почему:</strong> ${esc(reason)}</span>
+        <span><strong>Заполнить:</strong> ${esc(adaptation.fields)}</span>
+        <span>${esc(adaptation.format)}</span>
+      </div>
+    </div>
+    <button type="button" data-use-recommended-template="${esc(template.id)}">Использовать рекомендуемый шаблон</button>
+  </section>`;
+}
+
+function isSafeRecommendedTemplate(template){
+  const portfolioStatus = String(template?.portfolio?.status || 'working');
+  if(portfolioStatus !== 'working') return false;
+  if(template?.office?.recommended !== true) return false;
+  if(template?.office?.risk === 'high') return false;
+  return true;
+}
+
+function selectTemplate(templateId){
+  const template = templates.find(item => item.id === templateId);
+  if(!template){
+    setStatus('Рекомендуемый шаблон сейчас недоступен. Выберите другой вариант из каталога.');
+    return;
+  }
+  applyTemplate(template);
+  setSelectionContext({taskConfirmed:true, templateConfirmed:true});
+  renderAll();
+}
+
 function openSelectedTemplateAdaptation(){
   if(!state.templateId){
     setStatus('Сначала выберите шаблон.');

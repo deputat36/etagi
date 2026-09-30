@@ -64,7 +64,10 @@ requireSnippets(files.uiModeCss, sources.uiModeCss, [
   'body[data-spn-ui-mode="newbie"] .help-card .help-tips',
   'body[data-spn-ui-mode="quick"] .save-card [data-save-transfer-section="layout-file"]',
   'body[data-spn-ui-mode="quick"] .save-card .save-transfer-intro',
-  'body[data-spn-ui-mode="quick"] .save-card .save-transfer-privacy'
+  'body[data-spn-ui-mode="quick"] .save-card .save-transfer-privacy',
+  'body[data-spn-ui-mode="quick"] .block-manager',
+  'body[data-spn-ui-mode="newbie"] .block-manager',
+  'body[data-spn-ui-mode="newbie"] .quick-actions'
 ]);
 requireSnippets(files.browserSmoke, sources.browserSmoke, [
   'режим Быстро: одна точка выбора через рабочую ситуацию',
@@ -77,13 +80,19 @@ requireSnippets(files.browserSmoke, sources.browserSmoke, [
   'режим Расширенно: полный центр помощи доступен',
   'режим Быстро: доступен компактный файл одного макета',
   'режим Новичок: отдельное сохранение скрыто',
+  'режим Новичок: ручная компоновка и автоизменение текста скрыты',
+  'режим Быстро: ручная компоновка скрыта, быстрые текстовые действия доступны',
+  'режим Расширенно: ручная компоновка доступна',
   'режим Расширенно: полный блок сохранения доступен'
 ]);
 
 requireSnippets(files.visibilityAudit, sources.visibilityAudit, [
   '# Матрица видимости режимов интерфейса',
   '| Помощь | скрыта | компактно: быстрый старт и FAQ | полностью |',
+  '| Ручная компоновка и автоподстройка | скрыты | скрыты | видны |',
+  '| Быстрые действия с текстом | видны | скрыты | видны |',
   '| Сохранение и перенос | компактно: файл одного макета | скрыты | полностью |',
+  'Решение: готовый шаблон не требует ручной компоновки в простом пути',
   'Решение: компактное сохранение в режиме «Быстро»',
   'Следующий кандидат для отдельной проверки'
 ]);

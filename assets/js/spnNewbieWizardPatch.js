@@ -40,6 +40,20 @@ function handleNewbieWizardNavigation(event){
   const next = event.target.closest('#spnWizardNext');
   const prev = event.target.closest('#spnWizardPrev');
 
+  if(next && currentStep === 'content' && isMediaOptional()){
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    goToWizardStep('check');
+    return;
+  }
+
+  if(prev && currentStep === 'check' && isMediaOptional()){
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    goToWizardStep('content');
+    return;
+  }
+
   if(next && currentStep === 'check'){
     event.preventDefault();
     event.stopImmediatePropagation();
@@ -85,6 +99,7 @@ function syncNewbieWizardState(){
 
   if(isNewbie && pendingNewbieAutoEnable) tryEnableWizardForNewbie();
   if(isNewbie && step === 'save') redirectHiddenSaveStep();
+  if(isNewbie) syncNewbieNavigationLabels(step);
 
   lastMode = mode;
 }
@@ -118,6 +133,24 @@ function disableWizardAutoEnabledByNewbie(){
   newbieAutoEnabledWizard = false;
   if(document.body.dataset.wizardFlow !== 'on') return;
   document.getElementById('spnWizardToggle')?.click();
+}
+
+function isMediaOptional(){
+  return document.querySelector('[data-wizard-step="media"]')?.dataset.stepStatus === 'optional';
+}
+
+function syncNewbieNavigationLabels(step = document.body.dataset.wizardStep || 'goal'){
+  const next = document.getElementById('spnWizardNext');
+  if(!next) return;
+
+  if(step === 'content' && isMediaOptional()){
+    next.textContent = 'Далее: Проверка и печать';
+    return;
+  }
+
+  if(step === 'check'){
+    next.textContent = 'Далее: Задание';
+  }
 }
 
 function redirectHiddenSaveStep(){

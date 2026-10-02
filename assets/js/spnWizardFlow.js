@@ -173,6 +173,12 @@ function bindWizardPanel(){
   row?.addEventListener('click', () => window.setTimeout(syncPrintCountButtons, 80));
 
   document.addEventListener('spn:adaptation-complete-next', openCheckFromAdaptation);
+  document.addEventListener('spn:wizard-open-step', event => {
+    const stepId = String(event.detail?.id || '').trim();
+    if(!steps.some(step => step.id === stepId)) return;
+    clearNextNotice();
+    setStep(stepId);
+  });
 }
 
 function openCheckFromAdaptation(){

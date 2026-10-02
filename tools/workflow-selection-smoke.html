@@ -100,6 +100,9 @@
         setField(win, doc, '#area', '');
         await waitFor(() => doc.getElementById('spnNextActionText')?.textContent.includes('Район / адрес / ЖК'), 2500, 'маршрут не назвал район первым незаполненным полем');
         assert(!clarityDataStep.classList.contains('done'), 'адаптация ошибочно готова при пустом районе');
+        const wizardContentStep = doc.querySelector('[data-wizard-step="content"]');
+        await waitFor(() => wizardContentStep?.dataset.stepStatus === 'attention', 2500, 'wizard ошибочно считает адаптацию готовой при пустом районе');
+        assert(wizardContentStep.querySelector('.spn-wizard-step-status')?.title.includes('Район / адрес / ЖК'), 'wizard не объясняет, какое релевантное поле не заполнено');
         click(doc, '#spnGoNextActionBtn');
         await waitFor(() => doc.activeElement?.id === 'area', 2000, 'кнопка Перейти не сфокусировала конкретное незаполненное поле');
 
@@ -121,7 +124,9 @@
         }
         await waitFor(() => !adaptationChecklist.querySelector('[data-text-step-field].todo'), 3000, 'не удалось заполнить все релевантные пункты чек-листа');
         await waitFor(() => clarityDataStep.classList.contains('done'), 2500, 'маршрут не стал готовым после заполнения всего чек-листа');
-        pass('адаптация: маршрут следует чек-листу и ведёт к первому незаполненному полю');
+        await waitFor(() => wizardContentStep?.dataset.stepStatus === 'ready', 2500, 'wizard не стал готовым после заполнения всего checklist');
+        assert(wizardContentStep.querySelector('.spn-wizard-step-status')?.textContent === 'готово', 'wizard не показал готовность адаптации');
+        pass('адаптация: маршрут и wizard используют один динамический чек-лист');
 
         lastAction = 'adaptation.complete-to-check';
         const adaptationNext = doc.getElementById('spnTextStepNextBtn');

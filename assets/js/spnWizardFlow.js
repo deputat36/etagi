@@ -174,10 +174,11 @@ function bindWizardPanel(){
 
   document.addEventListener('spn:adaptation-complete-next', openCheckFromAdaptation);
   document.addEventListener('spn:wizard-open-step', event => {
-    const stepId = String(event.detail?.id || '').trim();
-    if(!steps.some(step => step.id === stepId)) return;
+    const requested = String(event.detail?.id || '').trim();
+    const targetStep = steps.find(step => step.id === requested || step.sections.includes(requested));
+    if(!targetStep) return;
     clearNextNotice();
-    setStep(stepId);
+    setStep(targetStep.id);
   });
 }
 

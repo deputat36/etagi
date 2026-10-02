@@ -1,3 +1,5 @@
+import { getSpnMediaReadiness } from './spnMediaReadiness.js';
+
 window.addEventListener('DOMContentLoaded', () => {
   bindPrintGuard();
 });
@@ -23,9 +25,10 @@ function isReadyToPrint(){
   const quality = Number(String(document.getElementById('qualityScore')?.textContent || '').replace(/\D/g, '')) || 0;
   const phone = Boolean(String(document.getElementById('agentPhone')?.value || '').trim());
   const countReady = hasSupportedPrintCount();
+  const media = getSpnMediaReadiness();
   const cutLines = Boolean(document.getElementById('showCutLines')?.checked);
   const safeMargins = Boolean(document.getElementById('safePrintMargins')?.checked);
-  return quality >= 70 && phone && countReady && cutLines && safeMargins;
+  return quality >= 70 && phone && countReady && media.ready && cutLines && safeMargins;
 }
 
 function goToFirstMissing(){
@@ -33,6 +36,8 @@ function goToFirstMissing(){
   if(quality < 70) return go('#qualityBtn', { click: true });
   if(!String(document.getElementById('agentPhone')?.value || '').trim()) return go('#agentPhone');
   if(!hasSupportedPrintCount()) return go('#printPresetRow');
+  const media = getSpnMediaReadiness();
+  if(!media.ready) return go(media.firstTarget);
   if(!document.getElementById('showCutLines')?.checked) return go('#showCutLines', { check: true });
   if(!document.getElementById('safePrintMargins')?.checked) return go('#safePrintMargins', { check: true });
 }

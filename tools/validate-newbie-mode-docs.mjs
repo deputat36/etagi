@@ -258,12 +258,21 @@ requireSnippets(files.printGuard, sources.printGuard, [
   "document.getElementById('printBtn')",
   'handlePrintButtonClick',
   'isReadyToPrint',
-  'goToFirstMissing'
+  'goToFirstMissing',
+  'hasSupportedPrintCount',
+  "['1','2','4','6','8'].includes(activeCount)",
+  "return go('#printPresetRow')"
 ]);
 
 const oldDocumentGuard = 'document.add' + "EventListener('click', handlePrintGuard, true)";
 const oldPropagationStop = 'stop' + 'Propagation()';
-forbidSnippets(files.printGuard, sources.printGuard, [oldDocumentGuard, oldPropagationStop]);
+forbidSnippets(files.printGuard, sources.printGuard, [
+  oldDocumentGuard,
+  oldPropagationStop,
+  'const countTwo',
+  "[data-count=\"2\"].active",
+  "go('[data-count=\"2\"]', { click: true })"
+]);
 
 requireSnippets(files.checklist, sources.checklist, [
   '# Ручная регрессионная проверка режима «Новичок»',

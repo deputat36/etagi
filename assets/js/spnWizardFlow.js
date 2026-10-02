@@ -180,18 +180,24 @@ function openCheckFromAdaptation(){
   setStep('check');
   setStatus('Адаптация заполнена. Запустите проверку качества перед печатью.');
 
-  const focusCheck = () => {
+  const focusCheck = ({retry = false} = {}) => {
     const target = document.getElementById('qualityBtn') || document.querySelector('.quality-card') || document.querySelector('.print-card');
     if(!target) return;
+
+    const active = document.activeElement;
+    if(retry && active && active !== target && active !== document.body && active !== document.documentElement && active.isConnected){
+      return;
+    }
+
     const container = target.closest?.('.card') || target;
     container.scrollIntoView({behavior:'smooth', block:'start'});
-    if(target.matches?.('button, input, textarea, select') && document.activeElement !== target){
+    if(target.matches?.('button, input, textarea, select') && active !== target){
       target.focus({preventScroll:true});
     }
   };
 
   focusCheck();
-  window.setTimeout(focusCheck, 80);
+  window.setTimeout(() => focusCheck({retry:true}), 80);
 }
 
 function moveStep(direction, options = {}){

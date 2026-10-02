@@ -137,6 +137,26 @@ function getTemplateStatus(){
 }
 
 function getContentStatus(){
+  const checklist = document.getElementById('spnTextStepChecklist');
+  const checklistItems = checklist ? [...checklist.querySelectorAll('[data-text-step-field]')] : [];
+
+  if(checklistItems.length){
+    const missing = checklistItems.filter(item => item.classList.contains('todo'));
+    const done = checklistItems.length - missing.length;
+
+    if(missing.length){
+      const names = missing
+        .slice(0, 3)
+        .map(item => String(item.querySelector('span')?.textContent || 'поле').replace(/^[✓•]\s*/, '').trim())
+        .filter(Boolean);
+      const rest = Math.max(0, missing.length - names.length);
+      const detail = `${names.join(', ')}${rest ? ` и ещё ${rest}` : ''}`;
+      return status('attention', `${done}/${checklistItems.length}`, `Нужно заполнить: ${detail}.`, true);
+    }
+
+    return status('ready', 'готово', 'Все используемые поля выбранного шаблона заполнены.', true);
+  }
+
   const phoneDigits = fieldValue('agentPhone').replace(/\D/g, '');
   const missing = [];
   if(phoneDigits.length < 10) missing.push('телефон');

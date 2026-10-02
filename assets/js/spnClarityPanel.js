@@ -206,11 +206,20 @@ function applyHelperVisibility(show){
 function scrollToTarget(selector){
   const target = document.querySelector(selector);
   if(!target) return;
+  revealWizardSection(target);
   const container = target.closest?.('.card') || target;
   container.scrollIntoView({behavior:'smooth', block:'start'});
   container.classList.add('spn-focus-pulse');
   window.setTimeout(() => container.classList.remove('spn-focus-pulse'), 900);
   if(target.matches('input, textarea, select, button')) target.focus();
+}
+
+function revealWizardSection(target){
+  if(document.body.dataset.wizardFlow !== 'on') return;
+  const section = target.closest?.('[data-wizard-section]');
+  const sectionId = String(section?.dataset.wizardSection || '').trim();
+  if(!sectionId) return;
+  document.dispatchEvent(new CustomEvent('spn:wizard-open-step', {detail:{id:sectionId}}));
 }
 
 function value(id){

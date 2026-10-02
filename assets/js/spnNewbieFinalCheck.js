@@ -3,7 +3,7 @@ const STYLE_ID = 'spnNewbieFinalCheckStyle';
 const finalActions = [
   { id: 'quality', title: 'Проверить макет', hint: 'Нажмите проверку и исправьте красные замечания', target: '#qualityBtn', autoClick: true },
   { id: 'phone', title: 'Проверить телефон', hint: 'Сверьте номер до печати', target: '#agentPhone' },
-  { id: 'count', title: '2 на А4', hint: 'Самый частый формат для расклейки', target: '[data-count="2"]', autoClick: true },
+  { id: 'count', title: 'Формат на А4', hint: 'Используйте выбранное количество объявлений на листе', target: '#printPresetRow' },
   { id: 'cut', title: 'Линии реза', hint: 'Удобно разрезать лист после печати', target: '#showCutLines', autoCheck: true },
   { id: 'safe', title: 'Безопасные поля', hint: 'Чтобы текст не обрезался при печати', target: '#safePrintMargins', autoCheck: true },
   { id: 'print', title: 'Печать / PDF', hint: 'Печатайте только после проверки', target: '#printBtn' }
@@ -60,12 +60,22 @@ function updateFinalCheck(){
 function getItems(){
   const quality = Number(String(document.getElementById('qualityScore')?.textContent || '').replace(/\D/g, '')) || 0;
   const phone = Boolean(String(document.getElementById('agentPhone')?.value || '').trim());
-  const countTwo = Boolean(document.querySelector('[data-count="2"].active'));
+  const activeCount = document.querySelector('#printPresetRow [data-count].active')?.dataset.count || '';
+  const countReady = ['1','2','4','6','8'].includes(activeCount);
   const cutLines = Boolean(document.getElementById('showCutLines')?.checked);
   const safeMargins = Boolean(document.getElementById('safePrintMargins')?.checked);
-  const printReady = quality >= 70 && phone && countTwo && cutLines && safeMargins;
-  const state = { quality: quality >= 70, phone, count: countTwo, cut: cutLines, safe: safeMargins, print: printReady };
-  return finalActions.map(item => ({ ...item, ok: Boolean(state[item.id]) }));
+  const printReady = quality >= 70 && phone && countReady && cutLines && safeMargins;
+  const state = { quality: quality >= 70, phone, count: countReady, cut: cutLines, safe: safeMargins, print: printReady };
+
+  return finalActions.map(item => {
+    if(item.id !== 'count') return { ...item, ok: Boolean(state[item.id]) };
+    return {
+      ...item,
+      title: activeCount ? `${activeCount} на А4` : 'Формат на А4',
+      hint: activeCount ? 'Текущий выбранный формат сохранён' : 'Выберите количество объявлений на листе',
+      ok: countReady
+    };
+  });
 }
 
 function goToNextTodo(){
@@ -76,7 +86,9 @@ function goToNextTodo(){
 function goToAction(id){
   const action = finalActions.find(item => item.id === id);
   if(!action) return;
-  const target = document.querySelector(action.target);
+  const target = id === 'count'
+    ? document.querySelector('#printPresetRow [data-count].active') || document.getElementById('printPresetRow')
+    : document.querySelector(action.target);
   if(!target) return;
 
   if(action.autoClick && target.matches('button')) target.click();

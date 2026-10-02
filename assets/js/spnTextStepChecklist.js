@@ -47,7 +47,7 @@ function bindPanel(){
     const next = event.target.closest('#spnTextStepNextBtn');
     const more = event.target.closest('[data-adaptation-more]');
     if(item) focusField(item.dataset.textStepField);
-    if(next) focusFirstMissing();
+    if(next) handleNextAction();
     if(more) toggleExtraFields();
   });
 
@@ -90,8 +90,10 @@ function updatePanel(){
   const missing = items.find(item => !item.ok);
   progress.textContent = items.length ? `${done}/${items.length} готовы` : 'Готово';
   if(next){
-    next.disabled = !missing;
-    next.textContent = missing ? 'К незаполненному' : 'Всё заполнено';
+    next.disabled = false;
+    next.dataset.textStepAction = missing ? 'missing' : 'check';
+    next.textContent = missing ? 'К незаполненному' : 'Перейти к проверке';
+    next.classList.toggle('ready', !missing);
   }
 
   box.innerHTML = items.map(item => `<button type="button" class="${item.ok ? 'done' : 'todo'}" data-text-step-field="${item.id}">
@@ -172,6 +174,16 @@ function updateMoreButton(){
   }
 }
 
+function handleNextAction(){
+  const missing = getItems().find(item => !item.ok);
+  if(missing){
+    focusField(missing.id);
+    return;
+  }
+
+  document.dispatchEvent(new CustomEvent('spn:adaptation-complete-next'));
+}
+
 function focusFirstMissing(){
   const missing = getItems().find(item => !item.ok);
   if(missing) focusField(missing.id);
@@ -200,6 +212,8 @@ function injectStyles(){
     .spn-text-step-actions{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}
     .spn-text-step-actions button{padding:7px 9px;border:1px solid #86efac;border-radius:10px;background:#fff;color:#166534;font-size:11px;font-weight:900;box-shadow:none}
     .spn-text-step-actions button:disabled{opacity:.58;cursor:default}
+    .spn-text-step-actions button.ready{border-color:#16a34a;background:#16a34a;color:#fff}
+    .spn-text-step-actions button.ready:hover{background:#15803d}
     .spn-text-step-note{margin:0 0 8px;color:#475569;font-size:10.5px;line-height:1.3;font-weight:700}
     .spn-text-step-items{display:grid;grid-template-columns:1fr 1fr;gap:6px}
     .spn-text-step-items button{padding:8px;text-align:left;border:1px solid #dcfce7;border-radius:12px;background:#fff;color:#334155;box-shadow:none}

@@ -83,6 +83,7 @@ requireSnippets(files.browserSmoke, sources.browserSmoke, [
   'режим Новичок: отдельное сохранение скрыто',
   'режим Новичок: ручная компоновка и автоизменение текста скрыты',
   'режим Новичок: финальная проверка сохраняет выбранный формат А4',
+  'режим Новичок: print guard сохраняет выбранный формат А4',
   'режим Быстро: ручная компоновка скрыта, быстрые текстовые действия доступны',
   'режим Расширенно: ручная компоновка доступна',
   'режим Расширенно: полный блок сохранения доступен'
@@ -258,12 +259,21 @@ requireSnippets(files.printGuard, sources.printGuard, [
   "document.getElementById('printBtn')",
   'handlePrintButtonClick',
   'isReadyToPrint',
-  'goToFirstMissing'
+  'goToFirstMissing',
+  'hasSupportedPrintCount',
+  "['1','2','4','6','8'].includes(activeCount)",
+  "return go('#printPresetRow')"
 ]);
 
 const oldDocumentGuard = 'document.add' + "EventListener('click', handlePrintGuard, true)";
 const oldPropagationStop = 'stop' + 'Propagation()';
-forbidSnippets(files.printGuard, sources.printGuard, [oldDocumentGuard, oldPropagationStop]);
+forbidSnippets(files.printGuard, sources.printGuard, [
+  oldDocumentGuard,
+  oldPropagationStop,
+  'const countTwo',
+  "[data-count=\"2\"].active",
+  "go('[data-count=\"2\"]', { click: true })"
+]);
 
 requireSnippets(files.checklist, sources.checklist, [
   '# Ручная регрессионная проверка режима «Новичок»',
@@ -279,6 +289,8 @@ requireSnippets(files.checklist, sources.checklist, [
   'фильтр плотности скрыт',
   'Проверка пошаговой подготовки',
   'Проверка защиты печати',
+  'защита ведёт к безопасным полям, но не меняет `4 на А4` на другой формат',
+  'печать блокируется только до выполнения обязательных условий и не подменяет выбранный формат А4',
   'Проверка фото-раскладки',
   'фото стало крупной верхней hero-зоной на всю ширину карточки',
   'Витрина',

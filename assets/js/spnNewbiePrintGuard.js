@@ -22,19 +22,24 @@ function handlePrintButtonClick(event){
 function isReadyToPrint(){
   const quality = Number(String(document.getElementById('qualityScore')?.textContent || '').replace(/\D/g, '')) || 0;
   const phone = Boolean(String(document.getElementById('agentPhone')?.value || '').trim());
-  const countTwo = Boolean(document.querySelector('[data-count="2"].active'));
+  const countReady = hasSupportedPrintCount();
   const cutLines = Boolean(document.getElementById('showCutLines')?.checked);
   const safeMargins = Boolean(document.getElementById('safePrintMargins')?.checked);
-  return quality >= 70 && phone && countTwo && cutLines && safeMargins;
+  return quality >= 70 && phone && countReady && cutLines && safeMargins;
 }
 
 function goToFirstMissing(){
   const quality = Number(String(document.getElementById('qualityScore')?.textContent || '').replace(/\D/g, '')) || 0;
   if(quality < 70) return go('#qualityBtn', { click: true });
   if(!String(document.getElementById('agentPhone')?.value || '').trim()) return go('#agentPhone');
-  if(!document.querySelector('[data-count="2"].active')) return go('[data-count="2"]', { click: true });
+  if(!hasSupportedPrintCount()) return go('#printPresetRow');
   if(!document.getElementById('showCutLines')?.checked) return go('#showCutLines', { check: true });
   if(!document.getElementById('safePrintMargins')?.checked) return go('#safePrintMargins', { check: true });
+}
+
+function hasSupportedPrintCount(){
+  const activeCount = document.querySelector('[data-count].active')?.dataset.count || '';
+  return ['1','2','4','6','8'].includes(activeCount);
 }
 
 function go(selector, options = {}){

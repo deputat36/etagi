@@ -168,6 +168,28 @@
         newbieCountItem().click();
         await waitFor(() => doc.querySelector('[data-count="4"]')?.classList.contains('active'), 1500, 'клик по финальному пункту самовольно сменил формат 4 на А4');
         assert(!doc.querySelector('[data-count="2"]')?.classList.contains('active'), 'финальный чек-лист навязал 2 на А4');
+
+        setField(win, doc, '#agentName', 'Анна Smoke');
+        setField(win, doc, '#agentPhone', '+7 900 123-45-67');
+        setField(win, doc, '#area', 'Северный район');
+        setField(win, doc, '#propertyType', 'Квартира');
+        setField(win, doc, '#params', '2-комн., 48 м²');
+        setField(win, doc, '#headline', 'Куплю квартиру в вашем доме');
+        setField(win, doc, '#description', 'Позвоните, спокойно обсудим квартиру без давления и обязательств.');
+        setField(win, doc, '#benefits', 'Проверка документов\nПо делу и без давления');
+        setCheckbox(doc, '#showPhoto', false);
+        setCheckbox(doc, '#showQr', false);
+        setCheckbox(doc, '#showCutLines', true);
+        setCheckbox(doc, '#safePrintMargins', false);
+        click(doc, '#qualityBtn');
+        await waitFor(() => Number(String(doc.getElementById('qualityScore')?.textContent || '').replace(/\D/g, '')) >= 70, 3000, 'не удалось подготовить валидный макет для проверки print guard');
+        click(doc, '#printBtn');
+        await waitFor(() => doc.getElementById('safePrintMargins')?.checked, 2000, 'print guard не перевёл к следующему недостающему пункту');
+        assert(doc.querySelector('[data-count="4"]')?.classList.contains('active'), 'print guard самовольно заменил выбранные 4 на А4');
+        assert(!doc.querySelector('[data-count="2"]')?.classList.contains('active'), 'print guard навязал 2 на А4');
+        assert(doc.getElementById('printDialog')?.open === false, 'print guard пропустил печать до завершения последнего пункта');
+        pass('режим Новичок: print guard сохраняет выбранный формат А4');
+
         click(doc, '[data-count="2"]');
         await waitFor(() => newbieCountItem()?.textContent.includes('2 на А4'), 2500, 'финальный чек-лист не обновился после явного возврата на 2 на А4');
         pass('режим Новичок: финальная проверка сохраняет выбранный формат А4');

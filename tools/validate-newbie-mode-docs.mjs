@@ -19,6 +19,7 @@ const files = {
   wizardFlow: 'assets/js/spnWizardFlow.js',
   wizardPatch: 'assets/js/spnNewbieWizardPatch.js',
   printGuard: 'assets/js/spnNewbiePrintGuard.js',
+  finalCheck: 'assets/js/spnNewbieFinalCheck.js',
   checklist: 'docs/newbie-mode-regression-checklist.md',
   fullScenarioChecklist: 'docs/full-scenario-regression-checklist.md',
   rollbackPlan: 'docs/newbie-mode-rollback-plan.md',
@@ -81,6 +82,7 @@ requireSnippets(files.browserSmoke, sources.browserSmoke, [
   'режим Быстро: доступен компактный файл одного макета',
   'режим Новичок: отдельное сохранение скрыто',
   'режим Новичок: ручная компоновка и автоизменение текста скрыты',
+  'режим Новичок: финальная проверка сохраняет выбранный формат А4',
   'режим Быстро: ручная компоновка скрыта, быстрые текстовые действия доступны',
   'режим Расширенно: ручная компоновка доступна',
   'режим Расширенно: полный блок сохранения доступен'
@@ -95,6 +97,18 @@ requireSnippets(files.visibilityAudit, sources.visibilityAudit, [
   'Решение: готовый шаблон не требует ручной компоновки в простом пути',
   'Решение: компактное сохранение в режиме «Быстро»',
   'Следующий кандидат для отдельной проверки'
+]);
+
+requireSnippets(files.finalCheck, sources.finalCheck, [
+  "title: 'Формат на А4'",
+  "const activeCount = document.querySelector('[data-count].active')?.dataset.count || ''",
+  "['1','2','4','6','8'].includes(activeCount)",
+  "title: activeCount ? `${activeCount} на А4` : 'Формат на А4'",
+  "id === 'count'"
+]);
+forbidSnippets(files.finalCheck, sources.finalCheck, [
+  'const countTwo',
+  "target: '[data-count=\"2\"]'"
 ]);
 
 requireSnippets(files.newbieMode, sources.newbieMode, [

@@ -2080,6 +2080,7 @@
           "assets/js/spnDistributionReportHelper.js",
           "assets/js/spnDistributionTaskHelper.js",
           "assets/js/spnInkEfficiency.js",
+          "assets/js/spnNewbiePrintGuard.js",
           "assets/js/spnNewbiePrintGuide.js",
           "assets/js/spnPhotoLayoutStyle.js",
           "assets/js/spnPrintCampaignHelper.js",

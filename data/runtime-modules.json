@@ -71,7 +71,7 @@
   "summary": {
     "entrypointCount": 16,
     "moduleCount": 84,
-    "relationCount": 102,
+    "relationCount": 103,
     "sideEffectModuleCount": 54,
     "dynamicModuleCount": 0,
     "domIdCount": 303,
@@ -6958,6 +6958,10 @@
           "mode": "dependency"
         },
         {
+          "path": "assets/js/spnNewbiePrintGuardNotice.js",
+          "mode": "dependency"
+        },
+        {
           "path": "assets/js/spnWizardStepStatus.js",
           "mode": "dependency"
         }
@@ -7089,7 +7093,12 @@
           "mode": "side-effect"
         }
       ],
-      "imports": []
+      "imports": [
+        {
+          "path": "assets/js/spnMediaReadiness.js",
+          "mode": "dependency"
+        }
+      ]
     },
     {
       "path": "assets/js/spnNewbiePrintGuide.js",

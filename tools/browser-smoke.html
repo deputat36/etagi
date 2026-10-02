@@ -197,12 +197,15 @@
         click(doc, '#qualityBtn');
         await waitFor(() => Number(String(doc.getElementById('qualityScore')?.textContent || '').replace(/\D/g, '')) >= 70, 3000, 'media regression должен проверяться при quality не ниже 70');
         await waitFor(() => newbieMediaItem()?.classList.contains('todo') && newbieMediaItem()?.textContent.includes('добавьте ссылку для QR'), 2500, 'финальный чек-лист не увидел пустой включённый QR');
+        await waitFor(() => doc.getElementById('spnNewbiePrintGuardText')?.textContent.includes('Заполнить Фото / QR'), 2500, 'notice печати не увидел незавершённые Фото / QR');
         click(doc, '#printBtn');
+        await waitFor(() => doc.body.dataset.wizardStep === 'media', 2000, 'print guard не открыл шаг Фото / QR');
         await waitFor(() => doc.activeElement?.id === 'qrLink', 2000, 'print guard не перевёл к пустой ссылке QR');
         assert(doc.getElementById('printDialog')?.open === false, 'пустой включённый QR не заблокировал печать новичка');
         assert(doc.querySelector('[data-count="4"]')?.classList.contains('active'), 'media guard изменил выбранный формат А4');
         setField(win, doc, '#qrLink', 'https://example.com/newbie-qr');
         await waitFor(() => newbieMediaItem()?.classList.contains('done'), 2500, 'финальный чек-лист не стал готовым после заполнения QR');
+        await waitFor(() => doc.getElementById('spnNewbiePrintGuardTitle')?.textContent.includes('Печать готова'), 2500, 'notice печати не стал готовым после заполнения QR');
         click(doc, '#printBtn');
         await waitFor(() => doc.getElementById('printDialog')?.open === true, 2500, 'после заполнения QR печатный диалог не открылся');
         click(doc, '#cancelPrintBtn');

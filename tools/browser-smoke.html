@@ -177,6 +177,7 @@
         setField(win, doc, '#headline', 'Куплю квартиру в вашем доме');
         setField(win, doc, '#description', 'Позвоните, спокойно обсудим квартиру без давления и обязательств.');
         setField(win, doc, '#benefits', 'Проверка документов\nПо делу и без давления');
+        setField(win, doc, '#phoneScale', '1.45');
         setCheckbox(doc, '#showPhoto', false);
         setCheckbox(doc, '#showQr', false);
         setCheckbox(doc, '#showCutLines', true);
@@ -193,6 +194,8 @@
         const newbieMediaItem = () => newbieFinalCheck.querySelector('[data-final-id="media"]');
         setField(win, doc, '#qrLink', '');
         setCheckbox(doc, '#showQr', true);
+        click(doc, '#qualityBtn');
+        await waitFor(() => Number(String(doc.getElementById('qualityScore')?.textContent || '').replace(/\D/g, '')) >= 70, 3000, 'media regression должен проверяться при quality не ниже 70');
         await waitFor(() => newbieMediaItem()?.classList.contains('todo') && newbieMediaItem()?.textContent.includes('добавьте ссылку для QR'), 2500, 'финальный чек-лист не увидел пустой включённый QR');
         click(doc, '#printBtn');
         await waitFor(() => doc.activeElement?.id === 'qrLink', 2000, 'print guard не перевёл к пустой ссылке QR');

@@ -161,6 +161,17 @@
         pass('режим Новичок включён');
         pass('пошаговая подготовка включена автоматически');
 
+        const newbieFinalCheck = await waitForElement(doc, '#spnNewbieFinalCheck', 3000, 'финальный чек-лист новичка не появился');
+        click(doc, '[data-count="4"]');
+        const newbieCountItem = () => newbieFinalCheck.querySelector('[data-final-id="count"]');
+        await waitFor(() => newbieCountItem()?.classList.contains('done') && newbieCountItem()?.textContent.includes('4 на А4'), 2500, 'финальный чек-лист не принял выбранный формат 4 на А4');
+        newbieCountItem().click();
+        await waitFor(() => doc.querySelector('[data-count="4"]')?.classList.contains('active'), 1500, 'клик по финальному пункту самовольно сменил формат 4 на А4');
+        assert(!doc.querySelector('[data-count="2"]')?.classList.contains('active'), 'финальный чек-лист навязал 2 на А4');
+        click(doc, '[data-count="2"]');
+        await waitFor(() => newbieCountItem()?.textContent.includes('2 на А4'), 2500, 'финальный чек-лист не обновился после явного возврата на 2 на А4');
+        pass('режим Новичок: финальная проверка сохраняет выбранный формат А4');
+
         const adaptationChecklist = await waitForElement(doc, '#spnTextStepChecklist', 3000, 'чек-лист адаптации шаблона не появился');
         const adaptationMore = adaptationChecklist.querySelector('[data-adaptation-more]');
         const benefitsLabel = doc.getElementById('benefits')?.closest('label');

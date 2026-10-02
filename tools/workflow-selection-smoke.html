@@ -123,6 +123,17 @@
         await waitFor(() => clarityDataStep.classList.contains('done'), 2500, 'маршрут не стал готовым после заполнения всего чек-листа');
         pass('адаптация: маршрут следует чек-листу и ведёт к первому незаполненному полю');
 
+        lastAction = 'adaptation.complete-to-check';
+        const adaptationNext = doc.getElementById('spnTextStepNextBtn');
+        assert(adaptationNext && !adaptationNext.disabled, 'после заполнения адаптации кнопка следующего шага недоступна');
+        assert(adaptationNext.textContent.includes('Перейти к проверке'), 'готовая адаптация не объясняет следующий шаг');
+        const qualityBeforeTransition = doc.getElementById('qualityScore')?.textContent || '';
+        adaptationNext.click();
+        await waitFor(() => doc.body.dataset.wizardStep === 'check', 2500, 'готовая адаптация не открыла шаг проверки');
+        await waitFor(() => doc.activeElement?.id === 'qualityBtn', 2500, 'после адаптации фокус не перешёл на кнопку проверки');
+        assert((doc.getElementById('qualityScore')?.textContent || '') === qualityBeforeTransition, 'переход к проверке не должен автоматически запускать quality check');
+        pass('адаптация: после заполнения ведёт к проверке без автоматического запуска');
+
         lastAction = 'template.adapt-next';
         const selectedNext = doc.querySelector('[data-selected-template-next]');
         const adaptButton = doc.querySelector('[data-adapt-selected-template]');

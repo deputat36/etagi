@@ -171,6 +171,27 @@ function bindWizardPanel(){
 
   const row = document.getElementById('printPresetRow');
   row?.addEventListener('click', () => window.setTimeout(syncPrintCountButtons, 80));
+
+  document.addEventListener('spn:adaptation-complete-next', openCheckFromAdaptation);
+}
+
+function openCheckFromAdaptation(){
+  clearNextNotice();
+  setStep('check');
+  setStatus('Адаптация заполнена. Запустите проверку качества перед печатью.');
+
+  const focusCheck = () => {
+    const target = document.getElementById('qualityBtn') || document.querySelector('.quality-card') || document.querySelector('.print-card');
+    if(!target) return;
+    const container = target.closest?.('.card') || target;
+    container.scrollIntoView({behavior:'smooth', block:'start'});
+    if(target.matches?.('button, input, textarea, select') && document.activeElement !== target){
+      target.focus({preventScroll:true});
+    }
+  };
+
+  focusCheck();
+  window.setTimeout(focusCheck, 80);
 }
 
 function moveStep(direction, options = {}){

@@ -19,6 +19,7 @@ const files = {
   wizardFlow: 'assets/js/spnWizardFlow.js',
   wizardPatch: 'assets/js/spnNewbieWizardPatch.js',
   printGuard: 'assets/js/spnNewbiePrintGuard.js',
+  printGuardNotice: 'assets/js/spnNewbiePrintGuardNotice.js',
   finalCheck: 'assets/js/spnNewbieFinalCheck.js',
   mediaReadiness: 'assets/js/spnMediaReadiness.js',
   clarityPanel: 'assets/js/spnClarityPanel.js',
@@ -88,6 +89,9 @@ requireSnippets(files.browserSmoke, sources.browserSmoke, [
   'режим Новичок: финальная проверка сохраняет выбранный формат А4',
   'режим Новичок: print guard сохраняет выбранный формат А4',
   'режим Новичок: Фото и QR согласованы между финальной проверкой и print guard',
+  'notice печати не увидел незавершённые Фото / QR',
+  'print guard не открыл шаг Фото / QR',
+  'notice печати не стал готовым после заполнения QR',
   'режим Быстро: ручная компоновка скрыта, быстрые текстовые действия доступны',
   'режим Расширенно: ручная компоновка доступна',
   'режим Расширенно: полный блок сохранения доступен'
@@ -109,6 +113,7 @@ requireSnippets(files.finalCheck, sources.finalCheck, [
   "{ id: 'media', title: 'Фото / QR'",
   'const media = getSpnMediaReadiness()',
   'media.missing.map(entry => entry.label)',
+  "document.dispatchEvent(new CustomEvent('spn:wizard-open-step'",
   "title: 'Формат на А4'",
   "const activeCount = document.querySelector('[data-count].active')?.dataset.count || ''",
   "['1','2','4','6','8'].includes(activeCount)",
@@ -134,7 +139,8 @@ requireSnippets(files.mediaReadiness, sources.mediaReadiness, [
 requireSnippets(files.clarityPanel, sources.clarityPanel, [
   "import { getSpnMediaReadiness } from './spnMediaReadiness.js';",
   'const media = getSpnMediaReadiness()',
-  'media.missing.map(item => item.label)'
+  'media.missing.map(item => item.label)',
+  "document.dispatchEvent(new CustomEvent('spn:wizard-open-step'"
 ]);
 forbidSnippets(files.clarityPanel, sources.clarityPanel, [
   "document.querySelectorAll('#printSheet .photo-box img').length"
@@ -295,6 +301,7 @@ requireSnippets(files.printGuard, sources.printGuard, [
   "import { getSpnMediaReadiness } from './spnMediaReadiness.js';",
   'const media = getSpnMediaReadiness()',
   'if(!media.ready) return go(media.firstTarget)',
+  "document.dispatchEvent(new CustomEvent('spn:wizard-open-step'",
   'bindPrintGuard',
   "document.getElementById('printBtn')",
   'handlePrintButtonClick',
@@ -303,6 +310,26 @@ requireSnippets(files.printGuard, sources.printGuard, [
   'hasSupportedPrintCount',
   "['1','2','4','6','8'].includes(activeCount)",
   "return go('#printPresetRow')"
+]);
+
+requireSnippets(files.printGuardNotice, sources.printGuardNotice, [
+  "import { getSpnMediaReadiness } from './spnMediaReadiness.js';",
+  "{ id: 'media', title: 'Заполнить Фото / QR'",
+  "{ id: 'count', title: 'Выбрать формат на А4'",
+  "['1','2','4','6','8'].includes(activeCount)",
+  'const media = getSpnMediaReadiness()',
+  'target:media.firstTarget',
+  "document.dispatchEvent(new CustomEvent('spn:wizard-open-step'"
+]);
+forbidSnippets(files.printGuardNotice, sources.printGuardNotice, [
+  'const countTwo',
+  "[data-count=\"2\"].active",
+  "title: 'Выбрать 2 на А4'"
+]);
+
+requireSnippets(files.wizardFlow, sources.wizardFlow, [
+  "document.addEventListener('spn:wizard-open-step'",
+  'step.sections.includes(requested)'
 ]);
 
 const oldDocumentGuard = 'document.add' + "EventListener('click', handlePrintGuard, true)";

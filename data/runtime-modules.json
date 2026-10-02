@@ -4509,7 +4509,8 @@
         "mutatedBy": [],
         "referencedBy": [
           "assets/js/spnClarityPanel.js",
-          "assets/js/spnTextStepChecklist.js"
+          "assets/js/spnTextStepChecklist.js",
+          "assets/js/spnWizardStepStatus.js"
         ]
       },
       {

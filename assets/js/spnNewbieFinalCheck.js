@@ -111,6 +111,7 @@ function goToAction(id){
       : document.querySelector(action.target);
   if(!target) return;
 
+  revealWizardSection(target);
   if(action.autoClick && target.matches('button')) target.click();
   if(action.autoCheck && target.matches('input[type="checkbox"]') && !target.checked){
     target.checked = true;
@@ -119,6 +120,14 @@ function goToAction(id){
 
   target.scrollIntoView({ behavior: 'smooth', block: 'center' });
   target.focus?.();
+}
+
+function revealWizardSection(target){
+  if(document.body.dataset.wizardFlow !== 'on') return;
+  const section = target.closest?.('[data-wizard-section]');
+  const sectionId = String(section?.dataset.wizardSection || '').trim();
+  if(!sectionId) return;
+  document.dispatchEvent(new CustomEvent('spn:wizard-open-step', {detail:{id:sectionId}}));
 }
 
 function injectStyles(){

@@ -117,23 +117,25 @@ function updateWizardStepStatus(){
 }
 
 function getGoalStatus(){
-  const hasGoal = Boolean(document.querySelector('#goalGrid [data-goal].active, [data-goal].active'));
+  const taskConfirmed = document.body.dataset.taskSelectionConfirmed === 'true';
+  const hasGoal = taskConfirmed && Boolean(document.querySelector('#goalGrid [data-goal].active, [data-goal].active'));
   const hasPrintCount = Boolean(document.querySelector('#printPresetRow [data-count].active, [data-wizard-print-count].active'));
   const missing = [];
-  if(!hasGoal) missing.push('цель');
+  if(!hasGoal) missing.push('задача');
   if(!hasPrintCount) missing.push('формат А4');
   return missing.length
     ? status('attention', 'проверить', `Не выбрано: ${missing.join(', ')}.`, true)
-    : status('ready', 'готово', 'Цель и формат А4 выбраны.', true);
+    : status('ready', 'готово', 'Задача и формат А4 подтверждены.', true);
 }
 
 function getTemplateStatus(){
+  const templateConfirmed = document.body.dataset.templateSelectionConfirmed === 'true';
   const active = document.querySelector('.tpl-card.active');
-  if(!active) return status('attention', 'выбрать', 'Выберите конкретный шаблон.', true);
+  if(!templateConfirmed || !active) return status('attention', 'выбрать', 'Выберите конкретный шаблон.', true);
   if(active.querySelector('.tpl-office-badge-deprecated')) {
     return status('attention', 'заменить', 'Выбран устаревший шаблон. Используйте рекомендованную замену.', true);
   }
-  return status('ready', 'готово', 'Шаблон выбран.', true);
+  return status('ready', 'готово', 'Шаблон подтверждён.', true);
 }
 
 function getContentStatus(){

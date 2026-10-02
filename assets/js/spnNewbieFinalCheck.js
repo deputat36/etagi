@@ -60,7 +60,7 @@ function updateFinalCheck(){
 function getItems(){
   const quality = Number(String(document.getElementById('qualityScore')?.textContent || '').replace(/\D/g, '')) || 0;
   const phone = Boolean(String(document.getElementById('agentPhone')?.value || '').trim());
-  const activeCount = document.querySelector('#printPresetRow [data-count].active')?.dataset.count || '';
+  const activeCount = document.querySelector('[data-count].active')?.dataset.count || '';
   const countReady = ['1','2','4','6','8'].includes(activeCount);
   const cutLines = Boolean(document.getElementById('showCutLines')?.checked);
   const safeMargins = Boolean(document.getElementById('safePrintMargins')?.checked);
@@ -87,7 +87,7 @@ function goToAction(id){
   const action = finalActions.find(item => item.id === id);
   if(!action) return;
   const target = id === 'count'
-    ? document.querySelector('#printPresetRow [data-count].active') || document.getElementById('printPresetRow')
+    ? document.querySelector('[data-count].active') || document.querySelector(action.target)
     : document.querySelector(action.target);
   if(!target) return;
 

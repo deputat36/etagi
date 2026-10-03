@@ -4655,6 +4655,7 @@
           "assets/js/spnWizardStepStatus.js"
         ],
         "referencedBy": [
+          "assets/js/app.js",
           "assets/js/spnNewbieWizardPatch.js",
           "assets/js/spnWizardFlow.js",
           "assets/js/spnWizardStepStatus.js"
@@ -4706,6 +4707,7 @@
         ],
         "boundBy": [],
         "mutatedBy": [
+          "assets/js/spnNewbieWizardPatch.js",
           "assets/js/spnWizardFlow.js"
         ],
         "referencedBy": [

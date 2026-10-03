@@ -147,7 +147,7 @@ function renderWizardPanel(){
 
 function bindWizardPanel(){
   document.getElementById('spnWizardFlow')?.addEventListener('click', event => {
-    const stepButton = event.target.closest('[data-wizard-step]');
+    const stepButton = event.target.closest('button[data-wizard-step]');
     if(stepButton){
       clearNextNotice();
       setStep(stepButton.dataset.wizardStep);
@@ -222,7 +222,7 @@ function setStep(stepId){
   document.body.dataset.wizardStep = active.id;
   localStorage.setItem(WIZARD_STEP_KEY, active.id);
 
-  document.querySelectorAll('[data-wizard-step]').forEach(button => {
+  document.querySelectorAll('#spnWizardFlow button[data-wizard-step]').forEach(button => {
     button.classList.toggle('active', button.dataset.wizardStep === active.id);
   });
 

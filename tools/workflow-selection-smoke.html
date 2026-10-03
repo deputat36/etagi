@@ -30,8 +30,8 @@
         assert(doc.getElementById('spnClarityGoalContext')?.textContent.trim() === 'Не выбрана', 'маршрут приписал пользователю стартовую задачу');
         assert(doc.getElementById('spnClarityTemplateContext')?.textContent.includes('Предпросмотр'), 'маршрут не объясняет стартовый шаблон');
         assert(doc.getElementById('spnNextActionText')?.textContent.includes('Выберите задачу'), 'маршрут не предлагает сначала подтвердить задачу');
-        const wizardGoalStep = doc.querySelector('[data-wizard-step="goal"]');
-        const wizardTemplateStep = doc.querySelector('[data-wizard-step="template"]');
+        const wizardGoalStep = doc.querySelector('#spnWizardFlow button[data-wizard-step="goal"]');
+        const wizardTemplateStep = doc.querySelector('#spnWizardFlow button[data-wizard-step="template"]');
         await waitFor(() => wizardGoalStep?.querySelector('.spn-wizard-step-status') && wizardTemplateStep?.querySelector('.spn-wizard-step-status'), 3000, 'статусы wizard не появились');
         assert(wizardGoalStep.dataset.stepStatus === 'attention', 'wizard ошибочно считает стартовую задачу подтверждённой');
         assert(wizardTemplateStep.dataset.stepStatus === 'attention', 'wizard ошибочно считает стартовый preview выбранным шаблоном');
@@ -108,7 +108,7 @@
         setField(win, doc, '#area', '');
         await waitFor(() => doc.getElementById('spnNextActionText')?.textContent.includes('Район / адрес / ЖК'), 2500, 'маршрут не назвал район первым незаполненным полем');
         assert(!clarityDataStep.classList.contains('done'), 'адаптация ошибочно готова при пустом районе');
-        const wizardContentStep = doc.querySelector('[data-wizard-step="content"]');
+        const wizardContentStep = doc.querySelector('#spnWizardFlow button[data-wizard-step="content"]');
         await waitFor(() => wizardContentStep?.dataset.stepStatus === 'attention', 2500, 'wizard ошибочно считает адаптацию готовой при пустом районе');
         assert(wizardContentStep.querySelector('.spn-wizard-step-status')?.title.includes('Район / адрес / ЖК'), 'wizard не объясняет, какое релевантное поле не заполнено');
         click(doc, '#spnGoNextActionBtn');

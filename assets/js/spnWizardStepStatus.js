@@ -1,3 +1,5 @@
+import { getSpnMediaReadiness } from './spnMediaReadiness.js';
+
 const STATUS_PANEL_ID = 'spnWizardProgressSummary';
 const STATUS_CLASS = 'spn-wizard-step-status';
 const STYLE_ID = 'spnWizardStepStatusStyles';
@@ -137,6 +139,26 @@ function getTemplateStatus(){
 }
 
 function getContentStatus(){
+  const checklist = document.getElementById('spnTextStepChecklist');
+  const checklistItems = checklist ? [...checklist.querySelectorAll('[data-text-step-field]')] : [];
+
+  if(checklistItems.length){
+    const missing = checklistItems.filter(item => item.classList.contains('todo'));
+    const done = checklistItems.length - missing.length;
+
+    if(missing.length){
+      const names = missing
+        .slice(0, 3)
+        .map(item => String(item.querySelector('span')?.textContent || 'поле').replace(/^[✓•]\s*/, '').trim())
+        .filter(Boolean);
+      const rest = Math.max(0, missing.length - names.length);
+      const detail = `${names.join(', ')}${rest ? ` и ещё ${rest}` : ''}`;
+      return status('attention', `${done}/${checklistItems.length}`, `Нужно заполнить: ${detail}.`, true);
+    }
+
+    return status('ready', 'готово', 'Все используемые поля выбранного шаблона заполнены.', true);
+  }
+
   const phoneDigits = fieldValue('agentPhone').replace(/\D/g, '');
   const missing = [];
   if(phoneDigits.length < 10) missing.push('телефон');
@@ -148,17 +170,11 @@ function getContentStatus(){
 }
 
 function getMediaStatus(){
-  const photoEnabled = Boolean(document.getElementById('showPhoto')?.checked);
-  const qrEnabled = Boolean(document.getElementById('showQr')?.checked || fieldValue('qrLink'));
-  if(!photoEnabled && !qrEnabled) return status('optional', 'необязательно', 'Фото и QR для этого макета не включены.', false);
-
-  const missing = [];
-  if(photoEnabled && !hasSelectedPhoto()) missing.push('загрузить фото');
-  if(qrEnabled && !fieldValue('qrLink')) missing.push('добавить ссылку QR');
-  if(fieldValue('qrLink') && !fieldValue('qrCaption')) missing.push('подписать QR');
-  return missing.length
-    ? status('attention', 'проверить', missing.join(' · '), true)
-    : status('ready', 'готово', 'Включённые фото и QR заполнены.', true);
+  const media = getSpnMediaReadiness();
+  if(!media.required) return status('optional', 'необязательно', 'Фото и QR для этого макета не включены.', false);
+  return media.ready
+    ? status('ready', 'готово', 'Включённые фото и QR заполнены.', true)
+    : status('attention', 'проверить', media.missing.map(item => item.label).join(' · '), true);
 }
 
 function getCheckStatus(){
@@ -219,13 +235,6 @@ function status(state, label, detail, required){
 
 function fieldValue(id){
   return String(document.getElementById(id)?.value || '').trim();
-}
-
-function hasSelectedPhoto(){
-  return Boolean(
-    document.getElementById('photoOne')?.files?.length ||
-    document.getElementById('photoTwo')?.files?.length
-  );
 }
 
 function readQualityScore(){

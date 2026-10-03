@@ -1,10 +1,13 @@
+import { getSpnMediaReadiness } from './spnMediaReadiness.js';
+
 const STYLE_ID = 'spnNewbiePrintGuardNoticeStyle';
 const NOTICE_ID = 'spnNewbiePrintGuardNotice';
 
 const checks = [
   { id: 'quality', title: 'Проверить макет', target: '#qualityBtn' },
   { id: 'phone', title: 'Заполнить телефон', target: '#agentPhone' },
-  { id: 'count', title: 'Выбрать 2 на А4', target: '[data-count="2"]' },
+  { id: 'media', title: 'Заполнить Фото / QR', target: '.media-card' },
+  { id: 'count', title: 'Выбрать формат на А4', target: '#printPresetRow' },
   { id: 'cut', title: 'Включить линии реза', target: '#showCutLines' },
   { id: 'safe', title: 'Включить безопасные поля', target: '#safePrintMargins' }
 ];
@@ -59,16 +62,38 @@ function updateNotice(){
 function getItems(){
   const quality = Number(String(document.getElementById('qualityScore')?.textContent || '').replace(/\D/g, '')) || 0;
   const phone = Boolean(String(document.getElementById('agentPhone')?.value || '').trim());
-  const countTwo = Boolean(document.querySelector('[data-count="2"].active'));
+  const activeCount = document.querySelector('[data-count].active')?.dataset.count || '';
+  const countReady = ['1','2','4','6','8'].includes(activeCount);
+  const media = getSpnMediaReadiness();
   const cutLines = Boolean(document.getElementById('showCutLines')?.checked);
   const safeMargins = Boolean(document.getElementById('safePrintMargins')?.checked);
-  const state = { quality: quality >= 70, phone, count: countTwo, cut: cutLines, safe: safeMargins };
-  return checks.map(item => ({ ...item, ok: Boolean(state[item.id]) }));
+  const state = { quality: quality >= 70, phone, media: media.ready, count: countReady, cut: cutLines, safe: safeMargins };
+
+  return checks.map(item => {
+    if(item.id === 'count'){
+      return {
+        ...item,
+        title:activeCount ? `${activeCount} на А4` : item.title,
+        target:activeCount ? `[data-count="${activeCount}"]` : item.target,
+        ok:countReady
+      };
+    }
+    if(item.id === 'media'){
+      return {
+        ...item,
+        title:media.required ? item.title : 'Фото / QR не требуются',
+        target:media.firstTarget,
+        ok:media.ready
+      };
+    }
+    return { ...item, ok:Boolean(state[item.id]) };
+  });
 }
 
 function go(selector){
   const target = document.querySelector(selector);
   if(!target) return;
+  revealWizardSection(target);
   if(target.matches('button')) target.click();
   if(target.matches('input[type="checkbox"]') && !target.checked){
     target.checked = true;
@@ -76,6 +101,14 @@ function go(selector){
   }
   target.scrollIntoView({ behavior: 'smooth', block: 'center' });
   target.focus?.();
+}
+
+function revealWizardSection(target){
+  if(document.body.dataset.wizardFlow !== 'on') return;
+  const section = target.closest?.('[data-wizard-section]');
+  const sectionId = String(section?.dataset.wizardSection || '').trim();
+  if(!sectionId) return;
+  document.dispatchEvent(new CustomEvent('spn:wizard-open-step', {detail:{id:sectionId}}));
 }
 
 function injectStyles(){

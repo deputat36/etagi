@@ -171,6 +171,40 @@ function bindWizardPanel(){
 
   const row = document.getElementById('printPresetRow');
   row?.addEventListener('click', () => window.setTimeout(syncPrintCountButtons, 80));
+
+  document.addEventListener('spn:adaptation-complete-next', openCheckFromAdaptation);
+  document.addEventListener('spn:wizard-open-step', event => {
+    const requested = String(event.detail?.id || '').trim();
+    const targetStep = steps.find(step => step.id === requested || step.sections.includes(requested));
+    if(!targetStep) return;
+    clearNextNotice();
+    setStep(targetStep.id);
+  });
+}
+
+function openCheckFromAdaptation(){
+  clearNextNotice();
+  setStep('check');
+  setStatus('Адаптация заполнена. Запустите проверку качества перед печатью.');
+
+  const focusCheck = ({retry = false} = {}) => {
+    const target = document.getElementById('qualityBtn') || document.querySelector('.quality-card') || document.querySelector('.print-card');
+    if(!target) return;
+
+    const active = document.activeElement;
+    if(retry && active && active !== target && active !== document.body && active !== document.documentElement && active.isConnected){
+      return;
+    }
+
+    const container = target.closest?.('.card') || target;
+    container.scrollIntoView({behavior:'smooth', block:'start'});
+    if(target.matches?.('button, input, textarea, select') && active !== target){
+      target.focus({preventScroll:true});
+    }
+  };
+
+  focusCheck();
+  window.setTimeout(() => focusCheck({retry:true}), 80);
 }
 
 function moveStep(direction, options = {}){

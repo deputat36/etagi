@@ -188,6 +188,10 @@
     }
 
     function assertLightweightContacts(flyers){
+      for(const flyer of flyers.filter(item => item.classList.contains('color-economy'))){
+        const style = flyer.ownerDocument.defaultView.getComputedStyle(flyer.querySelector('.contact'));
+        if(style.borderTopColor !== 'rgb(227, 6, 19)') throw new Error('экономная печать потеряла красный фирменный акцент Этажей');
+      }
       for(const flyer of flyers){
         const contact = flyer.querySelector('.contact');
         if(!contact) throw new Error('в макете отсутствует контактная зона');

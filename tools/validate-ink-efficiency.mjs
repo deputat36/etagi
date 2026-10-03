@@ -5,6 +5,7 @@ import path from 'node:path';
 const rootDir = process.cwd();
 const errors = [];
 const files = {
+  appStyles: 'assets/css/app.css',
   helper: 'assets/js/spnInkEfficiency.js',
   styles: 'assets/css/quality-runtime.css',
   index: 'index.html',
@@ -16,6 +17,11 @@ const files = {
 const sources = Object.fromEntries(
   Object.entries(files).map(([key, file]) => [key, readRequired(file)])
 );
+
+for(const key of ['appStyles', 'styles']){
+  requireSnippets(files[key], sources[key], ['.flyer.color-economy{--accent:var(--red)}']);
+  forbidSnippets(files[key], sources[key], ['.flyer.color-economy{--accent:#0b72b9}']);
+}
 
 requireSnippets(files.helper, sources.helper, [
   "import { subscribeQualityListUpdates } from './qualityListUpdates.js';",

@@ -4706,6 +4706,7 @@
         ],
         "boundBy": [],
         "mutatedBy": [
+          "assets/js/spnNewbieWizardPatch.js",
           "assets/js/spnWizardFlow.js"
         ],
         "referencedBy": [

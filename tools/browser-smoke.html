@@ -161,6 +161,26 @@
         pass('режим Новичок включён');
         pass('пошаговая подготовка включена автоматически');
 
+        click(doc, '[data-wizard-step="content"]');
+        await waitFor(() => doc.body.dataset.wizardStep === 'content', 2000, 'шаг Адаптация не открылся перед проверкой optional media');
+        await waitFor(() => doc.getElementById('spnWizardNext')?.textContent.includes('Проверка и печать'), 2000, 'новичку предложен необязательный шаг Фото / QR вместо Проверки');
+        click(doc, '#spnWizardNext');
+        await waitFor(() => doc.body.dataset.wizardStep === 'check', 2000, 'необязательный шаг Фото / QR не пропущен');
+        await waitFor(() => doc.getElementById('spnWizardNext')?.textContent.includes('Задание'), 2000, 'на Проверке кнопка Далее ведёт текстом на скрытое Сохранение');
+        click(doc, '#spnWizardPrev');
+        await waitFor(() => doc.body.dataset.wizardStep === 'content', 2000, 'Назад с Проверки не пропустил необязательный Фото / QR');
+        mediaStep.click();
+        await waitFor(() => doc.body.dataset.wizardStep === 'media', 2000, 'необязательный Фото / QR нельзя открыть вручную');
+        setCheckbox(doc, '#showQr', true);
+        await waitFor(() => mediaStep.dataset.stepStatus !== 'optional', 2000, 'включённый QR не сделал шаг обязательным');
+        click(doc, '[data-wizard-step="content"]');
+        click(doc, '#spnWizardNext');
+        await waitFor(() => doc.body.dataset.wizardStep === 'media', 2000, 'обязательный Фото / QR ошибочно пропущен');
+        setCheckbox(doc, '#showQr', false);
+        setField(win, doc, '#qrLink', '');
+        await waitFor(() => mediaStep.dataset.stepStatus === 'optional', 2000, 'после отключения QR шаг не вернулся в optional');
+        click(doc, '[data-wizard-step="content"]');
+        pass('режим Новичок: необязательный Фото / QR пропускается, обязательный остаётся в маршруте');
         const newbieFinalCheck = await waitForElement(doc, '#spnNewbieFinalCheck', 3000, 'финальный чек-лист новичка не появился');
         click(doc, '[data-count="4"]');
         click(doc, '[data-layout-mode="economy"]');

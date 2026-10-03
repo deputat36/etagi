@@ -76,7 +76,8 @@ requireCssSnippets(files.libraryCss, printCss, [
 ]);
 
 requireSnippets(files.smoke, sources.smoke, [
-  "frame.style.width = '500px';",
+  "for(const width of [360, 390, 430])",
+  "doc.documentElement.scrollWidth <= win.innerWidth + 1",
   "mobileFontSize('.spn-wizard-step-status') >= 11",
   "mobileFontSize('.spn-wizard-print-count span') >= 11.5",
   "mobileFontSize('.spn-wizard-steps span') >= 11.5",
@@ -90,7 +91,7 @@ requireSnippets(files.smoke, sources.smoke, [
 requireSnippets(files.guide, sources.guide, [
   '# Читаемость важных подписей на мобильном экране',
   '360 px',
-  '500 px',
+  '430 px',
   'До печати / После печати',
   'риск',
   'npm run validate:mobile-readability',

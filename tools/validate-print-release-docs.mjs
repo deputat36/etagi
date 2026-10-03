@@ -52,7 +52,7 @@ requireSnippets(files.ci, sources.ci, [
 requireSnippets(files.release, sources.release, [
   'Статус: DRAFT',
   'Текущая опубликованная версия: 3.85.0',
-  'Последний полный контроль: GitHub Actions workflow run #1883',
+  'Последний полный контроль: GitHub Actions workflow run #',
   '`print-screenshot` для семи сценариев — успешно',
   'отдельный workflow 8 на A4 — успешно',
   'единый browser coverage 1/2/3/4/6/8 — успешно',

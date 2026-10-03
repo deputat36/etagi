@@ -90,7 +90,8 @@
         assert(['true', 'false'].includes(progressSummary.dataset.afterReady), 'итог После печати не содержит состояния готовности');
         pass('статусы: восемь шагов и два общих итога');
 
-        frame.style.width = '500px';
+        for(const width of [360, 390, 430]){
+        frame.style.width = `${width}px`;
         await nextFrame(win);
         const mobileFontSize = selector => {
           const element = doc.querySelector(selector);
@@ -105,6 +106,8 @@
         doc.body.dataset.templateMenuMode = 'compact';
         assert(mobileFontSize('.tpl-card .badge') >= 10.5, 'мобильный badge шаблона мельче 10.5 px');
         assert(mobileFontSize('.tpl-office-badge') >= 11, 'мобильная отметка риска шаблона мельче 11 px');
+        assert(doc.documentElement.scrollWidth <= win.innerWidth + 1, `страница прокручивается по горизонтали при ${width}px`);
+        }
         frame.style.width = '1280px';
         await nextFrame(win);
         pass('mobile: важные рабочие подписи читаемы');

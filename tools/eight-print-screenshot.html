@@ -72,6 +72,7 @@
         const phone = contact?.querySelector('.phone');
         const headline = flyer.querySelector('.headline');
         if(!contact || !phone || !headline) throw new Error('макет 8 на А4 потерял обязательный блок');
+        if(win.getComputedStyle(contact).borderTopColor !== 'rgb(227, 6, 19)') throw new Error('экономная печать 8 на А4 потеряла красный акцент Этажей');
 
         const contactRect = contact.getBoundingClientRect();
         if(contactRect.left < flyerRect.left - 1 || contactRect.right > flyerRect.right + 1 || contactRect.bottom > flyerRect.bottom + 1){

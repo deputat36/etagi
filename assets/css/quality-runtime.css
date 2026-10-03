@@ -15,7 +15,7 @@
   border-color:#475569!important;
   box-shadow:inset 0 1mm 0 #475569!important;
 }
-.flyer.color-economy{--accent:#0b72b9}
+.flyer.color-economy{--accent:var(--red)}
 .flyer.color-economy .brand-mark{
   background:#fff!important;
   color:var(--accent)!important;

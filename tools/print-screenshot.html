@@ -149,10 +149,22 @@
       }
       const expected = {'one-no-photo':1,'two-big-phone':2,'three-tearoffs':3,'one-showcase':1,'two-photo':2,'four-contacts':4,'six-economy':6}[currentScenario];
       if(flyers.length !== expected) throw new Error(`ожидалось ${expected} макетов, получено ${flyers.length}`);
+      assertNeutralSafeMargins(flyers);
       assertLightweightContacts(flyers);
       if(currentScenario === 'three-tearoffs') assertTearOffs(flyers);
       if(['three-tearoffs','four-contacts','six-economy'].includes(currentScenario)) assertInkEfficientContacts(flyers);
       if(currentScenario === 'six-economy') assertSixEconomy(flyers);
+    }
+
+    function assertNeutralSafeMargins(flyers){
+      for(const flyer of flyers){
+        if(!flyer.closest('.safe-print-margins')) continue;
+        const style = flyer.ownerDocument.defaultView.getComputedStyle(flyer, '::after');
+        const channels = style.borderColor.match(/[\d.]+/g)?.slice(0, 3).map(Number);
+        if(style.borderStyle !== 'dotted' || !channels || channels.length !== 3 || channels.some(value => value !== channels[0])){
+          throw new Error('безопасные поля потеряли нейтральную пунктирную линию');
+        }
+      }
     }
 
     function assertTearOffs(flyers){

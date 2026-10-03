@@ -6,6 +6,7 @@ const rootDir = process.cwd();
 const errors = [];
 const files = {
   appStyles: 'assets/css/app.css',
+  uiStyles: 'assets/css/ui-improvements.css',
   helper: 'assets/js/spnInkEfficiency.js',
   styles: 'assets/css/quality-runtime.css',
   index: 'index.html',
@@ -22,6 +23,12 @@ for(const key of ['appStyles', 'styles']){
   requireSnippets(files[key], sources[key], ['.flyer.color-economy{--accent:var(--red)}']);
   forbidSnippets(files[key], sources[key], ['.flyer.color-economy{--accent:#0b72b9}']);
 }
+
+requireSnippets(files.uiStyles, sources.uiStyles, [
+  '.sheet.safe-print-margins .flyer::after{',
+  'border:1px dotted rgba(0,0,0,.35)'
+]);
+forbidSnippets(files.uiStyles, sources.uiStyles, ['border:1px dotted rgba(37,99,235,.55)']);
 
 requireSnippets(files.helper, sources.helper, [
   "import { subscribeQualityListUpdates } from './qualityListUpdates.js';",

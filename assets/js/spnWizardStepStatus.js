@@ -37,7 +37,7 @@ function ensureStatusPanel(wizard){
 }
 
 function ensureStepBadges(wizard){
-  wizard.querySelectorAll('[data-wizard-step]').forEach(button => {
+  wizard.querySelectorAll('button[data-wizard-step]').forEach(button => {
     if(button.querySelector(`.${STATUS_CLASS}`)) return;
     const badge = document.createElement('em');
     badge.className = STATUS_CLASS;
@@ -52,6 +52,7 @@ function bindStatusSources(sidebar, wizard){
 
   sidebar.addEventListener('input', scheduleStatusUpdate);
   sidebar.addEventListener('change', scheduleStatusUpdate);
+  document.addEventListener('spn:selection-context', scheduleStatusUpdate);
   sidebar.addEventListener('click', event => {
     if(!event.target.closest('[data-goal], .tpl-card, [data-count], [data-wizard-print-count], #qualityBtn, #saveNamedLayoutBtn, #saveLocalBtn, #saveDistributionReportHistoryBtn, [data-manager-review]')) return;
     window.setTimeout(scheduleStatusUpdate, 100);
@@ -106,7 +107,7 @@ function updateWizardStepStatus(){
     report: getReportStatus()
   };
 
-  document.querySelectorAll('[data-wizard-step]').forEach(button => {
+  document.querySelectorAll('#spnWizardFlow button[data-wizard-step]').forEach(button => {
     const status = statuses[button.dataset.wizardStep];
     const badge = button.querySelector(`.${STATUS_CLASS}`);
     if(!status || !badge) return;
@@ -119,23 +120,25 @@ function updateWizardStepStatus(){
 }
 
 function getGoalStatus(){
-  const hasGoal = Boolean(document.querySelector('#goalGrid [data-goal].active, [data-goal].active'));
+  const taskConfirmed = document.body.dataset.taskSelectionConfirmed === 'true';
+  const hasGoal = taskConfirmed && Boolean(document.querySelector('#goalGrid [data-goal].active, [data-goal].active'));
   const hasPrintCount = Boolean(document.querySelector('#printPresetRow [data-count].active, [data-wizard-print-count].active'));
   const missing = [];
-  if(!hasGoal) missing.push('цель');
+  if(!hasGoal) missing.push('задача');
   if(!hasPrintCount) missing.push('формат А4');
   return missing.length
     ? status('attention', 'проверить', `Не выбрано: ${missing.join(', ')}.`, true)
-    : status('ready', 'готово', 'Цель и формат А4 выбраны.', true);
+    : status('ready', 'готово', 'Задача и формат А4 подтверждены.', true);
 }
 
 function getTemplateStatus(){
+  const templateConfirmed = document.body.dataset.templateSelectionConfirmed === 'true';
   const active = document.querySelector('.tpl-card.active');
-  if(!active) return status('attention', 'выбрать', 'Выберите конкретный шаблон.', true);
+  if(!templateConfirmed || !active) return status('attention', 'выбрать', 'Выберите конкретный шаблон.', true);
   if(active.querySelector('.tpl-office-badge-deprecated')) {
     return status('attention', 'заменить', 'Выбран устаревший шаблон. Используйте рекомендованную замену.', true);
   }
-  return status('ready', 'готово', 'Шаблон выбран.', true);
+  return status('ready', 'готово', 'Шаблон подтверждён.', true);
 }
 
 function getContentStatus(){
@@ -258,10 +261,10 @@ function injectStyles(){
   style.textContent = `
     .spn-wizard-steps button{position:relative;padding-right:74px}
     .spn-wizard-step-status{position:absolute;top:7px;right:7px;max-width:66px;padding:3px 5px;border-radius:999px;background:#f1f5f9;color:#475569;font-size:9px;line-height:1;font-weight:900;font-style:normal;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    [data-wizard-step][data-step-status="ready"] .spn-wizard-step-status{background:#dcfce7;color:#166534}
-    [data-wizard-step][data-step-status="attention"] .spn-wizard-step-status{background:#fef3c7;color:#92400e}
-    [data-wizard-step][data-step-status="optional"] .spn-wizard-step-status{background:#eff6ff;color:#1d4ed8}
-    [data-wizard-step][data-step-status="later"] .spn-wizard-step-status{background:#f1f5f9;color:#64748b}
+    #spnWizardFlow button[data-wizard-step][data-step-status="ready"] .spn-wizard-step-status{background:#dcfce7;color:#166534}
+    #spnWizardFlow button[data-wizard-step][data-step-status="attention"] .spn-wizard-step-status{background:#fef3c7;color:#92400e}
+    #spnWizardFlow button[data-wizard-step][data-step-status="optional"] .spn-wizard-step-status{background:#eff6ff;color:#1d4ed8}
+    #spnWizardFlow button[data-wizard-step][data-step-status="later"] .spn-wizard-step-status{background:#f1f5f9;color:#64748b}
     .spn-wizard-progress-summary{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}
     .spn-wizard-progress-summary span{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:7px 8px;border:1px solid #e2e8f0;border-radius:11px;background:#fff;color:#475569;font-size:10.5px;font-weight:900}
     .spn-wizard-progress-summary span b{font-size:10.5px;color:#334155}

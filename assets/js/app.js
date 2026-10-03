@@ -546,7 +546,7 @@ function openSelectedTemplateAdaptation(){
     setStatus('Сначала выберите шаблон.');
     return;
   }
-  const contentStep = document.querySelector('[data-wizard-step="content"]');
+  const contentStep = document.querySelector('#spnWizardFlow button[data-wizard-step="content"]');
   contentStep?.click();
   const contentCard = $('agentName')?.closest('.card');
   window.requestAnimationFrame(() => {

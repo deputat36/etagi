@@ -136,7 +136,7 @@ function disableWizardAutoEnabledByNewbie(){
 }
 
 function isMediaOptional(){
-  return document.querySelector('[data-wizard-step="media"]')?.dataset.stepStatus === 'optional';
+  return document.querySelector('#spnWizardFlow button[data-wizard-step="media"]')?.dataset.stepStatus === 'optional';
 }
 
 function syncNewbieNavigationLabels(step = document.body.dataset.wizardStep || 'goal'){
@@ -164,7 +164,7 @@ function redirectHiddenSaveStep(){
 }
 
 function goToWizardStep(stepId){
-  const button = document.querySelector(`[data-wizard-step="${stepId}"]`);
+  const button = document.querySelector(`#spnWizardFlow button[data-wizard-step="${stepId}"]`);
   button?.click();
 }
 

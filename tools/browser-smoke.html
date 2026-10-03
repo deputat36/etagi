@@ -112,7 +112,7 @@
         setField(win, doc, '#qrLink', '');
         setCheckbox(doc, '#showPhoto', false);
         setCheckbox(doc, '#showQr', false);
-        const mediaStep = doc.querySelector('[data-wizard-step="media"]');
+        const mediaStep = doc.querySelector('#spnWizardFlow button[data-wizard-step="media"]');
         wizard.click();
         const mediaDebug = () => `showPhoto=${doc.getElementById('showPhoto')?.checked}; showQr=${doc.getElementById('showQr')?.checked}; qrLink=${doc.getElementById('qrLink')?.value || '—'}; state=${mediaStep?.dataset.stepStatus || '—'}; badge=${mediaStep?.querySelector('.spn-wizard-step-status')?.textContent || '—'}`;
         await waitFor(() => mediaStep?.dataset.stepStatus === 'optional' && mediaStep.querySelector('.spn-wizard-step-status')?.textContent === 'необязательно', 3000, () => `выключенные Фото / QR не стали необязательными (${mediaDebug()})`);
@@ -161,7 +161,7 @@
         pass('режим Новичок включён');
         pass('пошаговая подготовка включена автоматически');
 
-        click(doc, '[data-wizard-step="content"]');
+        click(doc, '#spnWizardFlow button[data-wizard-step="content"]');
         await waitFor(() => doc.body.dataset.wizardStep === 'content', 2000, 'шаг Адаптация не открылся перед проверкой optional media');
         await waitFor(() => doc.getElementById('spnWizardNext')?.textContent.includes('Проверка и печать'), 2000, 'новичку предложен необязательный шаг Фото / QR вместо Проверки');
         click(doc, '#spnWizardNext');
@@ -173,13 +173,13 @@
         await waitFor(() => doc.body.dataset.wizardStep === 'media', 2000, 'необязательный Фото / QR нельзя открыть вручную');
         setCheckbox(doc, '#showQr', true);
         await waitFor(() => mediaStep.dataset.stepStatus !== 'optional', 2000, 'включённый QR не сделал шаг обязательным');
-        click(doc, '[data-wizard-step="content"]');
+        click(doc, '#spnWizardFlow button[data-wizard-step="content"]');
         click(doc, '#spnWizardNext');
         await waitFor(() => doc.body.dataset.wizardStep === 'media', 2000, 'обязательный Фото / QR ошибочно пропущен');
         setCheckbox(doc, '#showQr', false);
         setField(win, doc, '#qrLink', '');
         await waitFor(() => mediaStep.dataset.stepStatus === 'optional', 2000, 'после отключения QR шаг не вернулся в optional');
-        click(doc, '[data-wizard-step="content"]');
+        click(doc, '#spnWizardFlow button[data-wizard-step="content"]');
         pass('режим Новичок: необязательный Фото / QR пропускается, обязательный остаётся в маршруте');
         const newbieFinalCheck = await waitForElement(doc, '#spnNewbieFinalCheck', 3000, 'финальный чек-лист новичка не появился');
         click(doc, '[data-count="4"]');
@@ -261,7 +261,7 @@
         await waitFor(() => !benefitsLabel.classList.contains('spn-adaptation-extra-field') && adaptationChecklist.querySelector('[data-text-step-field="benefits"]'), 2000, 'включённое поле не вернулось в адаптацию');
         pass('адаптация шаблона: показываются только используемые поля, дополнительные можно раскрыть');
 
-        click(doc, '[data-wizard-step="check"]');
+        click(doc, '#spnWizardFlow button[data-wizard-step="check"]');
         await waitFor(() => doc.body.dataset.wizardStep === 'check', 2000, 'шаг Проверка не открылся');
         click(doc, '#spnWizardNext');
         await waitFor(() => doc.body.dataset.wizardStep === 'task', 3000, 'переход Проверка → Задание не выполнен');
@@ -271,9 +271,11 @@
 
         setField(win, doc, '#distributionPlace', 'Северный микрорайон');
         setField(win, doc, '#distributionSheets', '20');
-        const taskStep = doc.querySelector('[data-wizard-step="task"]');
+        const taskStep = doc.querySelector('#spnWizardFlow button[data-wizard-step="task"]');
         await waitFor(() => taskStep?.dataset.stepStatus === 'ready' && taskStep.querySelector('.spn-wizard-step-status')?.textContent === 'готово', 3000, 'заполненное задание не стало готовым');
-        pass('статусы: задание стало готовым');
+        assert(!doc.body.dataset.stepStatus, 'статус кнопки ошибочно записан в body');
+        assert(doc.querySelector('#spnWizardFlow button[data-wizard-step="goal"]')?.dataset.stepStatus === 'attention', 'незаполненный выбор задачи стал готовым при заполнении задания');
+        pass('статусы: задание стало готовым независимо от неподтверждённой задачи');
 
         click(doc, '#spnWizardNext');
         await waitFor(() => doc.body.dataset.wizardStep === 'report', 3000, 'переход Задание → Отчёт не выполнен');
@@ -286,7 +288,7 @@
         setField(win, doc, '#distributionReportDate', '2026-07-13');
         setField(win, doc, '#distributionReportPlace', 'Северный микрорайон');
         setField(win, doc, '#distributionReportSheets', '20');
-        const reportStep = doc.querySelector('[data-wizard-step="report"]');
+        const reportStep = doc.querySelector('#spnWizardFlow button[data-wizard-step="report"]');
         reportStep.click();
         const reportDebug = () => `date=${doc.getElementById('distributionReportDate')?.value || '—'}; place=${doc.getElementById('distributionReportPlace')?.value || '—'}; sheets=${doc.getElementById('distributionReportSheets')?.value || '—'}; state=${reportStep?.dataset.stepStatus || '—'}; badge=${reportStep?.querySelector('.spn-wizard-step-status')?.textContent || '—'}`;
         await waitFor(() => reportStep?.dataset.stepStatus === 'ready' && ['заполнен', 'готово'].includes(reportStep.querySelector('.spn-wizard-step-status')?.textContent), 3000, () => `заполненный отчёт не стал готовым (${reportDebug()})`);

@@ -30,6 +30,11 @@
         assert(doc.getElementById('spnClarityGoalContext')?.textContent.trim() === 'Не выбрана', 'маршрут приписал пользователю стартовую задачу');
         assert(doc.getElementById('spnClarityTemplateContext')?.textContent.includes('Предпросмотр'), 'маршрут не объясняет стартовый шаблон');
         assert(doc.getElementById('spnNextActionText')?.textContent.includes('Выберите задачу'), 'маршрут не предлагает сначала подтвердить задачу');
+        const wizardGoalStep = doc.querySelector('#spnWizardFlow button[data-wizard-step="goal"]');
+        const wizardTemplateStep = doc.querySelector('#spnWizardFlow button[data-wizard-step="template"]');
+        await waitFor(() => wizardGoalStep?.querySelector('.spn-wizard-step-status') && wizardTemplateStep?.querySelector('.spn-wizard-step-status'), 3000, 'статусы wizard не появились');
+        assert(wizardGoalStep.dataset.stepStatus === 'attention', 'wizard ошибочно считает стартовую задачу подтверждённой');
+        assert(wizardTemplateStep.dataset.stepStatus === 'attention', 'wizard ошибочно считает стартовый preview выбранным шаблоном');
         pass('старт: технические задача и шаблон показаны как предпросмотр, а не как выбор');
 
         const firstAdaptationInfo = doc.querySelector('.tpl-card .tpl-adaptation-info');
@@ -65,6 +70,8 @@
         assert(doc.body.dataset.templateSelectionConfirmed === 'false', 'офисная ситуация ошибочно подтвердила шаблон');
         assert(doc.getElementById('spnClarityGoalContext')?.textContent.trim() !== 'Не выбрана', 'маршрут не показал подтверждённую задачу');
         assert(doc.getElementById('spnClarityTemplateContext')?.textContent.includes('Не выбран'), 'маршрут не требует шаблон после выбора ситуации');
+        await waitFor(() => wizardGoalStep.dataset.stepStatus === 'ready', 2500, 'wizard не подтвердил явно выбранную задачу');
+        assert(wizardTemplateStep.dataset.stepStatus === 'attention', 'wizard подтвердил шаблон до явного выбора');
         pass('ситуация: задача, поиск и настройки применены одной транзакцией');
         pass('ситуация: текущий макет не заменён и активный шаблон не скрыт');
 
@@ -89,6 +96,7 @@
         assert(doc.body.dataset.templateSelectionConfirmed === 'true', 'явный клик не подтвердил шаблон');
         assert(!doc.querySelector('[data-template-preview-notice]'), 'после явного выбора осталось сообщение предпросмотра');
         assert(doc.getElementById('spnClarityTemplateContext')?.textContent.trim() !== 'Не выбран', 'маршрут не показал выбранный шаблон');
+        await waitFor(() => wizardTemplateStep.dataset.stepStatus === 'ready', 2500, 'wizard не подтвердил явно выбранный шаблон');
         pass('шаблон: применяется явно и синхронизирует сценарий');
 
         lastAction = 'adaptation.route-sync';
@@ -100,8 +108,8 @@
         setField(win, doc, '#area', '');
         await waitFor(() => doc.getElementById('spnNextActionText')?.textContent.includes('Район / адрес / ЖК'), 2500, 'маршрут не назвал район первым незаполненным полем');
         assert(!clarityDataStep.classList.contains('done'), 'адаптация ошибочно готова при пустом районе');
-        const wizardContentStep = doc.querySelector('[data-wizard-step="content"]');
-        await waitFor(() => wizardContentStep?.dataset.stepStatus === 'attention', 2500, 'wizard ошибочно считает адаптацию готовой при пустом районе');
+        const wizardContentStep = doc.querySelector('#spnWizardFlow button[data-wizard-step="content"]');
+        await waitFor(() => wizardContentStep?.dataset.stepStatus === 'attention' && wizardContentStep.querySelector('.spn-wizard-step-status')?.title.includes('Район / адрес / ЖК'), 2500, 'wizard не обновил статус и причину незаполненного района');
         assert(wizardContentStep.querySelector('.spn-wizard-step-status')?.title.includes('Район / адрес / ЖК'), 'wizard не объясняет, какое релевантное поле не заполнено');
         click(doc, '#spnGoNextActionBtn');
         await waitFor(() => doc.activeElement?.id === 'area', 2000, 'кнопка Перейти не сфокусировала конкретное незаполненное поле');
@@ -174,6 +182,8 @@
         assert(doc.body.dataset.taskSelectionConfirmed === 'true', 'ручная задача не зафиксирована как явный выбор');
         assert(doc.body.dataset.templateSelectionConfirmed === 'false', 'смена задачи не сбросила подтверждение шаблона');
         assert(doc.getElementById('spnClarityTemplateContext')?.textContent.includes('Не выбран'), 'маршрут не требует новый шаблон после смены задачи');
+        await waitFor(() => wizardGoalStep.dataset.stepStatus === 'ready' && wizardTemplateStep.dataset.stepStatus === 'attention', 2000, 'wizard не синхронизировал подтверждённую задачу и сброс шаблона');
+        pass('wizard: задача и шаблон готовы только после явного подтверждения');
         pass('задача: фильтрует библиотеку без автоматического шаблона');
 
         lastAction = 'template.recommended-hero';

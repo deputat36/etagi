@@ -70,8 +70,8 @@
   ],
   "summary": {
     "entrypointCount": 16,
-    "moduleCount": 83,
-    "relationCount": 98,
+    "moduleCount": 84,
+    "relationCount": 103,
     "sideEffectModuleCount": 54,
     "dynamicModuleCount": 0,
     "domIdCount": 303,
@@ -1905,8 +1905,7 @@
         "referencedBy": [
           "assets/js/app.js",
           "assets/js/spnDestructiveSnapshot.js",
-          "assets/js/spnPhotoLayoutQualityActions.js",
-          "assets/js/spnWizardStepStatus.js"
+          "assets/js/spnPhotoLayoutQualityActions.js"
         ]
       },
       {
@@ -1923,8 +1922,7 @@
         "mutatedBy": [],
         "referencedBy": [
           "assets/js/app.js",
-          "assets/js/spnDestructiveSnapshot.js",
-          "assets/js/spnWizardStepStatus.js"
+          "assets/js/spnDestructiveSnapshot.js"
         ]
       },
       {
@@ -2104,11 +2102,11 @@
         "referencedBy": [
           "assets/js/app.js",
           "assets/js/preprintSummary.js",
-          "assets/js/spnClarityPanel.js",
           "assets/js/spnDestructiveSnapshot.js",
           "assets/js/spnFitPreview.js",
           "assets/js/spnInkEfficiency.js",
           "assets/js/spnInlinePreviewEditor.js",
+          "assets/js/spnMediaReadiness.js",
           "assets/js/spnPhotoLayoutStyle.js"
         ]
       },
@@ -2209,6 +2207,7 @@
         "ownershipBasis": "reference-only",
         "owners": [
           "assets/js/qualityExtraActions.js",
+          "assets/js/spnMediaReadiness.js",
           "assets/js/spnQrEditor.js"
         ],
         "createdBy": [],
@@ -2216,6 +2215,7 @@
         "mutatedBy": [],
         "referencedBy": [
           "assets/js/qualityExtraActions.js",
+          "assets/js/spnMediaReadiness.js",
           "assets/js/spnQrEditor.js"
         ]
       },
@@ -2872,15 +2872,13 @@
         "declaredInIndex": true,
         "ownershipBasis": "reference-only",
         "owners": [
-          "assets/js/spnClarityPanel.js",
-          "assets/js/spnWizardStepStatus.js"
+          "assets/js/spnMediaReadiness.js"
         ],
         "createdBy": [],
         "boundBy": [],
         "mutatedBy": [],
         "referencedBy": [
-          "assets/js/spnClarityPanel.js",
-          "assets/js/spnWizardStepStatus.js"
+          "assets/js/spnMediaReadiness.js"
         ]
       },
       {
@@ -2912,9 +2910,8 @@
           "assets/js/spnQrEditor.js"
         ],
         "referencedBy": [
-          "assets/js/spnClarityPanel.js",
-          "assets/js/spnQrEditor.js",
-          "assets/js/spnWizardStepStatus.js"
+          "assets/js/spnMediaReadiness.js",
+          "assets/js/spnQrEditor.js"
         ]
       },
       {
@@ -6673,7 +6670,12 @@
         "entrypoint"
       ],
       "importedBy": [],
-      "imports": []
+      "imports": [
+        {
+          "path": "assets/js/spnMediaReadiness.js",
+          "mode": "dependency"
+        }
+      ]
     },
     {
       "path": "assets/js/spnContactEditor.js",
@@ -6937,6 +6939,36 @@
       ]
     },
     {
+      "path": "assets/js/spnMediaReadiness.js",
+      "domain": "interface",
+      "loadedAs": [
+        "dependency"
+      ],
+      "importedBy": [
+        {
+          "path": "assets/js/spnClarityPanel.js",
+          "mode": "dependency"
+        },
+        {
+          "path": "assets/js/spnNewbieFinalCheck.js",
+          "mode": "dependency"
+        },
+        {
+          "path": "assets/js/spnNewbiePrintGuard.js",
+          "mode": "dependency"
+        },
+        {
+          "path": "assets/js/spnNewbiePrintGuardNotice.js",
+          "mode": "dependency"
+        },
+        {
+          "path": "assets/js/spnWizardStepStatus.js",
+          "mode": "dependency"
+        }
+      ],
+      "imports": []
+    },
+    {
       "path": "assets/js/spnMetaCompactStyle.js",
       "domain": "interface",
       "loadedAs": [
@@ -6995,7 +7027,12 @@
           "mode": "side-effect"
         }
       ],
-      "imports": []
+      "imports": [
+        {
+          "path": "assets/js/spnMediaReadiness.js",
+          "mode": "dependency"
+        }
+      ]
     },
     {
       "path": "assets/js/spnNewbieMode.js",
@@ -7037,7 +7074,12 @@
           "mode": "side-effect"
         }
       ],
-      "imports": []
+      "imports": [
+        {
+          "path": "assets/js/spnMediaReadiness.js",
+          "mode": "dependency"
+        }
+      ]
     },
     {
       "path": "assets/js/spnNewbiePrintGuardNotice.js",
@@ -7051,7 +7093,12 @@
           "mode": "side-effect"
         }
       ],
-      "imports": []
+      "imports": [
+        {
+          "path": "assets/js/spnMediaReadiness.js",
+          "mode": "dependency"
+        }
+      ]
     },
     {
       "path": "assets/js/spnNewbiePrintGuide.js",
@@ -7616,7 +7663,12 @@
           "mode": "side-effect"
         }
       ],
-      "imports": []
+      "imports": [
+        {
+          "path": "assets/js/spnMediaReadiness.js",
+          "mode": "dependency"
+        }
+      ]
     },
     {
       "path": "assets/js/spnWorkspaceBackup.js",

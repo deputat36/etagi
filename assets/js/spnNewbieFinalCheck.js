@@ -1,8 +1,11 @@
+import { getSpnMediaReadiness } from './spnMediaReadiness.js';
+
 const STYLE_ID = 'spnNewbieFinalCheckStyle';
 
 const finalActions = [
   { id: 'quality', title: 'Проверить макет', hint: 'Нажмите проверку и исправьте красные замечания', target: '#qualityBtn', autoClick: true },
   { id: 'phone', title: 'Проверить телефон', hint: 'Сверьте номер до печати', target: '#agentPhone' },
+  { id: 'media', title: 'Фото / QR', hint: 'Заполните включённые фото и QR', target: '.media-card' },
   { id: 'count', title: 'Формат на А4', hint: 'Используйте выбранное количество объявлений на листе', target: '#printPresetRow' },
   { id: 'cut', title: 'Линии реза', hint: 'Удобно разрезать лист после печати', target: '#showCutLines', autoCheck: true },
   { id: 'safe', title: 'Безопасные поля', hint: 'Чтобы текст не обрезался при печати', target: '#safePrintMargins', autoCheck: true },
@@ -62,19 +65,34 @@ function getItems(){
   const phone = Boolean(String(document.getElementById('agentPhone')?.value || '').trim());
   const activeCount = document.querySelector('[data-count].active')?.dataset.count || '';
   const countReady = ['1','2','4','6','8'].includes(activeCount);
+  const media = getSpnMediaReadiness();
   const cutLines = Boolean(document.getElementById('showCutLines')?.checked);
   const safeMargins = Boolean(document.getElementById('safePrintMargins')?.checked);
-  const printReady = quality >= 70 && phone && countReady && cutLines && safeMargins;
-  const state = { quality: quality >= 70, phone, count: countReady, cut: cutLines, safe: safeMargins, print: printReady };
+  const printReady = quality >= 70 && phone && countReady && media.ready && cutLines && safeMargins;
+  const state = { quality: quality >= 70, phone, media: media.ready, count: countReady, cut: cutLines, safe: safeMargins, print: printReady };
 
   return finalActions.map(item => {
-    if(item.id !== 'count') return { ...item, ok: Boolean(state[item.id]) };
-    return {
-      ...item,
-      title: activeCount ? `${activeCount} на А4` : 'Формат на А4',
-      hint: activeCount ? 'Текущий выбранный формат сохранён' : 'Выберите количество объявлений на листе',
-      ok: countReady
-    };
+    if(item.id === 'count'){
+      return {
+        ...item,
+        title: activeCount ? `${activeCount} на А4` : 'Формат на А4',
+        hint: activeCount ? 'Текущий выбранный формат сохранён' : 'Выберите количество объявлений на листе',
+        ok: countReady
+      };
+    }
+    if(item.id === 'media'){
+      return {
+        ...item,
+        title: media.required ? 'Фото / QR' : 'Фото / QR не нужны',
+        hint: media.required
+          ? media.ready
+            ? 'Включённые фото и QR заполнены'
+            : media.missing.map(entry => entry.label).join(' · ')
+          : 'Для этого макета media выключены',
+        ok: media.ready
+      };
+    }
+    return { ...item, ok: Boolean(state[item.id]) };
   });
 }
 
@@ -88,9 +106,12 @@ function goToAction(id){
   if(!action) return;
   const target = id === 'count'
     ? document.querySelector('[data-count].active') || document.querySelector(action.target)
-    : document.querySelector(action.target);
+    : id === 'media'
+      ? document.querySelector(getSpnMediaReadiness().firstTarget) || document.querySelector(action.target)
+      : document.querySelector(action.target);
   if(!target) return;
 
+  revealWizardSection(target);
   if(action.autoClick && target.matches('button')) target.click();
   if(action.autoCheck && target.matches('input[type="checkbox"]') && !target.checked){
     target.checked = true;
@@ -99,6 +120,14 @@ function goToAction(id){
 
   target.scrollIntoView({ behavior: 'smooth', block: 'center' });
   target.focus?.();
+}
+
+function revealWizardSection(target){
+  if(document.body.dataset.wizardFlow !== 'on') return;
+  const section = target.closest?.('[data-wizard-section]');
+  const sectionId = String(section?.dataset.wizardSection || '').trim();
+  if(!sectionId) return;
+  document.dispatchEvent(new CustomEvent('spn:wizard-open-step', {detail:{id:sectionId}}));
 }
 
 function injectStyles(){

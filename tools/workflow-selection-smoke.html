@@ -182,8 +182,7 @@
         assert(doc.body.dataset.taskSelectionConfirmed === 'true', 'ручная задача не зафиксирована как явный выбор');
         assert(doc.body.dataset.templateSelectionConfirmed === 'false', 'смена задачи не сбросила подтверждение шаблона');
         assert(doc.getElementById('spnClarityTemplateContext')?.textContent.includes('Не выбран'), 'маршрут не требует новый шаблон после смены задачи');
-        await waitFor(() => wizardGoalStep.dataset.stepStatus === 'ready', 2000, 'wizard потерял подтверждённую новую задачу');
-        assert(wizardTemplateStep.dataset.stepStatus === 'attention', 'wizard не сбросил статус шаблона после новой задачи');
+        await waitFor(() => wizardGoalStep.dataset.stepStatus === 'ready' && wizardTemplateStep.dataset.stepStatus === 'attention', 2000, 'wizard не синхронизировал подтверждённую задачу и сброс шаблона');
         pass('wizard: задача и шаблон готовы только после явного подтверждения');
         pass('задача: фильтрует библиотеку без автоматического шаблона');
 

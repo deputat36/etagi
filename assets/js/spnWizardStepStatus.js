@@ -1,3 +1,5 @@
+import { getSpnMediaReadiness } from './spnMediaReadiness.js';
+
 const STATUS_PANEL_ID = 'spnWizardProgressSummary';
 const STATUS_CLASS = 'spn-wizard-step-status';
 const STYLE_ID = 'spnWizardStepStatusStyles';
@@ -50,6 +52,7 @@ function bindStatusSources(sidebar, wizard){
 
   sidebar.addEventListener('input', scheduleStatusUpdate);
   sidebar.addEventListener('change', scheduleStatusUpdate);
+  document.addEventListener('spn:selection-context', scheduleStatusUpdate);
   sidebar.addEventListener('click', event => {
     if(!event.target.closest('[data-goal], .tpl-card, [data-count], [data-wizard-print-count], #qualityBtn, #saveNamedLayoutBtn, #saveLocalBtn, #saveDistributionReportHistoryBtn, [data-manager-review]')) return;
     window.setTimeout(scheduleStatusUpdate, 100);
@@ -170,17 +173,11 @@ function getContentStatus(){
 }
 
 function getMediaStatus(){
-  const photoEnabled = Boolean(document.getElementById('showPhoto')?.checked);
-  const qrEnabled = Boolean(document.getElementById('showQr')?.checked || fieldValue('qrLink'));
-  if(!photoEnabled && !qrEnabled) return status('optional', 'необязательно', 'Фото и QR для этого макета не включены.', false);
-
-  const missing = [];
-  if(photoEnabled && !hasSelectedPhoto()) missing.push('загрузить фото');
-  if(qrEnabled && !fieldValue('qrLink')) missing.push('добавить ссылку QR');
-  if(fieldValue('qrLink') && !fieldValue('qrCaption')) missing.push('подписать QR');
-  return missing.length
-    ? status('attention', 'проверить', missing.join(' · '), true)
-    : status('ready', 'готово', 'Включённые фото и QR заполнены.', true);
+  const media = getSpnMediaReadiness();
+  if(!media.required) return status('optional', 'необязательно', 'Фото и QR для этого макета не включены.', false);
+  return media.ready
+    ? status('ready', 'готово', 'Включённые фото и QR заполнены.', true)
+    : status('attention', 'проверить', media.missing.map(item => item.label).join(' · '), true);
 }
 
 function getCheckStatus(){
@@ -241,13 +238,6 @@ function status(state, label, detail, required){
 
 function fieldValue(id){
   return String(document.getElementById(id)?.value || '').trim();
-}
-
-function hasSelectedPhoto(){
-  return Boolean(
-    document.getElementById('photoOne')?.files?.length ||
-    document.getElementById('photoTwo')?.files?.length
-  );
 }
 
 function readQualityScore(){

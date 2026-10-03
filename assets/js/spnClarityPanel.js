@@ -1,3 +1,5 @@
+import { getSpnMediaReadiness } from './spnMediaReadiness.js';
+
 const HELPERS_KEY = 'etagi-raskleyka-show-helper-panels-v1';
 let currentTarget = '.start-card';
 
@@ -135,28 +137,8 @@ function getAdaptationCheck(hasTemplate){
 }
 
 function getMediaCheck(){
-  const showPhoto = Boolean(document.getElementById('showPhoto')?.checked);
-  const showQr = Boolean(document.getElementById('showQr')?.checked);
-  const photoMode = document.querySelector('[data-photo].active')?.dataset.photo || 'none';
-  const loadedPhotos = document.querySelectorAll('#printSheet .photo-box img').length;
-  const qrLink = value('qrLink');
-  const missing = [];
-
-  if(showPhoto){
-    if(photoMode === 'none'){
-      missing.push('выберите режим фото');
-    } else {
-      const requiredPhotos = photoMode === 'two' ? 2 : 1;
-      if(loadedPhotos < requiredPhotos){
-        missing.push(requiredPhotos === 2 ? 'загрузите 2 фото' : photoMode === 'plan' ? 'загрузите планировку' : 'загрузите фото');
-      }
-    }
-  }
-
-  if(showQr && !qrLink) missing.push('добавьте ссылку для QR');
-
-  const required = showPhoto || showQr;
-  if(!required){
+  const media = getSpnMediaReadiness();
+  if(!media.required){
     return {
       ok:true,
       required:false,
@@ -166,10 +148,10 @@ function getMediaCheck(){
   }
 
   return {
-    ok:missing.length === 0,
+    ok:media.ready,
     required:true,
-    text:missing.length ? `Фото / QR: ${missing.join(' · ')}.` : 'Фото и QR готовы.',
-    target:'.media-card'
+    text:media.ready ? 'Фото и QR готовы.' : `Фото / QR: ${media.missing.map(item => item.label).join(' · ')}.`,
+    target:media.firstTarget
   };
 }
 
@@ -224,11 +206,20 @@ function applyHelperVisibility(show){
 function scrollToTarget(selector){
   const target = document.querySelector(selector);
   if(!target) return;
+  revealWizardSection(target);
   const container = target.closest?.('.card') || target;
   container.scrollIntoView({behavior:'smooth', block:'start'});
   container.classList.add('spn-focus-pulse');
   window.setTimeout(() => container.classList.remove('spn-focus-pulse'), 900);
   if(target.matches('input, textarea, select, button')) target.focus();
+}
+
+function revealWizardSection(target){
+  if(document.body.dataset.wizardFlow !== 'on') return;
+  const section = target.closest?.('[data-wizard-section]');
+  const sectionId = String(section?.dataset.wizardSection || '').trim();
+  if(!sectionId) return;
+  document.dispatchEvent(new CustomEvent('spn:wizard-open-step', {detail:{id:sectionId}}));
 }
 
 function value(id){

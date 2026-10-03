@@ -19,7 +19,11 @@ const files = {
   wizardFlow: 'assets/js/spnWizardFlow.js',
   wizardPatch: 'assets/js/spnNewbieWizardPatch.js',
   printGuard: 'assets/js/spnNewbiePrintGuard.js',
+  printGuardNotice: 'assets/js/spnNewbiePrintGuardNotice.js',
   finalCheck: 'assets/js/spnNewbieFinalCheck.js',
+  mediaReadiness: 'assets/js/spnMediaReadiness.js',
+  clarityPanel: 'assets/js/spnClarityPanel.js',
+  wizardStatus: 'assets/js/spnWizardStepStatus.js',
   checklist: 'docs/newbie-mode-regression-checklist.md',
   fullScenarioChecklist: 'docs/full-scenario-regression-checklist.md',
   rollbackPlan: 'docs/newbie-mode-rollback-plan.md',
@@ -84,6 +88,10 @@ requireSnippets(files.browserSmoke, sources.browserSmoke, [
   'режим Новичок: ручная компоновка и автоизменение текста скрыты',
   'режим Новичок: финальная проверка сохраняет выбранный формат А4',
   'режим Новичок: print guard сохраняет выбранный формат А4',
+  'режим Новичок: Фото и QR согласованы между финальной проверкой и print guard',
+  'notice печати не увидел незавершённые Фото / QR',
+  'print guard не открыл шаг Фото / QR',
+  'notice печати не стал готовым после заполнения QR',
   'режим Быстро: ручная компоновка скрыта, быстрые текстовые действия доступны',
   'режим Расширенно: ручная компоновка доступна',
   'режим Расширенно: полный блок сохранения доступен'
@@ -101,6 +109,11 @@ requireSnippets(files.visibilityAudit, sources.visibilityAudit, [
 ]);
 
 requireSnippets(files.finalCheck, sources.finalCheck, [
+  "import { getSpnMediaReadiness } from './spnMediaReadiness.js';",
+  "{ id: 'media', title: 'Фото / QR'",
+  'const media = getSpnMediaReadiness()',
+  'media.missing.map(entry => entry.label)',
+  "document.dispatchEvent(new CustomEvent('spn:wizard-open-step'",
   "title: 'Формат на А4'",
   "const activeCount = document.querySelector('[data-count].active')?.dataset.count || ''",
   "['1','2','4','6','8'].includes(activeCount)",
@@ -110,6 +123,36 @@ requireSnippets(files.finalCheck, sources.finalCheck, [
 forbidSnippets(files.finalCheck, sources.finalCheck, [
   'const countTwo',
   "target: '[data-count=\"2\"]'"
+]);
+
+requireSnippets(files.mediaReadiness, sources.mediaReadiness, [
+  'export function getSpnMediaReadiness',
+  "const firstFlyer = root.querySelector('#printSheet .flyer')",
+  "firstFlyer.querySelectorAll('.photo-box img').length",
+  "photoMode === 'two' ? 2 : 1",
+  "target:needsSecond ? '#photoTwo' : '#photoOne'",
+  "code:'qr-link'",
+  "target:'#qrLink'",
+  'firstTarget:missing[0]?.target'
+]);
+
+requireSnippets(files.clarityPanel, sources.clarityPanel, [
+  "import { getSpnMediaReadiness } from './spnMediaReadiness.js';",
+  'const media = getSpnMediaReadiness()',
+  'media.missing.map(item => item.label)',
+  "document.dispatchEvent(new CustomEvent('spn:wizard-open-step'"
+]);
+forbidSnippets(files.clarityPanel, sources.clarityPanel, [
+  "document.querySelectorAll('#printSheet .photo-box img').length"
+]);
+
+requireSnippets(files.wizardStatus, sources.wizardStatus, [
+  "import { getSpnMediaReadiness } from './spnMediaReadiness.js';",
+  'const media = getSpnMediaReadiness()',
+  'media.missing.map(item => item.label)'
+]);
+forbidSnippets(files.wizardStatus, sources.wizardStatus, [
+  'function hasSelectedPhoto()'
 ]);
 
 requireSnippets(files.newbieMode, sources.newbieMode, [
@@ -255,6 +298,10 @@ forbidSnippets(files.wizardPatch, sources.wizardPatch, [
 ]);
 
 requireSnippets(files.printGuard, sources.printGuard, [
+  "import { getSpnMediaReadiness } from './spnMediaReadiness.js';",
+  'const media = getSpnMediaReadiness()',
+  'if(!media.ready) return go(media.firstTarget)',
+  "document.dispatchEvent(new CustomEvent('spn:wizard-open-step'",
   'bindPrintGuard',
   "document.getElementById('printBtn')",
   'handlePrintButtonClick',
@@ -263,6 +310,26 @@ requireSnippets(files.printGuard, sources.printGuard, [
   'hasSupportedPrintCount',
   "['1','2','4','6','8'].includes(activeCount)",
   "return go('#printPresetRow')"
+]);
+
+requireSnippets(files.printGuardNotice, sources.printGuardNotice, [
+  "import { getSpnMediaReadiness } from './spnMediaReadiness.js';",
+  "{ id: 'media', title: 'Заполнить Фото / QR'",
+  "{ id: 'count', title: 'Выбрать формат на А4'",
+  "['1','2','4','6','8'].includes(activeCount)",
+  'const media = getSpnMediaReadiness()',
+  'target:media.firstTarget',
+  "document.dispatchEvent(new CustomEvent('spn:wizard-open-step'"
+]);
+forbidSnippets(files.printGuardNotice, sources.printGuardNotice, [
+  'const countTwo',
+  "[data-count=\"2\"].active",
+  "title: 'Выбрать 2 на А4'"
+]);
+
+requireSnippets(files.wizardFlow, sources.wizardFlow, [
+  "document.addEventListener('spn:wizard-open-step'",
+  'step.sections.includes(requested)'
 ]);
 
 const oldDocumentGuard = 'document.add' + "EventListener('click', handlePrintGuard, true)";
@@ -291,6 +358,9 @@ requireSnippets(files.checklist, sources.checklist, [
   'Проверка защиты печати',
   'защита ведёт к безопасным полям, но не меняет `4 на А4` на другой формат',
   'печать блокируется только до выполнения обязательных условий и не подменяет выбранный формат А4',
+  'пункт `Фото / QR` стал незавершённым',
+  'диалог печати не должен открыться, фокус должен перейти в поле ссылки QR',
+  'Печать новичка при включённом пустом QR или включённом фото без изображения',
   'Проверка фото-раскладки',
   'фото стало крупной верхней hero-зоной на всю ширину карточки',
   'Витрина',

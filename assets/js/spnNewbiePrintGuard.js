@@ -1,3 +1,5 @@
+import { getSpnMediaReadiness } from './spnMediaReadiness.js';
+
 window.addEventListener('DOMContentLoaded', () => {
   bindPrintGuard();
 });
@@ -23,9 +25,10 @@ function isReadyToPrint(){
   const quality = Number(String(document.getElementById('qualityScore')?.textContent || '').replace(/\D/g, '')) || 0;
   const phone = Boolean(String(document.getElementById('agentPhone')?.value || '').trim());
   const countReady = hasSupportedPrintCount();
+  const media = getSpnMediaReadiness();
   const cutLines = Boolean(document.getElementById('showCutLines')?.checked);
   const safeMargins = Boolean(document.getElementById('safePrintMargins')?.checked);
-  return quality >= 70 && phone && countReady && cutLines && safeMargins;
+  return quality >= 70 && phone && countReady && media.ready && cutLines && safeMargins;
 }
 
 function goToFirstMissing(){
@@ -33,6 +36,8 @@ function goToFirstMissing(){
   if(quality < 70) return go('#qualityBtn', { click: true });
   if(!String(document.getElementById('agentPhone')?.value || '').trim()) return go('#agentPhone');
   if(!hasSupportedPrintCount()) return go('#printPresetRow');
+  const media = getSpnMediaReadiness();
+  if(!media.ready) return go(media.firstTarget);
   if(!document.getElementById('showCutLines')?.checked) return go('#showCutLines', { check: true });
   if(!document.getElementById('safePrintMargins')?.checked) return go('#safePrintMargins', { check: true });
 }
@@ -45,6 +50,7 @@ function hasSupportedPrintCount(){
 function go(selector, options = {}){
   const target = document.querySelector(selector);
   if(!target) return;
+  revealWizardSection(target);
   if(options.click && target.matches('button')) target.click();
   if(options.check && target.matches('input[type="checkbox"]') && !target.checked){
     target.checked = true;
@@ -52,6 +58,14 @@ function go(selector, options = {}){
   }
   target.scrollIntoView({ behavior: 'smooth', block: 'center' });
   target.focus?.();
+}
+
+function revealWizardSection(target){
+  if(document.body.dataset.wizardFlow !== 'on') return;
+  const section = target.closest?.('[data-wizard-section]');
+  const sectionId = String(section?.dataset.wizardSection || '').trim();
+  if(!sectionId) return;
+  document.dispatchEvent(new CustomEvent('spn:wizard-open-step', {detail:{id:sectionId}}));
 }
 
 function status(text){

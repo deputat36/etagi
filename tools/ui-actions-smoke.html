@@ -385,6 +385,61 @@
         assert(doc.body.dataset.taskSelectionConfirmed === 'true' && doc.body.dataset.templateSelectionConfirmed === 'true', 'импорт валидного макета не подтвердил загруженный контекст');
         pass('JSON: импорт восстанавливает макет без смешивания и допускает повторный выбор того же файла');
 
+        // The three office paths share one personal profile and existing storage.
+        click(doc, 'button[data-spn-ui-mode="advanced"]');
+        click(doc, '#loadProfileBtn');
+        const profileName = doc.getElementById('agentName').value;
+        const profilePhone = doc.getElementById('agentPhone').value;
+        const originalPrint = win.print;
+        let printRequests = 0;
+        win.print = () => { printRequests += 1; };
+        try{
+          for(const width of [1280, 360, 390, 430]){
+          frame.style.width = `${width}px`;
+          await new Promise(resolve => win.requestAnimationFrame(resolve));
+          assert(doc.documentElement.scrollWidth <= win.innerWidth + 1, `office: горизонтальная прокрутка ${width}px`);
+          for(const goal of ['seller', 'object', 'brand']){
+            lastAction = `office.${goal}.select`;
+            setCheck(win, doc, '#showFavoriteTemplatesOnly', false);
+            setField(win, doc, '#templateSearch', '');
+            setField(win, doc, '#templateDensityFilter', 'all');
+            click(doc, `[data-goal="${goal}"]`);
+            click(doc, '[data-scenario="all"]');
+            await waitFor(() => doc.querySelector('[data-use-recommended-template]'), 3000, `${goal}: нет рекомендованного рабочего шаблона`);
+            click(doc, '[data-use-recommended-template]');
+            assert(doc.body.dataset.templateSelectionConfirmed === 'true', `${goal}: выбор не подтверждён`);
+            assert(doc.getElementById('agentName').value === profileName && doc.getElementById('agentPhone').value === profilePhone, `${goal}: шаблон заменил личные контакты`);
+            setField(win, doc, '#area', 'Тестовый район');
+            setField(win, doc, '#headline', `Тест ${goal}`);
+            setField(win, doc, '#description', 'Тестовый текст для проверки сохранения и печати.');
+            setField(win, doc, '#price', '3000000');
+            setField(win, doc, '#params', '2 комнаты, 50 м²');
+            setCheck(win, doc, '#showPhoto', false);
+            setCheck(win, doc, '#showQr', false);
+            click(doc, '[data-count="2"]');
+            setCheck(win, doc, '#tearOffs', true);
+            setField(win, doc, '#layoutName', `Office smoke ${goal} ${width}`);
+            click(doc, '#saveNamedLayoutBtn');
+            const id = doc.getElementById('savedLayouts').value;
+            assert(id, `${goal}: макет не сохранён`);
+            setField(win, doc, '#headline', 'Временный текст');
+            doc.getElementById('savedLayouts').value = id;
+            click(doc, '#loadNamedLayoutBtn');
+            assert(doc.getElementById('headline').value === `Тест ${goal}`, `${goal}: повторное открытие не восстановило текст`);
+            assert(doc.querySelectorAll('#printSheet .flyer').length === 2, `${goal}: формат A4 не восстановлен`);
+            assert(doc.querySelectorAll('#printSheet .flyer .tears').length === 2, `${goal}: отрывные телефоны отсутствуют`);
+            click(doc, '#qualityBtn');
+            const beforePrint = printRequests;
+            click(doc, '#printBtn');
+            const dialog = doc.getElementById('printDialog');
+            if(dialog?.open) click(doc, '#confirmPrintBtn');
+            await waitFor(() => printRequests === beforePrint + 1, 3000, `${goal}: печать/PDF не вызвана`);
+            assert(doc.querySelectorAll('#printSheet .flyer').length === 2, `${goal}: проверка печати изменила формат`);
+            pass(`office ${goal} ${width}px: шаблон → поля → preview → сохранение → открытие → запрос печати/PDF`);
+          }
+          }
+        } finally { win.print = originalPrint; }
+
         if(runtimeErrors.length) throw new Error(`runtime errors: ${runtimeErrors.join(' | ')}`);
         lastAction = 'completed';
         result.dataset.status = 'passed';

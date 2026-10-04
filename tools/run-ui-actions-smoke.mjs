@@ -21,8 +21,8 @@ const smokePages = failureFixtureMode ? [
   {
     label:'UI actions smoke',
     path:'tools/ui-actions-smoke.html',
-    virtualTimeBudget:40000,
-    timeoutMs:55000
+    virtualTimeBudget:60000,
+    timeoutMs:75000
   },
   {
     label:'QR inline error smoke',

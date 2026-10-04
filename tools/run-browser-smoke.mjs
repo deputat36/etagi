@@ -119,7 +119,7 @@ async function runWithCdpPipe(command, profileDir, url){
 
 async function waitForSmokeStatus(cdp, sessionId, timeout){
   const startedAt = Date.now();
-  let latest = {status:'missing', text:'${resultId} не найден'};
+  let latest = {status:'missing', text:`${resultId} не найден`};
 
   while(Date.now() - startedAt < timeout){
     const evaluated = await cdp.send('Runtime.evaluate', {

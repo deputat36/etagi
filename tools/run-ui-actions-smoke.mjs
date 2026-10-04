@@ -21,7 +21,6 @@ const smokePages = failureFixtureMode ? [
   {
     label:'UI actions smoke',
     path:'tools/ui-actions-smoke.html',
-    virtualTimeBudget:60000,
     timeoutMs:75000
   },
   {
@@ -137,6 +136,12 @@ if(failure){
 }
 
 async function runSmokePage(page){
+  // The office matrix needs real animation frames; virtual time can outrun rendering.
+  if(page.path === 'tools/ui-actions-smoke.html'){
+    const result = await runChrome(process.execPath, [path.join(rootDir, 'tools/run-browser-smoke.mjs'), '--ui-actions'], page.timeoutMs);
+    if(result.code !== 0) throw new Error([result.stdout, result.stderr].filter(Boolean).join('\n'));
+    return {status:'passed', text:String(result.stdout || '').trim()};
+  }
   const url = `http://127.0.0.1:${port}/${page.path}`;
   const result = await runChrome(chrome, [
     '--headless=new',

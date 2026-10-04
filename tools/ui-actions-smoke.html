@@ -460,7 +460,7 @@
         result.dataset.lastAction = lastAction;
         result.textContent = `FAILED\n${checks.map(item => `✓ ${item}`).join('\n')}\n✗ общий timeout UI actions smoke\nПоследнее действие: ${lastAction}`;
       }
-    }, 58000);
+    }, 38000);
 
     function pass(message){ checks.push(message); }
     function assert(condition, message){ if(!condition) throw new Error(message); }

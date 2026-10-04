@@ -7,6 +7,10 @@ import { attachCdpPipeErrorHandlers } from './cdp-pipe-error-guard.mjs';
 
 class SmokeHarnessError extends Error {}
 
+const uiActionsMode = process.argv.includes('--ui-actions');
+const harnessPath = uiActionsMode ? 'tools/ui-actions-smoke.html' : 'tools/browser-smoke.html';
+const resultId = uiActionsMode ? 'uiActionsSmokeResult' : 'browserSmokeResult';
+
 const rootDir = process.cwd();
 const failureLogPath = path.join(rootDir, 'browser-smoke-failure.log');
 fs.rmSync(failureLogPath, {force:true});
@@ -37,7 +41,7 @@ async function runBrowserSmoke(command, port){
 
   for(let attempt = 1; attempt <= 2; attempt += 1){
     const profileDir = fs.mkdtempSync(path.join(os.tmpdir(), `etagi-browser-smoke-${attempt}-`));
-    const url = `http://127.0.0.1:${port}/tools/browser-smoke.html`;
+    const url = `http://127.0.0.1:${port}/${harnessPath}`;
 
     try{
       const result = await runWithCdpPipe(command, profileDir, url);
@@ -115,15 +119,15 @@ async function runWithCdpPipe(command, profileDir, url){
 
 async function waitForSmokeStatus(cdp, sessionId, timeout){
   const startedAt = Date.now();
-  let latest = {status:'missing', text:'browserSmokeResult не найден'};
+  let latest = {status:'missing', text:'${resultId} не найден'};
 
   while(Date.now() - startedAt < timeout){
     const evaluated = await cdp.send('Runtime.evaluate', {
       expression:`(() => {
-        const node = document.getElementById('browserSmokeResult');
+        const node = document.getElementById('${resultId}');
         return node
           ? {status:node.dataset.status || 'pending', text:(node.textContent || '').trim()}
-          : {status:'missing', text:'browserSmokeResult не найден'};
+          : {status:'missing', text:'${resultId} не найден'};
       })()`,
       returnByValue:true,
       awaitPromise:true

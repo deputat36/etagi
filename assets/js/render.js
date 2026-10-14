@@ -85,7 +85,7 @@ function renderAgentBrandIdentity(state){
 }
 
 function renderBrandRow(state){
-  return `<div class="brand-row"><div class="brand"><span class="brand-mark">Э</span><span>${esc(getBrandName(state))}</span></div><div class="site">${esc(getBrandSide(state))}</div></div>`;
+  return `<div class="brand-row"><div class="brand"><span class="brand-mark">Э</span><span${inlineEditAttrs('brandName', 'Название компании')}>${esc(getBrandName(state))}</span></div><div class="site"${inlineEditAttrs('brandSideText', 'Подпись фирменной строки')}>${esc(getBrandSide(state))}</div></div>`;
 }
 
 function renderBlock(blockId, state){
@@ -158,7 +158,7 @@ function renderQr(state){
 function renderTears(state){
   const phone = esc(state.agentPhone || 'телефон');
   const topic = splitTearTopic(getTearOffLabel(state)).map(part => `<span>${esc(part)}</span>`).join('');
-  return `<div class="tears">${Array.from({length:8},()=>`<div class="tear"><span class="tear-topic">${topic}</span><span class="tear-phone">${phone}</span></div>`).join('')}</div>`;
+  return `<div class="tears">${Array.from({length:8},()=>`<div class="tear"><span class="tear-topic"${inlineEditAttrs('tearOffLabel', 'Надпись отрывного телефона')}>${topic}</span><span class="tear-phone"${inlineEditAttrs('agentPhone', 'Телефон')}>${phone}</span></div>`).join('')}</div>`;
 }
 function getTearOffLabel(state){
   return getLayoutExtra(state, 'tearOffLabel', RENDER_EXTRA_OPTIONS);
@@ -185,13 +185,16 @@ function splitTearTopic(value){
 function inlineEditAttrs(field, label, options = {}){
   const indexAttr = Number.isInteger(options.index) ? ` data-inline-index="${options.index}"` : '';
   const multilineAttr = options.multiline ? ' aria-multiline="true"' : ' aria-multiline="false"';
-  return ` data-inline-field="${field}" data-inline-label="${esc(label)}"${indexAttr} contenteditable="true" spellcheck="true" tabindex="0" role="textbox"${multilineAttr} title="Нажмите, чтобы изменить текст прямо на макете"`;
+  return ` data-inline-field="${field}" data-inline-label="${esc(label)}" aria-label="${esc(label)}"${indexAttr} contenteditable="true" spellcheck="true" tabindex="0" role="textbox"${multilineAttr} title="Нажмите, чтобы изменить текст прямо на макете"`;
 }
 function normalizeInlineTabStops(sheet){
   const flyers = [...sheet.querySelectorAll('.flyer')];
   flyers.forEach((flyer, flyerIndex) => {
+    const seen = new Set();
     flyer.querySelectorAll('[data-inline-field]').forEach(editable => {
-      editable.tabIndex = flyerIndex === 0 ? 0 : -1;
+      const key = `${editable.dataset.inlineField}:${editable.dataset.inlineIndex || ''}`;
+      editable.tabIndex = flyerIndex === 0 && !seen.has(key) ? 0 : -1;
+      seen.add(key);
     });
   });
 }

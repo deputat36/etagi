@@ -5054,6 +5054,7 @@
           "assets/js/spnTearOffEditor.js"
         ],
         "referencedBy": [
+          "assets/js/spnInlinePreviewEditor.js",
           "assets/js/spnTearOffEditor.js"
         ]
       },

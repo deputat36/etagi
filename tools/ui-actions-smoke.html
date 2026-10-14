@@ -2,6 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="utf-8">
+  <base href="/">
   <title>Etagi UI actions smoke</title>
   <style>
     body{font-family:Arial,sans-serif;margin:16px}
@@ -385,6 +386,8 @@
         assert(doc.body.dataset.taskSelectionConfirmed === 'true' && doc.body.dataset.templateSelectionConfirmed === 'true', 'импорт валидного макета не подтвердил загруженный контекст');
         pass('JSON: импорт восстанавливает макет без смешивания и допускает повторный выбор того же файла');
 
+        const {loadTemplates} = await import('/assets/js/templates.js');
+        const officeTemplates = await loadTemplates();
         // The three office paths share one personal profile and existing storage.
         click(doc, 'button[data-spn-ui-mode="advanced"]');
         click(doc, '#loadProfileBtn');
@@ -406,6 +409,10 @@
             click(doc, `[data-goal="${goal}"]`);
             click(doc, '[data-scenario="all"]');
             await waitFor(() => doc.querySelector('[data-use-recommended-template]'), 3000, `${goal}: нет рекомендованного рабочего шаблона`);
+            const recommendedId = doc.querySelector('[data-use-recommended-template]').dataset.useRecommendedTemplate;
+            const recommended = officeTemplates.find(template => template.id === recommendedId);
+            assert(recommended?.goal === goal, `${goal}: рекомендация относится к другой задаче`);
+            assert((recommended.portfolio?.status || 'working') === 'working' && recommended.office?.recommended === true && recommended.office?.risk !== 'high', `${goal}: небезопасная рекомендация`);
             click(doc, '[data-use-recommended-template]');
             assert(doc.body.dataset.templateSelectionConfirmed === 'true', `${goal}: выбор не подтверждён`);
             assert(doc.getElementById('agentName').value === profileName && doc.getElementById('agentPhone').value === profilePhone, `${goal}: шаблон заменил личные контакты`);

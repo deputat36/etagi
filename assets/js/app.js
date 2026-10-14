@@ -499,7 +499,8 @@ function renderRecommendedTemplateHero(list, spnGoal){
   if(String($('templateDensityFilter')?.value || 'all') !== 'all') return '';
   if($('showFavoriteTemplatesOnly')?.checked) return '';
 
-  const template = list.find(isSafeRecommendedTemplate);
+  const safeTemplates = list.filter(isSafeRecommendedTemplate);
+  const template = safeTemplates.find(item => item.goal === state.goal) || safeTemplates[0];
   if(!template) return '';
 
   const recommendation = getTemplateRecommendation(template, 1);

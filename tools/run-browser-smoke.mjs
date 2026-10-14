@@ -8,8 +8,9 @@ import { attachCdpPipeErrorHandlers } from './cdp-pipe-error-guard.mjs';
 class SmokeHarnessError extends Error {}
 
 const uiActionsMode = process.argv.includes('--ui-actions');
-const harnessPath = uiActionsMode ? 'tools/ui-actions-smoke.html' : 'tools/browser-smoke.html';
-const resultId = uiActionsMode ? 'uiActionsSmokeResult' : 'browserSmokeResult';
+const fitPreviewMode = process.argv.includes('--fit-preview');
+const harnessPath = uiActionsMode ? 'tools/ui-actions-smoke.html' : fitPreviewMode ? 'tools/fit-preview-smoke.html' : 'tools/browser-smoke.html';
+const resultId = uiActionsMode || fitPreviewMode ? 'uiActionsSmokeResult' : 'browserSmokeResult';
 
 const rootDir = process.cwd();
 const failureLogPath = path.join(rootDir, 'browser-smoke-failure.log');

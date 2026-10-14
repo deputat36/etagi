@@ -74,8 +74,7 @@ const smokePages = failureFixtureMode ? [
   {
     label:'Fit preview smoke',
     path:'tools/fit-preview-smoke.html',
-    virtualTimeBudget:22000,
-    timeoutMs:36000
+    timeoutMs:40000
   },
   {
     label:'Print format policy smoke',
@@ -136,9 +135,10 @@ if(failure){
 }
 
 async function runSmokePage(page){
-  // The office matrix needs real animation frames; virtual time can outrun rendering.
-  if(page.path === 'tools/ui-actions-smoke.html'){
-    const result = await runChrome(process.execPath, [path.join(rootDir, 'tools/run-browser-smoke.mjs'), '--ui-actions'], page.timeoutMs);
+  // Office and resize checks need real animation frames; virtual time can outrun rendering.
+  const cdpFlag = ({'tools/ui-actions-smoke.html':'--ui-actions', 'tools/fit-preview-smoke.html':'--fit-preview'})[page.path];
+  if(cdpFlag){
+    const result = await runChrome(process.execPath, [path.join(rootDir, 'tools/run-browser-smoke.mjs'), cdpFlag], page.timeoutMs);
     if(result.code !== 0) throw new Error([result.stdout, result.stderr].filter(Boolean).join('\n'));
     return {status:'passed', text:String(result.stdout || '').trim()};
   }

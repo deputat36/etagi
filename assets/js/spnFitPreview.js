@@ -2,7 +2,7 @@ const FIT_MIN_PERCENT = 20;
 const FIT_MAX_PERCENT = 100;
 const FIT_SAFETY_PX = 2;
 
-let fitActive = false;
+let fitActive = true;
 let resizeFrame = 0;
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
   zoom.min = String(FIT_MIN_PERCENT);
   zoom.max = String(FIT_MAX_PERCENT);
   zoom.setAttribute('aria-label', 'Масштаб предпросмотра');
-  button.setAttribute('aria-pressed', 'false');
+  syncFitState(button);
   button.title = 'Вписать лист A4 в доступную рабочую область';
 
   const output = ensureZoomOutput(zoom);
@@ -56,6 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
     observer.observe(wrap);
     observer.observe(sheet);
   }
+  scheduleFit();
 });
 
 function applyFittedZoom({wrap, sheet, scale, zoom, output}){
@@ -70,7 +71,9 @@ function calculateFitPercent(wrap, sheet, zoom){
   const horizontalPadding = toPixels(style.paddingLeft) + toPixels(style.paddingRight);
   const verticalPadding = toPixels(style.paddingTop) + toPixels(style.paddingBottom);
   const availableWidth = Math.max(0, wrap.clientWidth - horizontalPadding - FIT_SAFETY_PX);
-  const availableHeight = Math.max(0, wrap.clientHeight - verticalPadding - FIT_SAFETY_PX);
+  const availableHeight = window.matchMedia('(max-width:1050px)').matches
+    ? sheet.offsetHeight
+    : Math.max(0, wrap.clientHeight - verticalPadding - FIT_SAFETY_PX);
   const sheetWidth = sheet.offsetWidth;
   const sheetHeight = sheet.offsetHeight;
   if(!availableWidth || !availableHeight || !sheetWidth || !sheetHeight) return null;
@@ -90,6 +93,12 @@ function applyZoomValue(scale, zoom, output, value){
   const max = Number(zoom.max) || FIT_MAX_PERCENT;
   const percent = Math.max(min, Math.min(max, Math.round(Number(value) || 64)));
   zoom.value = String(percent);
+  const sheet = scale.querySelector('.sheet');
+  scale.style.transformOrigin = 'top left';
+  if(sheet){
+    scale.style.width = `${sheet.offsetWidth * percent / 100}px`;
+    scale.style.height = `${sheet.offsetHeight * percent / 100}px`;
+  }
   scale.style.transform = `scale(${percent / 100})`;
   syncZoomOutput(output, percent);
 }

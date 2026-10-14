@@ -188,7 +188,7 @@ requireSnippets('tools/run-browser-smoke.mjs', browserSmokeRunnerSource, [
   "'--headless=new'","'--remote-debugging-pipe'","cdp.send('Target.createTarget'","cdp.send('Runtime.evaluate'",
   'waitForSmokeStatus','createCdpPipeClient',"throw new SmokeHarnessError(smokeStatus.text",
   "document.getElementById('${resultId}')",
-    "const resultId = uiActionsMode ? 'uiActionsSmokeResult' : 'browserSmokeResult';",'latest.status === \'passed\' || latest.status === \'failed\'',
+    "const resultId = uiActionsMode || fitPreviewMode ? 'uiActionsSmokeResult' : 'browserSmokeResult';",'latest.status === \'passed\' || latest.status === \'failed\'',
   'server.keepAliveTimeout = 1',"'Connection':'close'",'terminateProcess(child)','Browser smoke passed via CDP pipe'
 ]);
 

@@ -39,7 +39,7 @@
         const scale = doc.getElementById('sheetScale');
         assert(button && zoom && output && wrap && sheet && scale, 'не найдены элементы управления масштабом');
         assert(zoom.min === '20' && zoom.max === '100', 'диапазон масштаба не поддерживает узкие экраны');
-        assert(button.getAttribute('aria-pressed') === 'false', 'режим Вписать ошибочно активен при старте');
+        await waitFor(() => button.getAttribute('aria-pressed') === 'true' && Number(zoom.value) === expectedFit(win, wrap, sheet, zoom), 3000, 'предпросмотр не вписался автоматически при старте');
         assert(output.textContent.trim() === `${zoom.value}%`, 'индикатор масштаба не синхронизирован при старте');
         pass('старт: диапазон, ARIA и индикатор масштаба готовы');
 
@@ -82,6 +82,17 @@
         assertFits(win, wrap, sheet);
         pass('повторное Вписать: вычисляемый режим восстановлен');
 
+        for(const width of [360, 390, 430]){
+          lastAction = `fit.mobile-${width}`;
+          frame.style.width = `${width}px`;
+          frame.style.height = '844px';
+          win.dispatchEvent(new win.Event('resize'));
+          await waitFor(() => Number(zoom.value) === expectedFit(win, wrap, sheet, zoom), 3000, `масштаб не пересчитался на ${width}px`);
+          assertFits(win, wrap, sheet);
+          assert(wrap.scrollWidth <= wrap.clientWidth + 1, `Вписать оставил горизонтальную прокрутку на ${width}px`);
+          pass(`мобильный ${width}px: видны левый и правый края A4`);
+        }
+
         if(runtimeErrors.length) throw new Error(`runtime errors: ${runtimeErrors.join(' | ')}`);
         lastAction = 'completed';
         result.dataset.status = 'passed';
@@ -106,7 +117,7 @@
     function expectedFit(win, wrap, sheet, zoom){
       const style = win.getComputedStyle(wrap);
       const width = Math.max(0, wrap.clientWidth - px(style.paddingLeft) - px(style.paddingRight) - 2);
-      const height = Math.max(0, wrap.clientHeight - px(style.paddingTop) - px(style.paddingBottom) - 2);
+      const height = win.matchMedia('(max-width:1050px)').matches ? sheet.offsetHeight : Math.max(0, wrap.clientHeight - px(style.paddingTop) - px(style.paddingBottom) - 2);
       const raw = Math.floor(Math.min(width / sheet.offsetWidth, height / sheet.offsetHeight, 1) * 100);
       return Math.max(Number(zoom.min), Math.min(Number(zoom.max), raw));
     }
@@ -116,8 +127,12 @@
       const width = wrap.clientWidth - px(style.paddingLeft) - px(style.paddingRight);
       const height = wrap.clientHeight - px(style.paddingTop) - px(style.paddingBottom);
       const rect = sheet.getBoundingClientRect();
+      const bounds = wrap.getBoundingClientRect();
+      assert(rect.left >= bounds.left + px(style.paddingLeft) - 1, 'левый край листа обрезан');
+      assert(rect.right <= bounds.right - px(style.paddingRight) + 1, 'правый край листа обрезан');
       assert(rect.width <= width + 1, `лист шире рабочей области: ${rect.width} > ${width}`);
-      assert(rect.height <= height + 1, `лист выше рабочей области: ${rect.height} > ${height}`);
+      const zoom = win.document.getElementById('zoom');
+      assert(rect.height <= height + 1 || Number(zoom.value) === Number(zoom.min), `лист выше рабочей области до достижения минимального масштаба: ${rect.height} > ${height}`);
     }
 
     function snapshot(doc){

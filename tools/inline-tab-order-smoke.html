@@ -47,10 +47,13 @@
         const firstEditables = [...flyers[0].querySelectorAll('[data-inline-field]')];
         const duplicateEditables = flyers.slice(1).flatMap(flyer => [...flyer.querySelectorAll('[data-inline-field]')]);
         assert(firstEditables.length >= 8, 'в первой копии недостаточно редактируемых полей для проверки');
-        assert(firstEditables.every(node => node.tabIndex === 0), 'в первой копии есть поле вне Tab-порядка');
+        const firstTabStops = firstEditables.filter(node => node.tabIndex === 0);
+        const firstTabKeys = new Set(firstTabStops.map(node => `${node.dataset.inlineField}:${node.dataset.inlineIndex || ''}`));
+        assert(firstTabKeys.size === firstTabStops.length, 'в первой копии повторяются Tab-stop одинаковых полей');
+        assert(firstTabKeys.size >= 8, 'из Tab-пути пропали доступные поля');
         assert(duplicateEditables.length > firstEditables.length, 'не найдены повторяющиеся поля остальных копий');
         assert(duplicateEditables.every(node => node.tabIndex === -1), 'копии макета повторно попадают в Tab-порядок');
-        assert(doc.querySelectorAll('#printSheet [data-inline-field][tabindex="0"]').length === firstEditables.length, 'число Tab-stop умножилось на количество копий');
+        assert(doc.querySelectorAll('#printSheet [data-inline-field][tabindex="0"]').length === firstTabStops.length, 'число Tab-stop умножилось на количество копий');
         pass('Tab-путь: только первая копия содержит tabindex=0');
 
         lastAction = 'inline-tab.edit-secondary-copy';
@@ -68,9 +71,50 @@
         await waitFor(() => [...doc.querySelectorAll('#printSheet [data-inline-field="headline"]')].every(node => node.textContent.trim() === expectedHeadline), 3000, 'редактирование второй копии не обновило остальные копии');
 
         const rerenderedFlyers = [...doc.querySelectorAll('#printSheet .flyer')];
-        assert([...rerenderedFlyers[0].querySelectorAll('[data-inline-field]')].every(node => node.tabIndex === 0), 'после рендера первая копия потеряла Tab-stop');
+        assert(rerenderedFlyers[0].querySelectorAll('[data-inline-field][tabindex="0"]').length === firstTabStops.length, 'после рендера первая копия потеряла Tab-stop');
         assert(rerenderedFlyers.slice(1).flatMap(flyer => [...flyer.querySelectorAll('[data-inline-field]')]).every(node => node.tabIndex === -1), 'после рендера повторные Tab-stop вернулись');
         pass('вторая копия: прямое редактирование сохранено вне Tab-порядка');
+
+        lastAction = 'inline-text.brand-and-tears';
+        for(const [field, inputId, value] of [
+          ['brandName', 'brandNameText', 'Этажи Борисоглебск'],
+          ['brandSideText', 'brandSideText', 'Борисоглебск'],
+          ['tearOffLabel', 'tearOffLabel', 'Район Центр']
+        ]){
+          const editable = doc.querySelector(`#printSheet [data-inline-field="${field}"]`);
+          assert(editable?.getAttribute('aria-label'), `${field}: поле не имеет понятного имени`);
+          editable.focus();
+          editable.textContent = value;
+          editable.blur();
+          await waitFor(() => doc.getElementById(inputId)?.value === value, 2000, `${field}: значение не передано в форму`);
+          const copies = [...doc.querySelectorAll(`#printSheet [data-inline-field="${field}"]`)];
+          assert(copies.length >= 4 && copies.every(node => (node.innerText || node.textContent).replace(/\s+/g, ' ').trim() === (field === 'tearOffLabel' ? value.toUpperCase() : value)), `${field}: не все копии обновились`);
+        }
+        const tearLabel = doc.querySelector('#printSheet [data-inline-field="tearOffLabel"]');
+        const labelMarkup = tearLabel.innerHTML;
+        tearLabel.focus();
+        assert(tearLabel.textContent === 'Район Центр', 'при редактировании отрывного потерян исходный текст');
+        tearLabel.textContent = 'Отменить изменение';
+        tearLabel.dispatchEvent(new win.KeyboardEvent('keydown', {key:'Escape', bubbles:true, cancelable:true}));
+        assert(doc.getElementById('tearOffLabel').value === 'Район Центр' && tearLabel.innerHTML === labelMarkup, 'Esc не вернул надпись и оформление отрывного');
+
+        const tearPhone = doc.querySelectorAll('#printSheet .flyer')[1].querySelector('.tear-phone');
+        tearPhone.focus();
+        tearPhone.textContent = '+7 900 777-88-99';
+        tearPhone.blur();
+        await waitFor(() => doc.getElementById('agentPhone')?.value === '+7 900 777-88-99', 2000, 'телефон из отрывного не обновил форму');
+        assert([...doc.querySelectorAll('#printSheet [data-inline-field="agentPhone"]')].every(node => node.textContent.trim() === '+7 900 777-88-99'), 'телефон не обновился во всех контактах и отрывных');
+        pass('фирменная строка и отрывные: прямое редактирование, все копии и отмена');
+
+        setField(win, doc, '#layoutName', 'Inline brand and tears');
+        click(doc, '#saveNamedLayoutBtn');
+        const savedId = doc.getElementById('savedLayouts').value;
+        assert(savedId, 'прямые изменения не сохранены');
+        setField(win, doc, '#brandSideText', 'Временная подпись');
+        doc.getElementById('savedLayouts').value = savedId;
+        click(doc, '#loadNamedLayoutBtn');
+        assert(doc.getElementById('brandSideText').value === 'Борисоглебск' && doc.getElementById('tearOffLabel').value === 'Район Центр', 'повторное открытие потеряло прямые изменения');
+        pass('прямые изменения фирменной строки и отрывных сохраняются в макете');
 
         if(runtimeErrors.length) throw new Error(`runtime errors: ${runtimeErrors.join(' | ')}`);
         lastAction = 'completed';

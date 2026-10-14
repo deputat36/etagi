@@ -3,6 +3,9 @@ const HINT_ID = 'spnInlinePreviewHint';
 const STYLE_ID = 'spnInlinePreviewEditorStyles';
 const EDITABLE_SELECTOR = '[data-inline-field]';
 const SINGLE_LINE_FIELDS = new Set([
+  'brandName',
+  'brandSideText',
+  'tearOffLabel',
   'agentName',
   'agentPhone',
   'area',
@@ -33,7 +36,15 @@ function handleFocusIn(event){
   const editable = event.target.closest(EDITABLE_SELECTOR);
   if(!editable) return;
   editable.dataset.inlineOriginal = readEditableText(editable);
+  editable.__inlineOriginalNodes = [...editable.childNodes].map(node => node.cloneNode(true));
+  if(editable.dataset.inlineField === 'tearOffLabel'){
+    editable.textContent = document.getElementById('tearOffLabel')?.value || '';
+  }
   editable.dataset.inlineCancelled = 'false';
+}
+
+function restoreOriginalContent(editable){
+  editable.replaceChildren(...(editable.__inlineOriginalNodes || []).map(node => node.cloneNode(true)));
 }
 
 function handleFocusOut(event){
@@ -41,7 +52,7 @@ function handleFocusOut(event){
   if(!editable || editable.dataset.inlineCommitting === 'true') return;
 
   if(editable.dataset.inlineCancelled === 'true'){
-    editable.textContent = editable.dataset.inlineOriginal || '';
+    restoreOriginalContent(editable);
     return;
   }
 
@@ -55,7 +66,7 @@ function handleKeydown(event){
   if(event.key === 'Escape'){
     event.preventDefault();
     editable.dataset.inlineCancelled = 'true';
-    editable.textContent = editable.dataset.inlineOriginal || '';
+    restoreOriginalContent(editable);
     editable.blur();
     setStatus('Изменение на макете отменено.');
     return;
@@ -79,7 +90,7 @@ function handlePaste(event){
 
 function commitInlineValue(editable){
   const field = editable.dataset.inlineField || '';
-  const inputId = field === 'contactCta' ? 'contactCtaText' : field;
+  const inputId = ({contactCta:'contactCtaText', brandName:'brandNameText'})[field] || field;
   const input = document.getElementById(inputId);
   if(!field || !input) return;
 
@@ -90,7 +101,7 @@ function commitInlineValue(editable){
   if(field === 'benefits'){
     input.value = updateBenefitLine(input.value, Number(editable.dataset.inlineIndex), value);
   } else {
-    input.value = value;
+    input.value = input.maxLength >= 0 ? value.slice(0, input.maxLength) : value;
   }
 
   input.dispatchEvent(new Event('input', {bubbles:true}));
@@ -110,7 +121,8 @@ function updateBenefitLine(source, index, value){
 }
 
 function readEditableText(element){
-  return String(element.innerText || element.textContent || '').replace(/\u00a0/g, ' ').replace(/\r/g, '');
+  const text = element.dataset.inlineField === 'tearOffLabel' ? element.textContent : element.innerText || element.textContent;
+  return String(text || '').replace(/\u00a0/g, ' ').replace(/\r/g, '');
 }
 
 function normalizeSingleLine(value){
@@ -154,12 +166,11 @@ function injectStyles(){
     .spn-inline-preview-hint{margin:7px 0 0;max-width:720px;color:#475569;font-size:11.5px;line-height:1.35;font-weight:700}
     .spn-inline-preview-hint b{color:#1e293b}
     #printSheet ${EDITABLE_SELECTOR}{cursor:text;outline:0;border-radius:3px;transition:box-shadow .12s,background .12s}
-    #printSheet ${EDITABLE_SELECTOR}:hover{box-shadow:0 0 0 .45mm rgba(11,114,185,.2);background:rgba(219,234,254,.28)}
-    #printSheet ${EDITABLE_SELECTOR}:focus{box-shadow:0 0 0 .6mm #0b72b9;background:#eff6ff;color:#111827;text-shadow:none}
-    #printSheet .contact ${EDITABLE_SELECTOR}:focus{background:#eff6ff!important;color:#111827!important}
+    #printSheet ${EDITABLE_SELECTOR}:hover{box-shadow:0 0 0 .45mm rgba(227,6,19,.2)}
+    #printSheet ${EDITABLE_SELECTOR}:focus{box-shadow:0 0 0 .6mm var(--red);text-shadow:none}
     @media print{
       .spn-inline-preview-hint{display:none!important}
-      #printSheet ${EDITABLE_SELECTOR}{box-shadow:none!important;outline:0!important;cursor:default!important}
+      #printSheet ${EDITABLE_SELECTOR}{transition:none!important;box-shadow:none!important;outline:0!important;cursor:default!important}
     }
   `;
   document.head.appendChild(style);

@@ -32,7 +32,10 @@ requireSnippets(files.module, sources.module, [
   'updateBenefitLine',
   'insertPlainText',
   'нажмите на текст в макете',
-  '@media print'
+  '@media print',
+  'box-shadow:none!important',
+  'transition:none!important',
+  'restoreOriginalContent(editable)'
 ]);
 
 forbidSnippets(files.module, sources.module, [
@@ -56,13 +59,16 @@ requireSnippets(files.render, sources.render, [
   "inlineEditAttrs('agentName', 'Имя специалиста')",
   "inlineEditAttrs('contactCta', 'Призыв в контактах')",
   "inlineEditAttrs('qrCaption', 'Подпись QR')",
+  "inlineEditAttrs('brandName', 'Название компании')",
+  "inlineEditAttrs('brandSideText', 'Подпись фирменной строки')",
+  "inlineEditAttrs('tearOffLabel', 'Надпись отрывного телефона')",
   'class="qr-copy"',
   'class="qr-caption"',
   'class="qr-error-note" contenteditable="false" role="note"',
   'normalizeInlineTabStops(sheet)',
   'function normalizeInlineTabStops(sheet)',
   "flyer.querySelectorAll('[data-inline-field]')",
-  'editable.tabIndex = flyerIndex === 0 ? 0 : -1'
+  'editable.tabIndex = flyerIndex === 0 && !seen.has(key) ? 0 : -1'
 ]);
 forbidSnippets(files.render, sources.render, [
   '${caption}<br>ссылка слишком длинная</span>'
@@ -107,7 +113,7 @@ requireSnippets(files.qrSmoke, sources.qrSmoke, [
 requireSnippets(files.tabSmoke, sources.tabSmoke, [
   'id="uiActionsSmokeResult"',
   "click(doc, '[data-count=\"4\"]')",
-  'firstEditables.every(node => node.tabIndex === 0)',
+  'firstTabKeys.size === firstTabStops.length',
   'duplicateEditables.every(node => node.tabIndex === -1)',
   'secondaryHeadline.isContentEditable',
   'doc.activeElement === secondaryHeadline',

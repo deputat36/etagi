@@ -74,9 +74,9 @@
     "relationCount": 103,
     "sideEffectModuleCount": 54,
     "dynamicModuleCount": 0,
-    "domIdCount": 303,
+    "domIdCount": 305,
     "indexDomIdCount": 86,
-    "runtimeCreatedDomIdCount": 212,
+    "runtimeCreatedDomIdCount": 214,
     "storageKeyCount": 23,
     "dynamicStorageKeyCount": 2,
     "observerModuleCount": 20,
@@ -2090,11 +2090,13 @@
         "declaredInIndex": true,
         "ownershipBasis": "bind-or-mutate",
         "owners": [
-          "assets/js/spnInlinePreviewEditor.js"
+          "assets/js/spnInlinePreviewEditor.js",
+          "assets/js/spnPreviewQuickBar.js"
         ],
         "createdBy": [],
         "boundBy": [
-          "assets/js/spnInlinePreviewEditor.js"
+          "assets/js/spnInlinePreviewEditor.js",
+          "assets/js/spnPreviewQuickBar.js"
         ],
         "mutatedBy": [
           "assets/js/spnInlinePreviewEditor.js"
@@ -2107,7 +2109,8 @@
           "assets/js/spnInkEfficiency.js",
           "assets/js/spnInlinePreviewEditor.js",
           "assets/js/spnMediaReadiness.js",
-          "assets/js/spnPhotoLayoutStyle.js"
+          "assets/js/spnPhotoLayoutStyle.js",
+          "assets/js/spnPreviewQuickBar.js"
         ]
       },
       {
@@ -2208,6 +2211,7 @@
         "owners": [
           "assets/js/qualityExtraActions.js",
           "assets/js/spnMediaReadiness.js",
+          "assets/js/spnPreviewQuickBar.js",
           "assets/js/spnQrEditor.js"
         ],
         "createdBy": [],
@@ -2216,6 +2220,7 @@
         "referencedBy": [
           "assets/js/qualityExtraActions.js",
           "assets/js/spnMediaReadiness.js",
+          "assets/js/spnPreviewQuickBar.js",
           "assets/js/spnQrEditor.js"
         ]
       },
@@ -3037,7 +3042,8 @@
         "boundBy": [],
         "mutatedBy": [],
         "referencedBy": [
-          "assets/js/spnBlockControls.js"
+          "assets/js/spnBlockControls.js",
+          "assets/js/spnPreviewQuickBar.js"
         ]
       },
       {
@@ -3412,15 +3418,18 @@
       {
         "id": "spnInlinePreviewHint",
         "declaredInIndex": false,
-        "ownershipBasis": "reference-only",
+        "ownershipBasis": "bind-or-mutate",
         "owners": [
-          "assets/js/spnInlinePreviewEditor.js"
+          "assets/js/spnPreviewQuickBar.js"
         ],
         "createdBy": [],
         "boundBy": [],
-        "mutatedBy": [],
+        "mutatedBy": [
+          "assets/js/spnPreviewQuickBar.js"
+        ],
         "referencedBy": [
-          "assets/js/spnInlinePreviewEditor.js"
+          "assets/js/spnInlinePreviewEditor.js",
+          "assets/js/spnPreviewQuickBar.js"
         ]
       },
       {
@@ -4090,6 +4099,42 @@
         "mutatedBy": [],
         "referencedBy": [
           "assets/js/spnPostPrintWorkspace.js"
+        ]
+      },
+      {
+        "id": "spnPreviewBlockActions",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnPreviewQuickBar.js"
+        ],
+        "createdBy": [
+          "assets/js/spnPreviewQuickBar.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnPreviewQuickBar.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnPreviewQuickBar.js"
+        ]
+      },
+      {
+        "id": "spnPreviewBlockName",
+        "declaredInIndex": false,
+        "ownershipBasis": "runtime-create",
+        "owners": [
+          "assets/js/spnPreviewQuickBar.js"
+        ],
+        "createdBy": [
+          "assets/js/spnPreviewQuickBar.js"
+        ],
+        "boundBy": [],
+        "mutatedBy": [
+          "assets/js/spnPreviewQuickBar.js"
+        ],
+        "referencedBy": [
+          "assets/js/spnPreviewQuickBar.js"
         ]
       },
       {

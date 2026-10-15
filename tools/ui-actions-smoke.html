@@ -447,6 +447,83 @@
           }
         } finally { win.print = originalPrint; }
 
+        lastAction = 'preview.edit-navigation';
+        for(const width of [1280, 360, 390, 430]){
+          frame.style.width = `${width}px`;
+          for(const mode of ['quick', 'newbie', 'advanced']){
+            click(doc, `button[data-spn-ui-mode="${mode}"]`);
+            for(const [action, targetId, step] of [['photo','photoOne','media'], ['qr','qrLink','media'], ['blocks','','content']]){
+              click(doc, `[data-preview-open="${action}"]`);
+              const target = targetId ? doc.getElementById(targetId) : doc.querySelector('#spnBlockControls [data-spn-block-toggle]');
+              await waitFor(() => doc.activeElement === target && target.getBoundingClientRect().height > 0, 2500, `${mode}/${action}: переход не открыл доступное поле`);
+              assert(doc.body.dataset.wizardStep === step, `${action}: открыт неверный шаг`);
+              assert(doc.body.dataset.spnUiMode === mode, 'переход сменил режим интерфейса');
+              const container = action === 'blocks' ? doc.getElementById('spnBlockControls') : doc.querySelector('.media-card');
+              container.querySelector('[data-preview-return]').click();
+              await waitFor(() => doc.activeElement?.matches('#printSheet [data-inline-field]'), 2000, 'К макету не вернул фокус в предпросмотр');
+            }
+            assert(doc.querySelectorAll('#printSheet .flyer').length === 2, 'навигация изменила формат A4');
+            assert(doc.getElementById('agentPhone').value === profilePhone, 'навигация заменила профиль');
+          }
+        }
+        pass('предпросмотр: Фото / QR / Блоки и возврат доступны без смены режима');
+
+        lastAction = 'preview.block-actions';
+        setCheck(win, doc, '#showDescription', true);
+        setField(win, doc, '#description', 'Тестовый блок для редактирования.');
+        const beforeMove = [...doc.querySelectorAll('#blockOrderList .block-order-item')].map(node => node.dataset.blockId);
+        doc.querySelector('#printSheet .desc').click();
+        assert(doc.getElementById('spnPreviewBlockName').textContent === 'Описание', 'не выбран блок описания');
+        click(doc, '[data-preview-move="up"]');
+        const afterMove = [...doc.querySelectorAll('#blockOrderList .block-order-item')].map(node => node.dataset.blockId);
+        assert(afterMove.indexOf('description') === beforeMove.indexOf('description') - 1, 'блок не поднят существующим контролом');
+        click(doc, '[data-preview-toggle]');
+        assert(!doc.getElementById('showDescription').checked && !doc.querySelector('#printSheet .desc'), 'Скрыть не выключил выбранный блок');
+        click(doc, '[data-preview-toggle]');
+        assert(doc.getElementById('showDescription').checked && doc.querySelectorAll('#printSheet .desc').length === 2, 'Показать не восстановил блок во всех копиях');
+        click(doc, '[data-preview-done]');
+        assert(doc.getElementById('spnPreviewBlockActions').hidden, 'Готово не завершил выбор блока');
+        pass('предпросмотр: порядок и скрытие блока меняют существующие настройки');
+
+        lastAction = 'preview.media-controls';
+        const svgOne = '<svg xmlns="http://www.w3.org/2000/svg" width="200" height="120"><rect width="200" height="120" fill="#ddd"/></svg>';
+        await setFile(win, doc, '#photoOne', 'preview-one.svg', svgOne);
+        await setFile(win, doc, '#photoTwo', 'preview-two.svg', svgOne.replace('#ddd','#aaa'));
+        await waitFor(() => doc.querySelectorAll('#printSheet .photo-box img').length === 4, 3000, 'загруженные фото не появились в обеих копиях');
+        const photoTwo = doc.getElementById('photoTwo');
+        const originalPhotoClick = photoTwo.click;
+        let pickerRequests = 0;
+        photoTwo.click = () => { pickerRequests += 1; };
+        try{
+          doc.querySelectorAll('#printSheet .flyer')[1].querySelector('[data-preview-control="photoTwo"]').click();
+          assert(pickerRequests === 1, 'клик по фото второй копии не открыл нужный исходный файл');
+          const control = doc.querySelector('#printSheet [data-preview-control="photoTwo"]');
+          control.dispatchEvent(new win.KeyboardEvent('keydown', {key:'Enter', bubbles:true, cancelable:true}));
+          assert(pickerRequests === 2, 'фото недоступно с клавиатуры');
+          const headline = doc.querySelector('#printSheet [data-inline-field="headline"]');
+          headline.focus();
+          headline.textContent = 'ТЕСТ ПЕРЕД ЗАМЕНОЙ ФОТО';
+          control.dispatchEvent(new win.PointerEvent('pointerdown', {button:0, bubbles:true, cancelable:true}));
+          control.dispatchEvent(new win.PointerEvent('pointerup', {button:0, bubbles:true, cancelable:true}));
+          assert(pickerRequests === 3, 'переход из текста к фото потерял нажатие');
+          assert(doc.getElementById('headline').value === 'ТЕСТ ПЕРЕД ЗАМЕНОЙ ФОТО', 'замена фото потеряла незавершённый текст');
+          assert(doc.querySelectorAll('#printSheet .photo-box img').length === 4, 'открытие выбора файла удалило исходные фото');
+        } finally { photoTwo.click = originalPhotoClick; }
+        setCheck(win, doc, '#showQr', true);
+        setField(win, doc, '#qrLink', 'https://example.com/preview-test');
+        await waitFor(() => doc.querySelector('#printSheet [data-preview-control="qr"]'), 2000, 'QR не появился');
+        doc.querySelector('#printSheet [data-preview-control="qr"]').click();
+        await waitFor(() => doc.activeElement === doc.getElementById('qrLink'), 2000, 'клик по QR не открыл ссылку для редактирования');
+        const firstFlyer = doc.querySelector('#printSheet .flyer');
+        assert([...firstFlyer.querySelectorAll('[data-preview-control]')].every(node => node.tabIndex === 0), 'медиа первой копии недоступны с клавиатуры');
+        assert([...doc.querySelectorAll('#printSheet .flyer')].slice(1).flatMap(flyer => [...flyer.querySelectorAll('[data-preview-control]')]).every(node => node.tabIndex === -1), 'повторные копии медиа попали в Tab-путь');
+        assert(doc.getElementById('agentPhone').value === profilePhone && doc.querySelectorAll('#printSheet .flyer').length === 2, 'редактирование медиа заменило профиль или формат');
+        pass('предпросмотр: фото открывает свой файл, QR открывает свою ссылку');
+        click(doc, '#spnJumpToPrintBtn');
+        await waitFor(() => doc.body.dataset.wizardStep === 'check' && doc.activeElement === doc.getElementById('qualityBtn'), 2500, 'К печати не открыл проверку после редактирования');
+        assert(!doc.getElementById('printDialog').open, 'К печати обошёл проверку и открыл печать');
+        pass('предпросмотр: К печати открывает проверку без системной печати');
+
         if(runtimeErrors.length) throw new Error(`runtime errors: ${runtimeErrors.join(' | ')}`);
         lastAction = 'completed';
         result.dataset.status = 'passed';

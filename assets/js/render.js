@@ -114,9 +114,9 @@ function hasRenderablePhoto(state){
 function renderPhotos(state){
   const img1 = state.photoOne ? `<img src="${state.photoOne}" alt="Фото 1">` : '';
   const img2 = state.photoTwo ? `<img src="${state.photoTwo}" alt="Фото 2">` : '';
-  if(state.photoMode === 'two') return `<div class="photos two"><div class="photo-box">${img1}</div><div class="photo-box">${img2}</div></div>`;
-  if(state.photoMode === 'plan') return `<div class="photos plan"><div class="photo-box">${img1}</div></div>`;
-  return `<div class="photos"><div class="photo-box">${img1}</div></div>`;
+  if(state.photoMode === 'two') return `<div class="photos two"><div class="photo-box"${previewControlAttrs('photoOne', 'Заменить фото 1')}>${img1}</div><div class="photo-box"${previewControlAttrs('photoTwo', 'Заменить фото 2')}>${img2}</div></div>`;
+  if(state.photoMode === 'plan') return `<div class="photos plan"><div class="photo-box"${previewControlAttrs('photoOne', 'Заменить планировку')}>${img1}</div></div>`;
+  return `<div class="photos"><div class="photo-box"${previewControlAttrs('photoOne', 'Заменить фото 1')}>${img1}</div></div>`;
 }
 function renderMeta(state){
   const items = [];
@@ -151,9 +151,9 @@ function renderQr(state){
   const caption = esc(state.qrCaption || 'Открыть ссылку');
   const captionAttrs = inlineEditAttrs('qrCaption', 'Подпись QR');
   if(!qr.ok){
-    return `<div class="qr-row qr-standalone"><div class="qr-box qr-error">QR</div><span class="qr-copy"><span class="qr-caption"${captionAttrs}>${caption}</span><br><small class="qr-error-note" contenteditable="false" role="note">ссылка слишком длинная</small></span></div>`;
+    return `<div class="qr-row qr-standalone"><div class="qr-box qr-error"${previewControlAttrs('qr', 'Изменить ссылку QR')}>QR</div><span class="qr-copy"><span class="qr-caption"${captionAttrs}>${caption}</span><br><small class="qr-error-note" contenteditable="false" role="note">ссылка слишком длинная</small></span></div>`;
   }
-  return `<div class="qr-row qr-standalone"><div class="qr-box real-qr">${qr.svg}</div><span class="qr-caption"${captionAttrs}>${caption}</span></div>`;
+  return `<div class="qr-row qr-standalone"><div class="qr-box real-qr"${previewControlAttrs('qr', 'Изменить ссылку QR')}>${qr.svg}</div><span class="qr-caption"${captionAttrs}>${caption}</span></div>`;
 }
 function renderTears(state){
   const phone = esc(state.agentPhone || 'телефон');
@@ -187,6 +187,9 @@ function inlineEditAttrs(field, label, options = {}){
   const multilineAttr = options.multiline ? ' aria-multiline="true"' : ' aria-multiline="false"';
   return ` data-inline-field="${field}" data-inline-label="${esc(label)}" aria-label="${esc(label)}"${indexAttr} contenteditable="true" spellcheck="true" tabindex="0" role="textbox"${multilineAttr} title="Нажмите, чтобы изменить текст прямо на макете"`;
 }
+function previewControlAttrs(control, label){
+  return ` data-preview-control="${control}" role="button" tabindex="0" aria-label="${esc(label)}" title="${esc(label)}"`;
+}
 function normalizeInlineTabStops(sheet){
   const flyers = [...sheet.querySelectorAll('.flyer')];
   flyers.forEach((flyer, flyerIndex) => {
@@ -195,6 +198,9 @@ function normalizeInlineTabStops(sheet){
       const key = `${editable.dataset.inlineField}:${editable.dataset.inlineIndex || ''}`;
       editable.tabIndex = flyerIndex === 0 && !seen.has(key) ? 0 : -1;
       seen.add(key);
+    });
+    flyer.querySelectorAll('[data-preview-control]').forEach(control => {
+      control.tabIndex = flyerIndex === 0 ? 0 : -1;
     });
   });
 }

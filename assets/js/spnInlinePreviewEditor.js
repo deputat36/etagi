@@ -35,11 +35,11 @@ document.addEventListener('DOMContentLoaded', () => {
 function handleFocusIn(event){
   const editable = event.target.closest(EDITABLE_SELECTOR);
   if(!editable) return;
-  editable.dataset.inlineOriginal = readEditableText(editable);
   editable.__inlineOriginalNodes = [...editable.childNodes].map(node => node.cloneNode(true));
   if(editable.dataset.inlineField === 'tearOffLabel'){
     editable.textContent = document.getElementById('tearOffLabel')?.value || '';
   }
+  editable.dataset.inlineOriginal = readEditableText(editable);
   editable.dataset.inlineCancelled = 'false';
 }
 
@@ -52,6 +52,10 @@ function handleFocusOut(event){
   if(!editable || editable.dataset.inlineCommitting === 'true') return;
 
   if(editable.dataset.inlineCancelled === 'true'){
+    restoreOriginalContent(editable);
+    return;
+  }
+  if(readEditableText(editable) === editable.dataset.inlineOriginal){
     restoreOriginalContent(editable);
     return;
   }

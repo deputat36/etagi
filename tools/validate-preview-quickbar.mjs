@@ -28,7 +28,13 @@ requireSnippets(files.helper, sources.helper, [
   'position:sticky',
   '@media(max-width:640px)',
   'min-height:44px',
-  '@media print'
+  '@media print',
+  'data-preview-open',
+  'data-preview-move',
+  'data-preview-toggle',
+  'data-preview-return',
+  "new CustomEvent('spn:wizard-open-step'",
+  "document.getElementById(control.dataset.previewControl)?.click()"
 ]);
 
 forbidSnippets(files.helper, sources.helper, [

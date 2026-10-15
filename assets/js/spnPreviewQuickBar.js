@@ -117,6 +117,7 @@ function bindPreviewEditing(previewTop){
   });
   for(const type of ['pointercancel', 'pointerleave']) sheet.addEventListener(type, () => { pointerSelecting = false; });
   sheet.addEventListener('focusin', event => { if(!pointerSelecting) selectBlock(event); });
+  sheet.addEventListener('spn:inline-focus-restored', selectBlock);
   sheet.addEventListener('click', event => {
     selectBlock(event);
     if(event.detail === 0) activateMediaControl(event.target.closest('[data-preview-control]'));

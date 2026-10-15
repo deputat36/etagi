@@ -120,7 +120,9 @@ requireSnippets(files.tabSmoke, sources.tabSmoke, [
   "const expectedHeadline = 'ИЗМЕНЕНО ВО ВТОРОЙ КОПИИ'",
   "doc.getElementById('headline')?.value === expectedHeadline",
   'после рендера повторные Tab-stop вернулись',
-  'вторая копия: прямое редактирование сохранено вне Tab-порядка'
+  'вторая копия: прямое редактирование сохранено вне Tab-порядка',
+  'переходы между текстами: фокус, курсор и копия макета сохраняются',
+  'удаление преимущества сохраняет выбранную строку; пустой переход не перерисовывает лист'
 ]);
 
 requireSnippets(files.uiSmokeRunner, sources.uiSmokeRunner, [

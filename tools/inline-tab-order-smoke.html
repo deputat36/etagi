@@ -116,6 +116,59 @@
         assert(doc.getElementById('brandSideText').value === 'Борисоглебск' && doc.getElementById('tearOffLabel').value === 'Район Центр', 'повторное открытие потеряло прямые изменения');
         pass('прямые изменения фирменной строки и отрывных сохраняются в макете');
 
+        lastAction = 'inline-focus.transitions';
+        for(const width of [1280, 360, 390, 430]){
+          frame.style.width = `${width}px`;
+          for(const mode of ['quick', 'newbie', 'advanced']){
+            click(doc, `button[data-spn-ui-mode="${mode}"]`);
+            setField(win, doc, '#description', 'Описание для точного курсора.');
+            const source = doc.querySelector('#printSheet [data-inline-field="headline"]');
+            source.focus();
+            source.textContent = `ПЕРЕХОД ${width} ${mode}`;
+            const target = doc.querySelector('#printSheet [data-inline-field="description"]');
+            target.scrollIntoView({block:'center'});
+            const caret = doc.createRange();
+            caret.setStart(target.firstChild, 8);
+            caret.setEnd(target.firstChild, 9);
+            const rect = caret.getBoundingClientRect();
+            const clientX = rect.left + .1;
+            const clientY = rect.top + rect.height / 2;
+            const point = doc.caretPositionFromPoint?.(clientX, clientY);
+            const fallback = point ? null : doc.caretRangeFromPoint(clientX, clientY);
+            const expectedOffset = point?.offset ?? fallback.startOffset;
+            target.dispatchEvent(new win.PointerEvent('pointerdown', {button:0, clientX, clientY, bubbles:true}));
+            target.focus();
+            await Promise.resolve();
+            assert(doc.activeElement?.dataset.inlineField === 'description', 'поле не готово к вводу сразу после перехода');
+            assert(doc.getElementById('spnPreviewBlockName').textContent === 'Описание', 'действия предпросмотра выбрали другой блок');
+            await waitFor(() => doc.activeElement?.dataset.inlineField === 'description' && doc.activeElement.isConnected, 2000, 'переход потерял фокус соседнего поля');
+            const current = doc.activeElement;
+            assert(doc.getSelection().anchorNode === current.firstChild && doc.getSelection().anchorOffset === expectedOffset, 'переход изменил позицию курсора');
+            assert(doc.getElementById('headline').value === `ПЕРЕХОД ${width} ${mode.toUpperCase()}`, 'переход потерял предыдущий текст');
+            current.textContent = `Описание ${width} ${mode}`;
+            const secondary = doc.querySelectorAll('#printSheet .flyer')[1].querySelector('[data-inline-field="headline"]');
+            secondary.focus();
+            await waitFor(() => doc.activeElement === doc.querySelectorAll('#printSheet .flyer')[1].querySelector('[data-inline-field="headline"]'), 2000, 'переход в другую копию выбрал неверное поле');
+            assert(doc.getElementById('description').value === `Описание ${width} ${mode}`, 'обратный переход потерял описание');
+            doc.activeElement.blur();
+          }
+        }
+        pass('переходы между текстами: фокус, курсор и копия макета сохраняются');
+
+        lastAction = 'inline-focus.removed-benefit';
+        setField(win, doc, '#benefits', 'Первое\nВторое\nТретье');
+        const firstBenefit = doc.querySelector('#printSheet [data-inline-field="benefits"][data-inline-index="0"]');
+        firstBenefit.focus();
+        firstBenefit.textContent = '';
+        doc.querySelector('#printSheet [data-inline-field="benefits"][data-inline-index="1"]').focus();
+        await waitFor(() => doc.activeElement?.dataset.inlineField === 'benefits' && doc.activeElement.textContent === 'Второе', 2000, 'удаление преимущества перевело фокус в другую строку');
+        assert(doc.activeElement.dataset.inlineIndex === '0', 'не учтён сдвиг строк после удаления преимущества');
+        const unchanged = doc.activeElement;
+        doc.querySelector('#printSheet [data-inline-field="headline"]').focus();
+        assert(unchanged.isConnected, 'переход без изменения вызвал лишнюю перерисовку');
+        doc.activeElement.blur();
+        pass('удаление преимущества сохраняет выбранную строку; пустой переход не перерисовывает лист');
+
         if(runtimeErrors.length) throw new Error(`runtime errors: ${runtimeErrors.join(' | ')}`);
         lastAction = 'completed';
         result.dataset.status = 'passed';

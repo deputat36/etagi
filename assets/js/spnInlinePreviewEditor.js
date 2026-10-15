@@ -2,6 +2,7 @@ const SHEET_ID = 'printSheet';
 const HINT_ID = 'spnInlinePreviewHint';
 const STYLE_ID = 'spnInlinePreviewEditorStyles';
 const EDITABLE_SELECTOR = '[data-inline-field]';
+let pointerSelection = null;
 const SINGLE_LINE_FIELDS = new Set([
   'brandName',
   'brandSideText',
@@ -30,6 +31,8 @@ document.addEventListener('DOMContentLoaded', () => {
   sheet.addEventListener('focusout', handleFocusOut);
   sheet.addEventListener('keydown', handleKeydown);
   sheet.addEventListener('paste', handlePaste);
+  sheet.addEventListener('pointerdown', rememberPointerSelection);
+  sheet.addEventListener('pointercancel', () => { pointerSelection = null; });
 });
 
 function handleFocusIn(event){
@@ -60,10 +63,14 @@ function handleFocusOut(event){
     return;
   }
 
+  const nextFocus = describeNextFocus(editable, event.relatedTarget);
+  pointerSelection = null;
   commitInlineValue(editable);
+  restoreNextFocus(nextFocus);
 }
 
 function handleKeydown(event){
+  pointerSelection = null;
   const editable = event.target.closest(EDITABLE_SELECTOR);
   if(!editable) return;
 
@@ -83,6 +90,63 @@ function handleKeydown(event){
     event.preventDefault();
     editable.blur();
   }
+}
+
+function rememberPointerSelection(event){
+  pointerSelection = null;
+  if(event.button !== 0) return;
+  const editable = event.target.closest(EDITABLE_SELECTOR);
+  if(!editable) return;
+  const doc = editable.ownerDocument;
+  const position = doc.caretPositionFromPoint?.(event.clientX, event.clientY);
+  const fallback = position ? null : doc.caretRangeFromPoint?.(event.clientX, event.clientY);
+  const node = position?.offsetNode || fallback?.startContainer;
+  const offset = position?.offset ?? fallback?.startOffset;
+  if(!node || !editable.contains(node)) return;
+  const range = doc.createRange();
+  range.selectNodeContents(editable);
+  range.setEnd(node, offset);
+  pointerSelection = {editable, offset:range.toString().length};
+}
+
+function describeNextFocus(editable, target){
+  const sheet = editable.closest(`#${SHEET_ID}`);
+  if(!target?.matches?.(EDITABLE_SELECTOR) || !sheet?.contains(target)) return null;
+  const flyer = target.closest('.flyer');
+  const field = target.dataset.inlineField;
+  let index = target.dataset.inlineIndex;
+  const matches = [...flyer.querySelectorAll(EDITABLE_SELECTOR)].filter(node => node.dataset.inlineField === field && node.dataset.inlineIndex === index);
+  const occurrence = matches.indexOf(target);
+  if(field === 'benefits' && editable.dataset.inlineField === field && !normalizeSingleLine(readEditableText(editable)) && Number(index) > Number(editable.dataset.inlineIndex)) index = String(Number(index) - 1);
+  return {sheet, target, field, index, occurrence, flyerIndex:[...sheet.querySelectorAll('.flyer')].indexOf(flyer), offset:pointerSelection?.editable === target ? pointerSelection.offset : null};
+}
+
+function restoreNextFocus(next){
+  if(!next || next.target.isConnected) return;
+  // Finish the native focus change before accepting the next input event.
+  window.queueMicrotask(() => {
+    const doc = next.sheet.ownerDocument;
+    if(!next.sheet.isConnected || doc.activeElement !== doc.body) return;
+    const flyer = next.sheet.querySelectorAll('.flyer')[next.flyerIndex];
+    const replacement = [...(flyer?.querySelectorAll(EDITABLE_SELECTOR) || [])].filter(node => node.dataset.inlineField === next.field && node.dataset.inlineIndex === next.index)[next.occurrence];
+    if(!replacement) return;
+    replacement.focus({preventScroll:true});
+    replacement.dispatchEvent(new CustomEvent('spn:inline-focus-restored', {bubbles:true}));
+    if(next.offset === null) return;
+    const walker = doc.createTreeWalker(replacement, NodeFilter.SHOW_TEXT);
+    let offset = Math.min(next.offset, replacement.textContent.length);
+    let node;
+    while((node = walker.nextNode())){
+      if(offset > node.length){ offset -= node.length; continue; }
+      const range = doc.createRange();
+      range.setStart(node, offset);
+      range.collapse(true);
+      const selection = doc.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+      return;
+    }
+  });
 }
 
 function handlePaste(event){

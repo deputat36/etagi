@@ -82,7 +82,8 @@ function initWizardFlow(){
   clearLegacyWizardState();
   markSections();
   injectStyles();
-  header.insertAdjacentHTML('afterend', renderWizardPanel());
+  const anchor = document.getElementById('spnUiMode') || header;
+  anchor.insertAdjacentHTML('afterend', renderWizardPanel());
   bindWizardPanel();
 
   const savedEnabled = localStorage.getItem(WIZARD_ENABLED_KEY);
@@ -91,6 +92,7 @@ function initWizardFlow(){
   setWizardEnabled(enabled);
   setStep(steps.some(step => step.id === savedStep) ? savedStep : 'goal');
   syncPrintCountButtons();
+  sidebar.classList.add('spn-main-navigation');
 }
 
 function clearLegacyWizardState(){
@@ -127,16 +129,25 @@ function renderWizardPanel(){
       </div>
       <button type="button" id="spnWizardToggle">Показывать по шагам</button>
     </div>
-    <div class="spn-wizard-print-help">
-      Выберите формат сразу: 2 на А4 — основной офисный вариант, 4 — для подъездов, 1 — для объекта с фото.
-    </div>
-    <div class="spn-wizard-print-count" aria-label="Количество объявлений на А4">
-      ${printCounts.map(item => `<button type="button" data-wizard-print-count="${item.count}"><b>${item.title}</b>${item.note ? `<span>${item.note}</span>` : ''}</button>`).join('')}
-    </div>
-    <div class="spn-wizard-steps">
-      ${steps.map(step => `<button type="button" data-wizard-step="${step.id}"><b>${step.title}</b><span>${step.hint}</span></button>`).join('')}
-    </div>
-    <div class="spn-wizard-step-help" id="spnWizardStepHelp" aria-live="polite"></div>
+    <details class="spn-wizard-map">
+      <summary><strong class="spn-wizard-current-step">1. Задача и формат</strong><small>Все шаги</small></summary>
+      <div class="spn-wizard-steps">
+        ${steps.map(step => `<button type="button" data-wizard-step="${step.id}"><b>${step.title}</b><span>${step.hint}</span></button>`).join('')}
+      </div>
+    </details>
+    <details class="spn-wizard-format">
+      <summary>Формат: 2 на А4</summary>
+      <div class="spn-wizard-print-help">
+        Выберите формат сразу: 2 на А4 — основной офисный вариант, 4 — для подъездов, 1 — для объекта с фото.
+      </div>
+      <div class="spn-wizard-print-count" aria-label="Количество объявлений на А4">
+        ${printCounts.map(item => `<button type="button" data-wizard-print-count="${item.count}"><b>${item.title}</b>${item.note ? `<span>${item.note}</span>` : ''}</button>`).join('')}
+      </div>
+    </details>
+    <details class="spn-wizard-help">
+      <summary>Подсказка к шагу</summary>
+      <div class="spn-wizard-step-help" id="spnWizardStepHelp" aria-live="polite"></div>
+    </details>
     <div class="spn-wizard-next-notice" id="spnWizardNextNotice" aria-live="polite" hidden></div>
     <div class="spn-wizard-nav">
       <button type="button" id="spnWizardPrev">Назад</button>
@@ -151,6 +162,11 @@ function bindWizardPanel(){
     if(stepButton){
       clearNextNotice();
       setStep(stepButton.dataset.wizardStep);
+      const map = stepButton.closest('details');
+      if(map?.open){
+        map.open = false;
+        map.querySelector('summary')?.focus({preventScroll:true});
+      }
       return;
     }
 
@@ -169,8 +185,7 @@ function bindWizardPanel(){
     setWizardEnabled(document.body.dataset.wizardFlow !== 'on');
   });
 
-  const row = document.getElementById('printPresetRow');
-  row?.addEventListener('click', () => window.setTimeout(syncPrintCountButtons, 80));
+  document.addEventListener('spn:form-synced', () => syncPrintCountButtons());
 
   document.addEventListener('spn:adaptation-complete-next', openCheckFromAdaptation);
   document.addEventListener('spn:wizard-open-step', event => {
@@ -224,7 +239,10 @@ function setStep(stepId){
 
   document.querySelectorAll('#spnWizardFlow button[data-wizard-step]').forEach(button => {
     button.classList.toggle('active', button.dataset.wizardStep === active.id);
+    button.setAttribute('aria-current', button.dataset.wizardStep === active.id ? 'step' : 'false');
   });
+  const currentStep = document.querySelector('#spnWizardFlow .spn-wizard-current-step');
+  if(currentStep) currentStep.textContent = active.title;
 
   document.querySelectorAll('[data-wizard-section]').forEach(section => {
     section.classList.toggle('spn-wizard-section-active', active.sections.includes(section.dataset.wizardSection));
@@ -315,6 +333,7 @@ function setWizardEnabled(enabled){
   if(toggle){
     toggle.textContent = enabled ? 'Показать все разделы' : 'Показывать по шагам';
     toggle.classList.toggle('active', enabled);
+    toggle.setAttribute('aria-pressed', String(enabled));
   }
 }
 
@@ -330,6 +349,8 @@ function syncPrintCountButtons(fallbackCount = ''){
   document.querySelectorAll('[data-wizard-print-count]').forEach(button => {
     button.classList.toggle('active', button.dataset.wizardPrintCount === activeCount);
   });
+  const formatSummary = document.querySelector('#spnWizardFlow .spn-wizard-format > summary');
+  if(formatSummary) formatSummary.textContent = `Формат: ${activeCount} на А4`;
 }
 
 function fieldValue(id){

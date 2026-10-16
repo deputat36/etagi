@@ -46,6 +46,61 @@
         win.localStorage.removeItem('etagi-raskleyka-saved-v1');
         win.localStorage.removeItem('etagi-raskleyka-layouts-v1');
 
+        lastAction = 'navigation.compact';
+        await waitFor(() => doc.querySelector('.sidebar.spn-main-navigation'), 3000, 'единая навигация не включилась');
+        const navigation = doc.getElementById('spnWizardFlow');
+        const navigationMap = navigation.querySelector('.spn-wizard-map');
+        const navigationFormat = navigation.querySelector('.spn-wizard-format');
+        const navigationHelp = navigation.querySelector('.spn-wizard-help');
+        const navigationProfile = ['agentName','agentPhone'].map(id => doc.getElementById(id).value);
+        const navigationPrint = win.print;
+        let navigationPrintRequests = 0;
+        win.print = () => { navigationPrintRequests += 1; };
+        try{
+          assert([navigationMap,navigationFormat,navigationHelp].every(node => node?.tagName === 'DETAILS' && !node.open), 'дополнительная навигация не свёрнута');
+          for(const width of [1363,1280,360,390,430]){
+            frame.style.width = `${width}px`;
+            for(const mode of ['quick','newbie','advanced']){
+              click(doc, `button[data-spn-ui-mode="${mode}"]`);
+              click(doc, '#spnWizardFlow [data-wizard-step="goal"]');
+              await new Promise(resolve => win.requestAnimationFrame(() => win.requestAnimationFrame(resolve)));
+              for(const selector of ['#spnRoute','.spn-clarity-steps','#spnClarityProgress']){
+                assert(doc.querySelector(selector).getBoundingClientRect().height === 0, `${mode}/${width}: показан второй маршрут ${selector}`);
+              }
+              assert(navigation.getBoundingClientRect().height < 400, `${mode}/${width}: стартовая навигация снова перегружена`);
+              click(doc, '#spnWizardFlow .spn-wizard-map > summary');
+              assert(navigationMap.open, 'карта шагов не раскрылась');
+              const visibleSteps = [...navigation.querySelectorAll('[data-wizard-step]')].filter(node => node.getBoundingClientRect().height > 0);
+              assert(visibleSteps.length === (mode === 'newbie' ? 7 : 8), `${mode}: потерян доступ к шагам`);
+              assert(visibleSteps.every(node => node.getBoundingClientRect().height >= 44), 'кнопки шагов слишком малы для касания');
+              click(doc, '#spnWizardFlow [data-wizard-step="content"]');
+              assert(!navigationMap.open && doc.activeElement === navigationMap.querySelector('summary'), 'выбор шага не свернул карту с сохранением фокуса');
+              assert(navigationMap.querySelector('summary').textContent.includes('3. Адаптация'), 'заголовок не показывает текущий шаг');
+              assert(navigation.querySelector('[data-wizard-step="content"]').getAttribute('aria-current') === 'step', 'текущий шаг недоступен скринридеру');
+              click(doc, '#spnWizardFlow .spn-wizard-format > summary');
+              click(doc, '#spnWizardFlow [data-wizard-print-count="2"]');
+              assert(doc.querySelector('#printPresetRow [data-count="2"]').classList.contains('active'), 'формат не применился через существующие настройки');
+              click(doc, '#printPresetRow [data-count="3"]');
+              await waitFor(() => navigationFormat.querySelector('summary').textContent.includes('3 на А4'), 1500, 'формат, выбранный в печати, не обновил свёрнутый заголовок');
+              click(doc, '#spnWizardFlow .spn-wizard-format > summary');
+              click(doc, '#spnWizardFlow .spn-wizard-help > summary');
+              assert(navigationHelp.open && doc.getElementById('spnWizardStepHelp').getBoundingClientRect().height > 0, 'подсказка к шагу недоступна');
+              click(doc, '#spnWizardFlow .spn-wizard-help > summary');
+              assert(doc.querySelectorAll('#printSheet .flyer').length === 3, 'раскрытие навигации изменило формат');
+              const sidebar = doc.querySelector('.sidebar');
+              assert(sidebar.scrollWidth <= sidebar.clientWidth + 1 && doc.documentElement.scrollWidth <= win.innerWidth + 1, `${mode}/${width}: навигация прокручивается по горизонтали`);
+              click(doc, '#printPresetRow [data-count="2"]');
+              assert(['agentName','agentPhone'].every((id,i) => doc.getElementById(id).value === navigationProfile[i]), 'навигация заменила личный профиль');
+            }
+          }
+          assert(navigationPrintRequests === 0, 'навигация запустила системную печать');
+        } finally { win.print = navigationPrint; }
+        frame.style.width = '1280px';
+        click(doc, 'button[data-spn-ui-mode="quick"]');
+        if(doc.body.dataset.wizardFlow === 'on') click(doc, '#spnWizardToggle');
+        pass('навигация: один компактный маршрут, доступ ко всем шагам и фокус после выбора');
+        pass('навигация: формат и профиль сохраняются, подсказки раскрываются без печати');
+
         lastAction = 'profile.contact-layout';
         const contactValues = ['agentName','agentPhone','contactCtaText'].map(id => [id, doc.getElementById(id).value]);
         const contactOptions = [doc.getElementById('spnAgentHelper'), doc.getElementById('spnPhoneHelper'), doc.querySelector('#contactCtaEditor .spn-contact-options')];
@@ -476,6 +531,7 @@
             click(doc, '#loadNamedLayoutBtn');
             assert(doc.getElementById('headline').value === `Тест ${goal}`, `${goal}: повторное открытие не восстановило текст`);
             assert(doc.querySelectorAll('#printSheet .flyer').length === 2, `${goal}: формат A4 не восстановлен`);
+            assert(navigationFormat.querySelector('summary').textContent.includes('2 на А4'), `${goal}: заголовок формата не обновился после открытия макета`);
             assert(doc.querySelectorAll('#printSheet .flyer .tears').length === 2, `${goal}: отрывные телефоны отсутствуют`);
             click(doc, '#qualityBtn');
             const beforePrint = printRequests;

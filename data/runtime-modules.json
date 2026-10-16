@@ -4641,7 +4641,8 @@
         "mutatedBy": [],
         "referencedBy": [
           "assets/js/spnClarityPanel.js",
-          "assets/js/spnUiMode.js"
+          "assets/js/spnUiMode.js",
+          "assets/js/spnWizardFlow.js"
         ]
       },
       {
@@ -4699,6 +4700,7 @@
         ],
         "mutatedBy": [
           "assets/js/spnNewbieWizardPatch.js",
+          "assets/js/spnWizardFlow.js",
           "assets/js/spnWizardStepStatus.js"
         ],
         "referencedBy": [

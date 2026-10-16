@@ -27,14 +27,50 @@
 .spn-recommendation span{display:block;font-size:11px;line-height:1.28;color:#dbeafe;font-weight:700}
 .spn-recommendation strong{color:#fff;font-weight:900}
 
-body[data-wizard-flow="on"][data-wizard-step="goal"] .start-card{position:relative;border:2px solid #bfdbfe;background:linear-gradient(180deg,#fff,#eff6ff);box-shadow:0 8px 20px rgba(37,99,235,.08)}
-body[data-wizard-flow="on"][data-wizard-step="goal"] .start-card::before{content:'1А · Цель расклейки';display:inline-flex;margin-bottom:8px;padding:4px 8px;border-radius:999px;background:#1d4ed8;color:#fff;font-size:10px;line-height:1;font-weight:900;letter-spacing:.02em}
-body[data-wizard-flow="on"][data-wizard-step="goal"] .start-card .step-title{margin-bottom:8px}
-.spn-wizard-flow .spn-wizard-print-help{position:relative;margin:0!important;padding:29px 10px 8px!important;border:1px solid #bfdbfe!important;border-bottom:0!important;border-radius:14px 14px 0 0!important;background:#eff6ff!important;color:#1e3a8a!important}
-.spn-wizard-flow .spn-wizard-print-help::before{content:'1Б · Формат листа';position:absolute;top:8px;left:9px;display:inline-flex;padding:4px 8px;border-radius:999px;background:#1d4ed8;color:#fff;font-size:10px;line-height:1;font-weight:900;letter-spacing:.02em}
-.spn-wizard-flow .spn-wizard-print-count{margin:0 0 10px!important;padding:0 8px 8px;border:1px solid #bfdbfe;border-top:0;border-radius:0 0 14px 14px;background:#eff6ff}
-.spn-wizard-flow .spn-wizard-print-count button{min-height:54px;background:#fff}
-.spn-wizard-flow .spn-wizard-print-count button[data-wizard-print-count="2"]{border-color:#93c5fd;box-shadow:inset 0 0 0 1px #bfdbfe}
-.spn-wizard-flow .spn-wizard-print-count button[data-wizard-print-count="2"] span{color:#1d4ed8;opacity:1}
-
+/* Единая навигация; прежние маршруты остаются запасным вариантом без Wizard Flow. */
+.sidebar.spn-main-navigation #spnUiMode{grid-template-columns:1fr;gap:8px;border-color:#d8e0ea;background:#fff;box-shadow:none}
+.spn-main-navigation .spn-ui-mode span{font-size:12px;line-height:1.3;font-weight:500}
+.spn-main-navigation .spn-ui-mode-actions button{flex:1;min-height:44px;font-size:12px;padding:8px}
+.spn-main-navigation .spn-wizard-head > div > span{display:block;margin-top:4px;font-size:12px;line-height:1.4;color:#64748b}
+.spn-main-navigation #spnRoute,
+.spn-main-navigation .spn-clarity-steps,
+.spn-main-navigation #spnClarityProgress{display:none!important}
+.spn-main-navigation #spnWizardFlow{background:#fff!important;border-color:#d8e0ea!important;box-shadow:none}
+.spn-main-navigation #spnWizardFlow .spn-wizard-flow-head b::after{content:none!important}
+.spn-main-navigation .spn-wizard-flow-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px}
+.spn-main-navigation .spn-wizard-flow-head span{font-size:12px;line-height:1.3;font-weight:500}
+.spn-main-navigation #spnWizardToggle{font-size:12px;padding:9px;min-height:44px}
+.spn-main-navigation #spnWizardFlow > details{border-top:1px solid #e2e8f0}
+.spn-main-navigation #spnWizardFlow > details > summary{min-height:44px;align-content:center;cursor:pointer;font-size:13px;font-weight:700;color:#111827;overflow-wrap:anywhere}
+.spn-main-navigation #spnWizardFlow > details > summary:focus-visible{outline:2px solid var(--red);outline-offset:2px;border-radius:6px}
+.spn-main-navigation .spn-wizard-map small{display:inline-block;margin-left:8px;color:#64748b;font-size:12px;font-weight:500}
+.sidebar.spn-main-navigation #spnWizardFlow .spn-wizard-steps{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;padding-bottom:8px}
+.spn-main-navigation #spnWizardFlow .spn-wizard-steps button{min-height:60px;padding:8px;text-align:left}
+.spn-main-navigation .spn-wizard-steps b{font-size:12px;line-height:1.3}
+.spn-main-navigation .spn-wizard-steps button > span{display:none}
+.spn-main-navigation .spn-wizard-steps button.active{background:var(--red);border-color:var(--red)}
+.spn-main-navigation #spnWizardFlow button[data-wizard-step][data-step-status] .spn-wizard-step-status{position:static;display:inline-block;max-width:100%;margin-top:5px;padding:3px 5px;font-size:11px;line-height:1.2;background:#f1f5f9;color:#475569}
+.spn-main-navigation #spnWizardFlow button[data-wizard-step][data-step-status="attention"] .spn-wizard-step-status{background:#fff1f2;color:#b91c1c}
+.spn-main-navigation #spnWizardFlow button.active[data-wizard-step][data-step-status] .spn-wizard-step-status{background:#fff;color:#b91c1c}
+.spn-main-navigation #spnWizardFlow .spn-wizard-print-help{margin:0 0 8px;padding:8px;border:0;border-radius:8px;background:#f8fafc;color:#475569;font-size:12px;font-weight:500;line-height:1.4}
+.spn-main-navigation #spnWizardFlow .spn-wizard-print-count{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:0 0 8px;padding:0;border:0;background:#fff}
+.spn-main-navigation #spnWizardFlow .spn-wizard-print-count button{min-height:54px}
+.spn-main-navigation #spnWizardFlow [data-wizard-print-count="2"]{border-color:var(--red)}
+.spn-main-navigation #spnWizardFlow .spn-wizard-print-count span{font-size:11.5px;line-height:1.3}
+.spn-main-navigation #spnWizardFlow .spn-wizard-step-help{margin:0 0 8px;padding:8px;border:0;background:#f8fafc;color:#475569}
+.spn-main-navigation #spnWizardFlow .spn-wizard-step-help span{font-size:12px;line-height:1.4;font-weight:500}
+.spn-main-navigation #spnWizardFlow .spn-wizard-progress-summary{grid-template-columns:repeat(2,minmax(0,1fr));margin:0 0 8px}
+.spn-main-navigation #spnWizardFlow .spn-wizard-progress-summary span{font-size:11.5px;background:#fff;border-color:#e2e8f0;color:#475569}
+.spn-main-navigation #spnWizardFlow .spn-wizard-progress-summary b{font-size:11.5px}
+.spn-main-navigation .spn-wizard-nav button{min-height:44px;font-size:12px}
+.spn-main-navigation #spnWizardNext{background:var(--red);border-color:var(--red);color:#fff}
+.spn-main-navigation #spnClarityPanel{position:static;padding:10px;border-color:#d8e0ea;border-radius:12px;background:#fff;box-shadow:none}
+.spn-main-navigation .spn-clarity-head{align-items:center}
+.spn-main-navigation .spn-clarity-head button{min-height:44px;font-size:12px}
+.spn-main-navigation .spn-clarity-context{grid-template-columns:repeat(2,minmax(0,1fr))}
+.spn-main-navigation .spn-clarity-context em{font-size:12px;color:#374151;font-weight:700;white-space:nowrap}
+.spn-main-navigation .spn-clarity-context em.pending{color:#b91c1c}
+.spn-main-navigation .spn-next-action{grid-template-columns:minmax(0,1fr) auto;border:0;border-radius:8px;background:#f8fafc}
+.spn-main-navigation .spn-next-action span{font-size:12px;line-height:1.35;font-weight:500}
+.spn-main-navigation .spn-next-action button{min-height:44px;font-size:12px}
 @media(max-width:520px){.spn-wizard-grid{grid-template-columns:1fr}.spn-wizard-grid button{min-height:auto}.spn-route-steps{gap:4px}.spn-route-steps span{font-size:10px}.spn-wizard-flow .spn-wizard-print-count button{min-height:48px}}

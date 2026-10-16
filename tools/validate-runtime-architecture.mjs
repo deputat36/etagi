@@ -295,9 +295,10 @@ forbidSnippets(files.uiMode, sources.uiMode, [
 ]);
 
 requireSnippets(files.wizardCss, sources.wizardCss, [
-  'data-wizard-step="goal"',
-  "content:'1А · Цель расклейки'",
-  "content:'1Б · Формат листа'",
+  '.spn-main-navigation #spnRoute',
+  '.spn-main-navigation .spn-clarity-steps',
+  '.spn-wizard-map',
+  '.spn-wizard-print-count',
   'data-wizard-print-count="2"'
 ]);
 

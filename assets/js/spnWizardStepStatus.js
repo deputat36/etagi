@@ -33,7 +33,8 @@ function initWizardStepStatus(){
 function ensureStatusPanel(wizard){
   if(document.getElementById(STATUS_PANEL_ID)) return;
   const steps = wizard.querySelector('.spn-wizard-steps');
-  steps?.insertAdjacentHTML('afterend', `<div class="spn-wizard-progress-summary" id="${STATUS_PANEL_ID}" aria-live="polite"></div>`);
+  const anchor = steps?.closest('details') || steps;
+  anchor?.insertAdjacentHTML('afterend', `<div class="spn-wizard-progress-summary" id="${STATUS_PANEL_ID}" aria-live="polite"></div>`);
 }
 
 function ensureStepBadges(wizard){

@@ -17,7 +17,7 @@ function renderPanel(){
   return `<section class="spn-clarity-panel" id="spnClarityPanel" aria-label="Понятный маршрут работы">
     <div class="spn-clarity-head">
       <div>
-        <b>Маршрут работы</b>
+        <b>Текущий макет</b>
         <span id="spnClarityProgress">—</span>
       </div>
       <button type="button" id="toggleHelperPanelsBtn">Подсказки</button>
@@ -166,6 +166,7 @@ function updateContextLabels(){
   const activeTemplate = document.querySelector('.tpl-card.active b')?.textContent?.trim() || '';
 
   goal.textContent = taskConfirmed && activeGoal ? activeGoal : 'Не выбрана';
+  goal.title = goal.textContent;
   goal.classList.toggle('pending', !taskConfirmed);
 
   if(templateConfirmed && activeTemplate){
@@ -181,6 +182,7 @@ function updateContextLabels(){
     template.classList.add('pending');
     template.classList.remove('confirmed');
   }
+  template.title = template.textContent;
 }
 
 function toggleHelpers(){

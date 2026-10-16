@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
   const phone = document.getElementById('agentPhone');
-  const anchor = document.getElementById('contactCtaEditor') || phone?.closest('label');
+  const anchor = document.getElementById('contactCtaEditor') || phone?.closest('.field-grid') || phone?.closest('label');
   if(!phone || !anchor || document.getElementById('spnPhoneHelper')) return;
   anchor.insertAdjacentHTML('afterend', renderHelper());
   bindHelper();
@@ -8,18 +8,18 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function renderHelper(){
-  return `<div class="spn-phone-helper" id="spnPhoneHelper">
-    <div class="spn-phone-helper-head">
-      <b>Телефон для отклика</b>
+  return `<details class="spn-phone-helper spn-contact-options" id="spnPhoneHelper">
+    <summary class="spn-phone-helper-head">
+      <b>Отображение телефона</b>
       <span id="phoneHelperStatus">—</span>
-    </div>
+    </summary>
     <div class="spn-phone-actions">
       <button type="button" id="phoneFormatBtn">Форматировать</button>
       <button type="button" id="phoneShowEverywhereBtn">Везде показать</button>
       <button type="button" id="phoneTearsOnlyBtn">Только отрывные</button>
     </div>
     <p>Проверьте номер перед печатью. Для массовой расклейки безопаснее оставить телефон и в контактах, и на отрывных листочках.</p>
-  </div>`;
+  </details>`;
 }
 
 function bindHelper(){

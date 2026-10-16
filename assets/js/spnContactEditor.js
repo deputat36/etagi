@@ -13,7 +13,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const phone = document.getElementById('agentPhone');
   const phoneLabel = phone?.closest('label');
   if(!phone || !phoneLabel || document.getElementById('contactCtaEditor')) return;
-  phoneLabel.insertAdjacentHTML('afterend', renderEditor());
+  const anchor = phoneLabel.closest('.field-grid') || phoneLabel;
+  anchor.insertAdjacentHTML('afterend', renderEditor());
   bindEditor();
   restoreCta();
 });
@@ -21,9 +22,12 @@ document.addEventListener('DOMContentLoaded', () => {
 function renderEditor(){
   return `<div class="spn-contact-editor" id="contactCtaEditor">
     <label>Призыв в блоке контактов<input id="contactCtaText" type="text" maxlength="90" placeholder="Позвоните — подскажу по объекту и условиям"></label>
-    <div class="spn-contact-presets">
-      ${ctaPresets.map(item => `<button type="button" data-contact-cta="${escapeAttr(item)}">${escapeHtml(item)}</button>`).join('')}
-    </div>
+    <details class="spn-contact-options">
+      <summary>Готовые формулировки</summary>
+      <div class="spn-contact-presets">
+        ${ctaPresets.map(item => `<button type="button" data-contact-cta="${escapeAttr(item)}">${escapeHtml(item)}</button>`).join('')}
+      </div>
+    </details>
     <p>Этот текст печатается под именем и телефоном. Делайте его коротким и понятным.</p>
   </div>`;
 }

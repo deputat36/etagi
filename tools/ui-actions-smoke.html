@@ -46,6 +46,48 @@
         win.localStorage.removeItem('etagi-raskleyka-saved-v1');
         win.localStorage.removeItem('etagi-raskleyka-layouts-v1');
 
+        lastAction = 'profile.contact-layout';
+        const contactValues = ['agentName','agentPhone','contactCtaText'].map(id => [id, doc.getElementById(id).value]);
+        const contactOptions = [doc.getElementById('spnAgentHelper'), doc.getElementById('spnPhoneHelper'), doc.querySelector('#contactCtaEditor .spn-contact-options')];
+        assert(contactOptions.every(node => node?.tagName === 'DETAILS' && !node.open), 'дополнительные варианты контактов не свёрнуты');
+        const contactGrid = doc.getElementById('agentName').closest('.field-grid');
+        assert(contactGrid.children.length === 2 && [...contactGrid.children].every(node => node.tagName === 'LABEL'), 'помощники разрывают сетку имени и телефона');
+        setField(win, doc, '#agentName', 'Тестовая подпись специалиста для проверки переноса');
+        setField(win, doc, '#agentPhone', '+7 000 000-00-00');
+        for(const width of [1363, 1280, 1050, 430, 390, 360]){
+          frame.style.width = `${width}px`;
+          for(const mode of ['quick','newbie','advanced']){
+            click(doc, `button[data-spn-ui-mode="${mode}"]`);
+            click(doc, '#spnWizardFlow [data-wizard-step="content"]');
+            await new Promise(resolve => win.requestAnimationFrame(() => win.requestAnimationFrame(resolve)));
+            const [nameRect, phoneRect, ctaRect] = ['agentName','agentPhone','contactCtaText'].map(id => doc.getElementById(id).getBoundingClientRect());
+            assert([nameRect,phoneRect,ctaRect].every(rect => rect.width > 100), `${mode}/${width}: контактное поле скрыто или сжато`);
+            assert(width > 520 ? Math.abs(nameRect.top - phoneRect.top) < 2 : phoneRect.top >= nameRect.bottom, `${mode}/${width}: нарушен порядок имени и телефона`);
+            assert(ctaRect.top >= Math.max(nameRect.bottom, phoneRect.bottom), `${mode}/${width}: призыв вклинился между контактами`);
+            for(const details of contactOptions){
+              details.querySelector('summary').click();
+              assert(details.open && details.querySelector('button').getBoundingClientRect().height > 0, `${mode}/${width}: варианты не раскрываются`);
+            }
+            const sidebar = doc.querySelector('.sidebar');
+            assert(sidebar.scrollWidth <= sidebar.clientWidth + 1, `${mode}/${width}: горизонтальная прокрутка формы ${sidebar.scrollWidth}/${sidebar.clientWidth}`);
+            assert(doc.documentElement.scrollWidth <= win.innerWidth + 1, `${mode}/${width}: горизонтальная прокрутка страницы`);
+            click(doc, '#toggleHelperPanelsBtn');
+            assert(doc.body.classList.contains('spn-hide-helper-panels') && doc.getElementById('contactCtaText').getBoundingClientRect().width > 100, 'скрытие подсказок скрыло поле призыва');
+            setField(win, doc, '#contactCtaText', 'Тестовый призыв для проверки формы');
+            const ctaCopies = [...doc.querySelectorAll('#printSheet .cta')];
+            assert(ctaCopies.length > 0 && ctaCopies.every(node => node.textContent === 'Тестовый призыв для проверки формы'), 'призыв не обновился в копиях');
+            click(doc, '#toggleHelperPanelsBtn');
+            contactOptions.forEach(details => details.querySelector('summary').click());
+            assert(doc.getElementById('agentName').value === 'Тестовая подпись специалиста для проверки переноса' && doc.getElementById('agentPhone').value === '+7 000 000-00-00', 'раскрытие вариантов заменило личные контакты');
+          }
+        }
+        contactValues.forEach(([id,value]) => setField(win, doc, `#${id}`, value));
+        frame.style.width = '1280px';
+        click(doc, 'button[data-spn-ui-mode="quick"]');
+        if(doc.body.dataset.wizardFlow === 'on') click(doc, '#spnWizardToggle');
+        pass('контакты: поля и варианты доступны без горизонтальной прокрутки на ПК и телефоне');
+        pass('контакты: скрытие подсказок сохраняет редактирование призыва и личный профиль');
+
         lastAction = 'profile.save';
         setField(win, doc, '#agentName', 'Анна Smoke');
         setField(win, doc, '#agentPhone', '+7 900 123-45-67');

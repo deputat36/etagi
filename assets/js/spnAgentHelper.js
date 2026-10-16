@@ -2,20 +2,24 @@ document.addEventListener('DOMContentLoaded', () => {
   const name = document.getElementById('agentName');
   const nameLabel = name?.closest('label');
   if(!name || !nameLabel || document.getElementById('spnAgentHelper')) return;
-  nameLabel.insertAdjacentHTML('afterend', renderHelper());
+  const anchor = document.getElementById('spnPhoneHelper')
+    || document.getElementById('contactCtaEditor')
+    || nameLabel.closest('.field-grid') || nameLabel;
+  anchor.insertAdjacentHTML('afterend', renderHelper());
   bindHelper();
   renderNameIdeas();
 });
 
 function renderHelper(){
-  return `<div class="spn-agent-helper" id="spnAgentHelper">
+  return `<details class="spn-agent-helper spn-contact-options" id="spnAgentHelper">
+    <summary>Варианты подписи СПН</summary>
     <div class="spn-agent-helper-head">
       <b>Подпись специалиста</b>
       <button type="button" id="agentNameNormalizeBtn">Привести имя</button>
     </div>
     <div class="spn-agent-ideas" id="spnAgentIdeas"></div>
     <p>Эта строка печатается под телефоном. Лучше писать коротко: имя, роль или локальная привязка.</p>
-  </div>`;
+  </details>`;
 }
 
 function bindHelper(){

@@ -42,6 +42,7 @@ const byGoal = countBy(templates, template => template.goal || 'unknown');
 const byLevel = countBy(templates.filter(template => template.office), template => template.office?.level || 'unknown');
 const byRisk = countBy(templates.filter(template => template.office), template => template.office?.risk || 'unknown');
 const byPortfolioStatus = countBy(templates, template => template.portfolio?.status || 'working');
+const workingTemplates = templates.filter(template => template.portfolio?.status === 'working');
 const officeCount = templates.filter(template => template.office).length;
 const officeOverrideCount = templates.filter(template => template.__officeOverride === true).length;
 const idAliasCount = templates.filter(template => template.__idAlias === true).length;
@@ -80,6 +81,19 @@ const markdown = [
   `- одинаковых нормализованных заголовков: ${duplicateHeadlines.length};`,
   `- вероятных смысловых дублей: ${nearDuplicates.length}.`,
   '',
+  '## Настройки композиции',
+  '',
+  'Количество записей в библиотеке не равно количеству самостоятельных дизайнов. Таблицы ниже описывают настройки в JSON, а не число визуально разных макетов.',
+  '',
+  '| Явная настройка в data | Всего | Рабочие |',
+  '|---|---:|---:|',
+  `| layoutMode | ${templates.filter(hasLayoutMode).length} | ${workingTemplates.filter(hasLayoutMode).length} |`,
+  `| blockOrder (непустой массив) | ${templates.filter(hasBlockOrder).length} | ${workingTemplates.filter(hasBlockOrder).length} |`,
+  '',
+  renderWorkingCountTable('## Режим фото в шаблоне', 'photo', template => template.photo || 'none'),
+  '',
+  renderWorkingCountTable('## Число макетов на A4', 'printCount', template => template.printCount || template.data?.printCount || 'не задан'),
+  '',
   renderCountTable('## По пакетам', 'Пакет', byFile),
   '',
   renderCountTable('## По целям', 'Цель', byGoal),
@@ -115,6 +129,8 @@ const markdown = [
   renderLifecycleList(testTemplates, false),
   '',
   '## Вероятные смысловые дубли',
+  '',
+  'Эвристика сравнивает наборы слов из названия, заметки и текстовых полей (Jaccard: от 0,72 при одной цели, от 0,82 при разных). Она не сравнивает композицию, миниатюры и повод обращения; пары с одинаковой исходной идентичностью пропускаются. Нулевой результат не подтверждает визуальное или сценарное разнообразие.',
   '',
   renderNearDuplicates(nearDuplicates),
   '',
@@ -321,6 +337,25 @@ function countBy(items, keyFn){
 
 function statusCount(status){
   return byPortfolioStatus.find(([key]) => key === status)?.[1] || 0;
+}
+
+function hasLayoutMode(template){
+  return Boolean(String(template.data?.layoutMode || '').trim());
+}
+
+function hasBlockOrder(template){
+  return Array.isArray(template.data?.blockOrder) && template.data.blockOrder.length > 0;
+}
+
+function renderWorkingCountTable(title, firstColumn, keyFn){
+  const workingCounts = new Map(countBy(workingTemplates, keyFn));
+  return [
+    title,
+    '',
+    `| ${firstColumn} | Всего | Рабочие |`,
+    '|---|---:|---:|',
+    ...countBy(templates, keyFn).map(([key, count]) => `| ${escapeCell(key)} | ${count} | ${workingCounts.get(key) || 0} |`)
+  ].join('\n');
 }
 
 function renderCountTable(title, firstColumn, rows){

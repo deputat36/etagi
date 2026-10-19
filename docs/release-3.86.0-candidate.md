@@ -29,7 +29,7 @@
 - контролируемые ипотечные, юридические, частные и A/B-сценарии;
 - менеджерский notice для чувствительных формулировок;
 - обязательный бланк `docs/manager-sensitive-template-review-3.86.0.md`;
-- evidence-пакет `docs/manager-sensitive-template-evidence-3.86.0.md` для 12 шаблонов;
+- evidence-пакет `docs/manager-sensitive-template-evidence-3.86.0.md` для 13 шаблонов;
 - автоматическая сверка `node tools/validate-manager-sensitive-review.mjs`.
 
 ### Сохранность данных
@@ -123,7 +123,7 @@ Validate print format coverage: run #7, ID 29824496884
 
 - [ ] Выполнен сценарий 0 на рабочем ПК и телефоне шириной 360–430 px: нет горизонтального переполнения, кнопка `К печати` ведёт к видимой проверке одним нажатием.
 - [ ] Полностью заполнен `docs/manual-print-acceptance-3.86.0.md`.
-- [ ] Менеджер сверил 12 шаблонов из `docs/manager-sensitive-template-review-3.86.0.md` с `docs/manager-sensitive-template-evidence-3.86.0.md`, зафиксировал решения и закрыл issue #51.
+- [ ] Менеджер сверил 13 шаблонов из `docs/manager-sensitive-template-review-3.86.0.md` с `docs/manager-sensitive-template-evidence-3.86.0.md`, зафиксировал решения и закрыл issue #51.
 - [ ] Проверена физическая печать 1, 2, 3, 4, 6 и 8 макетов на А4.
 - [ ] Для 1/2/3/4 проверены восемь отрывных полос и линии реза.
 - [ ] Для 6/8 подтверждено отсутствие отрывных полос и читаемость контактов.

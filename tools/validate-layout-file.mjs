@@ -1,5 +1,6 @@
 import fs from 'node:fs';
-import { defaultState, printPresets, SUPPORTED_PRINT_COUNTS, DEFAULT_PRINT_COUNT, normalizePrintCount } from '../assets/js/state.js';
+import { defaultState, layoutModes, printPresets, SUPPORTED_PRINT_COUNTS, DEFAULT_PRINT_COUNT, normalizePrintCount } from '../assets/js/state.js';
+import { applyLayoutMode } from '../assets/js/layoutRules.js';
 import { getGrid } from '../assets/js/render.js';
 import {
   LAYOUT_FILE_FORMAT,
@@ -28,7 +29,7 @@ assert(getGrid(10, 'grid').cols === 1 && getGrid(10, 'grid').rows === 2, 'render
 assert(getGrid(12, 'grid').cols === 1 && getGrid(12, 'grid').rows === 2, 'render: 12 не использует безопасную сетку по умолчанию');
 assert(!renderSource.includes('if(n === 10)') && !renderSource.includes('if(n === 12)'), 'render: остались отдельные ветки 10/12');
 assert(renderSource.includes("import { normalizePrintCount } from './state.js';"), 'render: не использует общий нормализатор');
-assert(storageSource.includes("import { normalizePrintCount } from './state.js';"), 'storage: не использует общий нормализатор');
+assert(/import\s*\{[^}]*\bnormalizePrintCount\b[^}]*\}\s*from '\.\/state\.js'/.test(storageSource), 'storage: не использует общий нормализатор');
 assert(storageSource.includes('state.printCount = normalizePrintCount(state.printCount);'), 'storage: старое локальное состояние не нормализуется');
 assert(storageSource.includes('printCount:normalizePrintCount(state?.printCount)'), 'storage: неподдерживаемый формат можно сохранить повторно');
 assert(runnerSource.includes("label:'Print format policy smoke'") && runnerSource.includes("path:'tools/print-format-policy-smoke.html'"), 'runner: browser smoke политики A4 не подключён');
@@ -54,8 +55,28 @@ assert(parsed.state.headline === 'Проверочный макет', 'import: �
 assert(!Object.hasOwn(parsed.state, 'fileFormat'), 'import: служебные поля попали в state');
 assert(parsed.legacy === false, 'import: новый формат ошибочно отмечен как старый');
 
+for(const mode of ['auto', ...layoutModes.map(item => item.id)]){
+  const layout = applyLayoutMode({...defaultState}, mode);
+  const roundtrip = parseLayoutFileText(JSON.stringify(createLayoutFilePayload(layout)));
+  assert(roundtrip.ok, `roundtrip: собственный экспорт режима ${mode} отклонён — ${roundtrip.message || ''}`);
+  assert(roundtrip.state?.layoutMode === mode, `roundtrip: потерян режим ${mode}`);
+  assert(schema.properties.layoutMode.enum.includes(mode), `schema: отсутствует экспортируемый режим ${mode}`);
+}
+
 const legacy = validateLayoutFilePayload({headline:'Старый макет', printCount:2});
 assert(legacy.ok && legacy.legacy === true, 'legacy: старый плоский макет не поддерживается');
+
+for(const file of fs.readdirSync('data').filter(name => /^templates.*\.json$/.test(name))){
+  for(const template of JSON.parse(fs.readFileSync(`data/${file}`, 'utf8'))){
+    const state = {...defaultState, ...template.data, goal:template.goal,
+      templateId:template.id, photoMode:template.photo || 'none',
+      printCount:template.printCount || defaultState.printCount,
+      layoutDensity:template.density || defaultState.layoutDensity};
+    const roundtrip = parseLayoutFileText(JSON.stringify(createLayoutFilePayload(state)));
+    assert(roundtrip.ok, `roundtrip: экспорт шаблона ${template.id} отклонён — ${roundtrip.message || ''}`);
+    assert(schema.properties.goal.enum.includes(template.goal), `schema: отсутствует задача ${template.goal}`);
+  }
+}
 
 assert(parseLayoutFileText('{broken').code === 'invalid-json', 'diagnostics: повреждённый JSON не распознан');
 assert(validateLayoutFilePayload([]).code === 'invalid-root', 'diagnostics: массив не отклонён');

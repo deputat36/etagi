@@ -1,5 +1,5 @@
 import { enrichLayoutExtras, syncLayoutExtras } from './layoutExtras.js';
-import { normalizePrintCount } from './state.js';
+import { defaultState, normalizePrintCount } from './state.js';
 
 const KEY = 'etagi-raskleyka-state-v1';
 const SAVED_KEY = 'etagi-raskleyka-saved-v1';
@@ -41,11 +41,24 @@ export function saveProfile(profile){
   }
 }
 export function loadProfile(){
-  try { return JSON.parse(localStorage.getItem(PROFILE_KEY) || 'null'); }
+  try {
+    const profile = JSON.parse(localStorage.getItem(PROFILE_KEY) || 'null');
+    if(!isRecord(profile)) return null;
+    return {
+      agentName:typeof profile.agentName === 'string' ? profile.agentName : '',
+      agentPhone:typeof profile.agentPhone === 'string' ? profile.agentPhone : ''
+    };
+  }
   catch(e) { return null; }
 }
 export function listSavedLayouts(){
-  try { return JSON.parse(localStorage.getItem(LAYOUTS_KEY) || '[]'); }
+  try {
+    const layouts = JSON.parse(localStorage.getItem(LAYOUTS_KEY) || '[]');
+    if(!Array.isArray(layouts)) return [];
+    return layouts.filter(item => isRecord(item)
+      && typeof item.id === 'string' && item.id.trim()
+      && typeof item.name === 'string' && isRecord(item.state));
+  }
   catch(e) { return []; }
 }
 export function saveLayout(name, state){
@@ -109,7 +122,11 @@ export function restoreLayout(item){
   }
 }
 export function listFavoriteTemplates(){
-  try { return JSON.parse(localStorage.getItem(FAVORITE_TEMPLATES_KEY) || '[]'); }
+  try {
+    const favorites = JSON.parse(localStorage.getItem(FAVORITE_TEMPLATES_KEY) || '[]');
+    if(!Array.isArray(favorites)) return [];
+    return [...new Set(favorites.filter(id => typeof id === 'string' && id.trim()).map(id => id.trim()))];
+  }
   catch(e) { return []; }
 }
 export function isFavoriteTemplate(templateId){
@@ -139,10 +156,21 @@ export function clearAll(){
   localStorage.removeItem(FAVORITE_TEMPLATES_KEY);
 }
 function normalizeStoredState(state){
-  if(!state || typeof state !== 'object') return state;
+  if(!isRecord(state)) return null;
+  state = {...state};
   state.printCount = normalizePrintCount(state.printCount);
+  for(const [field, fallback] of Object.entries(defaultState)){
+    if(!Object.hasOwn(state, field)) continue;
+    const value = state[field];
+    const valid = Array.isArray(fallback) ? Array.isArray(value)
+      : typeof value === typeof fallback && (typeof value !== 'number' || Number.isFinite(value));
+    if(!valid) delete state[field];
+  }
   syncLayoutExtras(state);
   return state;
+}
+function isRecord(value){
+  return Boolean(value && typeof value === 'object' && !Array.isArray(value));
 }
 function stripHeavyFields(state){
   return enrichLayoutExtras({...state, printCount:normalizePrintCount(state?.printCount), photoOne:'', photoTwo:''});

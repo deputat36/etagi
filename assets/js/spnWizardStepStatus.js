@@ -1,4 +1,4 @@
-import { getSpnMediaReadiness } from './spnMediaReadiness.js';
+import { getSpnMediaReadiness, bindSpnMediaEvents } from './spnMediaReadiness.js';
 
 const STATUS_PANEL_ID = 'spnWizardProgressSummary';
 const STATUS_CLASS = 'spn-wizard-step-status';
@@ -50,6 +50,7 @@ function ensureStepBadges(wizard){
 function bindStatusSources(sidebar, wizard){
   if(sidebar.dataset.stepStatusSourcesBound === 'true') return;
   sidebar.dataset.stepStatusSourcesBound = 'true';
+  bindSpnMediaEvents(scheduleStatusUpdate);
 
   sidebar.addEventListener('input', scheduleStatusUpdate);
   sidebar.addEventListener('change', scheduleStatusUpdate);

@@ -1,4 +1,5 @@
-import { getSpnMediaReadiness } from './spnMediaReadiness.js';
+import { getSpnMediaReadiness, bindSpnMediaEvents } from './spnMediaReadiness.js';
+import { isSupportedPrintCount } from './state.js';
 
 const STYLE_ID = 'spnNewbieFinalCheckStyle';
 
@@ -35,6 +36,7 @@ function renderFinalCheck(){
 }
 
 function bindFinalCheck(){
+  bindSpnMediaEvents(updateFinalCheck);
   document.getElementById('spnNewbieFinalCheck')?.addEventListener('click', event => {
     const item = event.target.closest('[data-final-id]');
     const next = event.target.closest('#spnNewbieFinalNext');
@@ -64,7 +66,7 @@ function getItems(){
   const quality = Number(String(document.getElementById('qualityScore')?.textContent || '').replace(/\D/g, '')) || 0;
   const phone = Boolean(String(document.getElementById('agentPhone')?.value || '').trim());
   const activeCount = document.querySelector('[data-count].active')?.dataset.count || '';
-  const countReady = ['1','2','4','6','8'].includes(activeCount);
+  const countReady = isSupportedPrintCount(Number(activeCount));
   const media = getSpnMediaReadiness();
   const cutLines = Boolean(document.getElementById('showCutLines')?.checked);
   const safeMargins = Boolean(document.getElementById('safePrintMargins')?.checked);

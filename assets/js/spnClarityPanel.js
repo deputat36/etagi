@@ -1,4 +1,4 @@
-import { getSpnMediaReadiness } from './spnMediaReadiness.js';
+import { getSpnMediaReadiness, bindSpnMediaEvents } from './spnMediaReadiness.js';
 
 const HELPERS_KEY = 'etagi-raskleyka-show-helper-panels-v1';
 let currentTarget = '.start-card';
@@ -42,6 +42,7 @@ function renderPanel(){
 }
 
 function bindPanel(){
+  bindSpnMediaEvents(updateClarityPanel);
   document.getElementById('spnClarityPanel')?.addEventListener('click', event => {
     const step = event.target.closest('[data-clarity-target]');
     const next = event.target.closest('#spnGoNextActionBtn');

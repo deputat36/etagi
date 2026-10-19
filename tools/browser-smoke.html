@@ -194,6 +194,16 @@
         await waitFor(() => doc.querySelector('[data-count="4"]')?.classList.contains('active'), 1500, 'клик по финальному пункту самовольно сменил формат 4 на А4');
         assert(!doc.querySelector('[data-count="2"]')?.classList.contains('active'), 'финальный чек-лист навязал 2 на А4');
 
+        const tearsBeforeCountCheck = doc.getElementById('tearOffs').checked;
+        for(const count of [1,2,3,4,6,8]){
+          click(doc, `#printPresetRow [data-count="${count}"]`);
+          await waitFor(() => newbieCountItem()?.classList.contains('done') && newbieCountItem()?.textContent.includes(`${count} на А4`), 2000, `чек-лист не принял ${count} на А4`);
+          if(count === 3) assert(doc.querySelector('#printSheet .count-3.compact'), '3 на А4 не получил компактные печатные размеры');
+        }
+        click(doc, '#printPresetRow [data-count="4"]');
+        setCheckbox(doc, '#tearOffs', tearsBeforeCountCheck);
+        pass('режим Новичок: все утверждённые форматы, включая 3 на А4, готовы без подмены');
+
         setField(win, doc, '#agentName', 'Анна Smoke');
         setField(win, doc, '#agentPhone', '+7 900 123-45-67');
         setField(win, doc, '#area', 'Северный район');
@@ -467,6 +477,73 @@
         click(doc, '[data-layout-mode="agent_brand_photo"]');
         await waitFor(() => doc.querySelector('.flyer.has-photo.layout-agent_brand_photo.count-2'), 3000, 'agent_brand_photo не ограничил результат до 2 на А4');
         pass('agent_brand_photo: ограничение до 2 на А4');
+
+        const {getSpnMediaReadiness} = await import('/assets/js/spnMediaReadiness.js');
+        click(doc, '[data-spn-ui-mode="advanced"]');
+        click(doc, 'button[data-spn-goal="object"]');
+        setField(win, doc, '#templateSearch', 'object_qr');
+        await waitFor(() => doc.querySelector('[data-template="object_qr"]'), 2000, 'QR-шаблон не найден');
+        click(doc, '[data-template="object_qr"]');
+        assert(doc.getElementById('showQr').checked, 'QR-шаблон потерял обязательную ссылку');
+        setField(win, doc, '#templateSearch', 'object_flat_photo');
+        await waitFor(() => doc.querySelector('[data-template="object_flat_photo"]'), 2000, 'фото-шаблон не найден');
+        click(doc, '[data-template="object_flat_photo"]');
+        assert(!doc.getElementById('showQr').checked, 'обычный шаблон требует пустой QR');
+        pass('Шаблоны: пустой QR выключен по умолчанию, специальный QR-шаблон требует ссылку');
+        const mediaData = {
+          goal:'object', templateId:'object_house_two', headline:'Продаётся дом',
+          agentName:'Тестовый специалист', agentPhone:'+7 900 123-45-67',
+          printCount:2, showMeta:false, showPrice:false, showDescription:false,
+          showBenefits:false, showCustomBlock:false, tearOffs:false,
+          showQr:false, showPhoto:true, photoMode:'two', photoOne:'',
+          photoTwo:`data:image/svg+xml,${encodeURIComponent(facadeSvg)}`
+        };
+        async function importMedia(extra = {}){
+          const input = doc.getElementById('uploadFile');
+          const transfer = new win.DataTransfer();
+          transfer.items.add(new win.File([JSON.stringify({...mediaData,...extra})], 'media-check.json', {type:'application/json'}));
+          input.files = transfer.files;
+          input.dispatchEvent(new win.Event('change', {bubbles:true}));
+          await waitFor(() => input.files.length === 0, 3000, 'импорт медиа не завершён');
+          await nextFrame(win);
+        }
+        click(doc, '[data-spn-ui-mode="advanced"]');
+        await importMedia();
+        await waitFor(() => getSpnMediaReadiness(doc).loadedPhotos === 1, 3000, 'второе фото не загрузилось');
+        assert(getSpnMediaReadiness(doc).firstTarget === '#photoOne', 'при одном Фото 2 подсказка ведёт не к Фото 1');
+        click(doc, '#printBtn');
+        await waitFor(() => doc.activeElement?.id === 'photoOne', 2000, 'печать не перевела к отсутствующему Фото 1');
+        assert(!doc.getElementById('printDialog').open, 'Расширенно пропустил отсутствующее Фото 1');
+        await attachImage(win, doc, '#photoOne', 'ready-one.svg', planSvg);
+        await waitFor(() => getSpnMediaReadiness(doc).ready && mediaStep.dataset.stepStatus === 'ready', 3000, 'загрузка Фото 1 не обновила готовность');
+        pass('Фото: только Фото 2 ведёт к Фото 1, загрузка обновляет готовность');
+
+        await importMedia({photoOne:'data:image/png;base64,AAAA'});
+        await waitFor(() => doc.querySelector('#printSheet [data-preview-control="photoOne"] img')?.complete, 3000, 'битое фото не завершило загрузку');
+        assert(!getSpnMediaReadiness(doc).ready && getSpnMediaReadiness(doc).firstTarget === '#photoOne', 'битое фото признано готовым');
+        click(doc, '#printBtn');
+        assert(!doc.getElementById('printDialog').open, 'битое фото пропущено к печати');
+        pass('Фото: ошибка загрузки не считается готовым исходным изображением');
+
+        await importMedia({showPhoto:false,photoMode:'none',showQr:true,qrLink:`https://example.com/${'q'.repeat(140)}`});
+        assert(!getSpnMediaReadiness(doc).ready && getSpnMediaReadiness(doc).firstTarget === '#qrLink', 'непечатный QR признан готовым');
+        click(doc, '#printBtn');
+        await waitFor(() => doc.activeElement?.id === 'qrLink', 2000, 'ошибка QR не перевела к ссылке');
+        assert(!doc.getElementById('printDialog').open, 'непечатный QR пропущен к печати');
+        setField(win, doc, '#qrLink', 'https://example.com/qr');
+        await waitFor(() => getSpnMediaReadiness(doc).ready, 2000, 'исправленная ссылка не восстановила готовность');
+        pass('QR: слишком длинная ссылка блокирует печать и ведёт к исправлению');
+
+        setCheckbox(doc, '#showQr', false);
+        click(doc, '#printPresetRow [data-count="3"]');
+        click(doc, '[data-spn-ui-mode="newbie"]');
+        click(doc, '#qualityBtn');
+        await waitFor(() => newbieCountItem()?.classList.contains('done'), 2000, 'Новичок не принял 3 на А4 после импорта');
+        click(doc, '#printBtn');
+        await waitFor(() => doc.getElementById('printDialog').open, 3000, 'Новичок не открыл печать готовых 3 на А4');
+        assert(doc.querySelector('#printPresetRow [data-count="3"].active'), 'печать заменила 3 на А4');
+        click(doc, '#cancelPrintBtn');
+        pass('режим Новичок: готовый макет 3 на А4 открывает печать с сохранением формата');
 
         assert(!doc.querySelector('#spnWizardNext:disabled') || doc.body.dataset.wizardStep === 'report', 'кнопка Далее неожиданно заблокирована');
         if(runtimeErrors.length) throw new Error(`runtime errors: ${runtimeErrors.join(' | ')}`);

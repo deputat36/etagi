@@ -110,14 +110,14 @@ requireSnippets(files.visibilityAudit, sources.visibilityAudit, [
 ]);
 
 requireSnippets(files.finalCheck, sources.finalCheck, [
-  "import { getSpnMediaReadiness } from './spnMediaReadiness.js';",
+  "from './spnMediaReadiness.js'",
   "{ id: 'media', title: 'Фото / QR'",
   'const media = getSpnMediaReadiness()',
   'media.missing.map(entry => entry.label)',
   "document.dispatchEvent(new CustomEvent('spn:wizard-open-step'",
   "title: 'Формат на А4'",
   "const activeCount = document.querySelector('[data-count].active')?.dataset.count || ''",
-  "['1','2','4','6','8'].includes(activeCount)",
+  "isSupportedPrintCount(Number(activeCount))",
   "title: activeCount ? `${activeCount} на А4` : 'Формат на А4'",
   "id === 'count'"
 ]);
@@ -129,16 +129,17 @@ forbidSnippets(files.finalCheck, sources.finalCheck, [
 requireSnippets(files.mediaReadiness, sources.mediaReadiness, [
   'export function getSpnMediaReadiness',
   "const firstFlyer = root.querySelector('#printSheet .flyer')",
-  "firstFlyer.querySelectorAll('.photo-box img').length",
-  "photoMode === 'two' ? 2 : 1",
-  "target:needsSecond ? '#photoTwo' : '#photoOne'",
+  "image?.complete && image.naturalWidth > 0",
+  "photoMode === 'two' ? ['photoOne', 'photoTwo'] : ['photoOne']",
+  "target:`#${field}`",
+  "code:'qr-invalid'",
   "code:'qr-link'",
   "target:'#qrLink'",
   'firstTarget:missing[0]?.target'
 ]);
 
 requireSnippets(files.clarityPanel, sources.clarityPanel, [
-  "import { getSpnMediaReadiness } from './spnMediaReadiness.js';",
+  "from './spnMediaReadiness.js'",
   'const media = getSpnMediaReadiness()',
   'media.missing.map(item => item.label)',
   "document.dispatchEvent(new CustomEvent('spn:wizard-open-step'"
@@ -148,7 +149,7 @@ forbidSnippets(files.clarityPanel, sources.clarityPanel, [
 ]);
 
 requireSnippets(files.wizardStatus, sources.wizardStatus, [
-  "import { getSpnMediaReadiness } from './spnMediaReadiness.js';",
+  "from './spnMediaReadiness.js'",
   'const media = getSpnMediaReadiness()',
   'media.missing.map(item => item.label)'
 ]);
@@ -304,7 +305,7 @@ forbidSnippets(files.wizardPatch, sources.wizardPatch, [
 ]);
 
 requireSnippets(files.printGuard, sources.printGuard, [
-  "import { getSpnMediaReadiness } from './spnMediaReadiness.js';",
+  "from './spnMediaReadiness.js'",
   'const media = getSpnMediaReadiness()',
   'if(!media.ready) return go(media.firstTarget)',
   "document.dispatchEvent(new CustomEvent('spn:wizard-open-step'",
@@ -314,15 +315,15 @@ requireSnippets(files.printGuard, sources.printGuard, [
   'isReadyToPrint',
   'goToFirstMissing',
   'hasSupportedPrintCount',
-  "['1','2','4','6','8'].includes(activeCount)",
+  "isSupportedPrintCount(Number(activeCount))",
   "return go('#printPresetRow')"
 ]);
 
 requireSnippets(files.printGuardNotice, sources.printGuardNotice, [
-  "import { getSpnMediaReadiness } from './spnMediaReadiness.js';",
+  "from './spnMediaReadiness.js'",
   "{ id: 'media', title: 'Заполнить Фото / QR'",
   "{ id: 'count', title: 'Выбрать формат на А4'",
-  "['1','2','4','6','8'].includes(activeCount)",
+  "isSupportedPrintCount(Number(activeCount))",
   'const media = getSpnMediaReadiness()',
   'target:media.firstTarget',
   "document.dispatchEvent(new CustomEvent('spn:wizard-open-step'"

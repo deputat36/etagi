@@ -1,4 +1,5 @@
 import { getSpnMediaReadiness } from './spnMediaReadiness.js';
+import { isSupportedPrintCount } from './state.js';
 
 window.addEventListener('DOMContentLoaded', () => {
   bindPrintGuard();
@@ -44,7 +45,7 @@ function goToFirstMissing(){
 
 function hasSupportedPrintCount(){
   const activeCount = document.querySelector('[data-count].active')?.dataset.count || '';
-  return ['1','2','4','6','8'].includes(activeCount);
+  return isSupportedPrintCount(Number(activeCount));
 }
 
 function go(selector, options = {}){

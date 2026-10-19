@@ -703,7 +703,8 @@
       "phoneScale": 1.25,
       "pageMargin": 7,
       "pageGap": 4,
-      "flyerPadding": 5
+      "flyerPadding": 5,
+      "showQr": true
     }
   },
   {

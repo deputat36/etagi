@@ -1,4 +1,5 @@
-import { getSpnMediaReadiness } from './spnMediaReadiness.js';
+import { getSpnMediaReadiness, bindSpnMediaEvents } from './spnMediaReadiness.js';
+import { isSupportedPrintCount } from './state.js';
 
 const STYLE_ID = 'spnNewbiePrintGuardNoticeStyle';
 const NOTICE_ID = 'spnNewbiePrintGuardNotice';
@@ -30,6 +31,7 @@ function renderNotice(){
 }
 
 function bindNotice(){
+  bindSpnMediaEvents(updateNotice);
   document.getElementById('spnNewbiePrintGuardFix')?.addEventListener('click', () => {
     const first = getItems().find(item => !item.ok);
     if(first) go(first.target);
@@ -63,7 +65,7 @@ function getItems(){
   const quality = Number(String(document.getElementById('qualityScore')?.textContent || '').replace(/\D/g, '')) || 0;
   const phone = Boolean(String(document.getElementById('agentPhone')?.value || '').trim());
   const activeCount = document.querySelector('[data-count].active')?.dataset.count || '';
-  const countReady = ['1','2','4','6','8'].includes(activeCount);
+  const countReady = isSupportedPrintCount(Number(activeCount));
   const media = getSpnMediaReadiness();
   const cutLines = Boolean(document.getElementById('showCutLines')?.checked);
   const safeMargins = Boolean(document.getElementById('safePrintMargins')?.checked);

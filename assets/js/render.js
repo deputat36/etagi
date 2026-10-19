@@ -60,7 +60,7 @@ function renderFlyer(state){
   if(state.colorMode === 'economy') classes.push('color-economy');
   if(state.colorMode === 'bw') classes.push('bw');
   if(state.colorMode === 'private') classes.push('private');
-  if(state.layoutDensity === 'dense' || countToken >= 4) classes.push('compact');
+  if(state.layoutDensity === 'dense' || countToken >= 3) classes.push('compact');
   if(!state.showContact) classes.push('no-contact');
   classes.push(hasPhoto ? 'has-photo' : 'no-photo');
   if(state.tearOffs) classes.push('has-tears');

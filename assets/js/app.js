@@ -8,6 +8,7 @@ import { autoSave, saveNamed, loadNamed, loadAutoSave, saveProfile, loadProfile,
 import { applyLayoutMode, applyLayoutModePreservingMedia, getLayoutHints } from './layoutRules.js';
 import { requestQualityListUpdate } from './qualityListUpdates.js';
 import { spnGoals, getSpnGoal, getSpnGoalForTemplateGoal } from './spnGoals.js';
+import { getSpnMediaReadiness } from './spnMediaReadiness.js';
 
 let state = cloneDefaultState();
 let templates = [];
@@ -659,6 +660,7 @@ function applyTemplate(t){
   };
   state.blockOrder = normalizeBlockOrder(t.data?.blockOrder || base.blockOrder);
   state.photoMode = t.photo || state.photoMode || 'none';
+  if(t.data?.showQr === undefined) state.showQr = Boolean(state.qrLink);
   if(t.printCount) state.printCount = t.printCount;
   if(t.density) state.layoutDensity = t.density;
   if(state.photoMode === 'none') state.showPhoto = false;
@@ -899,6 +901,12 @@ function cleanBrandText(text){
     .trim();
 }
 function printFlow(){
+  const media = getSpnMediaReadiness();
+  if(!media.ready){
+    focusFormField(media.firstTarget.slice(1));
+    setStatus(`Перед печатью: ${media.missing.map(item => item.label).join(' · ')}.`);
+    return;
+  }
   const q = runQuality(true);
   if(q.issues.some(i=>i.level==='error')){ setStatus('Есть критичные ошибки. Исправьте перед печатью.'); return; }
   if(state.printCheckMode) setStatus('Режим проверки: перед печатью проверьте масштаб 100%, фоновые изображения и QR.');

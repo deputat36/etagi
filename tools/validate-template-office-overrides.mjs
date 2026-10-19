@@ -22,6 +22,24 @@ const loaderSource = readRequired(loaderPath);
 const scenarioOwners = new Map();
 
 for(const template of templates){
+  const office = {...template.office, ...overrides.templates?.[template.id]?.office};
+  if(resolvePortfolioStatus(template, portfolio) !== 'working') continue;
+  const data = template.data || {};
+  const copy = [data.headline, data.description, data.benefits, data.customBlockTitle, data.customBlockText].filter(Boolean).join(' ');
+  if(office.level === 'newbie'){
+    if(/куплю|есть\s+покупател|есть\s+спрос|покупател[ьяи]\s+(?:готов|по району)|уже\s+интересуются\s+покупатели|есть\s+адресный\s+интерес/i.test(copy)){
+      errors.push(`${template.__file}:${template.id}: рабочий шаблон новичка не должен утверждать наличие покупателя или спроса без подтверждения`);
+    }
+    if(/оценка\s+бесплатно|консультация\s+бесплатно/i.test(copy)){
+      errors.push(`${template.__file}:${template.id}: неподтверждённая бесплатность в рабочем тексте новичка`);
+    }
+  }
+  if(template.goal === 'object' && /добавьте|укажите|коротко опишите|уточните площадь/i.test(data.description || '')){
+    errors.push(`${template.__file}:${template.id}: инструкция редактору не должна печататься как описание объекта`);
+  }
+}
+
+for(const template of templates){
   const scenario = String(template?.office?.scenario || '').trim();
   if(scenario) registerScenario(scenario, `template:${template.id}`);
 }

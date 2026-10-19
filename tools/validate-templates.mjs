@@ -114,7 +114,7 @@ for (const file of templateFiles) {
 
     if (template.id) {
       if (seenIds.has(template.id)) {
-        warnings.push(`${label}: id уже есть в ${seenIds.get(template.id)}. В приложении более поздний файл заменит ранний шаблон.`);
+        warnings.push(`${label}: исходный id уже есть в ${seenIds.get(template.id)}; итоговые ID проверяются отдельно с data/template_id_aliases.json.`);
       }
       seenIds.set(template.id, file);
     }
@@ -223,7 +223,8 @@ function checkTellermanTemplates() {
     if (!String(template.id || '').startsWith('bgo_newbuild_tellerman_')) errors.push(`${label}: id шаблона ЖК должен начинаться с bgo_newbuild_tellerman_`);
     if (!text.includes('теллерманов')) errors.push(`${label}: шаблон должен содержать название ЖК Теллерманов сад`);
     if (!text.includes('просторная') && template.id !== 'bgo_newbuild_tellerman_mortgage') errors.push(`${label}: шаблон должен указывать Просторную 4а или быть ипотечным общим сценарием`);
-    if (!hasEarlyLeadWording(text)) errors.push(`${label}: шаблон должен вести к предварительной заявке или раннему информированию`);
+    if (!/позвон|подбор|уточним|консультац/.test(text)) errors.push(`${label}: шаблон должен вести к понятному обращению или подбору`);
+    if (/продажи ещ[её] не начались|до старта продаж|после старта продаж|старт продаж впереди|цены будут позже|цены после старта|ранн[а-я]* (?:список|информирован)/.test(text)) errors.push(`${label}: устаревшая формулировка этапа продаж`);
     if (template.id === 'bgo_newbuild_tellerman_mortgage' && template.office?.level !== 'manager') errors.push(`${label}: ипотечный шаблон ЖК должен быть только уровня manager`);
 
     for (const forbidden of tellermanForbiddenSnippets) {
@@ -245,7 +246,9 @@ function checkEntranceOfficeTags() {
   for (const [index, template] of templates.entries()) {
     const label = `${entranceTemplateFile}[${index}]${template?.id ? ` (${template.id})` : ''}`;
     requireOfficeMetadata(label, template);
-    requireTags(label, template, ['офис', 'рекомендовано', 'подъезд']);
+    requireTags(label, template, ['офис', 'подъезд']);
+    if(template.office?.recommended) requireTags(label, template, ['рекомендовано']);
+    else forbidTags(label, template, ['рекомендовано']);
     requireOneOfTags(label, template, ['новичку', 'менеджер']);
   }
 }
@@ -344,19 +347,6 @@ function forbidTags(label, template, tags) {
 
 function hasTag(template, tag) {
   return Array.isArray(template?.tags) && template.tags.includes(tag);
-}
-
-function hasEarlyLeadWording(text) {
-  return [
-    'предварительн',
-    'ранн',
-    'после старта продаж',
-    'продажи еще не начались',
-    'продажи ещё не начались',
-    'старт продаж впереди',
-    'цены будут позже',
-    'цены после старта продаж'
-  ].some(snippet => text.includes(snippet));
 }
 
 function normalizeText(value) {

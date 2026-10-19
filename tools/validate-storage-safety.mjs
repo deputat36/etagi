@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import * as storage from '../assets/js/storage.js';
 
 const rootDir = process.cwd();
 const storagePath = path.join(rootDir, 'assets/js/storage.js');
@@ -34,6 +35,42 @@ if (appSource) {
   checkAppSnippet('const next = deleteLayout(id);', 'app.js: удаление макета должно проверять результат deleteLayout');
   checkAppSnippet('if(!favorites){ setStatus(\'Не удалось изменить избранное.', 'app.js: избранное должно проверять результат toggleFavoriteTemplate');
   checkAppSnippet('const saved = saveProfile(profile);', 'app.js: профиль СПН должен проверять результат saveProfile');
+}
+
+const previousStorage = globalThis.localStorage;
+const values = new Map();
+globalThis.localStorage = {
+  getItem:key => values.get(key) ?? null,
+  setItem:(key, value) => values.set(key, String(value)),
+  removeItem:key => values.delete(key)
+};
+try{
+  for(const raw of ['null', '42', 'true', '"text"', '{}', '[]', '{broken']){
+    for(const key of ['layouts', 'favorite-templates', 'profile', 'state']){
+      values.set(`etagi-raskleyka-${key}-v1`, raw);
+    }
+    if(!Array.isArray(storage.listSavedLayouts())) errors.push(`storage: неверный список макетов ${raw}`);
+    if(!Array.isArray(storage.listFavoriteTemplates())) errors.push(`storage: неверное избранное ${raw}`);
+    storage.loadLayout('missing');
+    new Set(storage.listFavoriteTemplates());
+  }
+  const valid = {id:'kept', name:'Сохранить', state:{headline:'Исходный текст', printCount:2}};
+  values.set('etagi-raskleyka-layouts-v1', JSON.stringify([null, 42, {}, valid, {id:'bad', name:'Неверный', state:[]} ]));
+  if(storage.listSavedLayouts().length !== 1 || storage.loadLayout('kept')?.state.headline !== 'Исходный текст'){
+    errors.push('storage: повреждённые записи мешают открыть корректный макет');
+  }
+  const saved = storage.saveLayout('Новый', {headline:'Новый текст', printCount:2});
+  if(!saved || !storage.loadLayout('kept')) errors.push('storage: новое сохранение потеряло корректный старый макет');
+  values.set('etagi-raskleyka-state-v1', JSON.stringify({headline:42, description:{bad:true}, printCount:4, area:'Сохранить район'}));
+  const clean = storage.loadAutoSave();
+  if(clean?.area !== 'Сохранить район' || clean?.printCount !== 4 || Object.hasOwn(clean, 'headline') || Object.hasOwn(clean, 'description')){
+    errors.push('storage: неверные типы состояния не изолированы от корректных данных');
+  }
+} catch(error){
+  errors.push(`storage: некорректные сохранения вызвали исключение — ${error.message}`);
+} finally {
+  if(previousStorage === undefined) delete globalThis.localStorage;
+  else globalThis.localStorage = previousStorage;
 }
 
 if (errors.length) {

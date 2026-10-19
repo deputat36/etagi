@@ -112,8 +112,8 @@ function hasRenderablePhoto(state){
   return Boolean(state.photoOne);
 }
 function renderPhotos(state){
-  const img1 = state.photoOne ? `<img src="${state.photoOne}" alt="Фото 1">` : '';
-  const img2 = state.photoTwo ? `<img src="${state.photoTwo}" alt="Фото 2">` : '';
+  const img1 = state.photoOne ? `<img src="${esc(state.photoOne)}" alt="Фото 1">` : '';
+  const img2 = state.photoTwo ? `<img src="${esc(state.photoTwo)}" alt="Фото 2">` : '';
   if(state.photoMode === 'two') return `<div class="photos two"><div class="photo-box"${previewControlAttrs('photoOne', 'Заменить фото 1')}>${img1}</div><div class="photo-box"${previewControlAttrs('photoTwo', 'Заменить фото 2')}>${img2}</div></div>`;
   if(state.photoMode === 'plan') return `<div class="photos plan"><div class="photo-box"${previewControlAttrs('photoOne', 'Заменить планировку')}>${img1}</div></div>`;
   return `<div class="photos"><div class="photo-box"${previewControlAttrs('photoOne', 'Заменить фото 1')}>${img1}</div></div>`;

@@ -50,6 +50,12 @@ const blockVisibilityMap = {
 };
 
 async function init(){
+  const sidebar = document.querySelector('.sidebar');
+  if(sidebar){
+    sidebar.inert = true;
+    sidebar.setAttribute('aria-busy', 'true');
+  }
+  setStatus('Загрузка шаблонов…');
   bindStaticUi();
   renderGoals();
   renderPhotoModes();
@@ -61,7 +67,14 @@ async function init(){
   renderTemplateFavoriteToolbar();
   renderScenarioFilters();
   favoriteTemplateIds = new Set(listFavoriteTemplates());
-  templates = await loadTemplates();
+  try{
+    templates = await loadTemplates();
+  } finally {
+    if(sidebar){
+      sidebar.inert = false;
+      sidebar.setAttribute('aria-busy', 'false');
+    }
+  }
   const saved = loadAutoSave();
   if(saved){ state = {...state, ...saved, version: state.version}; }
   selectedSpnGoal = getSpnGoalForTemplateGoal(state.goal)?.id || '';

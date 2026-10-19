@@ -38,6 +38,7 @@
       try{
         await waitFor(()=>doc.querySelectorAll('[data-count]').length>0,8000,'кнопки форматов не появились');
         await waitFor(()=>doc.querySelectorAll('#printSheet .flyer').length>0,8000,'предпросмотр не появился');
+        await waitFor(()=>doc.querySelector('.tpl-card')&&!doc.querySelector('.sidebar')?.inert,8000,'инициализация библиотеки не завершена');
 
         lastAction='policy.buttons';
         const counts=[...doc.querySelectorAll('#printPresetRow [data-count]')].map(button=>Number(button.dataset.count));
@@ -71,6 +72,15 @@
         const grid12=renderModule.getGrid(12,'grid');
         assert(grid10.cols===1&&grid10.rows===2&&grid12.cols===1&&grid12.rows===2,'renderer не использует безопасный fallback для 10/12');
         pass('A4: renderer защищён от неподдерживаемого состояния');
+
+        lastAction='policy.photo-attribute-safety';
+        const {defaultState}=await import('/assets/js/state.js');
+        const probe=doc.createElement('div');
+        const source='missing-image" data-audit-injected="yes';
+        renderModule.renderSheet(probe,{...defaultState,showPhoto:true,photoMode:'two',photoOne:source,photoTwo:source});
+        assert(!probe.querySelector('[data-audit-injected]'),'импортируемый src добавил HTML-атрибут');
+        assert([...probe.querySelectorAll('img')].every(img=>img.getAttribute('src')===source),'адрес фото изменился при экранировании');
+        pass('Фото: импортируемый адрес не добавляет HTML-атрибуты');
 
         lastAction='completed';
         result.dataset.status='passed';

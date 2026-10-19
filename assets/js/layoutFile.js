@@ -9,8 +9,8 @@ const STATE_FIELDS = new Set(Object.keys(defaultState));
 const LAYOUT_MARKERS = ['goal', 'templateId', 'layoutName', 'headline', 'printCount'];
 const BLOCK_IDS = new Set(['headline', 'price', 'photo', 'description', 'meta', 'benefits', 'customBlock', 'contact']);
 const ENUM_FIELDS = {
-  goal: new Set(goals.map(item => item.id)),
-  layoutMode: new Set(['manual', ...layoutModes.map(item => item.id)]),
+  goal: new Set(['all', ...goals.map(item => item.id)]),
+  layoutMode: new Set(['manual', 'auto', ...layoutModes.map(item => item.id)]),
   photoMode: new Set(photoModes.map(item => item.id)),
   printCount: new Set(SUPPORTED_PRINT_COUNTS),
   splitMode: new Set(['auto', 'horizontal', 'vertical', 'grid']),

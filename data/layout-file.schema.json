@@ -10,10 +10,10 @@
     "fileFormatVersion": {"type": "integer", "minimum": 1, "maximum": 1},
     "exportedAt": {"type": "string", "format": "date-time"},
     "version": {"type": "string"},
-    "goal": {"enum": ["seller", "buyer", "object", "newbuild", "service", "rent", "brand", "private"]},
+    "goal": {"enum": ["all", "seller", "buyer", "object", "newbuild", "service", "rent", "brand", "private"]},
     "templateId": {"type": "string"},
     "layoutName": {"type": "string"},
-    "layoutMode": {"enum": ["manual", "readable", "economy", "photo", "photo_left", "photo_card", "newbuild_visual", "agent_brand_photo", "showcase", "entrance", "private"]},
+    "layoutMode": {"enum": ["manual", "auto", "readable", "economy", "photo", "photo_left", "photo_card", "newbuild_visual", "agent_brand_photo", "showcase", "entrance", "private"]},
     "blockOrder": {
       "type": "array",
       "items": {"enum": ["headline", "price", "photo", "description", "meta", "benefits", "customBlock", "contact"]},

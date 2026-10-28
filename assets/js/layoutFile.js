@@ -1,4 +1,4 @@
-import { defaultState, goals, photoModes, layoutModes, SUPPORTED_PRINT_COUNTS } from './state.js';
+import { defaultState, goals, photoModes, layoutModes, SUPPORTED_PRINT_COUNTS, LAYOUT_NUMBER_RANGES } from './state.js';
 
 export const LAYOUT_FILE_FORMAT = 'etagi-raskleyka-layout';
 export const LAYOUT_FILE_FORMAT_VERSION = 1;
@@ -18,14 +18,7 @@ const ENUM_FIELDS = {
   layoutDensity: new Set(['auto', 'airy', 'normal', 'dense']),
   photoFit: new Set(['cover', 'contain'])
 };
-const NUMBER_RANGES = {
-  pageMargin: [2, 18],
-  pageGap: [1, 12],
-  flyerPadding: [2, 12],
-  radius: [0, 30],
-  headlineScale: [0.75, 1.45],
-  phoneScale: [0.8, 1.8]
-};
+const NUMBER_RANGES = LAYOUT_NUMBER_RANGES;
 const FIELD_LABELS = {
   version: 'Версия приложения',
   goal: 'Задача',

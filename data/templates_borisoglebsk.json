@@ -13,7 +13,7 @@
       "recommendedPrintCount": 2,
       "managerNote": "Проверить телефон и локальный контекст. Текст не утверждает наличие покупателя; цену обсуждать как ориентировочную."
     },
-    "density": "normal",
+    "density": "dense",
     "photo": "none",
     "printCount": 2,
     "data": {
@@ -41,7 +41,7 @@
       "phoneScale": 1.3,
       "pageMargin": 7,
       "pageGap": 4,
-      "flyerPadding": 5
+      "flyerPadding": 4
     }
   },
   {
@@ -146,7 +146,7 @@
       "recommendedPrintCount": 2,
       "managerNote": "Требуется проверка менеджера: цена, коммуникации, участок, фото, документы и реальные преимущества дома. Перед публикацией: Укажите площадь, участок, коммуникации, состояние дома и удобство подъезда."
     },
-    "density": "normal",
+    "density": "dense",
     "photo": "two",
     "printCount": 2,
     "data": {
@@ -173,7 +173,7 @@
       "phoneScale": 1.25,
       "pageMargin": 7,
       "pageGap": 4,
-      "flyerPadding": 5
+      "flyerPadding": 4
     }
   },
   {
@@ -278,7 +278,7 @@
       "recommendedPrintCount": 2,
       "managerNote": "Можно новичку, но проверить формулировки: только предварительный интерес, без обещаний цены, брони и старта продаж."
     },
-    "density": "airy",
+    "density": "dense",
     "photo": "none",
     "printCount": 2,
     "data": {
@@ -306,7 +306,7 @@
       "phoneScale": 1.35,
       "pageMargin": 7,
       "pageGap": 4,
-      "flyerPadding": 5
+      "flyerPadding": 4
     }
   },
   {

@@ -31,6 +31,19 @@ export function debounce(fn, wait=400){
   };
 }
 
+export function isAreaPlaceholder(value){
+  return /^(?:ваш(?:а|е|и|ем)?|этот|этого|этой|укажите|заполните)(?:\s|$)/iu.test(String(value || '').trim());
+}
+
+export function readNumericControl(input, fallback){
+  const value = String(input.value || '').trim();
+  const parsed = value ? Number(value) : NaN;
+  const next = Number.isFinite(parsed) ? parsed : Number(fallback);
+  const min = input.min !== '' && input.min !== undefined ? Number(input.min) : -Infinity;
+  const max = input.max !== '' && input.max !== undefined ? Number(input.max) : Infinity;
+  return Math.min(max, Math.max(min, Number.isFinite(next) ? next : 0));
+}
+
 function shouldEnrichLayoutDownload(filename, type){
   return String(type || '').includes('json') && String(filename || '').startsWith('etagi-raskleyka-');
 }

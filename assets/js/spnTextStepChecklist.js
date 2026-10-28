@@ -1,3 +1,5 @@
+import { isAreaPlaceholder } from './utils.js';
+
 const STYLE_ID = 'spnTextStepChecklistStyle';
 
 const checks = [
@@ -110,7 +112,9 @@ function getItems(){
     .map(item => {
       const value = getValue(item.id);
       const min = item.id === 'description' ? 18 : item.id === 'headline' ? 6 : 1;
-      return { ...item, ok: value.length >= min };
+      const placeholder = item.id === 'area' && isAreaPlaceholder(value);
+      const phoneReady = item.id !== 'agentPhone' || value.replace(/\D/g, '').length >= 10;
+      return { ...item, ok: value.length >= min && !placeholder && phoneReady };
     });
 }
 

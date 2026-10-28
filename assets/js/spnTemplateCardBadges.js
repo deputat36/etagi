@@ -32,7 +32,7 @@ function enhanceTemplateCards(force = false){
       card.querySelector('.tpl-card-office-reason')?.remove();
     }
     if(card.querySelector('.tpl-card-office-badges')) return;
-    const content = card.querySelector('div:last-child');
+    const content = card.querySelector('.tpl-card-content');
     if(!content) return;
     const template = templateMap.get(card.dataset.template);
     const badges = getBadges(card, template);
@@ -57,9 +57,11 @@ function getBadges(card, template){
   if(office?.risk === 'high') badges.push(['risk', 'Риск высокий']);
   if(office?.recommendedPrintCount) badges.push(['print', `${office.recommendedPrintCount} на А4`]);
 
-  if(text.includes('новичку')) badges.push(['newbie', 'Новичку']);
-  if(text.includes('менеджер')) badges.push(['manager', 'Проверка']);
-  if(text.includes('рекомендовано')) badges.push(['safe', 'Рекомендовано']);
+  if(!office){
+    if(text.includes('новичку')) badges.push(['newbie', 'Новичку']);
+    if(text.includes('менеджер')) badges.push(['manager', 'Проверка']);
+    if(text.includes('рекомендовано')) badges.push(['safe', 'Рекомендовано']);
+  }
   if(text.includes('подъезд') || text.includes('соседи')) badges.push(['entrance', 'Подъезд']);
   if(text.includes('теллерманов сад')) badges.push(['newbuild', 'Теллерманов сад']);
   if(text.includes('доверие') || text.includes('безопасность')) badges.push(['trust', 'Доверие']);

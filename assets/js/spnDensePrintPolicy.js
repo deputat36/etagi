@@ -54,6 +54,8 @@ function ensureDensePrintStyles(){
   const style = document.createElement('style');
   style.id = STYLE_ID;
   style.textContent = `
+    .flyer.count-4 .phone{font-size:calc(16pt * var(--phone-scale));white-space:nowrap}
+    .flyer.count-6 .phone{font-size:calc(14pt * var(--phone-scale));white-space:nowrap}
     .flyer.count-8{
       --flyer-pad:2.2mm;
       gap:.65mm;

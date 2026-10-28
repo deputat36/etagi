@@ -5,7 +5,7 @@
     "title": "Тест: мягкая оценка цены",
     "note": "Для собственников, которые пока не готовы продавать, но думают о цене.",
     "tags": ["тест", "офис", "менеджер", "тестовый", "собственники", "оценка", "мягкий вход"],
-    "density": "normal",
+    "density": "dense",
     "photo": "none",
     "printCount": 2,
     "office": {
@@ -41,7 +41,7 @@
       "phoneScale": 1.3,
       "pageMargin": 7,
       "pageGap": 4,
-      "flyerPadding": 5
+      "flyerPadding": 4
     }
   },
   {
@@ -140,7 +140,7 @@
     "title": "Тест: продаётся рядом",
     "note": "Для расклейки рядом с объектом: соседи могут знать покупателя или сами интересоваться.",
     "tags": ["тест", "офис", "менеджер", "тестовый", "объект", "соседи", "продажа", "qr"],
-    "density": "normal",
+    "density": "dense",
     "photo": "one",
     "printCount": 2,
     "office": {
@@ -168,7 +168,7 @@
       "showBrand": true,
       "showBenefits": true,
       "showMeta": true,
-      "showCustomBlock": true,
+      "showCustomBlock": false,
       "tearOffs": true,
       "colorMode": "brand",
       "splitMode": "auto",
@@ -176,7 +176,7 @@
       "phoneScale": 1.25,
       "pageMargin": 7,
       "pageGap": 4,
-      "flyerPadding": 5
+      "flyerPadding": 4
     }
   },
   {

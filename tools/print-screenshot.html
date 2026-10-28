@@ -146,12 +146,17 @@
         const flyerRect = flyer.getBoundingClientRect();
         const contactRect = contact.getBoundingClientRect();
         if(contactRect.bottom > flyerRect.bottom + 1 || contactRect.right > flyerRect.right + 1) throw new Error('контакты выходят за границы макета');
+        const range = doc.createRange();
+        range.selectNodeContents(contact.querySelector('.phone'));
+        if(range.getClientRects().length !== 1) throw new Error('телефон перенесён на несколько строк');
+        const text = range.getBoundingClientRect();
+        if(text.left < contactRect.left - 1 || text.right > contactRect.right + 1) throw new Error('текст телефона выходит за контакты');
       }
       const expected = {'one-no-photo':1,'two-big-phone':2,'three-tearoffs':3,'one-showcase':1,'two-photo':2,'four-contacts':4,'six-economy':6}[currentScenario];
       if(flyers.length !== expected) throw new Error(`ожидалось ${expected} макетов, получено ${flyers.length}`);
       assertNeutralSafeMargins(flyers);
       assertLightweightContacts(flyers);
-      if(currentScenario === 'three-tearoffs') assertTearOffs(flyers);
+      assertTearOffs(flyers.filter(flyer => flyer.querySelector('.tears')));
       if(['three-tearoffs','four-contacts','six-economy'].includes(currentScenario)) assertInkEfficientContacts(flyers);
       if(currentScenario === 'six-economy') assertSixEconomy(flyers);
     }
@@ -180,6 +185,11 @@
           const rect = item.getBoundingClientRect();
           if(rect.left < flyerRect.left - 1 || rect.right > flyerRect.right + 1 || rect.bottom > flyerRect.bottom + 1) throw new Error('отдельная отрывная полоса вышла за границы');
           if(!item.textContent.includes('+7 960 125-18-77')) throw new Error('отрывная полоса потеряла телефон');
+          const range = item.ownerDocument.createRange();
+          range.selectNodeContents(item.querySelector('.tear-phone'));
+          const text = range.getBoundingClientRect();
+          const label = item.querySelector('.tear-topic').getBoundingClientRect();
+          if(text.left < rect.left - 1 || text.right > rect.right + 1 || text.top < label.bottom - 1 || text.bottom > rect.bottom + 1) throw new Error('телефон обрезан или накладывается на подпись отрывной полосы');
         }
       }
     }

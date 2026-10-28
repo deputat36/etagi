@@ -1,5 +1,6 @@
 import { cloneDefaultState } from './state.js';
 import { createLayoutFilePayload } from './layoutFile.js';
+import { readNumericControl } from './utils.js';
 
 export const DESTRUCTIVE_SNAPSHOT_KEY = 'etagi-raskleyka-destructive-snapshot-v1';
 export const DESTRUCTIVE_SNAPSHOT_VERSION = 1;
@@ -138,7 +139,7 @@ export function collectCurrentLayoutState(doc = document){
   for(const id of FIELD_IDS){
     const input = doc.getElementById(id);
     if(!input) continue;
-    state[id] = input.type === 'number' || input.type === 'range' ? Number(input.value) : input.value;
+    state[id] = input.type === 'number' || input.type === 'range' ? readNumericControl(input, state[id]) : input.value;
   }
   for(const id of CHECK_IDS){
     const input = doc.getElementById(id);
@@ -155,7 +156,7 @@ export function collectCurrentLayoutState(doc = document){
   state.photoMode = doc.querySelector('[data-photo].active')?.dataset.photo || state.photoMode;
   state.printCount = Number(doc.querySelector('[data-count].active')?.dataset.count || state.printCount);
 
-  const blockOrder = [...doc.querySelectorAll('#blockOrderList [data-block-id]')].map(node => node.dataset.blockId).filter(Boolean);
+  const blockOrder = [...doc.querySelectorAll('#blockOrderList .block-order-item[data-block-id]')].map(node => node.dataset.blockId).filter(Boolean);
   if(blockOrder.length) state.blockOrder = blockOrder;
 
   const firstFlyer = doc.querySelector('#printSheet .flyer');

@@ -157,7 +157,7 @@
       "recommendedPrintCount": 2,
       "managerNote": "Тестовый макет только через менеджера: проверить актуальные условия, применимость программ и рекламное предупреждение с юристом. Предупреждение не сокращать, ставки и одобрение не обещать."
     },
-    "density": "normal",
+    "density": "dense",
     "photo": "none",
     "printCount": 2,
     "data": {
@@ -185,7 +185,7 @@
       "phoneScale": 1.35,
       "pageMargin": 7,
       "pageGap": 4,
-      "flyerPadding": 5,
+      "flyerPadding": 4,
       "contactCta": "Позвоните — обсудим предварительный расчёт",
       "tearOffLabel": "Ипотека новостройка",
       "brandSideText": "ипотека · новостройки"

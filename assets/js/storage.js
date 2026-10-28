@@ -1,5 +1,5 @@
 import { enrichLayoutExtras, syncLayoutExtras } from './layoutExtras.js';
-import { defaultState, normalizePrintCount } from './state.js';
+import { defaultState, normalizePrintCount, LAYOUT_NUMBER_RANGES } from './state.js';
 
 const KEY = 'etagi-raskleyka-state-v1';
 const SAVED_KEY = 'etagi-raskleyka-saved-v1';
@@ -165,6 +165,9 @@ function normalizeStoredState(state){
     const valid = Array.isArray(fallback) ? Array.isArray(value)
       : typeof value === typeof fallback && (typeof value !== 'number' || Number.isFinite(value));
     if(!valid) delete state[field];
+  }
+  for(const [field, [min, max]] of Object.entries(LAYOUT_NUMBER_RANGES)){
+    if(typeof state[field] === 'number') state[field] = Math.min(max, Math.max(min, state[field]));
   }
   syncLayoutExtras(state);
   return state;

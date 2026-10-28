@@ -43,7 +43,7 @@ requireSnippets(files.harness, sources.harness, [
   'заголовок в формате 6 на А4 недостаточно читаемый',
   "'three-tearoffs':3",
   "'six-economy':6",
-  "if(currentScenario === 'three-tearoffs') assertTearOffs(flyers);",
+  "assertTearOffs(flyers.filter(flyer => flyer.querySelector('.tears')));",
   "if(currentScenario === 'six-economy') assertSixEconomy(flyers);",
   'function assertTearOffs(flyers)',
   'function assertSixEconomy(flyers)',
@@ -168,7 +168,7 @@ requireSnippets(files.tearStyles, sources.tearStyles, [
   '.flyer.count-3.compact .benefit:nth-child(n+4){display:none}',
   '.flyer.count-3.compact .contact .phone{font-size:calc(18pt * var(--phone-scale))}',
   '.flyer.count-3.compact .tear{min-height:15.5mm',
-  '.flyer.count-3.compact .tear-phone{font-size:6.3pt;max-height:13.2mm}'
+  '.flyer.count-3.compact .tear-phone{font-size:6.3pt;writing-mode:horizontal-tb;transform:none}'
 ]);
 
 requireSnippets(files.workflow, sources.workflow, [

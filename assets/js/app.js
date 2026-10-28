@@ -1,7 +1,7 @@
 import { goals, photoModes, printPresets, propertyPresets, layoutModes, scenarioPresets, cloneDefaultState } from './state.js';
-import { $, esc, readFileAsDataURL, downloadText, debounce } from './utils.js';
+import { $, esc, readFileAsDataURL, downloadText, debounce, isAreaPlaceholder, readNumericControl } from './utils.js';
 import { createLayoutFilePayload, parseLayoutFileText } from './layoutFile.js';
-import { loadTemplates, filterTemplates } from './templates.js';
+import { loadTemplates, filterTemplates, isNewbieTemplate } from './templates.js';
 import { applyCss, renderSheet, getGrid } from './render.js';
 import { checkQuality } from './quality.js';
 import { autoSave, saveNamed, loadNamed, loadAutoSave, saveProfile, loadProfile, listSavedLayouts, saveLayout, loadLayout, deleteLayout, listFavoriteTemplates, toggleFavoriteTemplate } from './storage.js';
@@ -21,6 +21,7 @@ let templateSelectionConfirmed = false;
 let pendingLayoutConflict = null;
 const SELECTION_CONTEXT_KEY = 'etagi-raskleyka-selection-context-v1';
 let qualityTimer = 0;
+let appReady = false;
 const debouncedSave = debounce(()=>autoSave(state), 500);
 
 const profileFields = ['agentName','agentPhone'];
@@ -68,6 +69,7 @@ async function init(){
   renderTemplateFavoriteToolbar();
   renderScenarioFilters();
   favoriteTemplateIds = new Set(listFavoriteTemplates());
+  syncFormFromState();
   try{
     templates = await loadTemplates();
   } finally {
@@ -82,14 +84,16 @@ async function init(){
   const selectionContext = readSelectionContext();
   taskSelectionConfirmed = Boolean(selectionContext.taskConfirmed && state.goal);
   templateSelectionConfirmed = Boolean(selectionContext.templateConfirmed && state.templateId);
-  if(!state.templateId){
-    const first = templates.find(t=>t.goal === state.goal) || templates[0];
+  if(!saved && !state.templateId){
+    const safe = templates.filter(t => t.portfolio?.status === 'working' && t.office?.level === 'newbie' && t.office?.risk === 'low');
+    const first = safe.find(t=>t.goal === state.goal && t.office?.recommended) || safe.find(t=>t.goal === state.goal) || safe[0];
     applyTemplate(first);
     setSelectionContext({taskConfirmed:taskSelectionConfirmed, templateConfirmed:false});
   } else {
     setSelectionContext({taskConfirmed:taskSelectionConfirmed, templateConfirmed:templateSelectionConfirmed});
     syncFormFromState();
   }
+  appReady = true;
   renderAll();
   setStatus('Готово. Выберите задачу и шаблон.');
 }
@@ -265,6 +269,7 @@ function getBaseTemplateList(){
   }
 
   const favoritesOnly = $('showFavoriteTemplatesOnly')?.checked;
+  if(document.body.dataset.spnUiMode === 'newbie') list = list.filter(isNewbieTemplate);
   if(favoritesOnly) list = list.filter(t => favoriteTemplateIds.has(t.id));
   return list;
 }
@@ -599,10 +604,10 @@ function templateCard(t, recommendation = null){
   const isFavorite = favoriteTemplateIds.has(t.id);
   const recommendationHtml = recommendation ? `<div class="tpl-recommendation"><span class="tpl-recommendation-title">${recommendation.rank === 1 ? 'Рекомендуем начать с этого' : `Подходит для задачи №${recommendation.rank}`}</span><span>${esc(recommendation.text)}</span></div>` : '';
   const adaptation = getTemplateAdaptationInfo(t);
-  return `<div class="tpl-card ${recommendation ? 'tpl-card-recommended' : ''} ${state.templateId===t.id?'active':''}" data-template="${t.id}">
+  return `<div class="tpl-card ${recommendation ? 'tpl-card-recommended' : ''} ${state.templateId===t.id?'active':''}" data-template="${esc(t.id)}" data-template-status="${esc(t.portfolio?.status || '')}" data-office-level="${esc(t.office?.level || '')}" data-office-risk="${esc(t.office?.risk || '')}" data-office-recommended="${Boolean(t.office?.recommended)}">
     <button type="button" class="favorite-template-btn ${isFavorite ? 'active' : ''}" data-favorite-template="${t.id}" title="${isFavorite ? 'Убрать из избранного' : 'Добавить в избранное'}">${isFavorite ? '★' : '☆'}</button>
     <div class="tpl-mini ${miniClass}"><div class="mh"></div><div class="ml"></div><div class="ml"></div><div class="mp"></div></div>
-    <div>${recommendationHtml}<b>${esc(t.title)}</b><p>${esc(t.note || '')}</p>
+    <div class="tpl-card-content">${recommendationHtml}<b>${esc(t.title)}</b><p>${esc(t.note || '')}</p>
       <div class="tpl-adaptation-info"><span><strong>Заполнить:</strong> ${esc(adaptation.fields)}</span><span>${esc(adaptation.format)}</span></div>
       <div class="badges">${(t.tags||[]).slice(0,5).map(x=>`<span class="badge">${esc(x)}</span>`).join('')}</div>
     </div>
@@ -615,7 +620,7 @@ function getTemplateAdaptationInfo(template){
   const hasText = value => String(value || '').trim().length > 0;
 
   if(!hasText(data.agentName) || !hasText(data.agentPhone)) fields.push('контакты');
-  if(!hasText(data.area)) fields.push('район');
+  if(!hasText(data.area) || isAreaPlaceholder(data.area)) fields.push('район');
   if(data.showPrice && !hasText(data.price)) fields.push('цена');
   if(data.showMeta && !hasText(data.propertyType)) fields.push('тип объекта');
   if(data.showMeta && !hasText(data.params)) fields.push('параметры');
@@ -691,8 +696,14 @@ function syncChoiceControlsFromState(){
   document.querySelectorAll('[data-property]').forEach(b=>b.classList.toggle('active', b.dataset.property===state.propertyType));
   document.querySelectorAll('[data-layout-mode]').forEach(b=>b.classList.toggle('active', b.dataset.layoutMode===state.layoutMode));
 }
-function readFormAndRender(){
-  fields.forEach(id => { state[id] = $(id).type === 'number' || $(id).type === 'range' ? Number($(id).value) : $(id).value; });
+function readFormAndRender(event){
+  if(!appReady) return;
+  fields.forEach(id => {
+    const input = $(id);
+    const numeric = input.type === 'number' || input.type === 'range';
+    state[id] = numeric ? readNumericControl(input, state[id]) : input.value;
+    if(numeric && event?.type === 'change') input.value = state[id];
+  });
   checks.forEach(id => { state[id] = $(id).checked; });
   if(!state.showPhoto) state.photoMode = 'none';
   state.blockOrder = normalizeBlockOrder(state.blockOrder);
@@ -709,6 +720,7 @@ function renderAll(){
   renderWorkspace();
 }
 function renderWorkspace(){
+  if(!appReady) return;
   renderBlockOrderControls();
   renderLayoutHints();
   applyCss(state);

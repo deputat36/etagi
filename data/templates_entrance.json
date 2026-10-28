@@ -234,7 +234,7 @@
       "recommendedPrintCount": 2,
       "managerNote": "Требуется проверка менеджера: цена, объект, фото, QR и формулировка про документы должны соответствовать реальной ситуации. Перед публикацией: Добавьте параметры, цену и главное преимущество. Возможно, у соседей есть знакомые, кому подходит этот дом."
     },
-    "density": "normal",
+    "density": "dense",
     "photo": "one",
     "printCount": 2,
     "data": {
@@ -254,7 +254,7 @@
       "showBrand": true,
       "showBenefits": true,
       "showMeta": true,
-      "showCustomBlock": true,
+      "showCustomBlock": false,
       "tearOffs": true,
       "colorMode": "brand",
       "splitMode": "auto",
@@ -262,7 +262,7 @@
       "phoneScale": 1.25,
       "pageMargin": 7,
       "pageGap": 4,
-      "flyerPadding": 5
+      "flyerPadding": 4
     }
   },
   {
@@ -297,7 +297,7 @@
       "qrCaption": "",
       "qrLink": "",
       "showBrand": true,
-      "showBenefits": true,
+      "showBenefits": false,
       "showMeta": true,
       "tearOffs": true,
       "colorMode": "brand",
@@ -306,7 +306,7 @@
       "phoneScale": 1.25,
       "pageMargin": 7,
       "pageGap": 4,
-      "flyerPadding": 5
+      "flyerPadding": 4
     }
   },
   {

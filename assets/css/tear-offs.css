@@ -1,12 +1,18 @@
-.tears{display:grid;grid-template-columns:repeat(8,1fr);gap:.9mm;margin-top:2mm}
+.tears{display:grid;grid-template-columns:repeat(8,1fr);gap:.9mm;margin-top:2mm;flex-shrink:0}
 .tear{border-top:1px dashed #94a3b8;text-align:center;padding:.8mm .25mm .6mm;color:#111827;min-height:28mm;display:grid;grid-template-rows:auto 1fr;align-items:center;justify-items:center;gap:.55mm;writing-mode:horizontal-tb;overflow:hidden}
 .tear-topic{display:block;width:100%;max-width:100%;color:var(--accent);font-size:4.9pt;line-height:.92;font-weight:900;text-transform:uppercase;letter-spacing:-.03em;text-align:center}
 .tear-topic span{display:block;white-space:nowrap}
-.tear-phone{display:block;writing-mode:vertical-rl;transform:rotate(180deg);font-size:8.1pt;line-height:1;font-weight:900;letter-spacing:.02em;white-space:nowrap;max-height:24mm;color:#111827}
+.tear-phone{display:block;writing-mode:vertical-rl;transform:rotate(180deg);font-size:8.1pt;line-height:1;font-weight:900;letter-spacing:.02em;white-space:nowrap;color:#111827}
+.flyer.count-2{gap:2mm}
+.flyer.count-2.compact{gap:1.5mm}
+.flyer.count-2.compact.has-photo .headline{font-size:calc(20pt * var(--headline-scale));line-height:.96}
+.flyer.count-4.compact .headline{font-size:calc(18pt * var(--headline-scale));line-height:.96}
+.flyer.count-4.compact .desc{font-size:8pt;line-height:1.12}
+.flyer.count-4.compact .benefit{font-size:7pt;line-height:1.1}
 .flyer.compact .tears{grid-template-columns:repeat(8,1fr);gap:.55mm;margin-top:1mm}
 .flyer.compact .tear{min-height:20mm;padding:.55mm .15mm .45mm;gap:.35mm}
 .flyer.compact .tear-topic{font-size:4.1pt;line-height:.9;letter-spacing:-.04em}
-.flyer.compact .tear-phone{font-size:6.8pt;max-height:17mm}
+.flyer.compact .tear-phone{font-size:6.8pt}
 .flyer.count-3.compact{gap:1.15mm}
 .flyer.count-3.compact .brand-mark{width:6.5mm;height:6.5mm;font-size:11pt}
 .flyer.count-3.compact .brand{font-size:9pt}
@@ -23,5 +29,5 @@
 .flyer.count-3.compact .tears{gap:.45mm;margin-top:.45mm}
 .flyer.count-3.compact .tear{min-height:15.5mm;padding:.35mm .1mm .3mm;gap:.2mm}
 .flyer.count-3.compact .tear-topic{font-size:3.8pt;line-height:.88}
-.flyer.count-3.compact .tear-phone{font-size:6.3pt;max-height:13.2mm}
+.flyer.count-3.compact .tear-phone{font-size:6.3pt;writing-mode:horizontal-tb;transform:none}
 @media print{.tear-topic{-webkit-print-color-adjust:exact;print-color-adjust:exact}.tear-phone{font-weight:900}}

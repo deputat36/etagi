@@ -13,7 +13,7 @@
       "recommendedPrintCount": 2,
       "managerNote": "Требуется проверка менеджера: не давать юридических обещаний и отделять оценку объекта от проверки документов юристом."
     },
-    "density": "normal",
+    "density": "dense",
     "photo": "none",
     "printCount": 2,
     "data": {
@@ -41,7 +41,7 @@
       "phoneScale": 1.3,
       "pageMargin": 7,
       "pageGap": 4,
-      "flyerPadding": 5
+      "flyerPadding": 4
     }
   },
   {
@@ -58,7 +58,7 @@
       "recommendedPrintCount": 2,
       "managerNote": "Требуется проверка менеджера: не обещать конкретный срок, а говорить о цене, подготовке, рекламе и реалистичном плане действий."
     },
-    "density": "normal",
+    "density": "dense",
     "photo": "none",
     "printCount": 2,
     "data": {
@@ -86,7 +86,7 @@
       "phoneScale": 1.35,
       "pageMargin": 7,
       "pageGap": 4,
-      "flyerPadding": 5
+      "flyerPadding": 4
     }
   },
   {
@@ -148,7 +148,7 @@
       "recommendedPrintCount": 2,
       "managerNote": "Требуется проверка менеджера: условия нового жилья и ипотеки указывать только после подтверждения, без гарантии продажи старого объекта."
     },
-    "density": "normal",
+    "density": "dense",
     "photo": "none",
     "printCount": 2,
     "data": {
@@ -176,7 +176,7 @@
       "phoneScale": 1.3,
       "pageMargin": 7,
       "pageGap": 4,
-      "flyerPadding": 5
+      "flyerPadding": 4
     }
   },
   {
@@ -238,7 +238,7 @@
       "recommendedPrintCount": 2,
       "managerNote": "Требуется проверка менеджера: не подменять юридическую консультацию рекламным обещанием, сложные вопросы направлять юристу."
     },
-    "density": "normal",
+    "density": "dense",
     "photo": "none",
     "printCount": 2,
     "data": {
@@ -266,7 +266,7 @@
       "phoneScale": 1.3,
       "pageMargin": 7,
       "pageGap": 4,
-      "flyerPadding": 5
+      "flyerPadding": 4
     }
   },
   {
@@ -283,7 +283,7 @@
       "recommendedPrintCount": 2,
       "managerNote": "Требуется проверка менеджера: назначение земли, площадь, границы, коммуникации, подъезд, цена и фото должны быть подтверждены. Перед публикацией: Укажите площадь, назначение, подъезд, коммуникации, расположение и особенности участка."
     },
-    "density": "normal",
+    "density": "dense",
     "photo": "one",
     "printCount": 2,
     "data": {
@@ -311,7 +311,7 @@
       "phoneScale": 1.35,
       "pageMargin": 7,
       "pageGap": 4,
-      "flyerPadding": 5
+      "flyerPadding": 4
     }
   },
   {
@@ -508,7 +508,7 @@
       "recommendedPrintCount": 1,
       "managerNote": "Проверить фотографию, имя, телефон и перечень услуг. Не добавлять достижения и статусы, которые нельзя подтвердить."
     },
-    "density": "airy",
+    "density": "dense",
     "photo": "one",
     "printCount": 1,
     "data": {
@@ -536,7 +536,7 @@
       "phoneScale": 1.5,
       "pageMargin": 7,
       "pageGap": 4,
-      "flyerPadding": 6
+      "flyerPadding": 4
     }
   }
 ]

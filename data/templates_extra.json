@@ -257,7 +257,7 @@
     "title": "Заезжай и живи",
     "note": "Для квартир с ремонтом и понятным состоянием.",
     "tags": ["объект", "фото", "ремонт"],
-    "density": "normal",
+    "density": "dense",
     "photo": "two",
     "printCount": 2,
     "data": {
@@ -284,7 +284,7 @@
       "phoneScale": 1.25,
       "pageMargin": 7,
       "pageGap": 4,
-      "flyerPadding": 5
+      "flyerPadding": 4
     }
   },
   {
@@ -293,7 +293,7 @@
     "title": "Квартира под ремонт",
     "note": "Для объектов, где состояние — возможность сделать всё под себя.",
     "tags": ["объект", "без ремонта", "экономно"],
-    "density": "normal",
+    "density": "dense",
     "photo": "one",
     "printCount": 2,
     "data": {
@@ -320,7 +320,7 @@
       "phoneScale": 1.25,
       "pageMargin": 7,
       "pageGap": 4,
-      "flyerPadding": 5
+      "flyerPadding": 4
     }
   },
   {
@@ -329,7 +329,7 @@
     "title": "Коммерческое помещение",
     "note": "Для офисов, магазинов и свободных помещений.",
     "tags": ["объект", "коммерция", "фото"],
-    "density": "normal",
+    "density": "dense",
     "photo": "one",
     "printCount": 2,
     "data": {
@@ -356,7 +356,7 @@
       "phoneScale": 1.25,
       "pageMargin": 7,
       "pageGap": 4,
-      "flyerPadding": 5
+      "flyerPadding": 4
     }
   },
   {
@@ -365,7 +365,7 @@
     "title": "Новостройка и семейная ипотека",
     "note": "Шаблон для консультации по новостройкам и ипотеке.",
     "tags": ["новостройки", "ипотека", "семья"],
-    "density": "normal",
+    "density": "dense",
     "photo": "one",
     "printCount": 2,
     "data": {
@@ -392,7 +392,7 @@
       "phoneScale": 1.25,
       "pageMargin": 7,
       "pageGap": 4,
-      "flyerPadding": 5
+      "flyerPadding": 4
     }
   },
   {
@@ -581,7 +581,7 @@
     "title": "Частное: продаётся квартира",
     "note": "Объявление без фирменной подачи.",
     "tags": ["частное", "продам", "объект"],
-    "density": "normal",
+    "density": "dense",
     "photo": "one",
     "printCount": 2,
     "data": {
@@ -608,7 +608,7 @@
       "phoneScale": 1.25,
       "pageMargin": 7,
       "pageGap": 4,
-      "flyerPadding": 5
+      "flyerPadding": 4
     }
   }
 ]

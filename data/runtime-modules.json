@@ -71,7 +71,7 @@
   "summary": {
     "entrypointCount": 16,
     "moduleCount": 84,
-    "relationCount": 108,
+    "relationCount": 110,
     "sideEffectModuleCount": 54,
     "dynamicModuleCount": 0,
     "domIdCount": 305,
@@ -6790,6 +6790,10 @@
         {
           "path": "assets/js/state.js",
           "mode": "dependency"
+        },
+        {
+          "path": "assets/js/utils.js",
+          "mode": "dependency"
         }
       ]
     },
@@ -7497,7 +7501,12 @@
           "mode": "side-effect"
         }
       ],
-      "imports": []
+      "imports": [
+        {
+          "path": "assets/js/utils.js",
+          "mode": "dependency"
+        }
+      ]
     },
     {
       "path": "assets/js/spnUiMode.js",
@@ -7877,6 +7886,14 @@
         },
         {
           "path": "assets/js/render.js",
+          "mode": "dependency"
+        },
+        {
+          "path": "assets/js/spnDestructiveSnapshot.js",
+          "mode": "dependency"
+        },
+        {
+          "path": "assets/js/spnTextStepChecklist.js",
           "mode": "dependency"
         }
       ],

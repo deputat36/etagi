@@ -1,6 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import * as storage from '../assets/js/storage.js';
+import { LAYOUT_NUMBER_RANGES } from '../assets/js/state.js';
+import { readNumericControl } from '../assets/js/utils.js';
 
 const rootDir = process.cwd();
 const storagePath = path.join(rootDir, 'assets/js/storage.js');
@@ -65,6 +67,17 @@ try{
   const clean = storage.loadAutoSave();
   if(clean?.area !== 'Сохранить район' || clean?.printCount !== 4 || Object.hasOwn(clean, 'headline') || Object.hasOwn(clean, 'description')){
     errors.push('storage: неверные типы состояния не изолированы от корректных данных');
+  }
+  for(const [field,[min,max]] of Object.entries(LAYOUT_NUMBER_RANGES)){
+    for(const [value,expected] of [[min-1,min],[max+1,max]]){
+      values.set('etagi-raskleyka-state-v1', JSON.stringify({headline:'Не потерять текст', [field]:value}));
+      const loaded = storage.loadAutoSave();
+      if(loaded[field] !== expected || loaded.headline !== 'Не потерять текст') errors.push(`storage: неверные границы ${field} теряют макет`);
+    }
+    const input = {value:'', min:String(min), max:String(max)};
+    if(readNumericControl(input,max) !== max) errors.push(`form: пустое поле ${field} потеряло последнее значение`);
+    if(readNumericControl({...input,value:String(min-1)},max) !== min) errors.push(`form: нижняя граница ${field} не проверяется`);
+    if(readNumericControl({...input,value:String(max+1)},min) !== max) errors.push(`form: верхняя граница ${field} не проверяется`);
   }
 } catch(error){
   errors.push(`storage: некорректные сохранения вызвали исключение — ${error.message}`);

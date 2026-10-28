@@ -18,6 +18,10 @@ export const photoModes = [
 
 export const DEFAULT_PRINT_COUNT = 2;
 export const SUPPORTED_PRINT_COUNTS = Object.freeze([1, 2, 3, 4, 6, 8]);
+export const LAYOUT_NUMBER_RANGES = Object.freeze({
+  pageMargin:[2,18], pageGap:[1,12], flyerPadding:[2,12], radius:[0,30],
+  headlineScale:[0.75,1.45], phoneScale:[0.8,1.8]
+});
 
 export const printPresets = [
   { count:1, title:'1 крупно' },

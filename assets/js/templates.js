@@ -181,6 +181,13 @@ export function filterTemplates(templates, goal, query='', density='all'){
   });
 }
 
+export function isNewbieTemplate(template){
+  const office = template?.office;
+  return template?.portfolio?.status === 'working'
+    && ['low', 'medium'].includes(office?.risk)
+    && (office?.level === 'newbie' || office?.recommended === true);
+}
+
 function matchesSearchQuery(text, query){
   const haystack = normalizeSearch(text);
   const needle = normalizeSearch(query);

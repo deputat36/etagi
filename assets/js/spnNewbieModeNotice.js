@@ -10,7 +10,7 @@ function renderNotice(){
   if(!anchor || document.getElementById('spnNewbieModeNotice')) return;
   anchor.insertAdjacentHTML('afterbegin', `<div class="spn-newbie-mode-notice" id="spnNewbieModeNotice">
     <b>Безопасный выбор для новичка</b>
-    <span>Показаны простые заготовки. Сложные, пустые и менеджерские макеты скрыты. Для полного списка переключитесь в режим «Быстро» или «Расширенно».</span>
+    <span>Показаны рабочие заготовки. Данные объектов проверьте с менеджером. Пустые, тестовые и варианты высокого риска доступны в режимах «Быстро» и «Расширенно».</span>
   </div>`);
 }
 

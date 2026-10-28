@@ -87,6 +87,8 @@ function injectStyles(){
   style.textContent = `
     .flyer.has-photo.count-1 .photo-box{height:86mm}
     .flyer.has-photo.count-2 .photo-box{height:45mm}
+    .flyer.has-photo.count-2.has-tears.layout-manual .photo-box{height:32mm}
+    .flyer.has-photo.count-2.has-tears.has-qr.layout-manual .photo-box{height:26mm}
     .flyer.has-photo.count-3 .photo-box{height:34mm}
     .flyer.has-photo.count-4 .photo-box{height:26mm}
     .flyer.has-photo.count-6 .photo-box,

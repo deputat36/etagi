@@ -26,6 +26,11 @@ export function applyLayoutMode(state, mode = 'auto'){
   if(effectiveMode === 'entrance') applyEntrance(next);
   if(effectiveMode === 'private') applyPrivate(next);
 
+  if(mode === 'auto' && !state.showPhoto){
+    next.showPhoto = false;
+    next.photoMode = 'none';
+  }
+
   applyBlockOrder(next, effectiveMode);
   normalizeBlocks(next);
   return next;
@@ -96,7 +101,7 @@ function pickAutoMode(state){
   if(state.colorMode === 'private') return 'private';
   if(count >= 4) return 'economy';
   if(count === 1) return 'showcase';
-  if(state.photoOne || state.photoMode === 'one' || state.photoMode === 'two' || state.photoMode === 'plan') return 'photo';
+  if(state.showPhoto && (state.photoOne || state.photoMode === 'one' || state.photoMode === 'two' || state.photoMode === 'plan')) return 'photo';
   return 'readable';
 }
 

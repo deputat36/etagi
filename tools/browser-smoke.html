@@ -33,6 +33,9 @@
         pass('предпросмотр А4 загружен');
         if(earlyErrors.length) throw new Error(`ранние runtime errors: ${earlyErrors.join(' | ')}`);
         pass('ранние runtime-ошибки не обнаружены');
+        const startupTemplate = doc.querySelector('.tpl-card.active');
+        assert(startupTemplate?.dataset.templateStatus === 'working' && startupTemplate.dataset.officeLevel === 'newbie' && startupTemplate.dataset.officeRisk === 'low', 'стартовый предпросмотр использует рискованный или тестовый шаблон');
+        pass('первый запуск: рабочая безопасная заготовка без подтверждённого выбора');
 
         await waitFor(() => doc.body.dataset.spnUiMode === 'quick' && doc.getElementById('spnWizard'), 5000, 'быстрый режим или рабочие ситуации не готовы');
         const startCard = doc.querySelector('.start-card');
@@ -545,7 +548,58 @@
         click(doc, '#cancelPrintBtn');
         pass('режим Новичок: готовый макет 3 на А4 открывает печать с сохранением формата');
 
-        assert(!doc.querySelector('#spnWizardNext:disabled') || doc.body.dataset.wizardStep === 'report', 'кнопка Далее неожиданно заблокирована');
+        click(doc, '[data-spn-ui-mode="newbie"]');
+        for(const goal of ['seller','object','personal']){
+          click(doc, `button[data-spn-goal="${goal}"]`);
+          await waitFor(() => [...doc.querySelectorAll('.tpl-card')].some(card => !card.classList.contains('spn-newbie-hidden-template')), 3000, `нет подборки новичка для ${goal}`);
+          await new Promise(resolve => setTimeout(resolve,200));
+          const cards = [...doc.querySelectorAll('.tpl-card')].filter(card => !card.classList.contains('spn-newbie-hidden-template'));
+          assert(cards.length && cards.every(card => card.dataset.templateStatus === 'working' && card.dataset.officeRisk !== 'high'), `рискованные карточки в подборке ${goal}`);
+          assert(cards.every(card => !card.querySelector('.tpl-mini .tpl-card-office-reason')), 'пояснение вставлено внутрь миниатюры');
+          if(goal === 'object') assert(cards.some(card => card.dataset.officeLevel === 'manager' && card.querySelector('.tpl-office-badge-manager')), 'пропала отметка проверки объекта менеджером');
+        }
+        pass('Новичок: три основные задачи имеют рабочие подборки с сохранением меток риска');
+
+        click(doc, '[data-spn-ui-mode="advanced"]');
+        for(const count of [1,2]){
+          await importMedia({printCount:count,showPhoto:false,photoMode:'none',photoOne:mediaData.photoTwo,photoTwo:''});
+          for(const action of ['#autoLayoutBtn','#preserveMediaLayoutBtn']){
+            click(doc, action);
+            assert(!doc.getElementById('showPhoto').checked && !doc.querySelector('#printSheet .photos'), `${action}/${count}: вернулось скрытое фото`);
+          }
+        }
+        pass('автокомпоновка: сохранённое скрытое фото остаётся выключенным');
+
+        await importMedia({templateId:'',layoutName:'Восстановление без шаблона',headline:'МОЙ СОХРАНЁННЫЙ ТЕКСТ',area:'ваш район',showPhoto:false,photoMode:'none',showQr:false});
+        assert(doc.querySelector('[data-text-step-field="area"]')?.classList.contains('todo'), 'ваш район отмечен готовым');
+        setField(win,doc,'#area','Борисоглебск');
+        assert(doc.querySelector('[data-text-step-field="area"]')?.classList.contains('done'), 'реальный район не отмечен готовым');
+        await waitFor(() => JSON.parse(win.localStorage.getItem('etagi-raskleyka-state-v1') || '{}').headline === 'МОЙ СОХРАНЁННЫЙ ТЕКСТ', 2500, 'макет не сохранился автоматически');
+        const reloaded = new Promise(resolve => frame.addEventListener('load',resolve,{once:true}));
+        win.location.reload();
+        await reloaded;
+        const restoredDoc = frame.contentDocument;
+        await waitFor(() => !restoredDoc.querySelector('.sidebar')?.inert && restoredDoc.getElementById('headline')?.value, 6000, 'восстановление не завершилось');
+        assert(restoredDoc.getElementById('headline').value === 'МОЙ СОХРАНЁННЫЙ ТЕКСТ' && restoredDoc.getElementById('layoutName').value === 'Восстановление без шаблона', 'автосохранение без templateId заменено шаблоном');
+        assert(!restoredDoc.querySelector('.tpl-card.active'), 'восстановлению без templateId присвоен исходный шаблон');
+        pass('автосохранение: макет без templateId и свой район переживают перезапуск');
+
+        const expectedDraft = JSON.parse(frame.contentWindow.localStorage.getItem('etagi-raskleyka-state-v1'));
+        const source = await fetch('/index.html').then(response => response.text());
+        const delayedBoot = '<base href="/"><script>const originalFetch=window.fetch.bind(window);window.fetch=async(...args)=>{if(String(args[0]).startsWith("data/"))await new Promise(resolve=>setTimeout(resolve,1100));return originalFetch(...args)};<\/script>';
+        const delayedLoad = new Promise(resolve => frame.addEventListener('load',resolve,{once:true}));
+        frame.srcdoc = source.replace('<head>', '<head>'+delayedBoot);
+        await delayedLoad;
+        const pendingDoc = frame.contentDocument;
+        const pendingWin = frame.contentWindow;
+        assert(pendingDoc.querySelector('.sidebar')?.inert, 'не воспроизведена задержанная загрузка библиотеки');
+        setField(pendingWin,pendingDoc,'#headline','Раннее событие не должно затереть макет');
+        setField(pendingWin,pendingDoc,'#pageMargin','');
+        await waitFor(() => !pendingDoc.querySelector('.sidebar')?.inert && pendingDoc.getElementById('headline')?.value === expectedDraft.headline, 6000, 'раннее программное событие затёрло сохранённый макет');
+        assert(Number(pendingDoc.getElementById('pageMargin').value) >= 2, 'при запуске сохранились нулевые отступы');
+        pass('медленный запуск: ранние события помощников не сохраняют пустую форму поверх макета');
+
+        assert(!pendingDoc.querySelector('#spnWizardNext:disabled') || pendingDoc.body.dataset.wizardStep === 'report', 'кнопка Далее неожиданно заблокирована');
         if(runtimeErrors.length) throw new Error(`runtime errors: ${runtimeErrors.join(' | ')}`);
 
         result.dataset.status = 'passed';

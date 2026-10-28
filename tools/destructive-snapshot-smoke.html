@@ -49,6 +49,7 @@
         assert(clearSnapshot.state.qrLink === 'https://example.com/before-clear', 'снимок очистки не содержит QR');
         assert(clearSnapshot.state.printCount === 4, 'снимок очистки не содержит количество копий');
         assert(clearSnapshot.state.blockOrder?.[0] === 'price', 'снимок очистки не содержит изменённый порядок блоков');
+        assert(new Set(clearSnapshot.state.blockOrder).size === clearSnapshot.state.blockOrder.length, 'снимок содержит повторяющиеся ID блоков');
         assert(String(clearSnapshot.state.photoOne || '').startsWith('data:image/svg+xml'), 'снимок очистки не содержит отображаемое фото');
         assert(clearSnapshot.state.contactCta === 'Позвоните до очистки', 'снимок очистки не содержит служебную подпись');
         pass('снимок: состояние сохранено перед очисткой объекта');

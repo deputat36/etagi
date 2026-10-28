@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <base href="/">
+  <title>Filled template regression matrix</title>
+  <style>body{font-family:Arial,sans-serif}iframe{width:1280px;height:1000px;border:0}pre{white-space:pre-wrap}</style>
+</head>
+<body>
+  <pre id="uiActionsSmokeResult" data-status="pending">Checking filled templates…</pre>
+  <iframe id="appFrame" title="Проверка заполненных шаблонов"></iframe>
+  <script type="module">
+    import {loadTemplates} from '/assets/js/templates.js';
+    import {cloneDefaultState} from '/assets/js/state.js';
+    import {createLayoutFilePayload} from '/assets/js/layoutFile.js';
+    import {isAreaPlaceholder} from '/assets/js/utils.js';
+
+    const frame = document.getElementById('appFrame');
+    const result = document.getElementById('uiActionsSmokeResult');
+    const failures = [];
+    let checked = 0;
+    frame.addEventListener('load', async () => {
+      const win = frame.contentWindow;
+      const doc = frame.contentDocument;
+      try{
+        await waitFor(() => !doc.querySelector('.sidebar')?.inert && doc.querySelector('#printSheet .flyer'));
+        doc.querySelector('[data-spn-ui-mode="advanced"]').click();
+        doc.getElementById('zoom').value = '100';
+        const canvas = document.createElement('canvas');
+        canvas.width = 480;
+        canvas.height = 320;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#e5e7eb';
+        ctx.fillRect(0,0,480,320);
+        ctx.fillStyle = '#111827';
+        ctx.font = '24px Arial';
+        ctx.fillText('ТЕСТОВОЕ ФОТО',110,160);
+        const testPhoto = canvas.toDataURL('image/png');
+        const query = new URLSearchParams(location.search);
+        const templates = (await loadTemplates()).filter(template => !query.has('template') || template.id === query.get('template'));
+        for(const template of templates){
+          const counts = query.has('count') ? [Number(query.get('count'))] : [...new Set([template.printCount || 2, 2])];
+          for(const count of counts){
+            const state = {
+              ...cloneDefaultState(), ...template.data,
+              goal:template.goal, templateId:template.id, layoutName:`matrix-${checked}`,
+              printCount:count, layoutDensity:template.density || 'normal', layoutMode:'manual',
+              photoMode:template.photo || 'none',
+              agentName:'Тестовый специалист', agentPhone:'+7 900 123-45-67'
+            };
+            state.showQr = template.data?.showQr ?? Boolean(state.qrLink);
+            if(isAreaPlaceholder(state.area)) state.area = 'Борисоглебск, Центр';
+            if(state.photoMode !== 'none') state.photoOne = testPhoto;
+            if(state.photoMode === 'two') state.photoTwo = testPhoto;
+            if(state.showQr && !state.qrLink) state.qrLink = 'https://example.com/object';
+            const transfer = new win.DataTransfer();
+            transfer.items.add(new win.File([JSON.stringify(createLayoutFilePayload(state))], 'matrix.json', {type:'application/json'}));
+            const input = doc.getElementById('uploadFile');
+            input.files = transfer.files;
+            input.dispatchEvent(new win.Event('change', {bubbles:true}));
+            await waitFor(() => doc.getElementById('layoutName').value === state.layoutName);
+            await Promise.all([...doc.querySelectorAll('#printSheet img')].map(img => img.decode()));
+            await new Promise(resolve => win.requestAnimationFrame(() => win.requestAnimationFrame(resolve)));
+            try{ verify(doc, count); }
+            catch(error){ failures.push({id:template.id,count,error:error.message}); }
+            checked++;
+          }
+        }
+        result.dataset.status = failures.length ? 'failed' : 'passed';
+        result.textContent = JSON.stringify({checked,failures},null,2);
+      } catch(error){
+        result.dataset.status = 'failed';
+        result.textContent = JSON.stringify({checked,failures,error:String(error.stack || error)},null,2);
+      }
+    }, {once:true});
+    frame.src = '/index.html?smoke=filled-templates';
+
+    function verify(doc, count){
+      const flyers = [...doc.querySelectorAll('#printSheet .flyer')];
+      assert(flyers.length === count, 'wrong flyer count');
+      for(const flyer of flyers){
+        assert(!flyer.classList.contains('overflow'), `flyer overflow: ${flyer.scrollHeight}/${flyer.clientHeight}`);
+        const bounds = flyer.getBoundingClientRect();
+        for(const child of flyer.children){
+          const rect = child.getBoundingClientRect();
+          assert(inside(rect,bounds), `block outside flyer: ${child.className}`);
+        }
+        for(const tear of flyer.querySelectorAll('.tear')){
+          const phone = tear.querySelector('.tear-phone');
+          const topic = tear.querySelector('.tear-topic');
+          const text = textBounds(phone);
+          assert(inside(text,tear.getBoundingClientRect()), 'tear phone clipped');
+          assert(text.top >= topic.getBoundingClientRect().bottom - 1, 'tear phone overlaps label');
+        }
+        const phone = flyer.querySelector('.phone');
+        if(phone){
+          const range = doc.createRange();
+          range.selectNodeContents(phone);
+          assert(range.getClientRects().length === 1, 'contact phone wraps');
+          assert(inside(range.getBoundingClientRect(),flyer.querySelector('.contact').getBoundingClientRect()), 'contact phone clipped');
+        }
+      }
+    }
+    function inside(rect,bounds){
+      return rect.left >= bounds.left-1 && rect.right <= bounds.right+1 && rect.top >= bounds.top-1 && rect.bottom <= bounds.bottom+1;
+    }
+    function textBounds(node){
+      const range = node.ownerDocument.createRange();
+      range.selectNodeContents(node);
+      return range.getBoundingClientRect();
+    }
+    function assert(condition,message){if(!condition) throw new Error(message);}
+    async function waitFor(predicate){
+      const start = Date.now();
+      while(Date.now()-start < 12000){
+        if(predicate()) return;
+        await new Promise(resolve => setTimeout(resolve,20));
+      }
+      throw new Error('matrix UI timeout');
+    }
+  </script>
+</body>
+</html>

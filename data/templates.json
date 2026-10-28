@@ -308,7 +308,7 @@
       "покупатель",
       "объект"
     ],
-    "density": "normal",
+    "density": "dense",
     "photo": "one",
     "printCount": 2,
     "data": {
@@ -333,7 +333,7 @@
       "phoneScale": 1.25,
       "pageMargin": 7,
       "pageGap": 4,
-      "flyerPadding": 5
+      "flyerPadding": 4
     }
   },
   {
@@ -456,7 +456,7 @@
       "продам",
       "фото"
     ],
-    "density": "normal",
+    "density": "dense",
     "photo": "one",
     "printCount": 2,
     "data": {
@@ -481,7 +481,7 @@
       "phoneScale": 1.25,
       "pageMargin": 7,
       "pageGap": 4,
-      "flyerPadding": 5
+      "flyerPadding": 4
     }
   },
   {
@@ -592,7 +592,7 @@
       "phoneScale": 1.25,
       "pageMargin": 7,
       "pageGap": 4,
-      "flyerPadding": 5
+      "flyerPadding": 4
     }
   },
   {
@@ -604,7 +604,7 @@
       "дом",
       "2 фото"
     ],
-    "density": "normal",
+    "density": "dense",
     "photo": "two",
     "printCount": 2,
     "data": {
@@ -629,7 +629,7 @@
       "phoneScale": 1.25,
       "pageMargin": 7,
       "pageGap": 4,
-      "flyerPadding": 5
+      "flyerPadding": 4
     }
   },
   {
@@ -641,7 +641,7 @@
       "участок",
       "продам"
     ],
-    "density": "normal",
+    "density": "dense",
     "photo": "one",
     "printCount": 2,
     "data": {
@@ -666,7 +666,7 @@
       "phoneScale": 1.25,
       "pageMargin": 7,
       "pageGap": 4,
-      "flyerPadding": 5
+      "flyerPadding": 4
     }
   },
   {
@@ -678,7 +678,7 @@
       "qr",
       "фото"
     ],
-    "density": "normal",
+    "density": "dense",
     "photo": "one",
     "printCount": 2,
     "data": {
@@ -694,7 +694,7 @@
       "qrCaption": "Смотреть объект",
       "qrLink": "",
       "showBrand": true,
-      "showBenefits": true,
+      "showBenefits": false,
       "showMeta": true,
       "tearOffs": true,
       "colorMode": "brand",
@@ -703,7 +703,7 @@
       "phoneScale": 1.25,
       "pageMargin": 7,
       "pageGap": 4,
-      "flyerPadding": 5,
+      "flyerPadding": 4,
       "showQr": true
     }
   },
@@ -715,7 +715,7 @@
     "tags": [
       "новостройки"
     ],
-    "density": "normal",
+    "density": "dense",
     "photo": "one",
     "printCount": 2,
     "data": {
@@ -740,7 +740,7 @@
       "phoneScale": 1.25,
       "pageMargin": 7,
       "pageGap": 4,
-      "flyerPadding": 5
+      "flyerPadding": 4
     }
   },
   {
@@ -752,7 +752,7 @@
       "новостройки",
       "семья"
     ],
-    "density": "airy",
+    "density": "dense",
     "photo": "one",
     "printCount": 2,
     "data": {
@@ -777,7 +777,7 @@
       "phoneScale": 1.25,
       "pageMargin": 7,
       "pageGap": 4,
-      "flyerPadding": 5
+      "flyerPadding": 4
     }
   },
   {
@@ -826,7 +826,7 @@
       "новостройки",
       "2 фото"
     ],
-    "density": "normal",
+    "density": "dense",
     "photo": "two",
     "printCount": 2,
     "data": {
@@ -851,7 +851,7 @@
       "phoneScale": 1.25,
       "pageMargin": 7,
       "pageGap": 4,
-      "flyerPadding": 5
+      "flyerPadding": 4
     }
   },
   {
@@ -1085,7 +1085,7 @@
       "аренда",
       "сдать"
     ],
-    "density": "normal",
+    "density": "dense",
     "photo": "one",
     "printCount": 2,
     "data": {
@@ -1110,7 +1110,7 @@
       "phoneScale": 1.25,
       "pageMargin": 7,
       "pageGap": 4,
-      "flyerPadding": 5
+      "flyerPadding": 4
     }
   },
   {
@@ -1196,7 +1196,7 @@
       "личный бренд",
       "район"
     ],
-    "density": "airy",
+    "density": "dense",
     "photo": "one",
     "printCount": 2,
     "data": {
@@ -1221,7 +1221,7 @@
       "phoneScale": 1.25,
       "pageMargin": 7,
       "pageGap": 4,
-      "flyerPadding": 5
+      "flyerPadding": 4
     }
   },
   {
@@ -1233,7 +1233,7 @@
       "личный бренд",
       "консультация"
     ],
-    "density": "normal",
+    "density": "dense",
     "photo": "one",
     "printCount": 2,
     "data": {
@@ -1258,7 +1258,7 @@
       "phoneScale": 1.25,
       "pageMargin": 7,
       "pageGap": 4,
-      "flyerPadding": 5
+      "flyerPadding": 4
     }
   },
   {

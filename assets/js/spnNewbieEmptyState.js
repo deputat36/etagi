@@ -49,7 +49,7 @@ function updateEmptyState(){
 function renderEmptyState(){
   return `<div class="spn-newbie-empty-state" id="${EMPTY_ID}">
     <b>Безопасных заготовок не найдено</b>
-    <span>В режиме новичка скрыты пустые, нестандартные и менеджерские макеты. Можно вернуться к безопасному фильтру или открыть больше вариантов.</span>
+    <span>В режиме новичка показаны рабочие заготовки низкого и среднего риска. Измените поиск или откройте полный список вариантов.</span>
     <div>
       <button type="button" data-newbie-empty-search="новичку">Показать новичку</button>
       <button type="button" data-newbie-empty-search="рекомендовано">Рекомендовано</button>

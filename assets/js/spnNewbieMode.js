@@ -57,8 +57,9 @@ function resetDensityFilter(){
 
 function markUnsafeCards(isNewbie){
   document.querySelectorAll('.tpl-card').forEach(card => {
-    const text = normalize(card.textContent);
-    const unsafe = hasUnsafeText(text);
+    const {templateStatus, officeLevel, officeRisk, officeRecommended} = card.dataset;
+    const unsafe = templateStatus !== 'working' || officeRisk === 'high'
+      || !(officeLevel === 'newbie' || officeRecommended === 'true');
     card.classList.toggle('spn-newbie-hidden-template', Boolean(isNewbie && unsafe));
   });
 }
@@ -79,9 +80,7 @@ function hasUnsafeText(text){
 
 function isSafeNewbieQuery(value){
   const clean = normalize(value);
-  if(!clean) return false;
-  if(hasUnsafeText(clean)) return false;
-  return clean.includes('новичку') || clean.includes('рекомендовано') || clean.includes('подъезд') || clean.includes('теллерманов сад') || clean.includes('доверие') || clean.includes('новостройка');
+  return !hasUnsafeText(clean);
 }
 
 function normalize(value){

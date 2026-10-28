@@ -13,7 +13,7 @@
       "recommendedPrintCount": 2,
       "managerNote": "Подходит новичку: не называть точную цену до оценки, проверить телефон, район и понятность предложения."
     },
-    "density": "normal",
+    "density": "dense",
     "photo": "none",
     "printCount": 2,
     "data": {
@@ -41,7 +41,7 @@
       "phoneScale": 1.42,
       "pageMargin": 7,
       "pageGap": 4,
-      "flyerPadding": 6
+      "flyerPadding": 4
     }
   },
   {
@@ -103,7 +103,7 @@
       "recommendedPrintCount": 2,
       "managerNote": "Подходит новичку: предлагать подбор по параметрам и не обещать наличие конкретного объекта без подтверждения."
     },
-    "density": "normal",
+    "density": "dense",
     "photo": "none",
     "printCount": 2,
     "data": {
@@ -131,7 +131,7 @@
       "phoneScale": 1.38,
       "pageMargin": 7,
       "pageGap": 4,
-      "flyerPadding": 6
+      "flyerPadding": 4
     }
   },
   {
@@ -148,7 +148,7 @@
       "recommendedPrintCount": 1,
       "managerNote": "Требуется проверка менеджера: цена, параметры, фото, QR и преимущества должны соответствовать конкретному объекту. Перед публикацией: Коротко укажите главное преимущество: район, состояние, планировка, участок или готовность к заселению."
     },
-    "density": "airy",
+    "density": "dense",
     "photo": "one",
     "printCount": 1,
     "data": {
@@ -168,7 +168,7 @@
       "showBrand": true,
       "showBenefits": true,
       "showMeta": true,
-      "showCustomBlock": true,
+      "showCustomBlock": false,
       "tearOffs": false,
       "colorMode": "brand",
       "splitMode": "auto",
@@ -176,7 +176,7 @@
       "phoneScale": 1.55,
       "pageMargin": 9,
       "pageGap": 4,
-      "flyerPadding": 8
+      "flyerPadding": 4
     }
   },
   {
@@ -193,7 +193,7 @@
       "recommendedPrintCount": 2,
       "managerNote": "Требуется проверка менеджера: не подменять юридическую консультацию рекламным обещанием, сложные вопросы передавать профильному специалисту."
     },
-    "density": "normal",
+    "density": "dense",
     "photo": "none",
     "printCount": 2,
     "data": {
@@ -221,7 +221,7 @@
       "phoneScale": 1.4,
       "pageMargin": 7,
       "pageGap": 4,
-      "flyerPadding": 6
+      "flyerPadding": 4
     }
   },
   {

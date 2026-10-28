@@ -19,6 +19,11 @@ const smokePages = failureFixtureMode ? [
   }
 ] : [
   {
+    label:'Filled template matrix',
+    path:'tools/filled-template-smoke.html',
+    timeoutMs:75000
+  },
+  {
     label:'UI actions smoke',
     path:'tools/ui-actions-smoke.html',
     timeoutMs:75000
@@ -136,7 +141,7 @@ if(failure){
 
 async function runSmokePage(page){
   // Office and resize checks need real animation frames; virtual time can outrun rendering.
-  const cdpFlag = ({'tools/ui-actions-smoke.html':'--ui-actions', 'tools/fit-preview-smoke.html':'--fit-preview'})[page.path];
+  const cdpFlag = ({'tools/ui-actions-smoke.html':'--ui-actions', 'tools/fit-preview-smoke.html':'--fit-preview', 'tools/filled-template-smoke.html':'--filled-templates'})[page.path];
   if(cdpFlag){
     const result = await runChrome(process.execPath, [path.join(rootDir, 'tools/run-browser-smoke.mjs'), cdpFlag], page.timeoutMs);
     if(result.code !== 0) throw new Error([result.stdout, result.stderr].filter(Boolean).join('\n'));
